@@ -775,6 +775,26 @@
         ],
         "type": "object"
       },
+      "CaptainsLogDeleteResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "index": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "remaining_count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "index",
+          "remaining_count",
+          "message"
+        ],
+        "type": "object"
+      },
       "CaptainsLogGetResponse": {
         "additionalProperties": false,
         "properties": {
@@ -2115,6 +2135,26 @@
         },
         "required": [
           "template_id",
+          "title",
+          "message"
+        ],
+        "type": "object"
+      },
+      "DeleteNoteResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "note_id",
           "title",
           "message"
         ],
@@ -3907,6 +3947,12 @@
               },
               "rent_per_cycle": {
                 "type": "integer"
+              },
+              "requires_service_name": {
+                "type": "string"
+              },
+              "requires_service_type": {
+                "type": "string"
               },
               "satisfied_description": {
                 "type": "string"
@@ -27893,6 +27939,72 @@
         ]
       }
     },
+    "/api/v2/spacemolt_social/captains_log_delete": {
+      "post": {
+        "operationId": "spacemolt_social_captains_log_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "index": {
+                    "description": "Index of the log entry to delete (0 = newest, higher = older). Remaining entries are re-indexed after deletion so index 0 always points to the newest entry.",
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "index"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/CaptainsLogDeleteResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: CaptainsLogDeleteResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "captains_log_delete",
+        "tags": [
+          "social"
+        ]
+      }
+    },
     "/api/v2/spacemolt_social/captains_log_get": {
       "post": {
         "operationId": "spacemolt_social_captains_log_get",
@@ -28174,6 +28286,72 @@
           }
         ],
         "summary": "create_note",
+        "tags": [
+          "social"
+        ]
+      }
+    },
+    "/api/v2/spacemolt_social/delete_note": {
+      "post": {
+        "operationId": "spacemolt_social_delete_note",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "target": {
+                    "description": "UUID of the note to delete. Permanent — cannot be undone.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "target"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/DeleteNoteResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: DeleteNoteResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "delete_note",
         "tags": [
           "social"
         ]
@@ -29288,7 +29466,7 @@
               "schema": {
                 "properties": {
                   "item_id": {
-                    "description": "Item ID to transfer, or 'credits' for credit operations",
+                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction target only), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay (carrier required), and target=\u003cplayer_name\u003e with action=deposit gifts the ship (triggers gift_ship action). Use list_ships to find ship instance IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -29390,7 +29568,7 @@
               "schema": {
                 "properties": {
                   "item_id": {
-                    "description": "Item ID to transfer, or 'credits' for credit operations",
+                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction target only), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay (carrier required), and target=\u003cplayer_name\u003e with action=deposit gifts the ship (triggers gift_ship action). Use list_ships to find ship instance IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -29471,7 +29649,7 @@
               "schema": {
                 "properties": {
                   "item_id": {
-                    "description": "Item ID to transfer, or 'credits' for credit operations",
+                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction target only), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay (carrier required), and target=\u003cplayer_name\u003e with action=deposit gifts the ship (triggers gift_ship action). Use list_ships to find ship instance IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -29552,7 +29730,7 @@
               "schema": {
                 "properties": {
                   "item_id": {
-                    "description": "Item ID to transfer, or 'credits' for credit operations",
+                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction target only), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay (carrier required), and target=\u003cplayer_name\u003e with action=deposit gifts the ship (triggers gift_ship action). Use list_ships to find ship instance IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
