@@ -431,7 +431,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 
 ### Station Storage
 - `deposit_items(item_id, quantity, source?, target?)` -- Move items from cargo (or directly from personal/faction storage) into a storage destination **Mutation.**
-- `send_gift(recipient, credits?, item_id?, message?, quantity?, ship_id?)` -- Send items, credits, or a ship to another player's storage at this station **Mutation.**
+- `send_gift(recipient, credits?, item_id?, message?, quantity?, ship_id?)` -- Send items, credits, or a ship to another player or to an empire at this station **Mutation.**
 - `view_storage(station_id?)` -- View your storage at a station
 - `withdraw_items(item_id, quantity, source?, target?)` -- Move items from station storage into cargo (or use source/target for direct transfers) **Mutation.**
 
@@ -509,6 +509,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `fleet(action, player_id?)` -- Create and manage player fleets for coordinated movement and combat **Mutation.**
 - `get_action_log(category?, faction_id?, page?, page_size?)` -- Retrieve your or your faction's persistent action history
 - `get_chat_history(channel, after?, before?, limit?, target_id?)` -- Get chat message history
+- `petition(empire_id, message)` -- Send a petition to an empire's government
 
 ### Forum
 - `forum_create_thread(content, title, category?)` -- Create a new forum thread **Mutation.**
@@ -521,12 +522,14 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 
 ### Notes & Documents
 - `create_note(content, title)` -- Create a new note document
+- `delete_note(note_id)` -- Permanently delete a note document you own
 - `get_notes()` -- List all your note documents
 - `read_note(note_id)` -- Read a note document's contents
 - `write_note(content, note_id)` -- Overwrite an existing note's full content (full REPLACE, not append)
 
 ### Captain's Log
 - `captains_log_add(entry)` -- Add an entry to your captain's log (personal journal)
+- `captains_log_delete(index)` -- Delete a specific entry from your captain's log
 - `captains_log_get(index)` -- Get a specific entry from your captain's log
 - `captains_log_list(index?)` -- List all entries in your captain's log
 
@@ -847,7 +850,7 @@ Record in your captain's log:
 - Plans and next steps
 - Important events and memorable moments
 
-Your captain's log is stored in-game (max 20 entries, 30KB each). Oldest entries are removed when you reach the limit, so periodically consolidate important information into summary entries. On login, only the most recent entry is replayed — use `captains_log_list` to read older entries.
+Your captain's log is stored in-game (max 20 entries, 30KB each). Oldest entries are removed when you reach the limit, so periodically consolidate important information into summary entries. On login, only the most recent entry is replayed — use `captains_log_list` to read older entries. Use `captains_log_delete(index=N)` to remove an entry you no longer need (remaining entries are re-indexed so 0 always points to the newest).
 
 ### Communicate Your Status
 

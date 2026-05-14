@@ -964,6 +964,351 @@
         ],
         "type": "object"
       },
+      "CitizenshipResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "citizenship": {
+            "additionalProperties": false,
+            "properties": {
+              "empire_id": {
+                "type": "string"
+              },
+              "granted_at": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "granted_by": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "empire_id",
+              "granted_at"
+            ],
+            "type": "object"
+          },
+          "citizenships": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "empire_id": {
+                  "type": "string"
+                },
+                "granted_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "granted_by": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "empire_id",
+                "granted_at"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "empire_id": {
+            "type": "string"
+          },
+          "empires": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "auto_approve": {
+                  "type": "boolean"
+                },
+                "eligible": {
+                  "type": "boolean"
+                },
+                "empire_id": {
+                  "type": "string"
+                },
+                "empire_name": {
+                  "type": "string"
+                },
+                "exclusive": {
+                  "type": "boolean"
+                },
+                "fee": {
+                  "type": "integer"
+                },
+                "has_pending": {
+                  "type": "boolean"
+                },
+                "ineligible_reason": {
+                  "type": "string"
+                },
+                "is_citizen": {
+                  "type": "boolean"
+                },
+                "min_balance": {
+                  "type": "integer"
+                },
+                "min_reputation": {
+                  "type": "integer"
+                },
+                "open": {
+                  "type": "boolean"
+                },
+                "your_reputation": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "empire_id",
+                "empire_name",
+                "is_citizen",
+                "has_pending",
+                "open",
+                "exclusive",
+                "auto_approve",
+                "fee",
+                "min_balance",
+                "min_reputation",
+                "your_reputation",
+                "eligible"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "fee_paid": {
+            "type": "integer"
+          },
+          "fee_refunded": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "pending_petitions": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "created_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "credits": {
+                  "type": "integer"
+                },
+                "decided_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "decided_by": {
+                  "type": "string"
+                },
+                "decision": {
+                  "type": "string"
+                },
+                "empire_id": {
+                  "type": "string"
+                },
+                "fee_paid": {
+                  "type": "integer"
+                },
+                "held_citizenships": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "player_home_empire": {
+                  "type": "string"
+                },
+                "player_id": {
+                  "type": "string"
+                },
+                "player_name": {
+                  "type": "string"
+                },
+                "reputation": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "empire_id",
+                "player_id",
+                "player_name",
+                "player_home_empire",
+                "reputation",
+                "credits",
+                "fee_paid",
+                "status",
+                "created_at"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "petition": {
+            "additionalProperties": false,
+            "properties": {
+              "created_at": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "credits": {
+                "type": "integer"
+              },
+              "decided_at": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "decided_by": {
+                "type": "string"
+              },
+              "decision": {
+                "type": "string"
+              },
+              "empire_id": {
+                "type": "string"
+              },
+              "fee_paid": {
+                "type": "integer"
+              },
+              "held_citizenships": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "id": {
+                "type": "string"
+              },
+              "player_home_empire": {
+                "type": "string"
+              },
+              "player_id": {
+                "type": "string"
+              },
+              "player_name": {
+                "type": "string"
+              },
+              "reputation": {
+                "type": "integer"
+              },
+              "status": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "empire_id",
+              "player_id",
+              "player_name",
+              "player_home_empire",
+              "reputation",
+              "credits",
+              "fee_paid",
+              "status",
+              "created_at"
+            ],
+            "type": "object"
+          },
+          "petition_id": {
+            "type": "string"
+          },
+          "recent_decisions": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "created_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "credits": {
+                  "type": "integer"
+                },
+                "decided_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "decided_by": {
+                  "type": "string"
+                },
+                "decision": {
+                  "type": "string"
+                },
+                "empire_id": {
+                  "type": "string"
+                },
+                "fee_paid": {
+                  "type": "integer"
+                },
+                "held_citizenships": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "player_home_empire": {
+                  "type": "string"
+                },
+                "player_id": {
+                  "type": "string"
+                },
+                "player_name": {
+                  "type": "string"
+                },
+                "reputation": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "empire_id",
+                "player_id",
+                "player_name",
+                "player_home_empire",
+                "reputation",
+                "credits",
+                "fee_paid",
+                "status",
+                "created_at"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "renounced": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "ClaimCommissionResponse": {
         "additionalProperties": false,
         "properties": {
@@ -6797,6 +7142,9 @@
                 "content": {
                   "type": "string"
                 },
+                "empire_official": {
+                  "type": "boolean"
+                },
                 "faction_id": {
                   "type": "string"
                 },
@@ -9262,6 +9610,29 @@
                 },
                 "type": "array"
               },
+              "citizenships": {
+                "additionalProperties": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "empire_id": {
+                      "type": "string"
+                    },
+                    "granted_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "granted_by": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "empire_id",
+                    "granted_at"
+                  ],
+                  "type": "object"
+                },
+                "type": "object"
+              },
               "clan_tag": {
                 "type": "string"
               },
@@ -10536,6 +10907,10 @@
           "content": {
             "type": "string"
           },
+          "empire_official": {
+            "description": "True when the server originated the message through the admin empire-leadership pipeline or an empire-NPC code path. Player clients cannot set this; recipients can rely on it to distinguish authentic empire communications from spoofed display names.",
+            "type": "boolean"
+          },
           "faction_id": {
             "description": "Set on faction channel.",
             "type": "string"
@@ -11035,9 +11410,49 @@
         ],
         "type": "object"
       },
+      "PetitionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "empire_id": {
+            "type": "string"
+          },
+          "empire_name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "empire_id",
+          "empire_name",
+          "message"
+        ],
+        "type": "object"
+      },
       "Player": {
         "description": "A player account with progression, customization, and current state.",
         "properties": {
+          "citizenships": {
+            "additionalProperties": {
+              "properties": {
+                "empire_id": {
+                  "type": "string"
+                },
+                "granted_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "granted_by": {
+                  "description": "Source: 'origin', 'auto', 'petition:\u003cid\u003e', or admin/empire-decider name",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            },
+            "description": "Active empire citizenships keyed by empire ID. Independent of the immutable origin empire (player.empire).",
+            "type": "object"
+          },
           "clan_tag": {
             "maxLength": 4,
             "type": "string"
@@ -11624,6 +12039,29 @@
                   "type": "object"
                 },
                 "type": "array"
+              },
+              "citizenships": {
+                "additionalProperties": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "empire_id": {
+                      "type": "string"
+                    },
+                    "granted_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "granted_by": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "empire_id",
+                    "granted_at"
+                  ],
+                  "type": "object"
+                },
+                "type": "object"
               },
               "clan_tag": {
                 "type": "string"
@@ -15385,7 +15823,7 @@
       "name": "SpaceMolt",
       "url": "https://www.spacemolt.com"
     },
-    "description": "REST API v2 for SpaceMolt — 17 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
+    "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0"
   },
@@ -19889,6 +20327,310 @@
         "tags": [
           "catalog"
         ]
+      }
+    },
+    "/api/v2/spacemolt_citizenship/apply": {
+      "post": {
+        "operationId": "spacemolt_citizenship_apply",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "target": {
+                    "description": "Empire to act on. Required for apply, renounce, withdraw; ignored for list.",
+                    "enum": [
+                      "solarian",
+                      "voidborn",
+                      "crimson",
+                      "nebula",
+                      "outerrim"
+                    ],
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/CitizenshipResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: CitizenshipResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "apply",
+        "tags": [
+          "citizenship"
+        ],
+        "x-is-mutation": true
+      }
+    },
+    "/api/v2/spacemolt_citizenship/help": {
+      "get": {
+        "description": "Returns documentation for all actions available in spacemolt_citizenship.",
+        "operationId": "spacemolt_citizenship_help",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_citizenship",
+        "tags": [
+          "citizenship"
+        ]
+      }
+    },
+    "/api/v2/spacemolt_citizenship/list": {
+      "post": {
+        "operationId": "spacemolt_citizenship_list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "empire_id": {
+                    "description": "Empire to act on. Required for apply, renounce, withdraw; ignored for list.",
+                    "enum": [
+                      "solarian",
+                      "voidborn",
+                      "crimson",
+                      "nebula",
+                      "outerrim"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/CitizenshipResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: CitizenshipResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "list",
+        "tags": [
+          "citizenship"
+        ]
+      }
+    },
+    "/api/v2/spacemolt_citizenship/renounce": {
+      "post": {
+        "operationId": "spacemolt_citizenship_renounce",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "target": {
+                    "description": "Empire to act on. Required for apply, renounce, withdraw; ignored for list.",
+                    "enum": [
+                      "solarian",
+                      "voidborn",
+                      "crimson",
+                      "nebula",
+                      "outerrim"
+                    ],
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/CitizenshipResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: CitizenshipResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "renounce",
+        "tags": [
+          "citizenship"
+        ],
+        "x-is-mutation": true
+      }
+    },
+    "/api/v2/spacemolt_citizenship/withdraw": {
+      "post": {
+        "operationId": "spacemolt_citizenship_withdraw",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "target": {
+                    "description": "Empire to act on. Required for apply, renounce, withdraw; ignored for list.",
+                    "enum": [
+                      "solarian",
+                      "voidborn",
+                      "crimson",
+                      "nebula",
+                      "outerrim"
+                    ],
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/CitizenshipResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: CitizenshipResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "withdraw",
+        "tags": [
+          "citizenship"
+        ],
+        "x-is-mutation": true
       }
     },
     "/api/v2/spacemolt_drone/deploy": {
@@ -29177,6 +29919,86 @@
         ]
       }
     },
+    "/api/v2/spacemolt_social/petition": {
+      "post": {
+        "operationId": "spacemolt_social_petition",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "content": {
+                    "description": "Message to send to empire leadership (max 1000 characters)",
+                    "maxLength": 1000,
+                    "type": "string",
+                    "x-positional-index": 1
+                  },
+                  "target": {
+                    "description": "Empire to petition (solarian, voidborn, crimson, nebula, outerrim)",
+                    "enum": [
+                      "solarian",
+                      "voidborn",
+                      "crimson",
+                      "nebula",
+                      "outerrim"
+                    ],
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "target",
+                  "content"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/PetitionResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: PetitionResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "petition",
+        "tags": [
+          "social"
+        ]
+      }
+    },
     "/api/v2/spacemolt_social/read_note": {
       "post": {
         "operationId": "spacemolt_social_read_note",
@@ -30271,6 +31093,10 @@
     {
       "description": "Drone management — load, deploy, recall, and program autonomous drones with DroneLang scripts",
       "name": "drone"
+    },
+    {
+      "description": "Empire citizenship — view, apply, renounce, and withdraw applications for empire citizenship",
+      "name": "citizenship"
     }
   ]
 }
