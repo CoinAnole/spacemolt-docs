@@ -2708,6 +2708,15 @@
           "quantity_requested": {
             "type": "integer"
           },
+          "sales_tax": {
+            "type": "integer"
+          },
+          "sales_tax_rate_bps": {
+            "type": "integer"
+          },
+          "subtotal": {
+            "type": "integer"
+          },
           "total_cost": {
             "type": "integer"
           },
@@ -2720,6 +2729,9 @@
           "item",
           "quantity_requested",
           "available",
+          "subtotal",
+          "sales_tax",
+          "sales_tax_rate_bps",
           "total_cost",
           "fills",
           "unfilled",
@@ -7833,6 +7845,9 @@
                 "in_combat": {
                   "type": "boolean"
                 },
+                "offline": {
+                  "type": "boolean"
+                },
                 "player_id": {
                   "type": "string"
                 },
@@ -7861,6 +7876,9 @@
               "type": "object"
             },
             "type": "array"
+          },
+          "offline_collapsed": {
+            "type": "integer"
           },
           "pirate_count": {
             "type": "integer"
@@ -8604,6 +8622,9 @@
                 "in_combat": {
                   "type": "boolean"
                 },
+                "offline": {
+                  "type": "boolean"
+                },
                 "player_id": {
                   "type": "string"
                 },
@@ -8634,6 +8655,9 @@
             "type": "array"
           },
           "count": {
+            "type": "integer"
+          },
+          "offline_collapsed": {
             "type": "integer"
           },
           "system_id": {
@@ -9789,6 +9813,10 @@
                 },
                 "type": "object"
               },
+              "last_command_at": {
+                "format": "date-time",
+                "type": "string"
+              },
               "last_login_at": {
                 "format": "date-time",
                 "type": "string"
@@ -9865,6 +9893,12 @@
                   "credits_earned": {
                     "type": "integer"
                   },
+                  "credits_earned_taxable": {
+                    "type": "integer"
+                  },
+                  "credits_earned_taxable_snapshot": {
+                    "type": "integer"
+                  },
                   "credits_gifted": {
                     "type": "integer"
                   },
@@ -9935,6 +9969,9 @@
                     "type": "integer"
                   },
                   "jumps_completed": {
+                    "type": "integer"
+                  },
+                  "last_income_tax_assessed_at": {
                     "type": "integer"
                   },
                   "missions_abandoned": {
@@ -10013,6 +10050,8 @@
                   "trades_completed",
                   "ore_mined",
                   "items_crafted",
+                  "credits_earned_taxable",
+                  "credits_earned_taxable_snapshot",
                   "ships_destroyed",
                   "ships_lost",
                   "pirates_destroyed",
@@ -10089,6 +10128,7 @@
               "created_at",
               "last_login_at",
               "last_active_at",
+              "last_command_at",
               "last_chat_check",
               "status_message",
               "clan_tag",
@@ -10872,6 +10912,10 @@
           "in_combat": {
             "type": "boolean"
           },
+          "offline": {
+            "description": "True when the player has no active connection and no recent activity. Offline players are still listed when the POI total is small; otherwise summarised in the response's offline_collapsed count.",
+            "type": "boolean"
+          },
           "player_id": {
             "type": "string"
           },
@@ -11547,6 +11591,11 @@
             "description": "Per-channel unread watermarks",
             "type": "object"
           },
+          "last_command_at": {
+            "description": "Last player-initiated command (login, queued mutation, trade). Used to determine online status; not bumped by tick-driven mutations.",
+            "format": "date-time",
+            "type": "string"
+          },
           "last_login_at": {
             "format": "date-time",
             "type": "string"
@@ -11645,6 +11694,16 @@
             "format": "int64",
             "type": "integer"
           },
+          "credits_earned_taxable": {
+            "description": "Lifetime credits earned that count as taxable income",
+            "format": "int64",
+            "type": "integer"
+          },
+          "credits_earned_taxable_snapshot": {
+            "description": "credits_earned_taxable at the most recent income-tax assessment",
+            "format": "int64",
+            "type": "integer"
+          },
           "credits_gifted": {
             "format": "int64",
             "type": "integer"
@@ -11723,6 +11782,11 @@
             "type": "integer"
           },
           "jumps_completed": {
+            "type": "integer"
+          },
+          "last_income_tax_assessed_at": {
+            "description": "Unix timestamp of the most recent income-tax assessment",
+            "format": "int64",
             "type": "integer"
           },
           "missions_abandoned": {
@@ -12219,6 +12283,10 @@
                 },
                 "type": "object"
               },
+              "last_command_at": {
+                "format": "date-time",
+                "type": "string"
+              },
               "last_login_at": {
                 "format": "date-time",
                 "type": "string"
@@ -12295,6 +12363,12 @@
                   "credits_earned": {
                     "type": "integer"
                   },
+                  "credits_earned_taxable": {
+                    "type": "integer"
+                  },
+                  "credits_earned_taxable_snapshot": {
+                    "type": "integer"
+                  },
                   "credits_gifted": {
                     "type": "integer"
                   },
@@ -12365,6 +12439,9 @@
                     "type": "integer"
                   },
                   "jumps_completed": {
+                    "type": "integer"
+                  },
+                  "last_income_tax_assessed_at": {
                     "type": "integer"
                   },
                   "missions_abandoned": {
@@ -12443,6 +12520,8 @@
                   "trades_completed",
                   "ore_mined",
                   "items_crafted",
+                  "credits_earned_taxable",
+                  "credits_earned_taxable_snapshot",
                   "ships_destroyed",
                   "ships_lost",
                   "pirates_destroyed",
@@ -12519,6 +12598,7 @@
               "created_at",
               "last_login_at",
               "last_active_at",
+              "last_command_at",
               "last_chat_check",
               "status_message",
               "clan_tag",
@@ -14556,6 +14636,96 @@
         ],
         "type": "object"
       },
+      "TaxEstimateResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "income_tax": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "credit": {
+                  "type": "integer"
+                },
+                "empire": {
+                  "type": "string"
+                },
+                "gross": {
+                  "type": "integer"
+                },
+                "owed": {
+                  "type": "integer"
+                },
+                "rate_bps": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "empire",
+                "rate_bps",
+                "gross",
+                "credit",
+                "owed"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "income_tax_total": {
+            "type": "integer"
+          },
+          "last_assessed_at": {
+            "type": "integer"
+          },
+          "next_assessment_approx_seconds": {
+            "type": "integer"
+          },
+          "note": {
+            "type": "string"
+          },
+          "sales_tax_rates": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "empire": {
+                  "type": "string"
+                },
+                "rate_bps": {
+                  "type": "integer"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "empire",
+                "rate_bps",
+                "reason"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "tax_collection_active": {
+            "type": "boolean"
+          },
+          "taxable_income_to_date": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "action",
+          "taxable_income_to_date",
+          "income_tax",
+          "income_tax_total",
+          "sales_tax_rates",
+          "next_assessment_approx_seconds",
+          "tax_collection_active"
+        ],
+        "type": "object"
+      },
       "TowWreckResponse": {
         "additionalProperties": false,
         "properties": {
@@ -14650,6 +14820,9 @@
                   "type": "string"
                 },
                 "in_combat": {
+                  "type": "boolean"
+                },
+                "offline": {
                   "type": "boolean"
                 },
                 "player_id": {
@@ -17990,6 +18163,63 @@
           }
         ],
         "summary": "get_system_agents",
+        "tags": [
+          "gameplay"
+        ]
+      }
+    },
+    "/api/v2/spacemolt/get_tax_estimate": {
+      "post": {
+        "operationId": "spacemolt_get_tax_estimate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/TaxEstimateResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: TaxEstimateResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "get_tax_estimate",
         "tags": [
           "gameplay"
         ]

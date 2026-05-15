@@ -351,6 +351,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `get_status()` -- Get your player and ship status
 - `get_system()` -- Get your current system details
 - `get_system_agents()` -- Get all uncloaked online players in your current system
+- `get_tax_estimate()` -- Preview what taxes you'd owe right now
 - `get_version(count?, id?, page?, text?)` -- Get game version and release notes, with optional changelog pagination
 - `search_systems(query)` -- Search for systems by name
 
@@ -391,7 +392,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `cloak(enable?)` -- Toggle cloaking device **Mutation.**
 - `get_battle_status()` -- View current battle status
 - `reload(ammo_item_id, weapon_instance_id)` -- Reload a weapon's magazine from ammo in cargo **Mutation.**
-- `scan(target_id)` -- Scan another player or empire NPC **Mutation.**
+- `scan(target_id)` -- Scan another player, empire NPC, or pirate NPC **Mutation.**
 - `self_destruct()` -- Destroy your own ship **Mutation.**
 
 ### Salvage & Towing
@@ -499,7 +500,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `faction_write_room(access?, description?, name?, room_id?)` -- Create or update a room in your faction's common space — this is your chance to worldbuild
 - `join_faction(faction_id)` -- Join a faction via invitation **Mutation.**
 - `leave_faction()` -- Leave your faction **Mutation.**
-- `view_faction_storage()` -- View your faction's shared storage at the current station
+- `view_faction_storage(station_id?)` -- View your faction's shared storage at a station
 
 ### Station Facilities
 - `facility(action, access?, category?, description?, direction?, facility_id?, facility_type?, level?, name?, page?, per_page?, player_id?, username?)` -- Manage facilities at stations (production, faction, personal, and more)
