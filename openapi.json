@@ -126,11 +126,19 @@
           "faction_id": {
             "type": "string"
           },
+          "fuel": {
+            "description": "Current fuel reserves in the station's fuel tank",
+            "type": "integer"
+          },
           "has_drones": {
             "type": "boolean"
           },
           "id": {
             "type": "string"
+          },
+          "max_fuel": {
+            "description": "Maximum fuel tank capacity (0 if no fuel bunker installed)",
+            "type": "integer"
           },
           "name": {
             "type": "string"
@@ -5976,6 +5984,9 @@
             "items": {
               "additionalProperties": false,
               "properties": {
+                "entrance_poi": {
+                  "type": "string"
+                },
                 "jumps": {
                   "type": "integer"
                 },
@@ -5984,6 +5995,9 @@
                 },
                 "system_id": {
                   "type": "string"
+                },
+                "via_wormhole": {
+                  "type": "boolean"
                 }
               },
               "required": [
@@ -6949,11 +6963,17 @@
               "faction_id": {
                 "type": "string"
               },
+              "fuel": {
+                "type": "integer"
+              },
               "has_drones": {
                 "type": "boolean"
               },
               "id": {
                 "type": "string"
+              },
+              "max_fuel": {
+                "type": "integer"
               },
               "name": {
                 "type": "string"
@@ -6979,6 +6999,8 @@
               "poi_id",
               "name",
               "description",
+              "fuel",
+              "max_fuel",
               "defense_level",
               "has_drones",
               "public_access"
@@ -7012,6 +7034,15 @@
               "condition_text"
             ],
             "type": "object"
+          },
+          "faction_fuel_capacity": {
+            "type": "integer"
+          },
+          "faction_fuel_reserve": {
+            "type": "integer"
+          },
+          "fuel_price": {
+            "type": "integer"
           },
           "services": {
             "items": {
@@ -8155,11 +8186,17 @@
                   "faction_id": {
                     "type": "string"
                   },
+                  "fuel": {
+                    "type": "integer"
+                  },
                   "has_drones": {
                     "type": "boolean"
                   },
                   "id": {
                     "type": "string"
+                  },
+                  "max_fuel": {
+                    "type": "integer"
                   },
                   "name": {
                     "type": "string"
@@ -8185,11 +8222,22 @@
                   "poi_id",
                   "name",
                   "description",
+                  "fuel",
+                  "max_fuel",
                   "defense_level",
                   "has_drones",
                   "public_access"
                 ],
                 "type": "object"
+              },
+              "faction_fuel_capacity": {
+                "type": "integer"
+              },
+              "faction_fuel_reserve": {
+                "type": "integer"
+              },
+              "fuel_price": {
+                "type": "integer"
               },
               "poi": {
                 "additionalProperties": false,
@@ -8759,6 +8807,21 @@
                   "class": {
                     "type": "string"
                   },
+                  "faction_fuel_capacity": {
+                    "type": "integer"
+                  },
+                  "faction_fuel_reserve": {
+                    "type": "integer"
+                  },
+                  "fuel_capacity": {
+                    "type": "integer"
+                  },
+                  "fuel_price": {
+                    "type": "integer"
+                  },
+                  "fuel_reserve": {
+                    "type": "integer"
+                  },
                   "has_base": {
                     "type": "boolean"
                   },
@@ -8853,6 +8916,21 @@
                         },
                         "class": {
                           "type": "string"
+                        },
+                        "faction_fuel_capacity": {
+                          "type": "integer"
+                        },
+                        "faction_fuel_reserve": {
+                          "type": "integer"
+                        },
+                        "fuel_capacity": {
+                          "type": "integer"
+                        },
+                        "fuel_price": {
+                          "type": "integer"
+                        },
+                        "fuel_reserve": {
+                          "type": "integer"
                         },
                         "has_base": {
                           "type": "boolean"
@@ -9896,6 +9974,18 @@
                   "credits_earned_taxable": {
                     "type": "integer"
                   },
+                  "credits_earned_taxable_by_category": {
+                    "additionalProperties": {
+                      "type": "integer"
+                    },
+                    "type": "object"
+                  },
+                  "credits_earned_taxable_by_category_snapshot": {
+                    "additionalProperties": {
+                      "type": "integer"
+                    },
+                    "type": "object"
+                  },
                   "credits_earned_taxable_snapshot": {
                     "type": "integer"
                   },
@@ -9972,6 +10062,9 @@
                     "type": "integer"
                   },
                   "last_income_tax_assessed_at": {
+                    "type": "integer"
+                  },
+                  "last_property_tax_assessed_at": {
                     "type": "integer"
                   },
                   "missions_abandoned": {
@@ -10157,6 +10250,21 @@
               },
               "class": {
                 "type": "string"
+              },
+              "faction_fuel_capacity": {
+                "type": "integer"
+              },
+              "faction_fuel_reserve": {
+                "type": "integer"
+              },
+              "fuel_capacity": {
+                "type": "integer"
+              },
+              "fuel_price": {
+                "type": "integer"
+              },
+              "fuel_reserve": {
+                "type": "integer"
               },
               "has_base": {
                 "type": "boolean"
@@ -10466,6 +10574,21 @@
                     },
                     "class": {
                       "type": "string"
+                    },
+                    "faction_fuel_capacity": {
+                      "type": "integer"
+                    },
+                    "faction_fuel_reserve": {
+                      "type": "integer"
+                    },
+                    "fuel_capacity": {
+                      "type": "integer"
+                    },
+                    "fuel_price": {
+                      "type": "integer"
+                    },
+                    "fuel_reserve": {
+                      "type": "integer"
                     },
                     "has_base": {
                       "type": "boolean"
@@ -11699,6 +11822,22 @@
             "format": "int64",
             "type": "integer"
           },
+          "credits_earned_taxable_by_category": {
+            "additionalProperties": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "description": "Lifetime taxable credits earned, segmented by IncomeCategory (mission, market, salvage, ship_sale, rescue)",
+            "type": "object"
+          },
+          "credits_earned_taxable_by_category_snapshot": {
+            "additionalProperties": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "description": "credits_earned_taxable_by_category values at the most recent income-tax assessment",
+            "type": "object"
+          },
           "credits_earned_taxable_snapshot": {
             "description": "credits_earned_taxable at the most recent income-tax assessment",
             "format": "int64",
@@ -11786,6 +11925,11 @@
           },
           "last_income_tax_assessed_at": {
             "description": "Unix timestamp of the most recent income-tax assessment",
+            "format": "int64",
+            "type": "integer"
+          },
+          "last_property_tax_assessed_at": {
+            "description": "Unix timestamp of the most recent property-tax assessment",
             "format": "int64",
             "type": "integer"
           },
@@ -11964,6 +12108,9 @@
           "cost": {
             "type": "integer"
           },
+          "faction_fuel": {
+            "type": "integer"
+          },
           "fleet_id": {
             "type": "string"
           },
@@ -12059,6 +12206,9 @@
           },
           "target_player_name": {
             "type": "string"
+          },
+          "tax_amount": {
+            "type": "integer"
           }
         },
         "required": [
@@ -12366,6 +12516,18 @@
                   "credits_earned_taxable": {
                     "type": "integer"
                   },
+                  "credits_earned_taxable_by_category": {
+                    "additionalProperties": {
+                      "type": "integer"
+                    },
+                    "type": "object"
+                  },
+                  "credits_earned_taxable_by_category_snapshot": {
+                    "additionalProperties": {
+                      "type": "integer"
+                    },
+                    "type": "object"
+                  },
                   "credits_earned_taxable_snapshot": {
                     "type": "integer"
                   },
@@ -12442,6 +12604,9 @@
                     "type": "integer"
                   },
                   "last_income_tax_assessed_at": {
+                    "type": "integer"
+                  },
+                  "last_property_tax_assessed_at": {
                     "type": "integer"
                   },
                   "missions_abandoned": {
@@ -12630,6 +12795,21 @@
               },
               "class": {
                 "type": "string"
+              },
+              "faction_fuel_capacity": {
+                "type": "integer"
+              },
+              "faction_fuel_reserve": {
+                "type": "integer"
+              },
+              "fuel_capacity": {
+                "type": "integer"
+              },
+              "fuel_price": {
+                "type": "integer"
+              },
+              "fuel_reserve": {
+                "type": "integer"
               },
               "has_base": {
                 "type": "boolean"
@@ -12916,6 +13096,21 @@
                     },
                     "class": {
                       "type": "string"
+                    },
+                    "faction_fuel_capacity": {
+                      "type": "integer"
+                    },
+                    "faction_fuel_reserve": {
+                      "type": "integer"
+                    },
+                    "fuel_capacity": {
+                      "type": "integer"
+                    },
+                    "fuel_price": {
+                      "type": "integer"
+                    },
+                    "fuel_reserve": {
+                      "type": "integer"
                     },
                     "has_base": {
                       "type": "boolean"
@@ -14160,6 +14355,30 @@
                 },
                 "type": "array"
               },
+              "messages": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "body": {
+                      "type": "string"
+                    },
+                    "from": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "body",
+                    "timestamp"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
               "ships": {
                 "items": {
                   "additionalProperties": false,
@@ -14668,6 +14887,26 @@
             "description": "Type-specific classification for client rendering (e.g. star spectral class, planet type, belt composition)",
             "type": "string"
           },
+          "faction_fuel_capacity": {
+            "description": "Your faction's total fuel tank capacity at this station",
+            "type": "integer"
+          },
+          "faction_fuel_reserve": {
+            "description": "Your faction's private fuel reserve at this station (0 if no faction bunker here)",
+            "type": "integer"
+          },
+          "fuel_capacity": {
+            "description": "Maximum fuel tank capacity (0 if no bunker)",
+            "type": "integer"
+          },
+          "fuel_price": {
+            "description": "Current cr/unit refuel price based on reserve level",
+            "type": "integer"
+          },
+          "fuel_reserve": {
+            "description": "Current fuel reserves in station tank (0 if no bunker)",
+            "type": "integer"
+          },
           "has_base": {
             "type": "boolean"
           },
@@ -14710,10 +14949,62 @@
           "action": {
             "type": "string"
           },
+          "assessed_property_by_ship": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "ship_id": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "ship_id",
+                "value"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "assessed_property_value": {
+            "type": "integer"
+          },
           "income_tax": {
             "items": {
               "additionalProperties": false,
               "properties": {
+                "brackets": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "income_in_bracket": {
+                        "type": "integer"
+                      },
+                      "lower_bound": {
+                        "type": "integer"
+                      },
+                      "rate_bps": {
+                        "type": "integer"
+                      },
+                      "tax_from_bracket": {
+                        "type": "integer"
+                      },
+                      "upper_bound": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "lower_bound",
+                      "rate_bps",
+                      "income_in_bracket",
+                      "tax_from_bracket"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
                 "credit": {
                   "type": "integer"
                 },
@@ -14747,11 +15038,74 @@
           "last_assessed_at": {
             "type": "integer"
           },
+          "last_property_assessed_at": {
+            "type": "integer"
+          },
           "next_assessment_approx_seconds": {
             "type": "integer"
           },
           "note": {
             "type": "string"
+          },
+          "property_tax": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "assessed_value": {
+                  "type": "integer"
+                },
+                "brackets": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "income_in_bracket": {
+                        "type": "integer"
+                      },
+                      "lower_bound": {
+                        "type": "integer"
+                      },
+                      "rate_bps": {
+                        "type": "integer"
+                      },
+                      "tax_from_bracket": {
+                        "type": "integer"
+                      },
+                      "upper_bound": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "lower_bound",
+                      "rate_bps",
+                      "income_in_bracket",
+                      "tax_from_bracket"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "empire": {
+                  "type": "string"
+                },
+                "owed": {
+                  "type": "integer"
+                },
+                "rate_bps": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "empire",
+                "rate_bps",
+                "assessed_value",
+                "owed"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "property_tax_total": {
+            "type": "integer"
           },
           "sales_tax_rates": {
             "items": {
@@ -14779,6 +15133,25 @@
           "tax_collection_active": {
             "type": "boolean"
           },
+          "taxable_income_by_source": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "amount": {
+                  "type": "integer"
+                },
+                "category": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "category",
+                "amount"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
           "taxable_income_to_date": {
             "type": "integer"
           }
@@ -14786,9 +15159,14 @@
         "required": [
           "action",
           "taxable_income_to_date",
+          "taxable_income_by_source",
           "income_tax",
           "income_tax_total",
           "sales_tax_rates",
+          "assessed_property_value",
+          "assessed_property_by_ship",
+          "property_tax",
+          "property_tax_total",
           "next_assessment_approx_seconds",
           "tax_collection_active"
         ],
