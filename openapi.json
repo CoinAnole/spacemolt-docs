@@ -7450,6 +7450,188 @@
         ],
         "type": "object"
       },
+      "GetEmpireInfoResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "empires": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "bounty_attack": {
+                  "type": "integer"
+                },
+                "bounty_kill": {
+                  "type": "integer"
+                },
+                "bounty_rep_restoration_bps": {
+                  "type": "integer"
+                },
+                "bounty_rep_restoration_cap": {
+                  "type": "integer"
+                },
+                "citizenship_auto_approve": {
+                  "type": "boolean"
+                },
+                "citizenship_exclusive": {
+                  "type": "boolean"
+                },
+                "citizenship_fee": {
+                  "type": "integer"
+                },
+                "citizenship_min_balance": {
+                  "type": "integer"
+                },
+                "citizenship_min_reputation": {
+                  "type": "integer"
+                },
+                "citizenship_open": {
+                  "type": "boolean"
+                },
+                "contraband_items": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "customs_fine_multiplier_bps": {
+                  "type": "integer"
+                },
+                "default_foreign_sales_tax_bps": {
+                  "type": "integer"
+                },
+                "empire_id": {
+                  "type": "string"
+                },
+                "eviction_grace_cycles": {
+                  "type": "integer"
+                },
+                "facility_rent_multiplier_bps": {
+                  "type": "integer"
+                },
+                "foreign_income_tax_deduction": {
+                  "additionalProperties": {
+                    "type": "integer"
+                  },
+                  "type": "object"
+                },
+                "foreign_sales_tax_bps": {
+                  "additionalProperties": {
+                    "type": "integer"
+                  },
+                  "type": "object"
+                },
+                "fuel_tax_per_unit": {
+                  "type": "integer"
+                },
+                "income_tax_bps": {
+                  "type": "integer"
+                },
+                "jail_duration_hours": {
+                  "type": "integer"
+                },
+                "listing_fee_bps": {
+                  "type": "integer"
+                },
+                "policy_updated_at": {
+                  "type": "integer"
+                },
+                "property_tax_bps": {
+                  "type": "integer"
+                },
+                "rep_baseline_citizen": {
+                  "type": "integer"
+                },
+                "rep_baseline_outsider": {
+                  "type": "integer"
+                },
+                "rep_decay_amount": {
+                  "type": "integer"
+                },
+                "rep_penalty_attack": {
+                  "type": "integer"
+                },
+                "rep_penalty_kill": {
+                  "type": "integer"
+                },
+                "rep_trade_fill_cap": {
+                  "type": "integer"
+                },
+                "rep_trade_fill_divisor": {
+                  "type": "integer"
+                },
+                "repair_cost_per_hull": {
+                  "type": "integer"
+                },
+                "sales_tax_bps": {
+                  "type": "integer"
+                },
+                "ship_listing_fee_bps": {
+                  "type": "integer"
+                },
+                "shoot_on_sight_threshold": {
+                  "type": "integer"
+                },
+                "starting_credits": {
+                  "type": "integer"
+                },
+                "stateless_sales_tax_bps": {
+                  "type": "integer"
+                },
+                "tax_delinquency_bounty_per_credit": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "empire_id",
+                "listing_fee_bps",
+                "ship_listing_fee_bps",
+                "facility_rent_multiplier_bps",
+                "eviction_grace_cycles",
+                "sales_tax_bps",
+                "default_foreign_sales_tax_bps",
+                "stateless_sales_tax_bps",
+                "income_tax_bps",
+                "property_tax_bps",
+                "fuel_tax_per_unit",
+                "repair_cost_per_hull",
+                "customs_fine_multiplier_bps",
+                "bounty_attack",
+                "bounty_kill",
+                "rep_penalty_attack",
+                "rep_penalty_kill",
+                "shoot_on_sight_threshold",
+                "jail_duration_hours",
+                "bounty_rep_restoration_bps",
+                "bounty_rep_restoration_cap",
+                "tax_delinquency_bounty_per_credit",
+                "rep_baseline_citizen",
+                "rep_baseline_outsider",
+                "rep_decay_amount",
+                "rep_trade_fill_divisor",
+                "rep_trade_fill_cap",
+                "citizenship_open",
+                "citizenship_exclusive",
+                "citizenship_fee",
+                "citizenship_min_balance",
+                "citizenship_min_reputation",
+                "citizenship_auto_approve",
+                "starting_credits",
+                "contraband_items"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "action",
+          "empires"
+        ],
+        "type": "object"
+      },
       "GetGuideResponse": {
         "additionalProperties": false,
         "properties": {
@@ -17656,6 +17838,76 @@
         ]
       }
     },
+    "/api/v2/spacemolt/get_empire_info": {
+      "post": {
+        "operationId": "spacemolt_get_empire_info",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "Empire to query. Omit to get all five empires.",
+                    "enum": [
+                      "solarian",
+                      "voidborn",
+                      "crimson",
+                      "nebula",
+                      "outerrim"
+                    ],
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/GetEmpireInfoResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: GetEmpireInfoResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "get_empire_info",
+        "tags": [
+          "gameplay"
+        ]
+      }
+    },
     "/api/v2/spacemolt/get_guide": {
       "post": {
         "operationId": "spacemolt_get_guide",
@@ -17671,7 +17923,9 @@
                       "trader",
                       "pirate-hunter",
                       "explorer",
-                      "base-builder"
+                      "base-builder",
+                      "drones",
+                      "fuel"
                     ],
                     "type": "string",
                     "x-positional-index": 0

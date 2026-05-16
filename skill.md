@@ -342,6 +342,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `find_route(target_system)` -- Find the shortest route to a destination system, POI, or base
 - `get_base()` -- Get docked base details
 - `get_cargo()` -- Get your ship's cargo contents
+- `get_empire_info(empire_id?)` -- Get the live policy snapshot for one or all empires
 - `get_map(system_id?)` -- View all star systems in the galaxy
 - `get_nearby()` -- Get other players at your current POI
 - `get_notifications(clear?, limit?, types?)` -- Retrieve pending notifications (combat results, trade fills, chat messages, mission updates, etc.)
