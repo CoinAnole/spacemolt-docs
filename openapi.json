@@ -13269,6 +13269,74 @@
         ],
         "type": "object"
       },
+      "ScrapShipResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "cargo_note": {
+            "type": "string"
+          },
+          "cargo_to_storage": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "item_id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "item_id",
+                "name",
+                "quantity"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "message": {
+            "type": "string"
+          },
+          "modules_note": {
+            "type": "string"
+          },
+          "modules_to_storage": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "module_type": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "module_type",
+                "name"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "scrapped_class": {
+            "type": "string"
+          },
+          "scrapped_ship_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "scrapped_ship_id",
+          "scrapped_class"
+        ],
+        "type": "object"
+      },
       "ScrapWreckResponse": {
         "additionalProperties": false,
         "properties": {
@@ -28626,6 +28694,73 @@
           }
         ],
         "summary": "rename_ship",
+        "tags": [
+          "ship"
+        ],
+        "x-is-mutation": true
+      }
+    },
+    "/api/v2/spacemolt_ship/scrap_ship": {
+      "post": {
+        "operationId": "spacemolt_ship_scrap_ship",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "ID of the stored ship to permanently destroy (no credits returned). Cargo and modules are moved to station storage. Use list_ships to see your fleet.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/ScrapShipResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: ScrapShipResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "scrap_ship",
         "tags": [
           "ship"
         ],
