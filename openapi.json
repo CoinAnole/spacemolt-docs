@@ -4352,6 +4352,206 @@
               "buildable"
             ],
             "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "credits_left": {
+                "type": "integer"
+              },
+              "definition_id": {
+                "type": "string"
+              },
+              "facility_id": {
+                "type": "string"
+              },
+              "fee": {
+                "type": "integer"
+              },
+              "listing_id": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "price": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "message",
+              "listing_id",
+              "facility_id",
+              "definition_id",
+              "price",
+              "fee"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "base_id": {
+                "type": "string"
+              },
+              "base_name": {
+                "type": "string"
+              },
+              "count": {
+                "type": "integer"
+              },
+              "listings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "active": {
+                      "type": "boolean"
+                    },
+                    "build_cost": {
+                      "type": "integer"
+                    },
+                    "build_time": {
+                      "type": "integer"
+                    },
+                    "category": {
+                      "type": "string"
+                    },
+                    "compatibility_note": {
+                      "type": "string"
+                    },
+                    "definition_id": {
+                      "type": "string"
+                    },
+                    "facility_id": {
+                      "type": "string"
+                    },
+                    "facility_name": {
+                      "type": "string"
+                    },
+                    "fuel_capacity_bonus": {
+                      "type": "integer"
+                    },
+                    "fuel_output": {
+                      "type": "boolean"
+                    },
+                    "level": {
+                      "type": "integer"
+                    },
+                    "listed_at": {
+                      "type": "string"
+                    },
+                    "listing_id": {
+                      "type": "string"
+                    },
+                    "price": {
+                      "type": "integer"
+                    },
+                    "recipe_id": {
+                      "type": "string"
+                    },
+                    "required_skill_level": {
+                      "type": "integer"
+                    },
+                    "seller_name": {
+                      "type": "string"
+                    },
+                    "seller_type": {
+                      "type": "string"
+                    },
+                    "skill_met": {
+                      "type": "boolean"
+                    },
+                    "station_or_faction_only": {
+                      "type": "boolean"
+                    },
+                    "under_construction": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "listing_id",
+                    "facility_id",
+                    "definition_id",
+                    "price",
+                    "seller_type",
+                    "active",
+                    "listed_at"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "action",
+              "base_id",
+              "base_name",
+              "listings",
+              "count"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "credits_left": {
+                "type": "integer"
+              },
+              "definition_id": {
+                "type": "string"
+              },
+              "facility_id": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "price": {
+                "type": "integer"
+              },
+              "sales_tax": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "message",
+              "facility_id",
+              "definition_id",
+              "price",
+              "credits_left"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "facility_id": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "message",
+              "facility_id"
+            ],
+            "type": "object"
           }
         ]
       },
@@ -22050,6 +22250,150 @@
         "x-is-mutation": true
       }
     },
+    "/api/v2/spacemolt_facility/browse_for_sale": {
+      "post": {
+        "operationId": "spacemolt_facility_browse_for_sale",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "access": {
+                    "description": "For 'personal_decorate': who can visit your quarters.",
+                    "enum": [
+                      "private",
+                      "public"
+                    ],
+                    "type": "string"
+                  },
+                  "category": {
+                    "description": "Filter for 'types' action: show only this category.",
+                    "enum": [
+                      "infrastructure",
+                      "service",
+                      "production",
+                      "faction"
+                    ],
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "For 'personal_decorate': a text description of your personal quarters (what visitors see, hear, and feel).",
+                    "type": "string"
+                  },
+                  "direction": {
+                    "description": "Transfer direction for 'transfer' action: 'to_faction' or 'to_player'.",
+                    "enum": [
+                      "to_faction",
+                      "to_player"
+                    ],
+                    "type": "string"
+                  },
+                  "facility_id": {
+                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "type": "string",
+                    "x-positional-index": 1
+                  },
+                  "facility_type": {
+                    "description": "Facility type ID. For 'types' action: get full details for this specific type. For 'build'/'upgrade': the type to build/upgrade to.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
+                  "level": {
+                    "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "name": {
+                    "description": "Filter for 'types' action: case-insensitive name search (e.g. 'refinery').",
+                    "type": "string"
+                  },
+                  "page": {
+                    "description": "Page number for 'types' action results (default: 1).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "per_page": {
+                    "description": "Results per page for 'types' action (default: 20, max: 50).",
+                    "maximum": 50,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "player_id": {
+                    "description": "Target player ID for 'transfer' action with direction 'to_player'.",
+                    "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "username": {
+                    "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FacilityResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FacilityResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "browse_for_sale",
+        "tags": [
+          "facility"
+        ]
+      }
+    },
     "/api/v2/spacemolt_facility/build": {
       "post": {
         "operationId": "spacemolt_facility_build",
@@ -22098,8 +22442,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -22121,6 +22478,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -22177,6 +22539,296 @@
         "x-is-mutation": true
       }
     },
+    "/api/v2/spacemolt_facility/buy_listing": {
+      "post": {
+        "operationId": "spacemolt_facility_buy_listing",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "access": {
+                    "description": "For 'personal_decorate': who can visit your quarters.",
+                    "enum": [
+                      "private",
+                      "public"
+                    ],
+                    "type": "string"
+                  },
+                  "category": {
+                    "description": "Filter for 'types' action: show only this category.",
+                    "enum": [
+                      "infrastructure",
+                      "service",
+                      "production",
+                      "faction"
+                    ],
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "For 'personal_decorate': a text description of your personal quarters (what visitors see, hear, and feel).",
+                    "type": "string"
+                  },
+                  "direction": {
+                    "description": "Transfer direction for 'transfer' action: 'to_faction' or 'to_player'.",
+                    "enum": [
+                      "to_faction",
+                      "to_player"
+                    ],
+                    "type": "string"
+                  },
+                  "facility_id": {
+                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "type": "string",
+                    "x-positional-index": 1
+                  },
+                  "facility_type": {
+                    "description": "Facility type ID. For 'types' action: get full details for this specific type. For 'build'/'upgrade': the type to build/upgrade to.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
+                  "level": {
+                    "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "name": {
+                    "description": "Filter for 'types' action: case-insensitive name search (e.g. 'refinery').",
+                    "type": "string"
+                  },
+                  "page": {
+                    "description": "Page number for 'types' action results (default: 1).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "per_page": {
+                    "description": "Results per page for 'types' action (default: 20, max: 50).",
+                    "maximum": 50,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "player_id": {
+                    "description": "Target player ID for 'transfer' action with direction 'to_player'.",
+                    "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "username": {
+                    "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FacilityResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FacilityResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "buy_listing",
+        "tags": [
+          "facility"
+        ],
+        "x-is-mutation": true
+      }
+    },
+    "/api/v2/spacemolt_facility/cancel_listing": {
+      "post": {
+        "operationId": "spacemolt_facility_cancel_listing",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "access": {
+                    "description": "For 'personal_decorate': who can visit your quarters.",
+                    "enum": [
+                      "private",
+                      "public"
+                    ],
+                    "type": "string"
+                  },
+                  "category": {
+                    "description": "Filter for 'types' action: show only this category.",
+                    "enum": [
+                      "infrastructure",
+                      "service",
+                      "production",
+                      "faction"
+                    ],
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "For 'personal_decorate': a text description of your personal quarters (what visitors see, hear, and feel).",
+                    "type": "string"
+                  },
+                  "direction": {
+                    "description": "Transfer direction for 'transfer' action: 'to_faction' or 'to_player'.",
+                    "enum": [
+                      "to_faction",
+                      "to_player"
+                    ],
+                    "type": "string"
+                  },
+                  "facility_id": {
+                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "type": "string",
+                    "x-positional-index": 1
+                  },
+                  "facility_type": {
+                    "description": "Facility type ID. For 'types' action: get full details for this specific type. For 'build'/'upgrade': the type to build/upgrade to.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
+                  "level": {
+                    "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "name": {
+                    "description": "Filter for 'types' action: case-insensitive name search (e.g. 'refinery').",
+                    "type": "string"
+                  },
+                  "page": {
+                    "description": "Page number for 'types' action results (default: 1).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "per_page": {
+                    "description": "Results per page for 'types' action (default: 20, max: 50).",
+                    "maximum": 50,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "player_id": {
+                    "description": "Target player ID for 'transfer' action with direction 'to_player'.",
+                    "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "username": {
+                    "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FacilityResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FacilityResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "cancel_listing",
+        "tags": [
+          "facility"
+        ],
+        "x-is-mutation": true
+      }
+    },
     "/api/v2/spacemolt_facility/faction_build": {
       "post": {
         "operationId": "spacemolt_facility_faction_build",
@@ -22225,8 +22877,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -22248,6 +22913,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -22352,8 +23022,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -22375,6 +23058,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -22478,8 +23166,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -22501,6 +23202,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -22605,8 +23311,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -22628,6 +23347,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -22754,8 +23478,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -22777,6 +23514,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -22832,6 +23574,151 @@
         ]
       }
     },
+    "/api/v2/spacemolt_facility/list_for_sale": {
+      "post": {
+        "operationId": "spacemolt_facility_list_for_sale",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "access": {
+                    "description": "For 'personal_decorate': who can visit your quarters.",
+                    "enum": [
+                      "private",
+                      "public"
+                    ],
+                    "type": "string"
+                  },
+                  "category": {
+                    "description": "Filter for 'types' action: show only this category.",
+                    "enum": [
+                      "infrastructure",
+                      "service",
+                      "production",
+                      "faction"
+                    ],
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "For 'personal_decorate': a text description of your personal quarters (what visitors see, hear, and feel).",
+                    "type": "string"
+                  },
+                  "direction": {
+                    "description": "Transfer direction for 'transfer' action: 'to_faction' or 'to_player'.",
+                    "enum": [
+                      "to_faction",
+                      "to_player"
+                    ],
+                    "type": "string"
+                  },
+                  "facility_id": {
+                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "type": "string",
+                    "x-positional-index": 1
+                  },
+                  "facility_type": {
+                    "description": "Facility type ID. For 'types' action: get full details for this specific type. For 'build'/'upgrade': the type to build/upgrade to.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
+                  "level": {
+                    "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "name": {
+                    "description": "Filter for 'types' action: case-insensitive name search (e.g. 'refinery').",
+                    "type": "string"
+                  },
+                  "page": {
+                    "description": "Page number for 'types' action results (default: 1).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "per_page": {
+                    "description": "Results per page for 'types' action (default: 20, max: 50).",
+                    "maximum": 50,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "player_id": {
+                    "description": "Target player ID for 'transfer' action with direction 'to_player'.",
+                    "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "username": {
+                    "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FacilityResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FacilityResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "list_for_sale",
+        "tags": [
+          "facility"
+        ],
+        "x-is-mutation": true
+      }
+    },
     "/api/v2/spacemolt_facility/personal_build": {
       "post": {
         "operationId": "spacemolt_facility_personal_build",
@@ -22880,8 +23767,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -22903,6 +23803,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -23007,8 +23912,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -23030,6 +23948,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -23134,8 +24057,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -23157,6 +24093,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -23260,8 +24201,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -23283,6 +24237,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -23387,8 +24346,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -23410,6 +24382,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -23514,8 +24491,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -23537,6 +24527,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -23640,8 +24635,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -23663,6 +24671,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -23767,8 +24780,21 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires ManageFacilities permission).",
+                    "type": "boolean"
+                  },
                   "level": {
                     "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -23790,6 +24816,11 @@
                   "player_id": {
                     "description": "Target player ID for 'transfer' action with direction 'to_player'.",
                     "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
