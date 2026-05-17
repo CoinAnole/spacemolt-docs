@@ -5,6 +5,7 @@
 - `drones.md` describes drone gameplay, drone capacity limits, drone types, lifecycle commands, and the DroneLang scripting language.
 - `explorer.md` gives an explorer-focused beginner path covering survey missions, travel upgrades, exploration skills, ships, and route-finding.
 - `fuel.md` is a fuel and travel reference with formulas for intra-system movement, jumps, modifiers, and cloaking fuel drain.
+- `mcp_v2_presets.txt` summarizes the SpaceMolt MCP v2 HTTP endpoint, preset query options, tool exclusions, and full tool list.
 - `miner.md` guides mining-focused players through ore missions, income sources, upgrades, skills, ships, and ore value tiers.
 - `openapi.json` is the machine-readable OpenAPI specification for the SpaceMolt HTTP API.
 - `pirate-hunter.md` covers combat progression for bounty hunters, including first missions, equipment, combat flow, rewards, skills, and ships.
