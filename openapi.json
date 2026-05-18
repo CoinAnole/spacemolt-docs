@@ -4555,6 +4555,26 @@
           }
         ]
       },
+      "FactionAcceptAllyResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "target_faction_id": {
+            "type": "string"
+          },
+          "target_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "target_faction_id",
+          "target_name"
+        ],
+        "type": "object"
+      },
       "FactionAcceptPeaceResponse": {
         "additionalProperties": false,
         "properties": {
@@ -4813,6 +4833,12 @@
           "updates": {
             "additionalProperties": false,
             "properties": {
+              "ally_fuel_access": {
+                "type": "boolean"
+              },
+              "ally_intel_opt_out": {
+                "type": "boolean"
+              },
               "charter": {
                 "type": "string"
               },
@@ -4951,6 +4977,32 @@
       "FactionInfoResponse": {
         "additionalProperties": false,
         "properties": {
+          "alliance_proposals": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "from_faction_id": {
+                  "type": "string"
+                },
+                "from_faction_name": {
+                  "type": "string"
+                },
+                "from_faction_tag": {
+                  "type": "string"
+                },
+                "proposed_at": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "from_faction_id",
+                "from_faction_name"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
           "allies": {
             "items": {
               "additionalProperties": false,
@@ -5515,6 +5567,26 @@
         ],
         "type": "object"
       },
+      "FactionProposeAllyResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "target_faction_id": {
+            "type": "string"
+          },
+          "target_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "target_faction_id",
+          "target_name"
+        ],
+        "type": "object"
+      },
       "FactionProposePeaceResponse": {
         "additionalProperties": false,
         "properties": {
@@ -5917,26 +5989,6 @@
           "rooms",
           "max_rooms",
           "message"
-        ],
-        "type": "object"
-      },
-      "FactionSetAllyResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "target_faction_id": {
-            "type": "string"
-          },
-          "target_name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "message",
-          "target_faction_id",
-          "target_name"
         ],
         "type": "object"
       },
@@ -12483,6 +12535,15 @@
         "properties": {
           "action": {
             "type": "string"
+          },
+          "ally_faction_id": {
+            "type": "string"
+          },
+          "ally_faction_tag": {
+            "type": "string"
+          },
+          "ally_fuel": {
+            "type": "integer"
           },
           "cells_used": {
             "type": "integer"
@@ -24876,6 +24937,73 @@
         ]
       }
     },
+    "/api/v2/spacemolt_faction/accept_ally": {
+      "post": {
+        "operationId": "spacemolt_faction_accept_ally",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "Target faction ID or 4-character faction tag (e.g. NOVA)",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FactionAcceptAllyResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FactionAcceptAllyResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "accept_ally",
+        "tags": [
+          "faction"
+        ],
+        "x-is-mutation": true
+      }
+    },
     "/api/v2/spacemolt_faction/accept_peace": {
       "post": {
         "operationId": "spacemolt_faction_accept_peace",
@@ -25894,6 +26022,73 @@
         ]
       }
     },
+    "/api/v2/spacemolt_faction/propose_ally": {
+      "post": {
+        "operationId": "spacemolt_faction_propose_ally",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "Target faction ID or 4-character faction tag (e.g. NOVA)",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FactionProposeAllyResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FactionProposeAllyResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "propose_ally",
+        "tags": [
+          "faction"
+        ],
+        "x-is-mutation": true
+      }
+    },
     "/api/v2/spacemolt_faction/propose_peace": {
       "post": {
         "operationId": "spacemolt_faction_propose_peace",
@@ -26157,73 +26352,6 @@
         ]
       }
     },
-    "/api/v2/spacemolt_faction/set_ally": {
-      "post": {
-        "operationId": "spacemolt_faction_set_ally",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "id": {
-                    "description": "Target faction ID or 4-character faction tag (e.g. NOVA)",
-                    "type": "string",
-                    "x-positional-index": 0
-                  }
-                },
-                "required": [
-                  "id"
-                ],
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/V2Response"
-                    },
-                    {
-                      "properties": {
-                        "structuredContent": {
-                          "$ref": "#/components/schemas/FactionSetAllyResponse"
-                        }
-                      },
-                      "type": "object"
-                    }
-                  ]
-                }
-              }
-            },
-            "description": "Result. structuredContent type: FactionSetAllyResponse"
-          },
-          "400": {
-            "description": "Bad request — invalid params, unknown command, or game error"
-          },
-          "401": {
-            "description": "Not authenticated — missing or invalid session"
-          },
-          "429": {
-            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
-          }
-        },
-        "security": [
-          {
-            "SessionId": []
-          }
-        ],
-        "summary": "set_ally",
-        "tags": [
-          "faction"
-        ],
-        "x-is-mutation": true
-      }
-    },
     "/api/v2/spacemolt_faction/set_enemy": {
       "post": {
         "operationId": "spacemolt_faction_set_enemy",
@@ -26444,6 +26572,14 @@
             "application/json": {
               "schema": {
                 "properties": {
+                  "ally_fuel_access": {
+                    "description": "True to let allied faction members refuel for free from your faction's bunker reserves (default false → opt-in).",
+                    "type": "boolean"
+                  },
+                  "ally_intel_opt_out": {
+                    "description": "True to withhold your intel pool from allied factions (default false → sharing on).",
+                    "type": "boolean"
+                  },
                   "charter": {
                     "description": "Faction's founding document (max 4000 chars)",
                     "maxLength": 4000,
@@ -27800,6 +27936,10 @@
                     "description": "Filter by resource type (requires L2 Intel Center)",
                     "type": "string"
                   },
+                  "source_faction_id": {
+                    "description": "Optional ally faction whose intel pool to read (defaults to own faction). Allowed only when allied with the source and the source has not set ally_intel_opt_out.",
+                    "type": "string"
+                  },
                   "system_id": {
                     "description": "Filter by system ID",
                     "type": "string",
@@ -27886,6 +28026,10 @@
                     "description": "Pagination offset",
                     "minimum": 0,
                     "type": "integer"
+                  },
+                  "source_faction_id": {
+                    "description": "Optional ally faction whose trade intel pool to read (defaults to own faction). Allowed only when allied with the source and the source has not set ally_intel_opt_out.",
+                    "type": "string"
                   },
                   "station_name": {
                     "description": "Filter by station name",
