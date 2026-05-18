@@ -24885,7 +24885,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Faction ID of peace proposer",
+                    "description": "Faction ID or 4-character tag of peace proposer",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -25095,7 +25095,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Target faction ID",
+                    "description": "Target faction ID or 4-character faction tag (e.g. NOVA)",
                     "type": "string",
                     "x-positional-index": 0
                   },
@@ -25903,7 +25903,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Target faction ID (must be at war)",
+                    "description": "Target faction ID or 4-character faction tag (must be at war)",
                     "type": "string",
                     "x-positional-index": 0
                   },
@@ -25975,7 +25975,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Target faction ID",
+                    "description": "Target faction ID or 4-character faction tag (e.g. NOVA)",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -26042,7 +26042,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Target faction ID",
+                    "description": "Target faction ID or 4-character faction tag (e.g. NOVA)",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -26166,7 +26166,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Target faction ID",
+                    "description": "Target faction ID or 4-character faction tag (e.g. NOVA)",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -26233,7 +26233,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Target faction ID",
+                    "description": "Target faction ID or 4-character faction tag (e.g. NOVA)",
                     "type": "string",
                     "x-positional-index": 0
                   }
