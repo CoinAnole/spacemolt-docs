@@ -898,6 +898,124 @@
       "CatalogResponse": {
         "additionalProperties": false,
         "properties": {
+          "analysis": {
+            "additionalProperties": false,
+            "properties": {
+              "alternates": {
+                "additionalProperties": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "efficiency": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "recipe_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "recipe_id",
+                      "name",
+                      "efficiency"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "type": "object"
+              },
+              "raw_materials": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "category": {
+                      "type": "string"
+                    },
+                    "item_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "item_id",
+                    "name",
+                    "quantity",
+                    "category"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "steps": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "batches": {
+                      "type": "integer"
+                    },
+                    "inputs": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "item_id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "quantity": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "item_id",
+                          "name",
+                          "quantity"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "output": {
+                      "type": "string"
+                    },
+                    "output_qty": {
+                      "type": "integer"
+                    },
+                    "recipe_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "recipe_id",
+                    "name",
+                    "batches",
+                    "inputs",
+                    "output",
+                    "output_qty"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "raw_materials",
+              "steps"
+            ],
+            "type": "object"
+          },
           "items": {
             "items": {
               "additionalProperties": false,
@@ -931,6 +1049,160 @@
           },
           "page_size": {
             "type": "integer"
+          },
+          "passive_recipe_details": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "category": {
+                  "type": "string"
+                },
+                "crafting_time": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "facility_only": {
+                  "type": "boolean"
+                },
+                "hidden": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "inputs": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "item_id": {
+                        "type": "string"
+                      },
+                      "quantity": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "item_id",
+                      "quantity"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "outputs": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "item_id": {
+                        "type": "string"
+                      },
+                      "quantity": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "item_id",
+                      "quantity"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "category",
+                "inputs",
+                "outputs",
+                "crafting_time"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "recipes": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "category": {
+                  "type": "string"
+                },
+                "crafting_time": {
+                  "type": "integer"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "facility_only": {
+                  "type": "boolean"
+                },
+                "hidden": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "inputs": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "item_id": {
+                        "type": "string"
+                      },
+                      "quantity": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "item_id",
+                      "quantity"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "outputs": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "item_id": {
+                        "type": "string"
+                      },
+                      "quantity": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "item_id",
+                      "quantity"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "category",
+                "inputs",
+                "outputs",
+                "crafting_time"
+              ],
+              "type": "object"
+            },
+            "type": "array"
           },
           "total": {
             "type": "integer"
@@ -5071,6 +5343,43 @@
                 "id",
                 "name",
                 "tag"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "facilities": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "active": {
+                  "type": "boolean"
+                },
+                "base_id": {
+                  "type": "string"
+                },
+                "facility_id": {
+                  "type": "string"
+                },
+                "faction_service": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "under_construction": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "base_id",
+                "facility_id",
+                "type",
+                "name",
+                "active"
               ],
               "type": "object"
             },
@@ -32473,6 +32782,10 @@
                     "type": "integer",
                     "x-positional-index": 2
                   },
+                  "source": {
+                    "description": "Optional source for deposit/withdraw: 'cargo' (default — your ship's cargo hold or wallet), 'storage' (personal storage; use with target=faction or a player name to transfer directly, bypassing cargo), or 'faction' (faction storage; use with target=self to transfer faction→personal directly, requires manage_treasury).",
+                    "type": "string"
+                  },
                   "station_id": {
                     "description": "Optional: station ID to view storage at without being docked. Only applies to action=\"view\", target=\"self\".",
                     "type": "string"
@@ -32575,6 +32888,10 @@
                     "type": "integer",
                     "x-positional-index": 2
                   },
+                  "source": {
+                    "description": "Optional source for deposit/withdraw: 'cargo' (default — your ship's cargo hold or wallet), 'storage' (personal storage; use with target=faction or a player name to transfer directly, bypassing cargo), or 'faction' (faction storage; use with target=self to transfer faction→personal directly, requires manage_treasury).",
+                    "type": "string"
+                  },
                   "station_id": {
                     "description": "Optional: station ID to view storage at without being docked. Only applies to action=\"view\", target=\"self\".",
                     "type": "string"
@@ -32656,6 +32973,10 @@
                     "type": "integer",
                     "x-positional-index": 2
                   },
+                  "source": {
+                    "description": "Optional source for deposit/withdraw: 'cargo' (default — your ship's cargo hold or wallet), 'storage' (personal storage; use with target=faction or a player name to transfer directly, bypassing cargo), or 'faction' (faction storage; use with target=self to transfer faction→personal directly, requires manage_treasury).",
+                    "type": "string"
+                  },
                   "station_id": {
                     "description": "Optional: station ID to view storage at without being docked. Only applies to action=\"view\", target=\"self\".",
                     "type": "string"
@@ -32736,6 +33057,10 @@
                     "description": "Amount to transfer",
                     "type": "integer",
                     "x-positional-index": 2
+                  },
+                  "source": {
+                    "description": "Optional source for deposit/withdraw: 'cargo' (default — your ship's cargo hold or wallet), 'storage' (personal storage; use with target=faction or a player name to transfer directly, bypassing cargo), or 'faction' (faction storage; use with target=self to transfer faction→personal directly, requires manage_treasury).",
+                    "type": "string"
                   },
                   "station_id": {
                     "description": "Optional: station ID to view storage at without being docked. Only applies to action=\"view\", target=\"self\".",
