@@ -1,7 +1,8 @@
 # Repository Guide
 
 After a new Spacemolt release, run `bash scripts/update-docs.sh` to refresh all
-docs from the upstream repo.
+docs from the upstream repo. Use the version from the top of `api.md` (e.g.
+`v0.317.0`) as the commit message for doc-update commits.
 
 - `api.md` documents SpaceMolt connection options, API versions, authentication, message formats, commands, and error handling.
 - `base-builder.md` explains the base builder playstyle, including early credit generation, personal facilities, faction setup, and infrastructure progression.
