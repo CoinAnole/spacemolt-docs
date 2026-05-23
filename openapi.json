@@ -1066,6 +1066,9 @@
                 "facility_only": {
                   "type": "boolean"
                 },
+                "fuel_output": {
+                  "type": "integer"
+                },
                 "hidden": {
                   "type": "boolean"
                 },
@@ -1142,6 +1145,9 @@
                 },
                 "facility_only": {
                   "type": "boolean"
+                },
+                "fuel_output": {
+                  "type": "integer"
                 },
                 "hidden": {
                   "type": "boolean"
@@ -6441,6 +6447,22 @@
           "author",
           "created_at",
           "updated_at"
+        ],
+        "type": "object"
+      },
+      "FactionWithdrawInviteResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "player_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "player_id"
         ],
         "type": "object"
       },
@@ -16362,6 +16384,10 @@
                 "format": "int64",
                 "type": "integer"
               },
+              "transit_bearing": {
+                "description": "Plotted compass bearing in degrees (pathfinder only)",
+                "type": "number"
+              },
               "transit_dest_poi_id": {
                 "description": "Destination POI ID (travel only)",
                 "type": "string"
@@ -16378,9 +16404,22 @@
                 "description": "Destination system name (jump only)",
                 "type": "string"
               },
+              "transit_ticks_elapsed": {
+                "description": "Ticks since the pathfinder drift began (pathfinder only)",
+                "format": "int64",
+                "type": "integer"
+              },
               "transit_type": {
-                "description": "\"jump\" or \"travel\"",
+                "description": "\"jump\", \"travel\", or \"pathfinder\"",
                 "type": "string"
+              },
+              "transit_x": {
+                "description": "Current galactic X coordinate (pathfinder only)",
+                "type": "number"
+              },
+              "transit_y": {
+                "description": "Current galactic Y coordinate (pathfinder only)",
+                "type": "number"
               }
             },
             "type": "object"
@@ -19743,7 +19782,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "ID of the adjacent system to jump to (use get_system to see connected systems)",
+                    "description": "ID of the adjacent system to jump to (use get_system to see connected systems), or a numeric compass bearing in degrees for an off-network Pathfinder Drive jump",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -25313,6 +25352,73 @@
         "x-is-mutation": true
       }
     },
+    "/api/v2/spacemolt_faction/accept_invite": {
+      "post": {
+        "operationId": "spacemolt_faction_accept_invite",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "UUID of faction to join (must have pending invite)",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/JoinFactionResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: JoinFactionResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "accept_invite",
+        "tags": [
+          "faction"
+        ],
+        "x-is-mutation": true
+      }
+    },
     "/api/v2/spacemolt_faction/accept_peace": {
       "post": {
         "operationId": "spacemolt_faction_accept_peace",
@@ -25955,7 +26061,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Player ID to invite/kick",
+                    "description": "Player ID or username",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -26089,7 +26195,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Player ID to invite/kick",
+                    "description": "Player ID or username",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -26792,6 +26898,73 @@
         "tags": [
           "faction"
         ]
+      }
+    },
+    "/api/v2/spacemolt_faction/withdraw_invite": {
+      "post": {
+        "operationId": "spacemolt_faction_withdraw_invite",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "Player ID or username",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FactionWithdrawInviteResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FactionWithdrawInviteResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "withdraw_invite",
+        "tags": [
+          "faction"
+        ],
+        "x-is-mutation": true
       }
     },
     "/api/v2/spacemolt_faction_admin/create_role": {
