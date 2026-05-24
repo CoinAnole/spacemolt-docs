@@ -10,6 +10,7 @@ github_raw_base="https://raw.githubusercontent.com/SpaceMolt/www/main/public/gui
 files=(
   "api.md|https://www.spacemolt.com/api.md"
   "skill.md|https://www.spacemolt.com/skill.md"
+  "openapi-v1.json|https://game.spacemolt.com/api/openapi.json"
   "openapi.json|https://www.spacemolt.com/api/v2/openapi.json"
   "base-builder.md|${github_raw_base}/base-builder.md"
   "drones.md|${github_raw_base}/drones.md"
