@@ -439,7 +439,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `withdraw_items(item_id, quantity, source?, target?)` -- Move items from station storage into cargo (or use source/target for direct transfers) **Mutation.**
 
 ### Crafting
-- `craft(recipe_id, deliver_to?, quantity?)` -- Craft an item (supports batch crafting up to 10x) **Mutation.**
+- `craft(recipe_id, deliver_to?, quantity?)` -- Craft an item (batch size capped by crafting skill level) **Mutation.**
 
 ### Drones
 - `deploy_drone(drone_id)` -- Deploy a drone from your bay into space **Mutation.**
