@@ -122,7 +122,42 @@ test_does_not_commit_when_gameserver_version_is_unchanged() {
   assert_eq "initial" "$subject" "script should not create a release commit without a version change"
 }
 
+test_workflow_configures_git_identity_before_refreshing_docs() {
+  local workflow="${repo_root}/.github/workflows/update-docs.yml"
+  local config_line
+  local refresh_line
+
+  config_line="$(awk '/git config user.name/ { print NR; exit }' "$workflow")"
+  refresh_line="$(awk '/run: bash scripts\/update-docs\.sh/ { print NR; exit }' "$workflow")"
+
+  if [[ -z "$config_line" || -z "$refresh_line" ]]; then
+    printf 'Could not find git identity config or update-docs run line in %s\n' "$workflow" >&2
+    exit 1
+  fi
+
+  if (( config_line >= refresh_line )); then
+    printf 'Workflow must configure git identity before running scripts/update-docs.sh.\n' >&2
+    exit 1
+  fi
+}
+
+test_workflow_pushes_script_created_commits() {
+  local workflow="${repo_root}/.github/workflows/update-docs.yml"
+
+  if ! grep -q 'UPDATE_DOCS_BASE_SHA' "$workflow"; then
+    printf 'Workflow must record the starting commit so script-created commits can be pushed.\n' >&2
+    exit 1
+  fi
+
+  if ! grep -q 'git rev-parse HEAD' "$workflow"; then
+    printf 'Workflow must compare the current commit against the starting commit before deciding there is nothing to push.\n' >&2
+    exit 1
+  fi
+}
+
 test_commits_when_gameserver_version_changes
 test_does_not_commit_when_gameserver_version_is_unchanged
+test_workflow_configures_git_identity_before_refreshing_docs
+test_workflow_pushes_script_created_commits
 
 printf 'All update-docs tests passed.\n'

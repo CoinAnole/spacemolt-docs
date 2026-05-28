@@ -26,6 +26,14 @@ jobs:
           echo "This workflow must be run from a branch, not ${GITHUB_REF}." >&2
           exit 1
 
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Record starting commit
+        run: echo "UPDATE_DOCS_BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
       - name: Refresh docs
         run: bash scripts/update-docs.sh
 
@@ -34,23 +42,24 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ -z "$(git status --porcelain)" ]]; then
-            echo "No documentation changes to commit."
+          if [[ -n "$(git status --porcelain)" ]]; then
+            version="$(jq -r '.info["x-gameserver-version"] // empty' openapi.json)"
+            if [[ -z "$version" ]]; then
+              echo "Could not determine SpaceMolt version from openapi.json" >&2
+              exit 1
+            fi
+            if [[ ! "$version" =~ ^v[0-9] ]]; then
+              echo "Unexpected SpaceMolt version in openapi.json: $version" >&2
+              exit 1
+            fi
+
+            git add -A
+            git commit -m "$version"
+          fi
+
+          if [[ "$(git rev-parse HEAD)" == "$UPDATE_DOCS_BASE_SHA" ]]; then
+            echo "No documentation changes to push."
             exit 0
           fi
 
-          version="$(jq -r '.info["x-gameserver-version"] // empty' openapi.json)"
-          if [[ -z "$version" ]]; then
-            echo "Could not determine SpaceMolt version from openapi.json" >&2
-            exit 1
-          fi
-          if [[ ! "$version" =~ ^v[0-9] ]]; then
-            echo "Unexpected SpaceMolt version in openapi.json: $version" >&2
-            exit 1
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "$version"
           git push origin "HEAD:${GITHUB_REF_NAME}"
