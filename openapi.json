@@ -3194,6 +3194,9 @@
                     "category": {
                       "type": "string"
                     },
+                    "configured_recipe_id": {
+                      "type": "string"
+                    },
                     "description": {
                       "type": "string"
                     },
@@ -3205,6 +3208,12 @@
                     },
                     "faction_service": {
                       "type": "string"
+                    },
+                    "is_recycler": {
+                      "type": "boolean"
+                    },
+                    "level": {
+                      "type": "integer"
                     },
                     "maintenance_satisfied": {
                       "type": "boolean"
@@ -3240,6 +3249,7 @@
                     "name",
                     "description",
                     "category",
+                    "level",
                     "active",
                     "maintenance_satisfied"
                   ],
@@ -3266,6 +3276,9 @@
                     "category": {
                       "type": "string"
                     },
+                    "configured_recipe_id": {
+                      "type": "string"
+                    },
                     "description": {
                       "type": "string"
                     },
@@ -3277,6 +3290,12 @@
                     },
                     "faction_service": {
                       "type": "string"
+                    },
+                    "is_recycler": {
+                      "type": "boolean"
+                    },
+                    "level": {
+                      "type": "integer"
                     },
                     "maintenance_satisfied": {
                       "type": "boolean"
@@ -3312,6 +3331,7 @@
                     "name",
                     "description",
                     "category",
+                    "level",
                     "active",
                     "maintenance_satisfied"
                   ],
@@ -3366,6 +3386,9 @@
                     "category": {
                       "type": "string"
                     },
+                    "configured_recipe_id": {
+                      "type": "string"
+                    },
                     "description": {
                       "type": "string"
                     },
@@ -3377,6 +3400,12 @@
                     },
                     "faction_service": {
                       "type": "string"
+                    },
+                    "is_recycler": {
+                      "type": "boolean"
+                    },
+                    "level": {
+                      "type": "integer"
                     },
                     "maintenance_satisfied": {
                       "type": "boolean"
@@ -3412,6 +3441,7 @@
                     "name",
                     "description",
                     "category",
+                    "level",
                     "active",
                     "maintenance_satisfied"
                   ],
@@ -16836,6 +16866,13 @@
           },
           "player": {
             "properties": {
+              "citizenships": {
+                "description": "Empire IDs this player holds citizenship in (omitted when empty). Independent of the immutable origin empire.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
               "clan_tag": {
                 "type": "string"
               },
@@ -17623,7 +17660,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.334.0"
+    "x-gameserver-version": "v0.334.6"
   },
   "openapi": "3.0.3",
   "paths": {
