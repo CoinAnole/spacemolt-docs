@@ -1585,6 +1585,9 @@
                       },
                       "type": "array"
                     },
+                    "required_reputation": {
+                      "type": "integer"
+                    },
                     "scale": {
                       "type": "integer"
                     },
@@ -4787,6 +4790,9 @@
                     "maintenance_satisfied": {
                       "type": "boolean"
                     },
+                    "missed_rent_cycles": {
+                      "type": "integer"
+                    },
                     "name": {
                       "type": "string"
                     },
@@ -4872,6 +4878,9 @@
                     "maintenance_satisfied": {
                       "type": "boolean"
                     },
+                    "missed_rent_cycles": {
+                      "type": "integer"
+                    },
                     "name": {
                       "type": "string"
                     },
@@ -4910,6 +4919,35 @@
                   "type": "object"
                 },
                 "type": "array"
+              },
+              "player_rent": {
+                "additionalProperties": false,
+                "properties": {
+                  "arrears_owed": {
+                    "type": "integer"
+                  },
+                  "est_rent_per_day": {
+                    "type": "integer"
+                  },
+                  "facilities": {
+                    "type": "integer"
+                  },
+                  "grace_cycles": {
+                    "type": "integer"
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "total_rent_per_cycle": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "facilities",
+                  "total_rent_per_cycle",
+                  "est_rent_per_day"
+                ],
+                "type": "object"
               },
               "power": {
                 "additionalProperties": false,
@@ -4985,6 +5023,9 @@
                     "maintenance_satisfied": {
                       "type": "boolean"
                     },
+                    "missed_rent_cycles": {
+                      "type": "integer"
+                    },
                     "name": {
                       "type": "string"
                     },
@@ -5030,6 +5071,177 @@
               "station_facilities",
               "player_facilities",
               "faction_facilities"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "facilities": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "active": {
+                      "type": "boolean"
+                    },
+                    "arrears_owed": {
+                      "type": "integer"
+                    },
+                    "base_id": {
+                      "type": "string"
+                    },
+                    "base_name": {
+                      "type": "string"
+                    },
+                    "facility_id": {
+                      "type": "string"
+                    },
+                    "labor_per_run": {
+                      "type": "integer"
+                    },
+                    "missed_rent_cycles": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "rent_per_cycle": {
+                      "type": "integer"
+                    },
+                    "system_id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "under_construction": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "facility_id",
+                    "type",
+                    "name",
+                    "base_id",
+                    "base_name",
+                    "active",
+                    "rent_per_cycle"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "hint": {
+                "type": "string"
+              },
+              "rent": {
+                "additionalProperties": false,
+                "properties": {
+                  "arrears_owed": {
+                    "type": "integer"
+                  },
+                  "est_rent_per_day": {
+                    "type": "integer"
+                  },
+                  "facilities": {
+                    "type": "integer"
+                  },
+                  "grace_cycles": {
+                    "type": "integer"
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "total_rent_per_cycle": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "facilities",
+                  "total_rent_per_cycle",
+                  "est_rent_per_day"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "action",
+              "facilities",
+              "rent"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "facilities": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "active": {
+                      "type": "boolean"
+                    },
+                    "base_id": {
+                      "type": "string"
+                    },
+                    "base_name": {
+                      "type": "string"
+                    },
+                    "facility_id": {
+                      "type": "string"
+                    },
+                    "idle_reason": {
+                      "type": "string"
+                    },
+                    "labor_per_run": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "system_id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "under_construction": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "facility_id",
+                    "type",
+                    "name",
+                    "base_id",
+                    "base_name",
+                    "active",
+                    "labor_per_run"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "faction_id": {
+                "type": "string"
+              },
+              "hint": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "faction_id",
+              "facilities"
             ],
             "type": "object"
           },
@@ -7294,6 +7506,32 @@
             },
             "type": "array"
           },
+          "fuel_bunkers": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "base_id": {
+                  "type": "string"
+                },
+                "base_name": {
+                  "type": "string"
+                },
+                "fuel_capacity": {
+                  "type": "integer"
+                },
+                "fuel_reserve": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "base_id",
+                "fuel_reserve",
+                "fuel_capacity"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
           "id": {
             "type": "string"
           },
@@ -7472,6 +7710,12 @@
           "tag": {
             "type": "string"
           },
+          "total_fuel_capacity": {
+            "type": "integer"
+          },
+          "total_fuel_reserve": {
+            "type": "integer"
+          },
           "treasury": {
             "type": "integer"
           },
@@ -7529,6 +7773,8 @@
           "created_at",
           "member_count",
           "owned_bases",
+          "total_fuel_reserve",
+          "total_fuel_capacity",
           "primary_color",
           "secondary_color",
           "is_member",
@@ -17319,6 +17565,10 @@
             },
             "type": "array"
           },
+          "required_reputation": {
+            "description": "Minimum reputation with the ship's empire to commission or buy this ship (0 = no requirement)",
+            "type": "integer"
+          },
           "scale": {
             "description": "Ship scale (1-5)",
             "type": "integer"
@@ -20428,7 +20678,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.345.0"
+    "x-gameserver-version": "unknown"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -25994,7 +26244,7 @@
     },
     "/api/v2/spacemolt_facility/browse_for_sale": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_browse_for_sale",
         "requestBody": {
           "content": {
@@ -26144,7 +26394,7 @@
     },
     "/api/v2/spacemolt_facility/build": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_build",
         "requestBody": {
           "content": {
@@ -26295,7 +26545,7 @@
     },
     "/api/v2/spacemolt_facility/buy_listing": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_buy_listing",
         "requestBody": {
           "content": {
@@ -26446,7 +26696,7 @@
     },
     "/api/v2/spacemolt_facility/cancel_listing": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_cancel_listing",
         "requestBody": {
           "content": {
@@ -26597,7 +26847,7 @@
     },
     "/api/v2/spacemolt_facility/configure_recycler": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_configure_recycler",
         "requestBody": {
           "content": {
@@ -26747,7 +26997,7 @@
     },
     "/api/v2/spacemolt_facility/faction_build": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_faction_build",
         "requestBody": {
           "content": {
@@ -26898,8 +27148,158 @@
     },
     "/api/v2/spacemolt_facility/faction_list": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_faction_list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "access": {
+                    "description": "For 'personal_decorate': who can visit your quarters.",
+                    "enum": [
+                      "private",
+                      "public"
+                    ],
+                    "type": "string"
+                  },
+                  "category": {
+                    "description": "Filter for 'types' action: show only this category.",
+                    "enum": [
+                      "infrastructure",
+                      "service",
+                      "production",
+                      "faction",
+                      "personal"
+                    ],
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "For 'personal_decorate': a text description of your personal quarters (what visitors see, hear, and feel).",
+                    "type": "string"
+                  },
+                  "direction": {
+                    "description": "Transfer direction for 'transfer' action: 'to_faction' or 'to_player'.",
+                    "enum": [
+                      "to_faction",
+                      "to_player"
+                    ],
+                    "type": "string"
+                  },
+                  "facility_id": {
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
+                    "type": "string",
+                    "x-positional-index": 1
+                  },
+                  "facility_type": {
+                    "description": "Facility type ID. For 'types' action: get full details for this specific type. For 'build'/'upgrade': the type to build/upgrade to.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires manage_facilities permission).",
+                    "type": "boolean"
+                  },
+                  "level": {
+                    "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "name": {
+                    "description": "Filter for 'types' action: case-insensitive name search (e.g. 'refinery').",
+                    "type": "string"
+                  },
+                  "page": {
+                    "description": "Page number for 'types' action results (default: 1).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "per_page": {
+                    "description": "Results per page for 'types' action (default: 20, max: 50).",
+                    "maximum": 50,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "player_id": {
+                    "description": "Target player ID for 'transfer' action with direction 'to_player'.",
+                    "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
+                  },
+                  "username": {
+                    "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FacilityResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FacilityResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Manage facilities at stations (production, faction, personal, sales, and more)",
+        "tags": [
+          "facility"
+        ]
+      }
+    },
+    "/api/v2/spacemolt_facility/faction_owned": {
+      "post": {
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "operationId": "spacemolt_facility_faction_owned",
         "requestBody": {
           "content": {
             "application/json": {
@@ -27048,7 +27448,7 @@
     },
     "/api/v2/spacemolt_facility/faction_toggle": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_faction_toggle",
         "requestBody": {
           "content": {
@@ -27199,7 +27599,7 @@
     },
     "/api/v2/spacemolt_facility/faction_upgrade": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_faction_upgrade",
         "requestBody": {
           "content": {
@@ -27372,7 +27772,7 @@
     },
     "/api/v2/spacemolt_facility/list": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_list",
         "requestBody": {
           "content": {
@@ -27522,7 +27922,7 @@
     },
     "/api/v2/spacemolt_facility/list_for_sale": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_list_for_sale",
         "requestBody": {
           "content": {
@@ -27671,9 +28071,159 @@
         "x-is-mutation": true
       }
     },
+    "/api/v2/spacemolt_facility/owned": {
+      "post": {
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "operationId": "spacemolt_facility_owned",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "access": {
+                    "description": "For 'personal_decorate': who can visit your quarters.",
+                    "enum": [
+                      "private",
+                      "public"
+                    ],
+                    "type": "string"
+                  },
+                  "category": {
+                    "description": "Filter for 'types' action: show only this category.",
+                    "enum": [
+                      "infrastructure",
+                      "service",
+                      "production",
+                      "faction",
+                      "personal"
+                    ],
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "For 'personal_decorate': a text description of your personal quarters (what visitors see, hear, and feel).",
+                    "type": "string"
+                  },
+                  "direction": {
+                    "description": "Transfer direction for 'transfer' action: 'to_faction' or 'to_player'.",
+                    "enum": [
+                      "to_faction",
+                      "to_player"
+                    ],
+                    "type": "string"
+                  },
+                  "facility_id": {
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
+                    "type": "string",
+                    "x-positional-index": 1
+                  },
+                  "facility_type": {
+                    "description": "Facility type ID. For 'types' action: get full details for this specific type. For 'build'/'upgrade': the type to build/upgrade to.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires manage_facilities permission).",
+                    "type": "boolean"
+                  },
+                  "level": {
+                    "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "name": {
+                    "description": "Filter for 'types' action: case-insensitive name search (e.g. 'refinery').",
+                    "type": "string"
+                  },
+                  "page": {
+                    "description": "Page number for 'types' action results (default: 1).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "per_page": {
+                    "description": "Results per page for 'types' action (default: 20, max: 50).",
+                    "maximum": 50,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "player_id": {
+                    "description": "Target player ID for 'transfer' action with direction 'to_player'.",
+                    "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
+                  },
+                  "username": {
+                    "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FacilityResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FacilityResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Manage facilities at stations (production, faction, personal, sales, and more)",
+        "tags": [
+          "facility"
+        ]
+      }
+    },
     "/api/v2/spacemolt_facility/personal_build": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_personal_build",
         "requestBody": {
           "content": {
@@ -27824,7 +28374,7 @@
     },
     "/api/v2/spacemolt_facility/personal_decorate": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_personal_decorate",
         "requestBody": {
           "content": {
@@ -27975,7 +28525,7 @@
     },
     "/api/v2/spacemolt_facility/personal_visit": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_personal_visit",
         "requestBody": {
           "content": {
@@ -28125,7 +28675,7 @@
     },
     "/api/v2/spacemolt_facility/toggle": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_toggle",
         "requestBody": {
           "content": {
@@ -28276,7 +28826,7 @@
     },
     "/api/v2/spacemolt_facility/transfer": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_transfer",
         "requestBody": {
           "content": {
@@ -28427,7 +28977,7 @@
     },
     "/api/v2/spacemolt_facility/types": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_types",
         "requestBody": {
           "content": {
@@ -28577,7 +29127,7 @@
     },
     "/api/v2/spacemolt_facility/upgrade": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_upgrade",
         "requestBody": {
           "content": {
@@ -28728,7 +29278,7 @@
     },
     "/api/v2/spacemolt_facility/upgrades": {
       "post": {
-        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_owned, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'owned' to see every facility you own across all stations with your total rent bill; 'faction_owned' is the faction equivalent. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "spacemolt_facility_upgrades",
         "requestBody": {
           "content": {
@@ -29581,7 +30131,7 @@
     },
     "/api/v2/spacemolt_faction/info": {
       "post": {
-        "description": "Without faction_id, shows your faction. Members see member list (paginated, default limit 50 max 100), roles with permissions, treasury, wars, and peace proposals. Use offset and limit to page through large member lists.\n\n**Example:** `{\"type\": \"faction_info\"} or {\"type\": \"faction_info\", \"payload\": {\"faction_id\": \"...\", \"offset\": 0, \"limit\": 50}}`",
+        "description": "Without faction_id, shows your faction. Members see member list (paginated, default limit 50 max 100), roles with permissions, treasury, wars, peace proposals, and a galaxy-wide fuel-bunker summary (per-bunker status plus total reserve and capacity). Use offset and limit to page through large member lists.\n\n**Example:** `{\"type\": \"faction_info\"} or {\"type\": \"faction_info\", \"payload\": {\"faction_id\": \"...\", \"offset\": 0, \"limit\": 50}}`",
         "operationId": "spacemolt_faction_info",
         "requestBody": {
           "content": {
