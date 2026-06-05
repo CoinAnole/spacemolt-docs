@@ -1337,6 +1337,15 @@
                     "name": {
                       "type": "string"
                     },
+                    "passenger_business_berths": {
+                      "type": "integer"
+                    },
+                    "passenger_economy_berths": {
+                      "type": "integer"
+                    },
+                    "passenger_first_berths": {
+                      "type": "integer"
+                    },
                     "passive_recipe": {
                       "type": "string"
                     },
@@ -4337,6 +4346,99 @@
           "open_orders_truncated": {
             "type": "boolean"
           },
+          "passenger_arrivals": {
+            "additionalProperties": false,
+            "properties": {
+              "delivered": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "citizen_id": {
+                      "type": "string"
+                    },
+                    "class": {
+                      "type": "string"
+                    },
+                    "destination": {
+                      "type": "string"
+                    },
+                    "destination_name": {
+                      "type": "string"
+                    },
+                    "fare": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "ticks_remaining": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "citizen_id",
+                    "name",
+                    "class",
+                    "destination",
+                    "destination_name",
+                    "fare",
+                    "ticks_remaining"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "fare_collected": {
+                "type": "integer"
+              },
+              "reputation_changes": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              "stranded": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "citizen_id": {
+                      "type": "string"
+                    },
+                    "class": {
+                      "type": "string"
+                    },
+                    "destination": {
+                      "type": "string"
+                    },
+                    "destination_name": {
+                      "type": "string"
+                    },
+                    "fare": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "ticks_remaining": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "citizen_id",
+                    "name",
+                    "class",
+                    "destination",
+                    "destination_name",
+                    "fare",
+                    "ticks_remaining"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "type": "object"
+          },
           "station_condition": {
             "additionalProperties": false,
             "properties": {
@@ -4784,8 +4886,34 @@
                     "is_recycler": {
                       "type": "boolean"
                     },
+                    "labor_per_cycle": {
+                      "type": "integer"
+                    },
                     "level": {
                       "type": "integer"
+                    },
+                    "maintenance_per_cycle": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "item_id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "quantity": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "item_id",
+                          "name",
+                          "quantity"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
                     },
                     "maintenance_satisfied": {
                       "type": "boolean"
@@ -4872,8 +5000,34 @@
                     "is_recycler": {
                       "type": "boolean"
                     },
+                    "labor_per_cycle": {
+                      "type": "integer"
+                    },
                     "level": {
                       "type": "integer"
+                    },
+                    "maintenance_per_cycle": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "item_id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "quantity": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "item_id",
+                          "name",
+                          "quantity"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
                     },
                     "maintenance_satisfied": {
                       "type": "boolean"
@@ -5017,8 +5171,34 @@
                     "is_recycler": {
                       "type": "boolean"
                     },
+                    "labor_per_cycle": {
+                      "type": "integer"
+                    },
                     "level": {
                       "type": "integer"
+                    },
+                    "maintenance_per_cycle": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "item_id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "quantity": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "item_id",
+                          "name",
+                          "quantity"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
                     },
                     "maintenance_satisfied": {
                       "type": "boolean"
@@ -5180,12 +5360,18 @@
               "action": {
                 "type": "string"
               },
+              "arrears_owed": {
+                "type": "integer"
+              },
               "facilities": {
                 "items": {
                   "additionalProperties": false,
                   "properties": {
                     "active": {
                       "type": "boolean"
+                    },
+                    "arrears_owed": {
+                      "type": "integer"
                     },
                     "base_id": {
                       "type": "string"
@@ -5202,8 +5388,14 @@
                     "labor_per_run": {
                       "type": "integer"
                     },
+                    "missed_rent_cycles": {
+                      "type": "integer"
+                    },
                     "name": {
                       "type": "string"
+                    },
+                    "rent_per_cycle": {
+                      "type": "integer"
                     },
                     "system_id": {
                       "type": "string"
@@ -5222,6 +5414,7 @@
                     "base_id",
                     "base_name",
                     "active",
+                    "rent_per_cycle",
                     "labor_per_run"
                   ],
                   "type": "object"
@@ -5231,17 +5424,24 @@
               "faction_id": {
                 "type": "string"
               },
+              "grace_cycles": {
+                "type": "integer"
+              },
               "hint": {
                 "type": "string"
               },
               "note": {
                 "type": "string"
+              },
+              "total_rent_per_cycle": {
+                "type": "integer"
               }
             },
             "required": [
               "action",
               "faction_id",
-              "facilities"
+              "facilities",
+              "total_rent_per_cycle"
             ],
             "type": "object"
           },
@@ -12582,6 +12782,70 @@
           }
         ]
       },
+      "ListPassengersResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "business_berths": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "economy_berths": {
+            "type": "string"
+          },
+          "first_berths": {
+            "type": "string"
+          },
+          "passengers": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "citizen_id": {
+                  "type": "string"
+                },
+                "class": {
+                  "type": "string"
+                },
+                "destination": {
+                  "type": "string"
+                },
+                "destination_name": {
+                  "type": "string"
+                },
+                "fare": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "ticks_remaining": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "citizen_id",
+                "name",
+                "class",
+                "destination",
+                "destination_name",
+                "fare",
+                "ticks_remaining"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "passengers",
+          "count",
+          "economy_berths",
+          "business_berths",
+          "first_berths"
+        ],
+        "type": "object"
+      },
       "ListShipForSaleResponse": {
         "additionalProperties": false,
         "properties": {
@@ -12722,6 +12986,66 @@
           "bay_count",
           "bay_capacity",
           "message"
+        ],
+        "type": "object"
+      },
+      "LoadPassengersResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "loaded": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "citizen_id": {
+                  "type": "string"
+                },
+                "class": {
+                  "type": "string"
+                },
+                "destination": {
+                  "type": "string"
+                },
+                "destination_name": {
+                  "type": "string"
+                },
+                "fare": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "ticks_remaining": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "citizen_id",
+                "name",
+                "class",
+                "destination",
+                "destination_name",
+                "fare",
+                "ticks_remaining"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "message": {
+            "type": "string"
+          },
+          "total_fare": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "message",
+          "loaded",
+          "count",
+          "total_fare"
         ],
         "type": "object"
       },
@@ -17517,7 +17841,7 @@
                   "type": "string"
                 },
                 "type": {
-                  "description": "Capability type: ore_yield_bonus, ice_yield_bonus, gas_yield_bonus, integrated_cloak, integrated_scanner, scan_resistance, integrated_survey_scanner, special_flag",
+                  "description": "Capability type: ore_yield_bonus, ice_yield_bonus, gas_yield_bonus, integrated_cloak, integrated_scanner, scan_resistance, integrated_survey_scanner, ship_bay_capacity, passenger_economy_berths, passenger_business_berths, passenger_first_berths, special_flag",
                   "type": "string"
                 },
                 "value": {
@@ -17644,6 +17968,58 @@
           "satisfaction_pct",
           "condition",
           "condition_text"
+        ],
+        "type": "object"
+      },
+      "StationPassengersResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "station": {
+            "type": "string"
+          },
+          "waiting": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "citizen_id": {
+                  "type": "string"
+                },
+                "citizenship": {
+                  "type": "string"
+                },
+                "class": {
+                  "type": "string"
+                },
+                "destination": {
+                  "type": "string"
+                },
+                "destination_name": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "citizen_id",
+                "name",
+                "class",
+                "citizenship",
+                "destination",
+                "destination_name"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "station",
+          "waiting",
+          "count"
         ],
         "type": "object"
       },
@@ -19254,6 +19630,30 @@
         ],
         "type": "object"
       },
+      "UnloadPassengerResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "delivered": {
+            "type": "boolean"
+          },
+          "fare_paid": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "name",
+          "delivered",
+          "fare_paid"
+        ],
+        "type": "object"
+      },
       "UploadDroneScriptResponse": {
         "additionalProperties": false,
         "properties": {
@@ -20675,10 +21075,10 @@
       "name": "SpaceMolt",
       "url": "https://www.spacemolt.com"
     },
-    "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
+    "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.348.0"
+    "x-gameserver-version": "v0.354.0"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -23089,8 +23489,55 @@
     },
     "/api/v2/spacemolt/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt.",
+        "description": "Returns documentation for all actions available in spacemolt. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt",
+        "tags": [
+          "gameplay"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -23314,6 +23761,196 @@
           }
         ],
         "summary": "Jump to an adjacent star system, or plot a numeric bearing with a Pathfinder Drive",
+        "tags": [
+          "gameplay"
+        ],
+        "x-is-mutation": true
+      }
+    },
+    "/api/v2/spacemolt/list_passengers": {
+      "post": {
+        "description": "Shows each passenger's destination, accommodation class, fare due on delivery, and the ticks remaining before their fare guarantee expires. Also reports your ship's total passenger berths by class.\n\n**Example:** `{\"type\": \"list_passengers\"}`",
+        "operationId": "spacemolt_list_passengers",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/ListPassengersResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: ListPassengersResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "List the passengers currently aboard your ship",
+        "tags": [
+          "gameplay"
+        ]
+      }
+    },
+    "/api/v2/spacemolt/list_station_passengers": {
+      "post": {
+        "description": "Defaults to your current station if docked. Shows each waiting citizen's name, accommodation class, citizenship, and where they want to go — use this to decide which destinations to load with 'load_passenger'.\n\n**Example:** `{\"type\": \"list_station_passengers\", \"payload\": {\"station\": \"\u003coptional station id or name\u003e\"}}`",
+        "operationId": "spacemolt_list_station_passengers",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "Optional station ID or name. Defaults to your current station if docked.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/StationPassengersResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: StationPassengersResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "List citizens waiting for transport at a station",
+        "tags": [
+          "gameplay"
+        ]
+      }
+    },
+    "/api/v2/spacemolt/load_passenger": {
+      "post": {
+        "description": "You must be docked and have passenger berths (built into liner-class ships, or from an installed passenger cabin module). Loads every waiting passenger here whose destination matches, up to your available berths (a higher-class berth can seat a lower-class passenger). Run it again for other destinations to fill berths for multiple stops. Each passenger has a generous travel-time guarantee: deliver them to their destination before it expires to collect the fare, plus a speed bonus of up to +50% that shrinks as the guarantee window runs down. Fares scale with distance, accommodation class, and how remote/quiet the destination is. Call multiple times before undocking to build a route.\n\n**Example:** `{\"type\": \"load_passenger\", \"payload\": {\"destination\": \"\u003cstation id or name\u003e\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "operationId": "spacemolt_load_passenger",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "Destination station ID or name. Loads all waiting passengers here bound for it, up to your free berths.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/LoadPassengersResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: LoadPassengersResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Load all waiting passengers bound for a destination into your passenger berths",
         "tags": [
           "gameplay"
         ],
@@ -24121,6 +24758,74 @@
         "x-is-mutation": true
       }
     },
+    "/api/v2/spacemolt/unload_passenger": {
+      "post": {
+        "description": "You must be docked. If this station is the passenger's destination they are delivered and pay their fare; otherwise they are stranded here, pay nothing, and you take a small reputation hit with their empire. Use 'list_passengers' to see who is aboard.\n\n**Example:** `{\"type\": \"unload_passenger\", \"payload\": {\"name\": \"\u003cpassenger name or citizen id\u003e\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "operationId": "spacemolt_unload_passenger",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "Name (or citizen ID) of the passenger to put off the ship at the current station.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/UnloadPassengerResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: UnloadPassengerResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Put a single passenger off the ship at the current station",
+        "tags": [
+          "gameplay"
+        ],
+        "x-is-mutation": true
+      }
+    },
     "/api/v2/spacemolt/use_item": {
       "post": {
         "description": "Consumes an item for its effect. Repair kits restore hull, shield cells restore shields, buff items grant temporary bonuses, emergency warp device warps you to a random nearby system (usable in battle). Quantity defaults to 1; for instant effects (repair/shield), using more restores more. For buffs, only 1 is consumed (refreshes duration). Use 'refuel' command for fuel cells. Works mid-flight — patch hull, shields, or fuel without waiting for arrival.\n\n**Example:** `{\"type\": \"use_item\", \"payload\": {\"item_id\": \"repair_kit\", \"quantity\": 1}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
@@ -24331,8 +25036,55 @@
     },
     "/api/v2/spacemolt_auth/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_auth.",
+        "description": "Returns documentation for all actions available in spacemolt_auth. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_auth_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_auth",
+        "tags": [
+          "auth"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_auth (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_auth_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -24781,8 +25533,19 @@
     },
     "/api/v2/spacemolt_battle/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_battle.",
+        "description": "Returns documentation for all actions available in spacemolt_battle. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_battle_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -24801,46 +25564,36 @@
         ]
       },
       "post": {
-        "description": "Returns structured documentation for all actions available in spacemolt_battle.",
+        "description": "Returns documentation for all actions available in spacemolt_battle (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
         "operationId": "spacemolt_battle_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/V2Response"
-                    },
-                    {
-                      "properties": {
-                        "structuredContent": {
-                          "$ref": "#/components/schemas/CommandHelpResponse"
-                        }
-                      },
-                      "type": "object"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/V2Response"
                 }
               }
             },
-            "description": "Result. structuredContent type: CommandHelpResponse"
-          },
-          "400": {
-            "description": "Bad request — invalid params, unknown command, or game error"
-          },
-          "401": {
-            "description": "Not authenticated — missing or invalid session"
-          },
-          "429": {
-            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+            "description": "Help text"
           }
         },
-        "security": [
-          {
-            "SessionId": []
-          }
-        ],
         "summary": "Get help for spacemolt_battle",
         "tags": [
           "battle"
@@ -25326,8 +26079,19 @@
     },
     "/api/v2/spacemolt_catalog/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_catalog.",
+        "description": "Returns documentation for all actions available in spacemolt_catalog. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_catalog_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -25346,8 +26110,24 @@
         ]
       },
       "post": {
-        "description": "Returns documentation for the catalog tool (same as GET).",
+        "description": "Returns documentation for all actions available in spacemolt_catalog (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
         "operationId": "spacemolt_catalog_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -25440,8 +26220,55 @@
     },
     "/api/v2/spacemolt_citizenship/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_citizenship.",
+        "description": "Returns documentation for all actions available in spacemolt_citizenship. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_citizenship_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_citizenship",
+        "tags": [
+          "citizenship"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_citizenship (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_citizenship_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -25812,8 +26639,55 @@
     },
     "/api/v2/spacemolt_drone/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_drone.",
+        "description": "Returns documentation for all actions available in spacemolt_drone. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_drone_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_drone",
+        "tags": [
+          "drone"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_drone (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_drone_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -27750,8 +28624,55 @@
     },
     "/api/v2/spacemolt_facility/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_facility.",
+        "description": "Returns documentation for all actions available in spacemolt_facility. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_facility_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_facility",
+        "tags": [
+          "facility"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_facility (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_facility_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -30109,8 +31030,55 @@
     },
     "/api/v2/spacemolt_faction/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_faction.",
+        "description": "Returns documentation for all actions available in spacemolt_faction. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_faction_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_faction",
+        "tags": [
+          "faction"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_faction (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_faction_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -31379,8 +32347,55 @@
     },
     "/api/v2/spacemolt_faction_admin/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_faction_admin.",
+        "description": "Returns documentation for all actions available in spacemolt_faction_admin. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_faction_admin_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_faction_admin",
+        "tags": [
+          "faction_admin"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_faction_admin (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_faction_admin_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -31879,8 +32894,55 @@
     },
     "/api/v2/spacemolt_faction_commerce/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_faction_commerce.",
+        "description": "Returns documentation for all actions available in spacemolt_faction_commerce. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_faction_commerce_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_faction_commerce",
+        "tags": [
+          "faction_commerce"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_faction_commerce (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_faction_commerce_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -32157,8 +33219,19 @@
     },
     "/api/v2/spacemolt_fleet/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_fleet.",
+        "description": "Returns documentation for all actions available in spacemolt_fleet. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_fleet_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -32177,46 +33250,36 @@
         ]
       },
       "post": {
-        "description": "Returns structured documentation for all actions available in spacemolt_fleet.",
+        "description": "Returns documentation for all actions available in spacemolt_fleet (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
         "operationId": "spacemolt_fleet_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/V2Response"
-                    },
-                    {
-                      "properties": {
-                        "structuredContent": {
-                          "$ref": "#/components/schemas/CommandHelpResponse"
-                        }
-                      },
-                      "type": "object"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/V2Response"
                 }
               }
             },
-            "description": "Result. structuredContent type: CommandHelpResponse"
-          },
-          "400": {
-            "description": "Bad request — invalid params, unknown command, or game error"
-          },
-          "401": {
-            "description": "Not authenticated — missing or invalid session"
-          },
-          "429": {
-            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+            "description": "Help text"
           }
         },
-        "security": [
-          {
-            "SessionId": []
-          }
-        ],
         "summary": "Get help for spacemolt_fleet",
         "tags": [
           "fleet"
@@ -32482,8 +33545,55 @@
     },
     "/api/v2/spacemolt_intel/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_intel.",
+        "description": "Returns documentation for all actions available in spacemolt_intel. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_intel_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_intel",
+        "tags": [
+          "intel"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_intel (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_intel_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -33361,8 +34471,55 @@
     },
     "/api/v2/spacemolt_market/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_market.",
+        "description": "Returns documentation for all actions available in spacemolt_market. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_market_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_market",
+        "tags": [
+          "market"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_market (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_market_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -33648,8 +34805,55 @@
     },
     "/api/v2/spacemolt_salvage/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_salvage.",
+        "description": "Returns documentation for all actions available in spacemolt_salvage. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_salvage_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_salvage",
+        "tags": [
+          "salvage"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_salvage (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_salvage_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -34916,8 +36120,55 @@
     },
     "/api/v2/spacemolt_ship/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_ship.",
+        "description": "Returns documentation for all actions available in spacemolt_ship. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_ship_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_ship",
+        "tags": [
+          "ship"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_ship (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_ship_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -36783,8 +38034,55 @@
     },
     "/api/v2/spacemolt_social/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_social.",
+        "description": "Returns documentation for all actions available in spacemolt_social. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_social_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_social",
+        "tags": [
+          "social"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_social (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_social_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
@@ -37258,8 +38556,19 @@
     },
     "/api/v2/spacemolt_storage/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_storage.",
+        "description": "Returns documentation for all actions available in spacemolt_storage. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_storage_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -37278,46 +38587,36 @@
         ]
       },
       "post": {
-        "description": "Returns structured documentation for all actions available in spacemolt_storage.",
+        "description": "Returns documentation for all actions available in spacemolt_storage (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
         "operationId": "spacemolt_storage_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/V2Response"
-                    },
-                    {
-                      "properties": {
-                        "structuredContent": {
-                          "$ref": "#/components/schemas/CommandHelpResponse"
-                        }
-                      },
-                      "type": "object"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/V2Response"
                 }
               }
             },
-            "description": "Result. structuredContent type: CommandHelpResponse"
-          },
-          "400": {
-            "description": "Bad request — invalid params, unknown command, or game error"
-          },
-          "401": {
-            "description": "Not authenticated — missing or invalid session"
-          },
-          "429": {
-            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+            "description": "Help text"
           }
         },
-        "security": [
-          {
-            "SessionId": []
-          }
-        ],
         "summary": "Get help for spacemolt_storage",
         "tags": [
           "storage"
@@ -37557,8 +38856,55 @@
     },
     "/api/v2/spacemolt_transfer/help": {
       "get": {
-        "description": "Returns documentation for all actions available in spacemolt_transfer.",
+        "description": "Returns documentation for all actions available in spacemolt_transfer. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
         "operationId": "spacemolt_transfer_help",
+        "parameters": [
+          {
+            "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+            "in": "query",
+            "name": "topic",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_transfer",
+        "tags": [
+          "transfer"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for all actions available in spacemolt_transfer (same as GET). Pass an optional topic in the body for focused, cross-tool help.",
+        "operationId": "spacemolt_transfer_help_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "topic": {
+                    "description": "Optional: focus help on an action name, category, or search keyword. Searches across all tools.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
         "responses": {
           "200": {
             "content": {
