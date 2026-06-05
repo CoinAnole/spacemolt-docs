@@ -107,6 +107,82 @@
         ],
         "type": "object"
       },
+      "AttackResponse": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "auto_docked": {
+                "type": "boolean"
+              },
+              "auto_undocked": {
+                "type": "boolean"
+              },
+              "target": {
+                "type": "string"
+              },
+              "target_name": {
+                "type": "string"
+              },
+              "target_type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "target",
+              "target_type",
+              "target_name"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "auto_docked": {
+                "type": "boolean"
+              },
+              "auto_undocked": {
+                "type": "boolean"
+              },
+              "battle_id": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "system": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "your_side": {
+                "type": "integer"
+              },
+              "your_zone": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "target",
+              "battle_id",
+              "system",
+              "your_side",
+              "your_zone",
+              "message"
+            ],
+            "type": "object"
+          }
+        ]
+      },
       "Base": {
         "description": "A station or outpost where players can dock, trade, and access services.",
         "properties": {
@@ -1020,27 +1096,673 @@
             "type": "object"
           },
           "items": {
+            "description": "Catalog entries. Shape depends on the requested type: ships → ShipClass, skills → Skill, recipes → Recipe, items → Item or Module.",
             "items": {
-              "additionalProperties": false,
-              "properties": {
-                "category": {
-                  "type": "string"
+              "oneOf": [
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "base_value": {
+                      "type": "integer"
+                    },
+                    "category": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "effect": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "ammo": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "anti_drone_mod": {
+                              "type": "number"
+                            },
+                            "anti_large_mod": {
+                              "type": "number"
+                            },
+                            "anti_small_mod": {
+                              "type": "number"
+                            },
+                            "armor_bypass": {
+                              "type": "number"
+                            },
+                            "armor_melt_pct": {
+                              "type": "number"
+                            },
+                            "armor_melt_ticks": {
+                              "type": "integer"
+                            },
+                            "damage_mod": {
+                              "type": "number"
+                            },
+                            "disrupt_bonus_speed": {
+                              "type": "number"
+                            },
+                            "disrupt_bonus_ticks": {
+                              "type": "integer"
+                            },
+                            "disrupt_damage": {
+                              "type": "number"
+                            },
+                            "disrupt_speed": {
+                              "type": "number"
+                            },
+                            "disrupt_ticks": {
+                              "type": "integer"
+                            },
+                            "dot_pct": {
+                              "type": "number"
+                            },
+                            "dot_ticks": {
+                              "type": "integer"
+                            },
+                            "hit_chance_mod": {
+                              "type": "integer"
+                            },
+                            "hull_damage_mod": {
+                              "type": "number"
+                            },
+                            "shield_bypass": {
+                              "type": "number"
+                            },
+                            "shield_damage_mod": {
+                              "type": "number"
+                            },
+                            "splash_pct": {
+                              "type": "number"
+                            },
+                            "untraceable": {
+                              "type": "boolean"
+                            },
+                            "wear_per_shot": {
+                              "type": "number"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "amount": {
+                          "type": "integer"
+                        },
+                        "duration": {
+                          "type": "integer"
+                        },
+                        "stat": {
+                          "type": "string"
+                        },
+                        "subtype": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type"
+                      ],
+                      "type": "object"
+                    },
+                    "extracted_by": {
+                      "type": "string"
+                    },
+                    "hazardous": {
+                      "type": "boolean"
+                    },
+                    "hidden": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "quest_item": {
+                      "type": "boolean"
+                    },
+                    "rarity": {
+                      "type": "string"
+                    },
+                    "region_lock": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "size": {
+                      "type": "integer"
+                    },
+                    "stackable": {
+                      "type": "boolean"
+                    },
+                    "tradeable": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "category",
+                    "size",
+                    "base_value",
+                    "stackable",
+                    "tradeable"
+                  ],
+                  "type": "object"
                 },
-                "description": {
-                  "type": "string"
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "accuracy_bonus": {
+                      "type": "integer"
+                    },
+                    "ammo_type": {
+                      "type": "string"
+                    },
+                    "armor_bonus": {
+                      "type": "integer"
+                    },
+                    "armor_bypass_bonus": {
+                      "type": "number"
+                    },
+                    "armor_repair_rate": {
+                      "type": "integer"
+                    },
+                    "base_value": {
+                      "type": "integer"
+                    },
+                    "cargo_bonus": {
+                      "type": "integer"
+                    },
+                    "cloak_strength": {
+                      "type": "integer"
+                    },
+                    "cooldown": {
+                      "type": "integer"
+                    },
+                    "cpu_bonus": {
+                      "type": "integer"
+                    },
+                    "cpu_usage": {
+                      "type": "integer"
+                    },
+                    "current_cool": {
+                      "type": "integer"
+                    },
+                    "damage": {
+                      "type": "integer"
+                    },
+                    "damage_reduction": {
+                      "type": "integer"
+                    },
+                    "damage_type": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "drone_bandwidth": {
+                      "type": "integer"
+                    },
+                    "drone_capacity": {
+                      "type": "integer"
+                    },
+                    "fuel_efficiency": {
+                      "type": "integer"
+                    },
+                    "hidden": {
+                      "type": "boolean"
+                    },
+                    "hull_bonus": {
+                      "type": "integer"
+                    },
+                    "hull_penalty": {
+                      "type": "integer"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "magazine_size": {
+                      "type": "integer"
+                    },
+                    "max_fuel_bonus": {
+                      "type": "integer"
+                    },
+                    "mining_power": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "passive_recipe": {
+                      "type": "string"
+                    },
+                    "power_bonus": {
+                      "type": "integer"
+                    },
+                    "power_usage": {
+                      "type": "integer"
+                    },
+                    "quest_item": {
+                      "type": "boolean"
+                    },
+                    "range": {
+                      "type": "integer"
+                    },
+                    "reach": {
+                      "type": "integer"
+                    },
+                    "required_skills": {
+                      "additionalProperties": {
+                        "type": "integer"
+                      },
+                      "type": "object"
+                    },
+                    "resistance_bonus": {
+                      "additionalProperties": {
+                        "type": "integer"
+                      },
+                      "type": "object"
+                    },
+                    "salvage_bonus": {
+                      "type": "integer"
+                    },
+                    "scanner_power": {
+                      "type": "integer"
+                    },
+                    "shield_bonus": {
+                      "type": "integer"
+                    },
+                    "shield_bypass_bonus": {
+                      "type": "number"
+                    },
+                    "shield_recharge_bonus": {
+                      "type": "integer"
+                    },
+                    "signature_bonus": {
+                      "type": "integer"
+                    },
+                    "size": {
+                      "type": "integer"
+                    },
+                    "slot": {
+                      "type": "string"
+                    },
+                    "special": {
+                      "type": "string"
+                    },
+                    "speed_bonus": {
+                      "type": "integer"
+                    },
+                    "speed_penalty": {
+                      "type": "integer"
+                    },
+                    "survey_power": {
+                      "type": "integer"
+                    },
+                    "survey_range": {
+                      "type": "integer"
+                    },
+                    "tow_speed_penalty": {
+                      "type": "integer"
+                    },
+                    "tracking_bonus": {
+                      "type": "integer"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "type_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "type_id",
+                    "type",
+                    "slot",
+                    "name",
+                    "description",
+                    "size",
+                    "base_value",
+                    "cpu_usage",
+                    "power_usage"
+                  ],
+                  "type": "object"
                 },
-                "id": {
-                  "type": "string"
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "base_armor": {
+                      "type": "integer"
+                    },
+                    "base_fuel": {
+                      "type": "integer"
+                    },
+                    "base_hull": {
+                      "type": "integer"
+                    },
+                    "base_shield": {
+                      "type": "integer"
+                    },
+                    "base_shield_recharge": {
+                      "type": "integer"
+                    },
+                    "base_speed": {
+                      "type": "integer"
+                    },
+                    "based_on": {
+                      "type": "string"
+                    },
+                    "build_materials": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "item_id": {
+                            "type": "string"
+                          },
+                          "quantity": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "item_id",
+                          "quantity"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "build_time": {
+                      "type": "integer"
+                    },
+                    "cargo_capacity": {
+                      "type": "integer"
+                    },
+                    "category": {
+                      "type": "string"
+                    },
+                    "class": {
+                      "type": "string"
+                    },
+                    "cpu_capacity": {
+                      "type": "integer"
+                    },
+                    "default_modules": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "defense_slots": {
+                      "type": "integer"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "faction": {
+                      "type": "string"
+                    },
+                    "flavor_tags": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "hidden": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "inherent_capabilities": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "flag": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "legacy": {
+                      "type": "boolean"
+                    },
+                    "lore": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "npc_role": {
+                      "type": "string"
+                    },
+                    "passive_recipes": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "piloting_required": {
+                      "type": "integer"
+                    },
+                    "power_capacity": {
+                      "type": "integer"
+                    },
+                    "price": {
+                      "type": "integer"
+                    },
+                    "required_items": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "item_id": {
+                            "type": "string"
+                          },
+                          "quantity": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "item_id",
+                          "quantity"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "scale": {
+                      "type": "integer"
+                    },
+                    "shipyard_tier": {
+                      "type": "integer"
+                    },
+                    "special": {
+                      "type": "string"
+                    },
+                    "starter_ship": {
+                      "type": "boolean"
+                    },
+                    "tier": {
+                      "type": "integer"
+                    },
+                    "tow_speed_bonus": {
+                      "type": "integer"
+                    },
+                    "utility_slots": {
+                      "type": "integer"
+                    },
+                    "weapon_slots": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "class",
+                    "price",
+                    "tier",
+                    "scale",
+                    "base_hull",
+                    "base_shield",
+                    "base_shield_recharge",
+                    "base_armor",
+                    "base_speed",
+                    "base_fuel",
+                    "cargo_capacity",
+                    "cpu_capacity",
+                    "power_capacity",
+                    "weapon_slots",
+                    "defense_slots",
+                    "utility_slots",
+                    "shipyard_tier",
+                    "build_time"
+                  ],
+                  "type": "object"
                 },
-                "name": {
-                  "type": "string"
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bonus_per_level": {
+                      "additionalProperties": {
+                        "type": "integer"
+                      },
+                      "type": "object"
+                    },
+                    "category": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "empire_restriction": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "max_level": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "training_source": {
+                      "type": "string"
+                    },
+                    "xp_per_level": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "category",
+                    "max_level",
+                    "xp_per_level"
+                  ],
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": false,
+                  "properties": {
+                    "category": {
+                      "type": "string"
+                    },
+                    "crafting_time": {
+                      "type": "integer"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "facility_only": {
+                      "type": "boolean"
+                    },
+                    "fuel_output": {
+                      "type": "integer"
+                    },
+                    "hidden": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "inputs": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "item_id": {
+                            "type": "string"
+                          },
+                          "quantity": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "item_id",
+                          "quantity"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "no_recycle": {
+                      "type": "boolean"
+                    },
+                    "outputs": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "item_id": {
+                            "type": "string"
+                          },
+                          "quantity": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "item_id",
+                          "quantity"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description",
+                    "category",
+                    "inputs",
+                    "outputs",
+                    "crafting_time"
+                  ],
+                  "type": "object"
                 }
-              },
-              "required": [
-                "id",
-                "name"
-              ],
-              "type": "object"
+              ]
             },
             "type": "array"
           },
@@ -1243,19 +1965,23 @@
       "ChatResponse": {
         "additionalProperties": false,
         "properties": {
-          "action": {
-            "type": "string"
-          },
           "channel": {
             "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "sent_at": {
+            "type": "integer"
           },
           "warning": {
             "type": "string"
           }
         },
         "required": [
-          "action",
-          "channel"
+          "message",
+          "channel",
+          "sent_at"
         ],
         "type": "object"
       },
@@ -1723,6 +2449,81 @@
           "enabled",
           "cloak_strength",
           "message"
+        ],
+        "type": "object"
+      },
+      "CommandHelpResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "action": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "example": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "examples": {
+                  "items": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "params": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "action",
+                "description"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "command": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sources": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "targets": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "command",
+          "description",
+          "actions"
         ],
         "type": "object"
       },
@@ -2801,44 +3602,76 @@
         "type": "object"
       },
       "DeployDroneResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "bandwidth_total": {
-            "type": "integer"
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "bandwidth_total": {
+                "type": "integer"
+              },
+              "bandwidth_used": {
+                "type": "integer"
+              },
+              "drone_id": {
+                "type": "string"
+              },
+              "drone_type": {
+                "type": "string"
+              },
+              "hull": {
+                "type": "integer"
+              },
+              "max_hull": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "drone_id",
+              "drone_type",
+              "status",
+              "hull",
+              "max_hull",
+              "bandwidth_used",
+              "bandwidth_total",
+              "message"
+            ],
+            "type": "object"
           },
-          "bandwidth_used": {
-            "type": "integer"
-          },
-          "drone_id": {
-            "type": "string"
-          },
-          "drone_type": {
-            "type": "string"
-          },
-          "hull": {
-            "type": "integer"
-          },
-          "max_hull": {
-            "type": "integer"
-          },
-          "message": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
+          {
+            "additionalProperties": false,
+            "properties": {
+              "bandwidth_total": {
+                "type": "integer"
+              },
+              "bandwidth_used": {
+                "type": "integer"
+              },
+              "deployed": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              },
+              "skipped": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "deployed",
+              "skipped",
+              "bandwidth_used",
+              "bandwidth_total",
+              "message"
+            ],
+            "type": "object"
           }
-        },
-        "required": [
-          "drone_id",
-          "drone_type",
-          "status",
-          "hull",
-          "max_hull",
-          "bandwidth_used",
-          "bandwidth_total",
-          "message"
-        ],
-        "type": "object"
+        ]
       },
       "DepositItemsResponse": {
         "oneOf": [
@@ -2909,6 +3742,305 @@
               "dest_total"
             ],
             "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "integer"
+              },
+              "dest_credits": {
+                "type": "integer"
+              },
+              "destination": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "source_credits": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "source",
+              "destination",
+              "amount",
+              "source_credits",
+              "dest_credits"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "base_id": {
+                "type": "string"
+              },
+              "cargo_remaining": {
+                "type": "integer"
+              },
+              "credits_sent": {
+                "type": "integer"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "recipient": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "storage_remaining": {
+                "type": "integer"
+              },
+              "wallet_remaining": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "recipient",
+              "base_id"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "base_id": {
+                "type": "string"
+              },
+              "class_id": {
+                "type": "string"
+              },
+              "class_name": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "recipient": {
+                "type": "string"
+              },
+              "ship_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "ship_id",
+              "class_id",
+              "recipient",
+              "base_id"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "credits_sent": {
+                "type": "integer"
+              },
+              "faction_id": {
+                "type": "string"
+              },
+              "faction_name": {
+                "type": "string"
+              },
+              "items_sent": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "faction_id",
+              "faction_name",
+              "items_sent",
+              "credits_sent",
+              "message"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "base_id": {
+                "type": "string"
+              },
+              "base_name": {
+                "type": "string"
+              },
+              "cargo_remaining": {
+                "type": "integer"
+              },
+              "class_id": {
+                "type": "string"
+              },
+              "class_name": {
+                "type": "string"
+              },
+              "credits_sent": {
+                "type": "integer"
+              },
+              "empire_id": {
+                "type": "string"
+              },
+              "empire_name": {
+                "type": "string"
+              },
+              "fleet_id": {
+                "type": "string"
+              },
+              "fleet_name": {
+                "type": "string"
+              },
+              "hull_designator": {
+                "type": "string"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "npc_id": {
+                "type": "string"
+              },
+              "petition_id": {
+                "type": "string"
+              },
+              "petition_notice": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "ship_id": {
+                "type": "string"
+              },
+              "wallet_remaining": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "empire_id",
+              "empire_name",
+              "base_id",
+              "base_name"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "cargo_remaining": {
+                "type": "integer"
+              },
+              "cargo_space": {
+                "type": "integer"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "storage_total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "item_id",
+              "quantity",
+              "storage_total",
+              "cargo_remaining",
+              "cargo_space"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "integer"
+              },
+              "faction_credits": {
+                "type": "integer"
+              },
+              "player_credits": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "amount",
+              "player_credits",
+              "faction_credits"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "fuel": {
+                "type": "integer"
+              },
+              "fuel_capacity": {
+                "type": "integer"
+              },
+              "ship_fuel": {
+                "type": "integer"
+              },
+              "storage_fuel": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "fuel",
+              "storage_fuel",
+              "fuel_capacity",
+              "ship_fuel"
+            ],
+            "type": "object"
           }
         ]
       },
@@ -2953,6 +4085,437 @@
           "missions_sent",
           "expires_seconds",
           "message"
+        ],
+        "type": "object"
+      },
+      "DockResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
+          "base": {
+            "type": "string"
+          },
+          "claimed_note": {
+            "type": "string"
+          },
+          "claimed_ships": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "class_id": {
+                  "type": "string"
+                },
+                "class_name": {
+                  "type": "string"
+                },
+                "ship_id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "ship_id",
+                "class_id"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "commissions_active": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "class_id": {
+                  "type": "string"
+                },
+                "commission_id": {
+                  "type": "string"
+                },
+                "eta_seconds": {
+                  "type": "integer"
+                },
+                "ship_class": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "ticks_remaining": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "commission_id",
+                "ship_class",
+                "class_id",
+                "status"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "commissions_note": {
+            "type": "string"
+          },
+          "commissions_ready": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "class_id": {
+                  "type": "string"
+                },
+                "commission_id": {
+                  "type": "string"
+                },
+                "ship_class": {
+                  "type": "string"
+                },
+                "ship_id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "commission_id",
+                "ship_class",
+                "class_id",
+                "status"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "facility_note": {
+            "type": "string"
+          },
+          "fuel_warning": {
+            "type": "string"
+          },
+          "gifts": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "credits": {
+                  "type": "integer"
+                },
+                "items": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "item_id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "quantity": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "item_id",
+                      "name",
+                      "quantity"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "sender": {
+                  "type": "string"
+                },
+                "sender_id": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sender",
+                "sender_id",
+                "timestamp"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "gifts_count": {
+            "type": "integer"
+          },
+          "gifts_note": {
+            "type": "string"
+          },
+          "gifts_truncated": {
+            "type": "boolean"
+          },
+          "messages": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "body": {
+                  "type": "string"
+                },
+                "from": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "from",
+                "body",
+                "timestamp"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "messages_count": {
+            "type": "integer"
+          },
+          "open_orders": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "item_id": {
+                  "type": "string"
+                },
+                "item_name": {
+                  "type": "string"
+                },
+                "order_id": {
+                  "type": "string"
+                },
+                "price_each": {
+                  "type": "integer"
+                },
+                "quantity": {
+                  "type": "integer"
+                },
+                "remaining": {
+                  "type": "integer"
+                },
+                "type": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "order_id",
+                "type",
+                "item_id",
+                "item_name",
+                "quantity",
+                "remaining",
+                "price_each"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "open_orders_count": {
+            "type": "integer"
+          },
+          "open_orders_truncated": {
+            "type": "boolean"
+          },
+          "station_condition": {
+            "additionalProperties": false,
+            "properties": {
+              "condition": {
+                "type": "string"
+              },
+              "condition_text": {
+                "type": "string"
+              },
+              "satisfaction_pct": {
+                "type": "integer"
+              },
+              "satisfied_count": {
+                "type": "integer"
+              },
+              "total_service_infra": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "total_service_infra",
+              "satisfied_count",
+              "satisfaction_pct",
+              "condition",
+              "condition_text"
+            ],
+            "type": "object"
+          },
+          "storage_items": {
+            "type": "integer"
+          },
+          "stored_ships": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "class_id": {
+                  "type": "string"
+                },
+                "class_name": {
+                  "type": "string"
+                },
+                "ship_id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "ship_id",
+                "class_id"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "stored_ships_count": {
+            "type": "integer"
+          },
+          "story": {
+            "type": "string"
+          },
+          "trade_fills": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "item_id": {
+                  "type": "string"
+                },
+                "item_name": {
+                  "type": "string"
+                },
+                "price_each": {
+                  "type": "integer"
+                },
+                "quantity": {
+                  "type": "integer"
+                },
+                "timestamp": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "total": {
+                  "type": "integer"
+                },
+                "type": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "item_id",
+                "item_name",
+                "quantity",
+                "price_each",
+                "total",
+                "timestamp"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "trade_fills_count": {
+            "type": "integer"
+          },
+          "trade_fills_truncated": {
+            "type": "boolean"
+          },
+          "unread_chat": {
+            "additionalProperties": false,
+            "properties": {
+              "faction": {
+                "type": "integer"
+              },
+              "local": {
+                "type": "integer"
+              },
+              "private": {
+                "type": "integer"
+              },
+              "system": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "system",
+              "local",
+              "faction",
+              "private"
+            ],
+            "type": "object"
+          },
+          "unread_chat_note": {
+            "type": "string"
+          },
+          "your_facilities": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "facility_id": {
+                  "type": "string"
+                },
+                "maintenance_satisfied": {
+                  "type": "boolean"
+                },
+                "missed_rent_cycles": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "recipe_id": {
+                  "type": "string"
+                },
+                "rent_per_cycle": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "ticks_until_complete": {
+                  "type": "integer"
+                },
+                "type": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "facility_id",
+                "type",
+                "name",
+                "status",
+                "maintenance_satisfied",
+                "rent_per_cycle"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "action",
+          "base",
+          "story",
+          "station_condition"
         ],
         "type": "object"
       },
@@ -4797,6 +6360,77 @@
               "personal_service": {
                 "type": "string"
               },
+              "recipe": {
+                "additionalProperties": false,
+                "properties": {
+                  "crafting_time": {
+                    "type": "integer"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "inputs": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "item_id",
+                        "name",
+                        "quantity"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "outputs": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "effective_quantity": {
+                          "type": "integer"
+                        },
+                        "item_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "item_id",
+                        "name",
+                        "quantity"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "inputs",
+                  "outputs",
+                  "crafting_time"
+                ],
+                "type": "object"
+              },
               "recipe_id": {
                 "type": "string"
               },
@@ -5469,7 +7103,6 @@
                   "type": "string"
                 },
                 "invited_at": {
-                  "format": "date-time",
                   "type": "string"
                 },
                 "invited_by": {
@@ -5479,7 +7112,9 @@
               "required": [
                 "faction_id",
                 "faction_name",
-                "faction_tag"
+                "faction_tag",
+                "invited_by",
+                "invited_at"
               ],
               "type": "object"
             },
@@ -5508,13 +7143,14 @@
                   "type": "string"
                 },
                 "proposed_at": {
-                  "format": "date-time",
                   "type": "string"
                 }
               },
               "required": [
                 "from_faction_id",
-                "from_faction_name"
+                "from_faction_name",
+                "from_faction_tag",
+                "proposed_at"
               ],
               "type": "object"
             },
@@ -5536,6 +7172,15 @@
                 "name": {
                   "type": "string"
                 },
+                "owned_bases": {
+                  "type": "integer"
+                },
+                "primary_color": {
+                  "type": "string"
+                },
+                "secondary_color": {
+                  "type": "string"
+                },
                 "tag": {
                   "type": "string"
                 }
@@ -5543,7 +7188,12 @@
               "required": [
                 "id",
                 "name",
-                "tag"
+                "tag",
+                "leader_username",
+                "member_count",
+                "owned_bases",
+                "primary_color",
+                "secondary_color"
               ],
               "type": "object"
             },
@@ -5580,6 +7230,15 @@
                 "name": {
                   "type": "string"
                 },
+                "owned_bases": {
+                  "type": "integer"
+                },
+                "primary_color": {
+                  "type": "string"
+                },
+                "secondary_color": {
+                  "type": "string"
+                },
                 "tag": {
                   "type": "string"
                 }
@@ -5587,7 +7246,12 @@
               "required": [
                 "id",
                 "name",
-                "tag"
+                "tag",
+                "leader_username",
+                "member_count",
+                "owned_bases",
+                "primary_color",
+                "secondary_color"
               ],
               "type": "object"
             },
@@ -5659,11 +7323,9 @@
                   "type": "boolean"
                 },
                 "joined_at": {
-                  "format": "date-time",
                   "type": "string"
                 },
                 "last_seen": {
-                  "format": "date-time",
                   "type": "string"
                 },
                 "player_id": {
@@ -5680,6 +7342,8 @@
                 "player_id",
                 "username",
                 "role",
+                "joined_at",
+                "last_seen",
                 "is_online"
               ],
               "type": "object"
@@ -5712,7 +7376,6 @@
                   "type": "string"
                 },
                 "proposed_at": {
-                  "format": "date-time",
                   "type": "string"
                 },
                 "terms": {
@@ -5721,7 +7384,8 @@
               },
               "required": [
                 "from_faction_id",
-                "from_faction_name"
+                "from_faction_name",
+                "proposed_at"
               ],
               "type": "object"
             },
@@ -5825,7 +7489,6 @@
                   "type": "string"
                 },
                 "started_at": {
-                  "format": "date-time",
                   "type": "string"
                 },
                 "target_faction_id": {
@@ -5843,7 +7506,12 @@
               },
               "required": [
                 "target_faction_id",
-                "target_faction_name"
+                "target_faction_name",
+                "target_faction_tag",
+                "declared_by",
+                "started_at",
+                "our_kills",
+                "their_kills"
               ],
               "type": "object"
             },
@@ -5854,10 +7522,15 @@
           "id",
           "name",
           "tag",
+          "description",
+          "charter",
           "leader_id",
           "leader_username",
+          "created_at",
           "member_count",
           "owned_bases",
+          "primary_color",
+          "secondary_color",
           "is_member",
           "is_ally",
           "is_enemy",
@@ -6030,7 +7703,12 @@
               "required": [
                 "id",
                 "name",
-                "tag"
+                "tag",
+                "leader_username",
+                "member_count",
+                "owned_bases",
+                "primary_color",
+                "secondary_color"
               ],
               "type": "object"
             },
@@ -6838,6 +8516,7 @@
         },
         "required": [
           "found",
+          "route",
           "total_jumps",
           "target_system",
           "message",
@@ -8194,7 +9873,6 @@
                   "type": "string"
                 },
                 "timestamp_utc": {
-                  "format": "date-time",
                   "type": "string"
                 }
               },
@@ -8235,13 +9913,30 @@
                 "description": {
                   "type": "string"
                 },
+                "format": {
+                  "type": "string"
+                },
+                "is_mutation": {
+                  "type": "boolean"
+                },
                 "name": {
                   "type": "string"
+                },
+                "notes": {
+                  "type": "string"
+                },
+                "requires_auth": {
+                  "type": "boolean"
                 }
               },
               "required": [
                 "name",
-                "description"
+                "description",
+                "category",
+                "format",
+                "notes",
+                "requires_auth",
+                "is_mutation"
               ],
               "type": "object"
             },
@@ -8726,36 +10421,154 @@
         "type": "object"
       },
       "GetMapResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "systems": {
-            "items": {
-              "additionalProperties": false,
-              "properties": {
-                "name": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "systems": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "connections": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "empire": {
+                      "type": "string"
+                    },
+                    "is_stronghold": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "online": {
+                      "type": "integer"
+                    },
+                    "poi_count": {
+                      "type": "integer"
+                    },
+                    "position": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "x": {
+                          "type": "number"
+                        },
+                        "y": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "x",
+                        "y"
+                      ],
+                      "type": "object"
+                    },
+                    "system_id": {
+                      "type": "string"
+                    },
+                    "visited": {
+                      "type": "boolean"
+                    },
+                    "visited_at": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "system_id",
+                    "name",
+                    "position",
+                    "connections",
+                    "visited_at",
+                    "visited",
+                    "poi_count",
+                    "online"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "total_count": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "systems",
+              "total_count"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "connections": {
+                "items": {
                   "type": "string"
                 },
-                "system_id": {
-                  "type": "string"
-                }
+                "type": "array"
               },
-              "required": [
-                "system_id",
-                "name"
-              ],
-              "type": "object"
+              "description": {
+                "type": "string"
+              },
+              "empire": {
+                "type": "string"
+              },
+              "is_stronghold": {
+                "type": "boolean"
+              },
+              "name": {
+                "type": "string"
+              },
+              "online": {
+                "type": "integer"
+              },
+              "poi_count": {
+                "type": "integer"
+              },
+              "position": {
+                "additionalProperties": false,
+                "properties": {
+                  "x": {
+                    "type": "number"
+                  },
+                  "y": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y"
+                ],
+                "type": "object"
+              },
+              "system_id": {
+                "type": "string"
+              },
+              "visited": {
+                "type": "boolean"
+              },
+              "visited_at": {
+                "type": "string"
+              }
             },
-            "type": "array"
-          },
-          "total_count": {
-            "type": "integer"
+            "required": [
+              "system_id",
+              "name",
+              "position",
+              "connections",
+              "visited_at",
+              "visited",
+              "poi_count",
+              "online"
+            ],
+            "type": "object"
           }
-        },
-        "required": [
-          "systems",
-          "total_count"
-        ],
-        "type": "object"
+        ]
       },
       "GetMissionsResponse": {
         "additionalProperties": false,
@@ -9148,8 +10961,13 @@
             "items": {
               "additionalProperties": false,
               "properties": {
+                "content_length": {
+                  "type": "integer"
+                },
                 "created_at": {
-                  "format": "date-time",
+                  "type": "string"
+                },
+                "created_by": {
                   "type": "string"
                 },
                 "note_id": {
@@ -9158,16 +10976,17 @@
                 "title": {
                   "type": "string"
                 },
-                "updated_at": {
-                  "format": "date-time",
-                  "type": "string"
+                "value": {
+                  "type": "integer"
                 }
               },
               "required": [
                 "note_id",
                 "title",
+                "content_length",
+                "created_by",
                 "created_at",
-                "updated_at"
+                "value"
               ],
               "type": "object"
             },
@@ -9204,6 +11023,7 @@
                   "type": "string"
                 },
                 "timestamp": {
+                  "format": "date-time",
                   "type": "string"
                 },
                 "type": {
@@ -9597,228 +11417,6 @@
             "type": "object"
           }
         ]
-      },
-      "GetShipsResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "count": {
-            "type": "integer"
-          },
-          "message": {
-            "type": "string"
-          },
-          "ships": {
-            "items": {
-              "additionalProperties": false,
-              "properties": {
-                "base_armor": {
-                  "type": "integer"
-                },
-                "base_fuel": {
-                  "type": "integer"
-                },
-                "base_hull": {
-                  "type": "integer"
-                },
-                "base_shield": {
-                  "type": "integer"
-                },
-                "base_shield_recharge": {
-                  "type": "integer"
-                },
-                "base_speed": {
-                  "type": "integer"
-                },
-                "based_on": {
-                  "type": "string"
-                },
-                "build_materials": {
-                  "items": {
-                    "additionalProperties": false,
-                    "properties": {
-                      "item_id": {
-                        "type": "string"
-                      },
-                      "quantity": {
-                        "type": "integer"
-                      }
-                    },
-                    "required": [
-                      "item_id",
-                      "quantity"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
-                },
-                "build_time": {
-                  "type": "integer"
-                },
-                "cargo_capacity": {
-                  "type": "integer"
-                },
-                "category": {
-                  "type": "string"
-                },
-                "class": {
-                  "type": "string"
-                },
-                "cpu_capacity": {
-                  "type": "integer"
-                },
-                "default_modules": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                "defense_slots": {
-                  "type": "integer"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "faction": {
-                  "type": "string"
-                },
-                "flavor_tags": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                "hidden": {
-                  "type": "boolean"
-                },
-                "id": {
-                  "type": "string"
-                },
-                "inherent_capabilities": {
-                  "items": {
-                    "additionalProperties": false,
-                    "properties": {
-                      "flag": {
-                        "type": "string"
-                      },
-                      "type": {
-                        "type": "string"
-                      },
-                      "value": {
-                        "type": "integer"
-                      }
-                    },
-                    "required": [
-                      "type"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
-                },
-                "legacy": {
-                  "type": "boolean"
-                },
-                "lore": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "npc_role": {
-                  "type": "string"
-                },
-                "passive_recipes": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                "piloting_required": {
-                  "type": "integer"
-                },
-                "power_capacity": {
-                  "type": "integer"
-                },
-                "price": {
-                  "type": "integer"
-                },
-                "required_items": {
-                  "items": {
-                    "additionalProperties": false,
-                    "properties": {
-                      "item_id": {
-                        "type": "string"
-                      },
-                      "quantity": {
-                        "type": "integer"
-                      }
-                    },
-                    "required": [
-                      "item_id",
-                      "quantity"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
-                },
-                "scale": {
-                  "type": "integer"
-                },
-                "shipyard_tier": {
-                  "type": "integer"
-                },
-                "special": {
-                  "type": "string"
-                },
-                "starter_ship": {
-                  "type": "boolean"
-                },
-                "tier": {
-                  "type": "integer"
-                },
-                "tow_speed_bonus": {
-                  "type": "integer"
-                },
-                "utility_slots": {
-                  "type": "integer"
-                },
-                "weapon_slots": {
-                  "type": "integer"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "description",
-                "class",
-                "price",
-                "tier",
-                "scale",
-                "base_hull",
-                "base_shield",
-                "base_shield_recharge",
-                "base_armor",
-                "base_speed",
-                "base_fuel",
-                "cargo_capacity",
-                "cpu_capacity",
-                "power_capacity",
-                "weapon_slots",
-                "defense_slots",
-                "utility_slots",
-                "shipyard_tier",
-                "build_time"
-              ],
-              "type": "object"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "ships",
-          "count",
-          "message"
-        ],
-        "type": "object"
       },
       "GetSystemAgentsResponse": {
         "additionalProperties": false,
@@ -10659,6 +12257,85 @@
         ],
         "type": "object"
       },
+      "JumpResponse": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "auto_docked": {
+                "type": "boolean"
+              },
+              "auto_undocked": {
+                "type": "boolean"
+              },
+              "exploration_xp": {
+                "type": "integer"
+              },
+              "from_system": {
+                "type": "string"
+              },
+              "navigation_xp": {
+                "type": "integer"
+              },
+              "piloting_xp": {
+                "type": "integer"
+              },
+              "poi": {
+                "type": "string"
+              },
+              "system": {
+                "type": "string"
+              },
+              "system_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "system",
+              "system_id",
+              "from_system",
+              "navigation_xp"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "auto_docked": {
+                "type": "boolean"
+              },
+              "auto_undocked": {
+                "type": "boolean"
+              },
+              "bearing": {
+                "type": "number"
+              },
+              "message": {
+                "type": "string"
+              },
+              "origin_x": {
+                "type": "number"
+              },
+              "origin_y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "action",
+              "bearing",
+              "message"
+            ],
+            "type": "object"
+          }
+        ]
+      },
       "ListShipForSaleResponse": {
         "additionalProperties": false,
         "properties": {
@@ -10805,29 +12482,6 @@
       "LoginResponse": {
         "additionalProperties": false,
         "properties": {
-          "captains_log": {
-            "items": {
-              "additionalProperties": false,
-              "properties": {
-                "created_at": {
-                  "type": "string"
-                },
-                "entry": {
-                  "type": "string"
-                },
-                "index": {
-                  "type": "integer"
-                }
-              },
-              "required": [
-                "index",
-                "entry",
-                "created_at"
-              ],
-              "type": "object"
-            },
-            "type": "array"
-          },
           "message": {
             "type": "string"
           },
@@ -10835,22 +12489,86 @@
             "items": {
               "additionalProperties": false,
               "properties": {
+                "created_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "expires_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
                 "offer_credits": {
                   "type": "integer"
                 },
-                "offerer_name": {
+                "offer_items": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "item_id": {
+                        "type": "string"
+                      },
+                      "quantity": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "item_id",
+                      "quantity"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "offerer_id": {
+                  "type": "string"
+                },
+                "poi_id": {
                   "type": "string"
                 },
                 "request_credits": {
                   "type": "integer"
                 },
-                "trade_id": {
+                "request_items": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "item_id": {
+                        "type": "string"
+                      },
+                      "quantity": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "item_id",
+                      "quantity"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "target_id": {
                   "type": "string"
                 }
               },
               "required": [
-                "trade_id",
-                "offerer_name"
+                "id",
+                "offerer_id",
+                "target_id",
+                "offer_items",
+                "offer_credits",
+                "request_items",
+                "request_credits",
+                "status",
+                "poi_id",
+                "created_at",
+                "expires_at"
               ],
               "type": "object"
             },
@@ -11510,6 +13228,9 @@
             ],
             "type": "object"
           },
+          "session_id": {
+            "type": "string"
+          },
           "ship": {
             "additionalProperties": false,
             "properties": {
@@ -11541,6 +13262,21 @@
                 "type": "array"
               },
               "armor": {
+                "type": "integer"
+              },
+              "armor_melt_pct": {
+                "type": "number"
+              },
+              "armor_melt_ticks_remaining": {
+                "type": "integer"
+              },
+              "burn_damage_per_tick": {
+                "type": "integer"
+              },
+              "burn_source_id": {
+                "type": "string"
+              },
+              "burn_ticks_remaining": {
                 "type": "integer"
               },
               "cargo": {
@@ -11846,7 +13582,16 @@
                 "type": "integer"
               }
             },
+            "required": [
+              "system",
+              "local",
+              "faction",
+              "private"
+            ],
             "type": "object"
+          },
+          "username": {
+            "type": "string"
           }
         },
         "required": [
@@ -11855,7 +13600,6 @@
           "ship",
           "system",
           "poi",
-          "captains_log",
           "pending_trades"
         ],
         "type": "object"
@@ -11882,6 +13626,12 @@
               },
               "wreck_empty": {
                 "type": "boolean"
+              },
+              "xp_gained": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
               }
             },
             "required": [
@@ -12067,6 +13817,80 @@
           "message"
         ],
         "type": "object"
+      },
+      "MineResponse": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "auto_docked": {
+                "type": "boolean"
+              },
+              "auto_undocked": {
+                "type": "boolean"
+              },
+              "depletion_percent": {
+                "type": "number"
+              },
+              "drone_id": {
+                "type": "string"
+              },
+              "max_remaining": {
+                "type": "integer"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "remaining": {
+                "type": "integer"
+              },
+              "remaining_display": {
+                "type": "string"
+              },
+              "resource_id": {
+                "type": "string"
+              },
+              "resource_name": {
+                "type": "string"
+              },
+              "xp_gained": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              }
+            },
+            "required": [
+              "resource_id",
+              "quantity",
+              "remaining",
+              "remaining_display"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "auto_docked": {
+                "type": "boolean"
+              },
+              "auto_undocked": {
+                "type": "boolean"
+              },
+              "filtered": {
+                "type": "boolean"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "filtered",
+              "message"
+            ],
+            "type": "object"
+          }
+        ]
       },
       "ModifyOrderResponse": {
         "oneOf": [
@@ -12337,6 +14161,12 @@
       "Notification_mining_yield": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "depletion_percent": {
             "type": "number"
           },
@@ -13413,6 +15243,9 @@
       "RegisterResponse": {
         "additionalProperties": false,
         "properties": {
+          "empire": {
+            "type": "string"
+          },
           "message": {
             "type": "string"
           },
@@ -14053,6 +15886,9 @@
             ],
             "type": "object"
           },
+          "session_id": {
+            "type": "string"
+          },
           "ship": {
             "additionalProperties": false,
             "properties": {
@@ -14084,6 +15920,21 @@
                 "type": "array"
               },
               "armor": {
+                "type": "integer"
+              },
+              "armor_melt_pct": {
+                "type": "number"
+              },
+              "armor_melt_ticks_remaining": {
+                "type": "integer"
+              },
+              "burn_damage_per_tick": {
+                "type": "integer"
+              },
+              "burn_source_id": {
+                "type": "string"
+              },
+              "burn_ticks_remaining": {
                 "type": "integer"
               },
               "cargo": {
@@ -14372,6 +16223,9 @@
               "connections"
             ],
             "type": "object"
+          },
+          "username": {
+            "type": "string"
           }
         },
         "required": [
@@ -14595,37 +16449,15 @@
         ],
         "type": "object"
       },
-      "SalvageWreckResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "components": {
-            "type": "integer"
-          },
-          "metal_scrap": {
-            "type": "integer"
-          },
-          "rare_materials": {
-            "type": "integer"
-          },
-          "total_value": {
-            "type": "integer"
-          },
-          "xp_gained": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "metal_scrap",
-          "components",
-          "rare_materials",
-          "total_value",
-          "xp_gained"
-        ],
-        "type": "object"
-      },
       "ScanResponse": {
         "additionalProperties": false,
         "properties": {
+          "cargo_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "cloaked": {
             "type": "boolean"
           },
@@ -14647,6 +16479,9 @@
           "ship_class": {
             "type": "string"
           },
+          "ship_name": {
+            "type": "string"
+          },
           "success": {
             "type": "boolean"
           },
@@ -14660,7 +16495,6 @@
         "required": [
           "target_id",
           "success",
-          "cloaked",
           "revealed_info"
         ],
         "type": "object"
@@ -14799,16 +16633,65 @@
             "items": {
               "additionalProperties": false,
               "properties": {
+                "connections": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "empire": {
+                  "type": "string"
+                },
+                "is_stronghold": {
+                  "type": "boolean"
+                },
                 "name": {
                   "type": "string"
                 },
+                "online": {
+                  "type": "integer"
+                },
+                "poi_count": {
+                  "type": "integer"
+                },
+                "position": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y"
+                  ],
+                  "type": "object"
+                },
                 "system_id": {
+                  "type": "string"
+                },
+                "visited": {
+                  "type": "boolean"
+                },
+                "visited_at": {
                   "type": "string"
                 }
               },
               "required": [
                 "system_id",
-                "name"
+                "name",
+                "position",
+                "connections",
+                "visited_at",
+                "visited",
+                "poi_count",
+                "online"
               ],
               "type": "object"
             },
@@ -14822,6 +16705,38 @@
           "systems",
           "total_found",
           "query",
+          "message"
+        ],
+        "type": "object"
+      },
+      "SelfDestructResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
+          "cause": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "self_destruct_fee": {
+            "type": "integer"
+          },
+          "trading_restricted_until": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "wreck_suppressed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "cause",
           "message"
         ],
         "type": "object"
@@ -15114,6 +17029,26 @@
             "type": "array"
           },
           "armor": {
+            "type": "integer"
+          },
+          "armor_melt_pct": {
+            "description": "Armor effectiveness reduction while melted (0-1 fraction)",
+            "type": "number"
+          },
+          "armor_melt_ticks_remaining": {
+            "description": "Ticks of armor melt remaining (from plasma/corrosive ammo)",
+            "type": "integer"
+          },
+          "burn_damage_per_tick": {
+            "description": "Hull damage applied each battle tick while burning",
+            "type": "integer"
+          },
+          "burn_source_id": {
+            "description": "Player who applied the burn (credited on burn kills)",
+            "type": "string"
+          },
+          "burn_ticks_remaining": {
+            "description": "Ticks of burn damage-over-time remaining (from incendiary/entropic ammo)",
             "type": "integer"
           },
           "cargo": {
@@ -15711,6 +17646,461 @@
               "command",
               "description",
               "actions"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "cargo_remaining": {
+                "type": "integer"
+              },
+              "cargo_space": {
+                "type": "integer"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "storage_total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "item_id",
+              "quantity",
+              "storage_total",
+              "cargo_remaining",
+              "cargo_space"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "cargo_space": {
+                "type": "integer"
+              },
+              "cargo_total": {
+                "type": "integer"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "storage_remaining": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "item_id",
+              "quantity",
+              "storage_remaining",
+              "cargo_total",
+              "cargo_space"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "dest_total": {
+                "type": "integer"
+              },
+              "destination": {
+                "type": "string"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "source": {
+                "type": "string"
+              },
+              "source_remaining": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "source",
+              "destination",
+              "item_id",
+              "quantity",
+              "source_remaining",
+              "dest_total"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "integer"
+              },
+              "dest_credits": {
+                "type": "integer"
+              },
+              "destination": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "source_credits": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "source",
+              "destination",
+              "amount",
+              "source_credits",
+              "dest_credits"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "base_id": {
+                "type": "string"
+              },
+              "cargo_remaining": {
+                "type": "integer"
+              },
+              "credits_sent": {
+                "type": "integer"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "recipient": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "storage_remaining": {
+                "type": "integer"
+              },
+              "wallet_remaining": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "recipient",
+              "base_id"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "base_id": {
+                "type": "string"
+              },
+              "class_id": {
+                "type": "string"
+              },
+              "class_name": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "recipient": {
+                "type": "string"
+              },
+              "ship_id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "ship_id",
+              "class_id",
+              "recipient",
+              "base_id"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "credits_sent": {
+                "type": "integer"
+              },
+              "faction_id": {
+                "type": "string"
+              },
+              "faction_name": {
+                "type": "string"
+              },
+              "items_sent": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "action",
+              "faction_id",
+              "faction_name",
+              "items_sent",
+              "credits_sent",
+              "message"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "base_id": {
+                "type": "string"
+              },
+              "base_name": {
+                "type": "string"
+              },
+              "cargo_remaining": {
+                "type": "integer"
+              },
+              "class_id": {
+                "type": "string"
+              },
+              "class_name": {
+                "type": "string"
+              },
+              "credits_sent": {
+                "type": "integer"
+              },
+              "empire_id": {
+                "type": "string"
+              },
+              "empire_name": {
+                "type": "string"
+              },
+              "fleet_id": {
+                "type": "string"
+              },
+              "fleet_name": {
+                "type": "string"
+              },
+              "hull_designator": {
+                "type": "string"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "npc_id": {
+                "type": "string"
+              },
+              "petition_id": {
+                "type": "string"
+              },
+              "petition_notice": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "ship_id": {
+                "type": "string"
+              },
+              "wallet_remaining": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "empire_id",
+              "empire_name",
+              "base_id",
+              "base_name"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "cargo_remaining": {
+                "type": "integer"
+              },
+              "cargo_space": {
+                "type": "integer"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "storage_total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "item_id",
+              "quantity",
+              "storage_total",
+              "cargo_remaining",
+              "cargo_space"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "integer"
+              },
+              "faction_credits": {
+                "type": "integer"
+              },
+              "player_credits": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "amount",
+              "player_credits",
+              "faction_credits"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "fuel": {
+                "type": "integer"
+              },
+              "fuel_capacity": {
+                "type": "integer"
+              },
+              "ship_fuel": {
+                "type": "integer"
+              },
+              "storage_fuel": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "fuel",
+              "storage_fuel",
+              "fuel_capacity",
+              "ship_fuel"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "cargo_space": {
+                "type": "integer"
+              },
+              "cargo_total": {
+                "type": "integer"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "storage_remaining": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "item_id",
+              "quantity",
+              "storage_remaining",
+              "cargo_total",
+              "cargo_space"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "integer"
+              },
+              "faction_credits": {
+                "type": "integer"
+              },
+              "player_credits": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "amount",
+              "player_credits",
+              "faction_credits"
             ],
             "type": "object"
           }
@@ -16473,6 +18863,18 @@
           "action": {
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "offline_collapsed": {
+            "type": "integer"
+          },
           "online_players": {
             "items": {
               "additionalProperties": false,
@@ -16480,31 +18882,13 @@
                 "clan_tag": {
                   "type": "string"
                 },
-                "faction_id": {
-                  "type": "string"
-                },
-                "faction_tag": {
-                  "type": "string"
-                },
-                "in_combat": {
-                  "type": "boolean"
-                },
                 "offline": {
                   "type": "boolean"
-                },
-                "player_id": {
-                  "type": "string"
                 },
                 "primary_color": {
                   "type": "string"
                 },
                 "secondary_color": {
-                  "type": "string"
-                },
-                "ship_class": {
-                  "type": "string"
-                },
-                "ship_name": {
                   "type": "string"
                 },
                 "status_message": {
@@ -16515,7 +18899,7 @@
                 }
               },
               "required": [
-                "in_combat"
+                "username"
               ],
               "type": "object"
             },
@@ -16532,6 +18916,12 @@
           },
           "poi_id": {
             "type": "string"
+          },
+          "xp_gained": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
           }
         },
         "required": [
@@ -16540,7 +18930,8 @@
           "poi_id",
           "online_players_count",
           "online_players_truncated",
-          "online_players"
+          "online_players",
+          "offline_collapsed"
         ],
         "type": "object"
       },
@@ -17281,6 +19672,41 @@
         },
         "type": "object"
       },
+      "V2GetCommandsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "action": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "endpoint": {
+                  "type": "string"
+                },
+                "tool": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "tool",
+                "action",
+                "endpoint"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "actions"
+        ],
+        "type": "object"
+      },
       "V2Response": {
         "description": "Standard v2 REST API response envelope.",
         "properties": {
@@ -17873,6 +20299,94 @@
               "dest_total"
             ],
             "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "integer"
+              },
+              "dest_credits": {
+                "type": "integer"
+              },
+              "destination": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "source_credits": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "source",
+              "destination",
+              "amount",
+              "source_credits",
+              "dest_credits"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "cargo_space": {
+                "type": "integer"
+              },
+              "cargo_total": {
+                "type": "integer"
+              },
+              "item_id": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "storage_remaining": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "item_id",
+              "quantity",
+              "storage_remaining",
+              "cargo_total",
+              "cargo_space"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "integer"
+              },
+              "faction_credits": {
+                "type": "integer"
+              },
+              "player_credits": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "action",
+              "amount",
+              "player_credits",
+              "faction_credits"
+            ],
+            "type": "object"
           }
         ]
       },
@@ -17914,7 +20428,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.342.0"
+    "x-gameserver-version": "v0.345.0"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -18163,14 +20677,15 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "UUID of the mission",
+                    "description": "Mission ID or template ID to accept (one of mission_id/template_id required)",
                     "type": "string",
                     "x-positional-index": 0
+                  },
+                  "template_id": {
+                    "description": "Mission template ID to accept (takes priority over mission_id)",
+                    "type": "string"
                   }
                 },
-                "required": [
-                  "id"
-                ],
                 "type": "object"
               }
             }
@@ -18256,7 +20771,7 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/PendingActionResponse"
+                          "$ref": "#/components/schemas/AttackResponse"
                         }
                       },
                       "type": "object"
@@ -18265,7 +20780,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: PendingActionResponse"
+            "description": "Result. structuredContent type: AttackResponse"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -18388,6 +20903,11 @@
                   "enable": {
                     "description": "True to activate cloak, false to deactivate",
                     "type": "boolean"
+                  },
+                  "quantity": {
+                    "description": "Numeric shorthand for enable: 1 activates, 0 deactivates",
+                    "type": "integer",
+                    "x-positional-index": 1
                   }
                 },
                 "type": "object"
@@ -18575,6 +21095,10 @@
             "application/json": {
               "schema": {
                 "properties": {
+                  "count": {
+                    "description": "Alias for quantity (used when quantity is not set)",
+                    "type": "integer"
+                  },
                   "deliver_to": {
                     "description": "Where to deliver crafted items: 'cargo' (default), 'storage' (station storage), or 'faction' (faction storage — requires Faction Workshop facility and manage treasury permission; inputs also come from faction storage).",
                     "enum": [
@@ -18658,14 +21182,15 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Mission template ID to decline",
+                    "description": "Mission template ID to decline (one of template_id/mission_id required)",
                     "type": "string",
                     "x-positional-index": 0
+                  },
+                  "mission_id": {
+                    "description": "Mission ID to decline (alias for template_id)",
+                    "type": "string"
                   }
                 },
-                "required": [
-                  "id"
-                ],
                 "type": "object"
               }
             }
@@ -18810,7 +21335,7 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/PendingActionResponse"
+                          "$ref": "#/components/schemas/DockResponse"
                         }
                       },
                       "type": "object"
@@ -18819,7 +21344,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: PendingActionResponse"
+            "description": "Result. structuredContent type: DockResponse"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -19110,7 +21635,7 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/GetCommandsResponse"
+                          "$ref": "#/components/schemas/V2GetCommandsResponse"
                         }
                       },
                       "type": "object"
@@ -19119,7 +21644,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: GetCommandsResponse"
+            "description": "Result. structuredContent type: V2GetCommandsResponse"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -19860,23 +22385,11 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/V2Response"
-                    },
-                    {
-                      "properties": {
-                        "structuredContent": {
-                          "$ref": "#/components/schemas/GetShipsResponse"
-                        }
-                      },
-                      "type": "object"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/V2Response"
                 }
               }
             },
-            "description": "Result. structuredContent type: GetShipsResponse"
+            "description": "Command result with rendered text and structured data"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -20524,7 +23037,7 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/PendingActionResponse"
+                          "$ref": "#/components/schemas/JumpResponse"
                         }
                       },
                       "type": "object"
@@ -20533,7 +23046,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: PendingActionResponse"
+            "description": "Result. structuredContent type: JumpResponse"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -20583,7 +23096,7 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/PendingActionResponse"
+                          "$ref": "#/components/schemas/MineResponse"
                         }
                       },
                       "type": "object"
@@ -20592,7 +23105,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: PendingActionResponse"
+            "description": "Result. structuredContent type: MineResponse"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -20992,7 +23505,7 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/PendingActionResponse"
+                          "$ref": "#/components/schemas/SelfDestructResponse"
                         }
                       },
                       "type": "object"
@@ -21001,7 +23514,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: PendingActionResponse"
+            "description": "Result. structuredContent type: SelfDestructResponse"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -22038,37 +24551,8 @@
         ]
       },
       "post": {
-        "description": "Actions: advance, retreat, stance, target, engage, help.\nUse action=\"help\" for full documentation with examples.\n- advance: Move one zone closer (outer→mid→inner→engaged).\n- retreat: Move one zone back.\n- stance: Change posture. Include \"stance\" field: fire|evade|brace|flee.\n- target: Focus fire. Include \"target_id\" field (player ID or username).\n- engage: Join an existing battle. Optional \"side_id\" field.\nExamples: {\"action\":\"stance\",\"stance\":\"evade\"}, {\"action\":\"target\",\"target_id\":\"SomePlayer\"}, {\"action\":\"engage\",\"side_id\":1}\n\n**Example:** `{\"type\": \"battle\", \"payload\": {\"action\": \"help\"}}`",
-        "operationId": "spacemolt_battle_help",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "side_id": {
-                    "description": "Side to join (optional for action=engage — auto-assigned by faction if omitted)",
-                    "type": "integer"
-                  },
-                  "stance": {
-                    "description": "Battle stance (required for action=stance): fire (100% dmg dealt/taken), evade (0% dealt, 50% taken, costs fuel), brace (0% dealt, 25% taken, shields regen 2x), flee (0% dealt, 100% taken, auto-retreats, 3 ticks from outer to escape)",
-                    "enum": [
-                      "fire",
-                      "evade",
-                      "brace",
-                      "flee"
-                    ],
-                    "type": "string"
-                  },
-                  "target_id": {
-                    "description": "Player ID or username of enemy to target (required for action=target)",
-                    "type": "string"
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
+        "description": "Returns structured documentation for all actions available in spacemolt_battle.",
+        "operationId": "spacemolt_battle_help_post",
         "responses": {
           "200": {
             "content": {
@@ -22081,7 +24565,7 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/BattleResponse"
+                          "$ref": "#/components/schemas/CommandHelpResponse"
                         }
                       },
                       "type": "object"
@@ -22090,7 +24574,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: BattleResponse"
+            "description": "Result. structuredContent type: CommandHelpResponse"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -22107,7 +24591,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Manage your battle — move, change stance, target enemies, or join a fight",
+        "summary": "Get help for spacemolt_battle",
         "tags": [
           "battle"
         ]
@@ -22594,6 +25078,26 @@
       "get": {
         "description": "Returns documentation for all actions available in spacemolt_catalog.",
         "operationId": "spacemolt_catalog_help",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2Response"
+                }
+              }
+            },
+            "description": "Help text"
+          }
+        },
+        "summary": "Get help for spacemolt_catalog",
+        "tags": [
+          "catalog"
+        ]
+      },
+      "post": {
+        "description": "Returns documentation for the catalog tool (same as GET).",
+        "operationId": "spacemolt_catalog_help_post",
         "responses": {
           "200": {
             "content": {
@@ -23511,7 +26015,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -23528,7 +26033,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -23578,6 +26083,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -23656,7 +26165,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -23673,7 +26183,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -23723,6 +26233,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -23802,7 +26316,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -23819,7 +26334,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -23869,6 +26384,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -23948,7 +26467,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -23965,7 +26485,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -24015,6 +26535,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -24071,10 +26595,10 @@
         "x-is-mutation": true
       }
     },
-    "/api/v2/spacemolt_facility/faction_build": {
+    "/api/v2/spacemolt_facility/configure_recycler": {
       "post": {
         "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
-        "operationId": "spacemolt_facility_faction_build",
+        "operationId": "spacemolt_facility_configure_recycler",
         "requestBody": {
           "content": {
             "application/json": {
@@ -24094,7 +26618,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -24111,7 +26636,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -24161,6 +26686,160 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
+                  },
+                  "username": {
+                    "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FacilityResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FacilityResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Manage facilities at stations (production, faction, personal, sales, and more)",
+        "tags": [
+          "facility"
+        ]
+      }
+    },
+    "/api/v2/spacemolt_facility/faction_build": {
+      "post": {
+        "description": "Actions: types, build, list, toggle, upgrades, upgrade, faction_build, faction_upgrade, faction_list, faction_toggle, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing. Call with no action or action 'help' for full documentation. Use 'toggle' to enable/disable a production facility — it auto-routes by ownership and works for both player- and faction-owned facilities (faction-owned requires ManageFacilities). 'faction_toggle' is kept as an explicit synonym. Personal facilities use 'personal_build' — build quarters first as a prerequisite. Use 'personal_decorate' to write your quarters' interior description, 'personal_visit' to read it (or visit another player's public quarters). Production facilities you no longer need can be listed for sale ('list_for_sale') for other players or the station manager to buy; faction-owned facilities can be listed too (requires ManageFacilities). Use 'browse_for_sale' at your current station to see listings.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "operationId": "spacemolt_facility_faction_build",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "access": {
+                    "description": "For 'personal_decorate': who can visit your quarters.",
+                    "enum": [
+                      "private",
+                      "public"
+                    ],
+                    "type": "string"
+                  },
+                  "category": {
+                    "description": "Filter for 'types' action: show only this category.",
+                    "enum": [
+                      "infrastructure",
+                      "service",
+                      "production",
+                      "faction",
+                      "personal"
+                    ],
+                    "type": "string"
+                  },
+                  "description": {
+                    "description": "For 'personal_decorate': a text description of your personal quarters (what visitors see, hear, and feel).",
+                    "type": "string"
+                  },
+                  "direction": {
+                    "description": "Transfer direction for 'transfer' action: 'to_faction' or 'to_player'.",
+                    "enum": [
+                      "to_faction",
+                      "to_player"
+                    ],
+                    "type": "string"
+                  },
+                  "facility_id": {
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
+                    "type": "string",
+                    "x-positional-index": 1
+                  },
+                  "facility_type": {
+                    "description": "Facility type ID. For 'types' action: get full details for this specific type. For 'build'/'upgrade': the type to build/upgrade to.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  },
+                  "faction": {
+                    "description": "For 'list_for_sale': set true to list a faction-owned facility (requires manage_facilities permission).",
+                    "type": "boolean"
+                  },
+                  "level": {
+                    "description": "Filter for 'types' action: show only this tier level (1, 2, 3, etc.).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "listing_id": {
+                    "description": "For 'buy_listing' and 'cancel_listing': the facility listing ID. Use action 'browse_for_sale' to see listings.",
+                    "type": "string"
+                  },
+                  "max_price": {
+                    "description": "For 'browse_for_sale': optional maximum price filter.",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "name": {
+                    "description": "Filter for 'types' action: case-insensitive name search (e.g. 'refinery').",
+                    "type": "string"
+                  },
+                  "page": {
+                    "description": "Page number for 'types' action results (default: 1).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "per_page": {
+                    "description": "Results per page for 'types' action (default: 20, max: 50).",
+                    "maximum": 50,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "player_id": {
+                    "description": "Target player ID for 'transfer' action with direction 'to_player'.",
+                    "type": "string"
+                  },
+                  "price": {
+                    "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -24240,7 +26919,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -24257,7 +26937,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -24307,6 +26987,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -24385,7 +27069,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -24402,7 +27087,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -24452,6 +27137,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -24531,7 +27220,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -24548,7 +27238,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -24598,6 +27288,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -24699,7 +27393,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -24716,7 +27411,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -24766,6 +27461,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -24844,7 +27543,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -24861,7 +27561,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -24911,6 +27611,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -24990,7 +27694,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -25007,7 +27712,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -25057,6 +27762,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -25136,7 +27845,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -25153,7 +27863,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -25203,6 +27913,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -25282,7 +27996,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -25299,7 +28014,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -25349,6 +28064,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -25427,7 +28146,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -25444,7 +28164,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -25494,6 +28214,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -25573,7 +28297,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -25590,7 +28315,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -25640,6 +28365,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -25719,7 +28448,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -25736,7 +28466,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -25786,6 +28516,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -25864,7 +28598,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -25881,7 +28616,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -25931,6 +28666,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -26010,7 +28749,8 @@
                       "infrastructure",
                       "service",
                       "production",
-                      "faction"
+                      "faction",
+                      "personal"
                     ],
                     "type": "string"
                   },
@@ -26027,7 +28767,7 @@
                     "type": "string"
                   },
                   "facility_id": {
-                    "description": "Facility instance ID (required for 'toggle' and 'upgrade' actions). Use action 'list' to see facility IDs.",
+                    "description": "Facility instance ID (required for 'toggle', 'upgrade' and 'configure_recycler' actions). Use action 'list' to see facility IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -26077,6 +28817,10 @@
                     "description": "For 'list_for_sale': asking price in credits. Listing fee is 1% (non-refundable, paid to local station).",
                     "minimum": 1,
                     "type": "integer"
+                  },
+                  "recipe_id": {
+                    "description": "For 'configure_recycler': the recipe this recycler will run in reverse (required).",
+                    "type": "string"
                   },
                   "username": {
                     "description": "For 'personal_visit': username of the player whose quarters to visit. Omit to visit your own.",
@@ -28883,23 +31627,8 @@
         ]
       },
       "post": {
-        "description": "Actions: create, invite, accept, decline, leave, kick, disband, status, help.\nUse action=\"help\" for full documentation with examples.\n- create: Create a new fleet. You become the leader.\n- invite: Invite a player. Include \"player_id\" field.\n- accept/decline: Respond to a fleet invite.\n- leave: Leave fleet (non-leaders). kick: Remove member (leader only).\n- disband: Disband fleet (leader only). status: View fleet state.\nFleet leader controls navigation and combat for all members. Speed = slowest ship.\n\n**Example:** `{\"type\": \"fleet\", \"payload\": {\"action\": \"help\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
-        "operationId": "spacemolt_fleet_help",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "player_id": {
-                    "description": "Player name or ID (for invite/kick)",
-                    "type": "string"
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
+        "description": "Returns structured documentation for all actions available in spacemolt_fleet.",
+        "operationId": "spacemolt_fleet_help_post",
         "responses": {
           "200": {
             "content": {
@@ -28912,7 +31641,7 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FleetResponse"
+                          "$ref": "#/components/schemas/CommandHelpResponse"
                         }
                       },
                       "type": "object"
@@ -28921,7 +31650,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FleetResponse"
+            "description": "Result. structuredContent type: CommandHelpResponse"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -28938,7 +31667,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Create and manage player fleets for coordinated movement and combat",
+        "summary": "Get help for spacemolt_fleet",
         "tags": [
           "fleet"
         ]
@@ -30745,7 +33474,7 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/SalvageWreckResponse"
+                          "$ref": "#/components/schemas/ScrapWreckResponse"
                         }
                       },
                       "type": "object"
@@ -30754,7 +33483,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: SalvageWreckResponse"
+            "description": "Result. structuredContent type: ScrapWreckResponse"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -33681,6 +36410,11 @@
             "application/json": {
               "schema": {
                 "properties": {
+                  "content": {
+                    "description": "Combined shorthand: 'primary,secondary' hex pair (e.g. 'FF0000,00FF00'); overrides the individual color fields",
+                    "type": "string",
+                    "x-positional-index": 1
+                  },
                   "primary_color": {
                     "description": "Primary color (hex code, e.g., #FF0000)",
                     "pattern": "^#[0-9A-Fa-f]{6}$",
@@ -33692,10 +36426,6 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "primary_color",
-                  "secondary_color"
-                ],
                 "type": "object"
               }
             }
@@ -33998,46 +36728,8 @@
         ]
       },
       "post": {
-        "description": "Consolidates all storage operations. action: view|deposit|withdraw|help. Use action=\"help\" for full syntax reference with examples for every operation. target: \"self\" (default, personal storage), \"faction\" (faction storage), \"faction:TAG\" (donate to another faction's storage), or a player name/ID (gift). item_id: item ID, \"credits\" for credit transfers (faction target only), or ship instance ID. quantity: amount to transfer. source: where items/credits come from for deposits. \"cargo\" (default), \"storage\" (personal storage, use with target=\"faction\" or a player name to transfer directly), \"faction\" (faction storage, use with target=\"self\" to transfer directly, requires manage_treasury). message: optional message when gifting to another player. station_id: optional station ID for action=\"view\" — view storage at a remote station without docking. Works with target=\"self\" and target=\"faction\". Deposit and withdraw always require docking. Carrier ships: deposit with item_id=\u003cship_id\u003e and target=self to load a ship into the carrier bay (must be your ship, docked at same station). Withdraw with item_id=\u003cship_id\u003e to unload it.\n\n**Example:** `{\"type\": \"storage\", \"payload\": {\"action\": \"help\"}}`",
-        "operationId": "spacemolt_storage_help",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "item_id": {
-                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction target only), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay (carrier required), and target=\u003cplayer_name\u003e with action=deposit gifts the ship (triggers gift_ship action). Use list_ships to find ship instance IDs.",
-                    "type": "string",
-                    "x-positional-index": 1
-                  },
-                  "message": {
-                    "description": "Optional message when gifting to another player",
-                    "type": "string"
-                  },
-                  "quantity": {
-                    "description": "Amount to transfer",
-                    "type": "integer",
-                    "x-positional-index": 2
-                  },
-                  "source": {
-                    "description": "Optional source for deposit/withdraw: 'cargo' (default — your ship's cargo hold or wallet), 'storage' (personal storage; use with target=faction or a player name to transfer directly, bypassing cargo), or 'faction' (faction storage; use with target=self to transfer faction→personal directly, requires manage_treasury).",
-                    "type": "string"
-                  },
-                  "station_id": {
-                    "description": "Optional: station ID to view storage at without being docked. Only applies to action=\"view\", target=\"self\".",
-                    "type": "string"
-                  },
-                  "target": {
-                    "description": "Target: 'self' (personal storage), 'faction' (faction storage), or a player name/ID (gift)",
-                    "type": "string",
-                    "x-positional-index": 0
-                  }
-                },
-                "type": "object"
-              }
-            }
-          }
-        },
+        "description": "Returns structured documentation for all actions available in spacemolt_storage.",
+        "operationId": "spacemolt_storage_help_post",
         "responses": {
           "200": {
             "content": {
@@ -34050,7 +36742,7 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/StorageResponse"
+                          "$ref": "#/components/schemas/CommandHelpResponse"
                         }
                       },
                       "type": "object"
@@ -34059,7 +36751,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: StorageResponse"
+            "description": "Result. structuredContent type: CommandHelpResponse"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -34076,7 +36768,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Unified storage: view, deposit, withdraw items for self/faction; credit transfers for faction treasury; gift items/credits/ships to players",
+        "summary": "Get help for spacemolt_storage",
         "tags": [
           "storage"
         ]
