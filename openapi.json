@@ -4353,6 +4353,9 @@
                 "items": {
                   "additionalProperties": false,
                   "properties": {
+                    "bio": {
+                      "type": "string"
+                    },
                     "citizen_id": {
                       "type": "string"
                     },
@@ -4378,6 +4381,7 @@
                   "required": [
                     "citizen_id",
                     "name",
+                    "bio",
                     "class",
                     "destination",
                     "destination_name",
@@ -4401,6 +4405,9 @@
                 "items": {
                   "additionalProperties": false,
                   "properties": {
+                    "bio": {
+                      "type": "string"
+                    },
                     "citizen_id": {
                       "type": "string"
                     },
@@ -4426,6 +4433,7 @@
                   "required": [
                     "citizen_id",
                     "name",
+                    "bio",
                     "class",
                     "destination",
                     "destination_name",
@@ -12801,6 +12809,9 @@
             "items": {
               "additionalProperties": false,
               "properties": {
+                "bio": {
+                  "type": "string"
+                },
                 "citizen_id": {
                   "type": "string"
                 },
@@ -12826,6 +12837,7 @@
               "required": [
                 "citizen_id",
                 "name",
+                "bio",
                 "class",
                 "destination",
                 "destination_name",
@@ -12999,6 +13011,9 @@
             "items": {
               "additionalProperties": false,
               "properties": {
+                "bio": {
+                  "type": "string"
+                },
                 "citizen_id": {
                   "type": "string"
                 },
@@ -13024,6 +13039,7 @@
               "required": [
                 "citizen_id",
                 "name",
+                "bio",
                 "class",
                 "destination",
                 "destination_name",
@@ -17984,6 +18000,9 @@
             "items": {
               "additionalProperties": false,
               "properties": {
+                "bio": {
+                  "type": "string"
+                },
                 "citizen_id": {
                   "type": "string"
                 },
@@ -18006,6 +18025,7 @@
               "required": [
                 "citizen_id",
                 "name",
+                "bio",
                 "class",
                 "citizenship",
                 "destination",
@@ -21078,7 +21098,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.354.0"
+    "x-gameserver-version": "v0.361.1"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -35782,7 +35802,7 @@
     },
     "/api/v2/spacemolt_ship/cancel_ship_listing": {
       "post": {
-        "description": "Cancel a ship listing you created. The listing fee is not refunded.\n\n**Example:** `{\"type\": \"cancel_ship_listing\", \"payload\": {\"listing_id\": \"listing_abc123\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Cancel a ship listing. The listing's seller — or the ship's current owner — may cancel it. The listing fee is not refunded.\n\n**Example:** `{\"type\": \"cancel_ship_listing\", \"payload\": {\"listing_id\": \"listing_abc123\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_ship_cancel_ship_listing",
         "requestBody": {
           "content": {
