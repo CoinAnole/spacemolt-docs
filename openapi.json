@@ -4448,11 +4448,17 @@
                     "destination_name": {
                       "type": "string"
                     },
+                    "destination_system": {
+                      "type": "string"
+                    },
                     "fare": {
                       "type": "integer"
                     },
                     "name": {
                       "type": "string"
+                    },
+                    "speed_bonus": {
+                      "type": "integer"
                     },
                     "ticks_remaining": {
                       "type": "integer"
@@ -4500,11 +4506,17 @@
                     "destination_name": {
                       "type": "string"
                     },
+                    "destination_system": {
+                      "type": "string"
+                    },
                     "fare": {
                       "type": "integer"
                     },
                     "name": {
                       "type": "string"
+                    },
+                    "speed_bonus": {
+                      "type": "integer"
                     },
                     "ticks_remaining": {
                       "type": "integer"
@@ -12904,11 +12916,17 @@
                 "destination_name": {
                   "type": "string"
                 },
+                "destination_system": {
+                  "type": "string"
+                },
                 "fare": {
                   "type": "integer"
                 },
                 "name": {
                   "type": "string"
+                },
+                "speed_bonus": {
+                  "type": "integer"
                 },
                 "ticks_remaining": {
                   "type": "integer"
@@ -13106,11 +13124,17 @@
                 "destination_name": {
                   "type": "string"
                 },
+                "destination_system": {
+                  "type": "string"
+                },
                 "fare": {
                   "type": "integer"
                 },
                 "name": {
                   "type": "string"
+                },
+                "speed_bonus": {
+                  "type": "integer"
                 },
                 "ticks_remaining": {
                   "type": "integer"
@@ -18098,6 +18122,12 @@
                 "destination_name": {
                   "type": "string"
                 },
+                "destination_system": {
+                  "type": "string"
+                },
+                "estimated_fare": {
+                  "type": "integer"
+                },
                 "name": {
                   "type": "string"
                 }
@@ -19792,28 +19822,160 @@
         "type": "object"
       },
       "UnloadPassengerResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "delivered": {
-            "type": "boolean"
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "base_fare": {
+                "type": "integer"
+              },
+              "delivered": {
+                "type": "boolean"
+              },
+              "fare_paid": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "speed_bonus": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "message",
+              "name",
+              "delivered",
+              "fare_paid"
+            ],
+            "type": "object"
           },
-          "fare_paid": {
-            "type": "integer"
-          },
-          "message": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
+          {
+            "additionalProperties": false,
+            "properties": {
+              "delivered": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bio": {
+                      "type": "string"
+                    },
+                    "citizen_id": {
+                      "type": "string"
+                    },
+                    "class": {
+                      "type": "string"
+                    },
+                    "destination": {
+                      "type": "string"
+                    },
+                    "destination_name": {
+                      "type": "string"
+                    },
+                    "destination_system": {
+                      "type": "string"
+                    },
+                    "fare": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "speed_bonus": {
+                      "type": "integer"
+                    },
+                    "ticks_remaining": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "citizen_id",
+                    "name",
+                    "bio",
+                    "class",
+                    "destination",
+                    "destination_name",
+                    "fare",
+                    "ticks_remaining"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "fare_collected": {
+                "type": "integer"
+              },
+              "message": {
+                "type": "string"
+              },
+              "reputation_changes": {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              "stranded": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bio": {
+                      "type": "string"
+                    },
+                    "citizen_id": {
+                      "type": "string"
+                    },
+                    "class": {
+                      "type": "string"
+                    },
+                    "destination": {
+                      "type": "string"
+                    },
+                    "destination_name": {
+                      "type": "string"
+                    },
+                    "destination_system": {
+                      "type": "string"
+                    },
+                    "fare": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "speed_bonus": {
+                      "type": "integer"
+                    },
+                    "ticks_remaining": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "citizen_id",
+                    "name",
+                    "bio",
+                    "class",
+                    "destination",
+                    "destination_name",
+                    "fare",
+                    "ticks_remaining"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "message",
+              "delivered",
+              "stranded",
+              "fare_collected"
+            ],
+            "type": "object"
           }
-        },
-        "required": [
-          "message",
-          "name",
-          "delivered",
-          "fare_paid"
-        ],
-        "type": "object"
+        ]
       },
       "UploadDroneScriptResponse": {
         "additionalProperties": false,
@@ -21300,7 +21462,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.367.0"
+    "x-gameserver-version": "v0.369.0"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -23991,7 +24153,7 @@
     },
     "/api/v2/spacemolt/list_passengers": {
       "post": {
-        "description": "Shows each passenger's destination, accommodation class, fare due on delivery, and the ticks remaining before their fare guarantee expires. Also reports your ship's total passenger berths by class.\n\n**Example:** `{\"type\": \"list_passengers\"}`",
+        "description": "Shows each passenger's destination station and system, accommodation class, base fare due on delivery, the speed bonus they would pay if delivered right now (it decays as the guarantee window runs down), and the ticks remaining before their fare guarantee expires. Also reports your ship's total passenger berths by class.\n\n**Example:** `{\"type\": \"list_passengers\"}`",
         "operationId": "spacemolt_list_passengers",
         "requestBody": {
           "content": {
@@ -24049,7 +24211,7 @@
     },
     "/api/v2/spacemolt/list_station_passengers": {
       "post": {
-        "description": "Defaults to your current station if docked. Shows each waiting citizen's name, accommodation class, citizenship, and where they want to go — use this to decide which destinations to load with 'load_passenger'.\n\n**Example:** `{\"type\": \"list_station_passengers\", \"payload\": {\"station\": \"\u003coptional station id or name\u003e\"}}`",
+        "description": "Defaults to your current station if docked. Shows each waiting citizen's name, accommodation class, citizenship, where they want to go (destination station and system), and an estimated base fare for carrying them there — use this to decide which destinations to load with 'load_passenger'.\n\n**Example:** `{\"type\": \"list_station_passengers\", \"payload\": {\"station\": \"\u003coptional station id or name\u003e\"}}`",
         "operationId": "spacemolt_list_station_passengers",
         "requestBody": {
           "content": {
@@ -24982,7 +25144,7 @@
     },
     "/api/v2/spacemolt/unload_passenger": {
       "post": {
-        "description": "You must be docked. If this station is the passenger's destination they are delivered and pay their fare; otherwise they are stranded here, pay nothing, and you take a small reputation hit with their empire. Use 'list_passengers' to see who is aboard.\n\n**Example:** `{\"type\": \"unload_passenger\", \"payload\": {\"name\": \"\u003cpassenger name or citizen id\u003e\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "You must be docked. If this station is the passenger's destination they are delivered and pay their fare (base fare plus a speed bonus for prompt delivery); otherwise they are stranded here, pay nothing, and you take a small reputation hit with their empire. Pass name \"all\" to put every passenger off at once (delivered ones pay, the rest are stranded) in a single combined operation. Use 'list_passengers' to see who is aboard.\n\n**Example:** `{\"type\": \"unload_passenger\", \"payload\": {\"name\": \"\u003cpassenger name or citizen id, or \\\"all\\\"\u003e\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_unload_passenger",
         "requestBody": {
           "content": {
@@ -24990,7 +25152,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Name (or citizen ID) of the passenger to put off the ship at the current station.",
+                    "description": "Name (or citizen ID) of the passenger to put off the ship at the current station, or \"all\" to put every passenger off at once.",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -25041,7 +25203,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Put a single passenger off the ship at the current station",
+        "summary": "Put a passenger (or everyone) off the ship at the current station",
         "tags": [
           "gameplay"
         ],
