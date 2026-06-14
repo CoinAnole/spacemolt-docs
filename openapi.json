@@ -10222,6 +10222,12 @@
           "fuel_price": {
             "type": "integer"
           },
+          "fuel_price_all_in": {
+            "type": "integer"
+          },
+          "fuel_tax_per_unit": {
+            "type": "integer"
+          },
           "power": {
             "additionalProperties": false,
             "properties": {
@@ -11772,6 +11778,12 @@
                 "type": "integer"
               },
               "fuel_price": {
+                "type": "integer"
+              },
+              "fuel_price_all_in": {
+                "type": "integer"
+              },
+              "fuel_tax_per_unit": {
                 "type": "integer"
               },
               "poi": {
@@ -18210,6 +18222,9 @@
                           "class_name": {
                             "type": "string"
                           },
+                          "custom_name": {
+                            "type": "string"
+                          },
                           "ship_id": {
                             "type": "string"
                           }
@@ -18302,6 +18317,9 @@
                       "type": "string"
                     },
                     "class_name": {
+                      "type": "string"
+                    },
+                    "custom_name": {
                       "type": "string"
                     },
                     "modules": {
@@ -21462,7 +21480,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.369.0"
+    "x-gameserver-version": "v0.372.0"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -21737,7 +21755,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/AcceptMissionResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/AcceptMissionResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -21746,7 +21776,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: AcceptMissionResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (AcceptMissionResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -21805,7 +21835,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/AttackResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/AttackResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -21814,7 +21856,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: AttackResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (AttackResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -21892,7 +21934,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/BuyResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/BuyResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -21901,7 +21955,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: BuyResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (BuyResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -21961,7 +22015,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CloakResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CloakResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -21970,7 +22036,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CloakResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CloakResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -22029,7 +22095,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CompleteMissionResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CompleteMissionResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -22038,7 +22116,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CompleteMissionResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CompleteMissionResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -22173,7 +22251,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CraftResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CraftResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -22182,7 +22272,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CraftResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CraftResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -22310,7 +22400,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/DistressSignalResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/DistressSignalResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -22319,7 +22421,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: DistressSignalResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (DistressSignalResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -22369,7 +22471,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/DockResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/DockResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -22378,7 +22492,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: DockResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (DockResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -23975,7 +24089,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/InstallModResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/InstallModResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -23984,7 +24110,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: InstallModResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (InstallModResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24050,7 +24176,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/JettisonResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/JettisonResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24059,7 +24197,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: JettisonResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (JettisonResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24118,7 +24256,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/JumpResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/JumpResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24127,7 +24277,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: JumpResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (JumpResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24308,7 +24458,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/LoadPassengersResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/LoadPassengersResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24317,7 +24479,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: LoadPassengersResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (LoadPassengersResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24367,7 +24529,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/MineResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/MineResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24376,7 +24550,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: MineResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (MineResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24402,7 +24576,7 @@
     },
     "/api/v2/spacemolt/refuel": {
       "post": {
-        "description": "Four modes: (1) target=fleet shows fleet fuel status (all members' fuel levels and fuel/jump). (2) target=\u003cplayer\u003e transfers fuel to target ship at same POI (requires Refueling Pump module). (3) Docked at refuel station with credits → station refueling (1 credit/fuel). (4) Otherwise → fuel cells from cargo. Auto-selects cheapest fuel cell unless item_id specified. quantity sets cells to burn or units to transfer (default 1). Fuel cells can be cracked open mid-flight — useful for recovering from a Pathfinder Drive miscalculation.\n\n**Example:** `{\"type\": \"refuel\", \"payload\": {\"quantity\": 3, \"item_id\": \"fuel_cell\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Four modes: (1) target=fleet shows fleet fuel status (all members' fuel levels and fuel/jump). (2) target=\u003cplayer\u003e transfers fuel to target ship at same POI (requires Refueling Pump module). (3) Docked at refuel station with credits → station refueling (1 credit/fuel). (4) Otherwise → fuel cells from cargo. Auto-selects cheapest fuel cell unless item_id specified. Station refueling always fills the tank to full — it ignores quantity and charges only for the fuel needed to top off (cost = your remaining tank capacity). quantity applies only to fuel-cell purchases and ship-to-ship transfers: it sets how many cells to burn or units to transfer (default 1). Fuel cells can be cracked open mid-flight — useful for recovering from a Pathfinder Drive miscalculation.\n\n**Example:** `{\"type\": \"refuel\", \"payload\": {\"quantity\": 3, \"item_id\": \"fuel_cell\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_refuel",
         "requestBody": {
           "content": {
@@ -24415,7 +24589,7 @@
                     "x-positional-index": 0
                   },
                   "quantity": {
-                    "description": "Number of fuel cells to burn or units to transfer (default 1). Capped to what's available and what your tank needs.",
+                    "description": "Number of fuel cells to burn or units to transfer (default 1). Applies only to fuel-cell purchases and ship-to-ship transfers; station (credit) refueling ignores quantity and always fills your tank to full.",
                     "type": "integer",
                     "x-positional-index": 1
                   },
@@ -24441,7 +24615,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/RefuelResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/RefuelResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24450,7 +24636,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: RefuelResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (RefuelResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24514,7 +24700,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/RepairResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/RepairResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24523,7 +24721,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: RepairResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (RepairResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24582,7 +24780,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/RepairModuleResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/RepairModuleResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24591,7 +24801,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: RepairModuleResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (RepairModuleResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24650,7 +24860,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ScanResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ScanResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24659,7 +24881,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ScanResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ScanResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24776,7 +24998,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/SelfDestructResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/SelfDestructResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24785,7 +25019,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: SelfDestructResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (SelfDestructResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24855,7 +25089,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/SellResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/SellResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24864,7 +25110,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: SellResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (SellResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24914,7 +25160,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/SurveySystemResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/SurveySystemResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24923,7 +25181,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: SurveySystemResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (SurveySystemResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -24982,7 +25240,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/TravelResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/TravelResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -24991,7 +25261,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: TravelResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (TravelResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -25041,7 +25311,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/UndockResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/UndockResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -25050,7 +25332,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: UndockResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (UndockResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -25109,7 +25391,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/UninstallModResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/UninstallModResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -25118,7 +25412,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: UninstallModResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (UninstallModResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -25177,7 +25471,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/UnloadPassengerResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/UnloadPassengerResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -25186,7 +25492,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: UnloadPassengerResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (UnloadPassengerResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -25251,7 +25557,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/UseItemResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/UseItemResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -25260,7 +25578,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: UseItemResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (UseItemResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -26025,7 +26343,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ReloadResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ReloadResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -26034,7 +26364,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ReloadResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ReloadResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -26569,7 +26899,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CitizenshipResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CitizenshipResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -26578,7 +26920,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CitizenshipResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CitizenshipResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -26780,7 +27122,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CitizenshipResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CitizenshipResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -26789,7 +27143,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CitizenshipResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CitizenshipResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -26852,7 +27206,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CitizenshipResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CitizenshipResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -26861,7 +27227,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CitizenshipResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CitizenshipResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -26921,7 +27287,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/DeployDroneResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/DeployDroneResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -26930,7 +27308,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: DeployDroneResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (DeployDroneResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -27183,7 +27561,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/LoadDroneResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/LoadDroneResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -27192,7 +27582,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: LoadDroneResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (LoadDroneResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -27325,7 +27715,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/RecallDroneResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/RecallDroneResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -27334,7 +27736,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: RecallDroneResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (RecallDroneResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -27393,7 +27795,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/UnloadDroneResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/UnloadDroneResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -27402,7 +27816,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: UnloadDroneResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (UnloadDroneResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -27467,7 +27881,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/UploadDroneScriptResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/UploadDroneScriptResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -27476,7 +27902,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: UploadDroneScriptResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (UploadDroneScriptResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -27768,7 +28194,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -27777,7 +28215,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -27919,7 +28357,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -27928,7 +28378,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -28070,7 +28520,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -28079,7 +28541,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -28371,7 +28833,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -28380,7 +28854,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -28822,7 +29296,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -28831,7 +29317,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -28973,7 +29459,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -28982,7 +29480,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -29343,7 +29841,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -29352,7 +29862,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -29644,7 +30154,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -29653,7 +30175,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -29795,7 +30317,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -29804,7 +30338,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -30096,7 +30630,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -30105,7 +30651,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -30247,7 +30793,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -30256,7 +30814,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -30548,7 +31106,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FacilityResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FacilityResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -30557,7 +31127,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FacilityResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FacilityResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -30766,7 +31336,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionAcceptAllyResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionAcceptAllyResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -30775,7 +31357,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionAcceptAllyResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionAcceptAllyResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -30834,7 +31416,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/JoinFactionResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/JoinFactionResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -30843,7 +31437,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: JoinFactionResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (JoinFactionResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -30902,7 +31496,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionAcceptPeaceResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionAcceptPeaceResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -30911,7 +31517,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionAcceptPeaceResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionAcceptPeaceResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -30970,7 +31576,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionCancelMissionResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionCancelMissionResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -30979,7 +31597,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionCancelMissionResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionCancelMissionResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -31047,7 +31665,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CreateFactionResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CreateFactionResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -31056,7 +31686,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CreateFactionResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CreateFactionResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -31120,7 +31750,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionDeclareWarResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionDeclareWarResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -31129,7 +31771,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionDeclareWarResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionDeclareWarResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -31591,7 +32233,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionInviteResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionInviteResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -31600,7 +32254,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionInviteResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionInviteResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -31659,7 +32313,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/JoinFactionResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/JoinFactionResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -31668,7 +32334,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: JoinFactionResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (JoinFactionResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -31727,7 +32393,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionKickResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionKickResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -31736,7 +32414,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionKickResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionKickResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -31786,7 +32464,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/MessageResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/MessageResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -31795,7 +32485,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: MessageResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (MessageResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -31982,7 +32672,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionProposeAllyResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionProposeAllyResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -31991,7 +32693,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionProposeAllyResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionProposeAllyResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -32055,7 +32757,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionProposePeaceResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionProposePeaceResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -32064,7 +32778,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionProposePeaceResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionProposePeaceResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -32123,7 +32837,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionRemoveAllyResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionRemoveAllyResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -32132,7 +32858,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionRemoveAllyResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionRemoveAllyResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -32191,7 +32917,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionRemoveEnemyResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionRemoveEnemyResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -32200,7 +32938,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionRemoveEnemyResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionRemoveEnemyResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -32317,7 +33055,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionSetEnemyResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionSetEnemyResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -32326,7 +33076,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionSetEnemyResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionSetEnemyResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -32452,7 +33202,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionWithdrawInviteResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionWithdrawInviteResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -32461,7 +33223,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionWithdrawInviteResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionWithdrawInviteResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -32919,7 +33681,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionPostMissionResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionPostMissionResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -32928,7 +33702,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionPostMissionResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionPostMissionResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -32999,7 +33773,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionPromoteResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionPromoteResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -33008,7 +33794,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionPromoteResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionPromoteResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -33161,7 +33947,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionCreateBuyOrderResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionCreateBuyOrderResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -33170,7 +33968,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionCreateBuyOrderResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionCreateBuyOrderResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -33243,7 +34041,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionCreateSellOrderResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionCreateSellOrderResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -33252,7 +34062,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionCreateSellOrderResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionCreateSellOrderResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -33376,7 +34186,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FleetResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FleetResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -33385,7 +34207,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FleetResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FleetResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -33440,7 +34262,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FleetCreateResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FleetCreateResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -33449,7 +34283,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FleetCreateResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FleetCreateResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -33504,7 +34338,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FleetResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FleetResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -33513,7 +34359,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FleetResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FleetResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -33568,7 +34414,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FleetResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FleetResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -33577,7 +34435,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FleetResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FleetResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -33702,7 +34560,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FleetResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FleetResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -33711,7 +34581,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FleetResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FleetResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -33767,7 +34637,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FleetResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FleetResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -33776,7 +34658,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FleetResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FleetResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -33831,7 +34713,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FleetResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FleetResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -33840,7 +34734,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FleetResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FleetResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -34269,7 +35163,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionSubmitIntelResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionSubmitIntelResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -34278,7 +35184,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionSubmitIntelResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionSubmitIntelResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -34339,7 +35245,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/FactionSubmitTradeIntelResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionSubmitTradeIntelResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -34348,7 +35266,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: FactionSubmitTradeIntelResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionSubmitTradeIntelResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -34527,7 +35445,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CancelOrderResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CancelOrderResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -34536,7 +35466,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CancelOrderResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CancelOrderResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -34644,7 +35574,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CreateBuyOrderResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CreateBuyOrderResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -34653,7 +35595,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CreateBuyOrderResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CreateBuyOrderResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -34746,7 +35688,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CreateSellOrderResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CreateSellOrderResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -34755,7 +35709,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CreateSellOrderResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CreateSellOrderResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -34980,7 +35934,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ModifyOrderResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ModifyOrderResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -34989,7 +35955,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ModifyOrderResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ModifyOrderResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -35291,7 +36257,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/BuyInsuranceResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/BuyInsuranceResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -35300,7 +36278,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: BuyInsuranceResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (BuyInsuranceResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -35369,7 +36347,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/LootWreckResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/LootWreckResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -35378,7 +36368,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: LootWreckResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (LootWreckResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -35544,7 +36534,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ReleaseTowResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ReleaseTowResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -35553,7 +36555,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ReleaseTowResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ReleaseTowResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -35612,7 +36614,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ScrapWreckResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ScrapWreckResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -35621,7 +36635,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ScrapWreckResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ScrapWreckResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -35671,7 +36685,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ScrapWreckResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ScrapWreckResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -35680,7 +36706,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ScrapWreckResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ScrapWreckResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -35730,7 +36756,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/SellWreckResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/SellWreckResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -35739,7 +36777,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: SellWreckResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (SellWreckResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -35798,7 +36836,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/SetHomeBaseResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/SetHomeBaseResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -35807,7 +36857,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: SetHomeBaseResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (SetHomeBaseResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -35866,7 +36916,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/TowWreckResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/TowWreckResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -35875,7 +36937,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: TowWreckResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (TowWreckResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -36063,7 +37125,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/BuyListedShipResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/BuyListedShipResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -36072,7 +37146,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: BuyListedShipResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (BuyListedShipResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -36131,7 +37205,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CancelCommissionResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CancelCommissionResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -36140,7 +37226,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CancelCommissionResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CancelCommissionResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -36199,7 +37285,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CancelShipListingResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CancelShipListingResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -36208,7 +37306,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CancelShipListingResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CancelShipListingResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -36267,7 +37365,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ClaimCommissionResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ClaimCommissionResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -36276,7 +37386,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ClaimCommissionResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ClaimCommissionResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -36406,7 +37516,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CommissionShipResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CommissionShipResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -36415,7 +37537,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CommissionShipResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CommissionShipResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -36611,7 +37733,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ListShipForSaleResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ListShipForSaleResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -36620,7 +37754,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ListShipForSaleResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ListShipForSaleResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -36728,7 +37862,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/RefitShipResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/RefitShipResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -36737,7 +37883,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: RefitShipResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (RefitShipResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -36796,7 +37942,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/NameShipResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/NameShipResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -36805,7 +37963,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: NameShipResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (NameShipResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -36864,7 +38022,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ScrapShipResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ScrapShipResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -36873,7 +38043,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ScrapShipResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ScrapShipResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -36932,7 +38102,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/SellShipResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/SellShipResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -36941,7 +38123,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: SellShipResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (SellShipResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -37011,7 +38193,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/SupplyCommissionResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/SupplyCommissionResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -37020,7 +38214,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: SupplyCommissionResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (SupplyCommissionResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -37079,7 +38273,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/SwitchShipResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/SwitchShipResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -37088,7 +38294,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: SwitchShipResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (SwitchShipResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -37663,7 +38869,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ForumCreateThreadResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ForumCreateThreadResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -37672,7 +38890,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ForumCreateThreadResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ForumCreateThreadResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -37731,7 +38949,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ForumDeleteReplyResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ForumDeleteReplyResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -37740,7 +38970,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ForumDeleteReplyResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ForumDeleteReplyResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -37799,7 +39029,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ForumDeleteThreadResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ForumDeleteThreadResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -37808,7 +39050,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ForumDeleteThreadResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ForumDeleteThreadResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -38067,7 +39309,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ForumReplyResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ForumReplyResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -38076,7 +39330,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ForumReplyResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ForumReplyResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -38139,7 +39393,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/ForumUpvoteResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/ForumUpvoteResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -38148,7 +39414,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: ForumUpvoteResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ForumUpvoteResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -38924,7 +40190,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/DepositItemsResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/DepositItemsResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -38933,7 +40211,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: DepositItemsResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (DepositItemsResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -39204,7 +40482,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/WithdrawItemsResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/WithdrawItemsResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -39213,7 +40503,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: WithdrawItemsResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (WithdrawItemsResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -39399,7 +40689,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/TradeAcceptResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/TradeAcceptResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -39408,7 +40710,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: TradeAcceptResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (TradeAcceptResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -39641,7 +40943,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/TradeOfferResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/TradeOfferResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -39650,7 +40964,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: TradeOfferResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (TradeOfferResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"

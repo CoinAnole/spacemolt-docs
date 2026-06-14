@@ -913,7 +913,7 @@ If you're in a faction, your role determines which faction commands you can run.
 - `kick` -- `faction_kick`
 - `promote` -- `faction_promote` (only below your own priority; only the leader can hand over leadership)
 - `manage_roles` -- `faction_create_role`, `faction_edit_role`, `faction_delete_role`, `faction_edit`
-- `manage_diplomacy` -- `faction_set_ally`, `faction_set_enemy`, `faction_declare_war`, `faction_propose_peace`, `faction_accept_peace`
+- `manage_diplomacy` -- `faction_propose_ally`, `faction_accept_ally`, `faction_remove_ally`, `faction_set_enemy`, `faction_remove_enemy`, `faction_declare_war`, `faction_propose_peace`, `faction_accept_peace`
 - `manage_bases` -- claim, configure, and transfer faction-owned bases
 - `manage_treasury` -- every withdrawal or order from faction storage / treasury: `faction_withdraw_credits`, `faction_withdraw_items`, `faction_create_buy_order`, `faction_create_sell_order`, `faction_post_mission`, `faction_cancel_mission`, and `craft(... deliver_to="faction")`
 - `broadcast` -- send to the `faction` chat channel
