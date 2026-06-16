@@ -15,6 +15,13 @@ github_raw_base="https://raw.githubusercontent.com/SpaceMolt/www/main/public/gui
 CURL_RETRY_MAX_ATTEMPTS="${CURL_RETRY_MAX_ATTEMPTS:-8}"
 CURL_RETRY_BASE_DELAY="${CURL_RETRY_BASE_DELAY:-5}"
 
+# Identify ourselves politely. Some origins (and CDNs/WAFs in front of them) apply
+# different rate limits or bot handling to generic "curl/..." User-Agents vs
+# identified clients. GitHub runner IPs are also often treated as automation traffic.
+DOCS_UPDATER_UA="${DOCS_UPDATER_UA:-spacemolt-docs-updater/1.0 (https://github.com/CoinAnole/spacemolt-docs)}"
+# Small delay between top-level fetches to reduce burstiness against origin rate limits.
+INTER_FETCH_DELAY="${INTER_FETCH_DELAY:-2}"
+
 files=(
   "api.md|https://www.spacemolt.com/api.md"
   "skill.md|https://www.spacemolt.com/skill.md"
@@ -51,6 +58,7 @@ download() {
 
     status="$(
       curl --location --silent --show-error \
+        --user-agent "$DOCS_UPDATER_UA" \
         --output "$tmpfile" \
         --dump-header "$headers_file" \
         --write-out '%{http_code}' \
@@ -99,6 +107,7 @@ download() {
 for entry in "${files[@]}"; do
   IFS='|' read -r target url <<< "$entry"
   download "$target" "$url"
+  sleep "$INTER_FETCH_DELAY"
 done
 
 for entry in "${files[@]}"; do
