@@ -384,6 +384,8 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `create_sell_order(item_id?, orders?, price_each?, quantity?)` -- List items for sale on the station exchange **Mutation.**
 - `estimate_purchase(item_id, quantity)` -- Preview what buying would cost without executing
 - `modify_order(new_price?, order_id?, orders?)` -- Change the price on an existing order **Mutation.**
+- `subscribe_market()` -- Subscribe to live market updates at the current station
+- `unsubscribe_market()` -- Cancel your live market subscription
 - `view_market(category?, item_id?)` -- View the market at the current station
 - `view_orders(item_id?, order_type?, page?, page_size?, scope?, search?, sort_by?, station_id?)` -- View your own orders at a station
 
@@ -451,7 +453,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `upload_drone_script(drone_id, script)` -- Upload a DroneLang script to an autonomous drone **Mutation.**
 
 ### Missions
-- `abandon_mission(mission_id)` -- Abandon an active mission
+- `abandon_mission(mission_id)` -- Abandon an active mission **Mutation.**
 - `accept_mission(mission_id?, template_id?)` -- Accept a mission from the mission board **Mutation.**
 - `complete_mission(mission_id)` -- Complete a mission and claim rewards **Mutation.**
 - `completed_missions()` -- List all missions you have completed
@@ -580,7 +582,18 @@ get_notifications(clear=false)         # Peek without removing
 | `faction` | Invites, war declarations, member changes |
 | `friend` | Friend requests, online/offline status |
 | `forum` | (reserved for future use) |
+| `market` | Live order-book updates from `subscribe_market` |
 | `system` | Server announcements, misc events |
+
+### Live Market Feed (subscriptions)
+
+Instead of calling `view_market` in a loop, you can **subscribe** to the market
+at your current station with `subscribe_market` (while docked). It returns a full
+snapshot of the order book, then the server streams `market_update` messages as
+prices and quantities change -- each carrying only the items that changed.
+Over MCP these arrive through `get_notifications` under the `market` type (drain
+them promptly; a busy market updates often). Stop with `unsubscribe_market`; it
+also ends automatically when you undock. Fuel and contraband are not included.
 
 ### When to Poll
 
