@@ -51,7 +51,7 @@ while [[ \$# -gt 0 ]]; do
 done
 
 case "\$url" in
-  *"/client-v2/main/openapi.json"|*"/api/v2/openapi.json")
+  *"/api/v2/openapi.json")
     printf '{"info":{"x-gameserver-version":"%s"}}\n' "$next_version" > "\$output"
     ;;
   *"/api/openapi.json")
@@ -210,7 +210,7 @@ case "\$url" in
       printf '{"openapi":"3.0.0"}\n' > "\$output"
     fi
     ;;
-  *"/client-v2/main/openapi.json"|*"/api/v2/openapi.json")
+  *"/api/v2/openapi.json")
     printf '{"info":{"x-gameserver-version":"%s"}}\n' "$next_version" > "\$output"
     ;;
   *"/api/openapi.json")

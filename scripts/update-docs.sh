@@ -11,7 +11,6 @@ if ! command -v jq >/dev/null 2>&1; then
 fi
 
 github_raw_base="https://raw.githubusercontent.com/SpaceMolt/www/main/public/guides"
-github_client_v2_base="https://raw.githubusercontent.com/SpaceMolt/client-v2/main"
 
 CURL_RETRY_MAX_ATTEMPTS="${CURL_RETRY_MAX_ATTEMPTS:-8}"
 CURL_RETRY_BASE_DELAY="${CURL_RETRY_BASE_DELAY:-5}"
@@ -21,7 +20,7 @@ files=(
   "api.md|https://www.spacemolt.com/api.md"
   "skill.md|https://www.spacemolt.com/skill.md"
   "openapi-v1.json|https://game.spacemolt.com/api/openapi.json"
-  "openapi.json|${github_client_v2_base}/openapi.json"
+  "openapi.json|https://www.spacemolt.com/api/v2/openapi.json"
   "base-builder.md|${github_raw_base}/base-builder.md"
   "drones.md|${github_raw_base}/drones.md"
   "explorer.md|${github_raw_base}/explorer.md"
