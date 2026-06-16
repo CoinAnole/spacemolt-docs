@@ -11,12 +11,17 @@ if ! command -v jq >/dev/null 2>&1; then
 fi
 
 github_raw_base="https://raw.githubusercontent.com/SpaceMolt/www/main/public/guides"
+github_client_v2_base="https://raw.githubusercontent.com/SpaceMolt/client-v2/main"
+
+CURL_RETRY_MAX_ATTEMPTS="${CURL_RETRY_MAX_ATTEMPTS:-8}"
+CURL_RETRY_BASE_DELAY="${CURL_RETRY_BASE_DELAY:-5}"
+REQUEST_DELAY_SECONDS="${REQUEST_DELAY_SECONDS:-2}"
 
 files=(
   "api.md|https://www.spacemolt.com/api.md"
   "skill.md|https://www.spacemolt.com/skill.md"
   "openapi-v1.json|https://game.spacemolt.com/api/openapi.json"
-  "openapi.json|https://www.spacemolt.com/api/v2/openapi.json"
+  "openapi.json|${github_client_v2_base}/openapi.json"
   "base-builder.md|${github_raw_base}/base-builder.md"
   "drones.md|${github_raw_base}/drones.md"
   "explorer.md|${github_raw_base}/explorer.md"
@@ -36,20 +41,67 @@ download() {
   local target="$1"
   local url="$2"
   local tmpfile="${tmpdir}/${target}"
+  local attempt=1
+  local delay="$CURL_RETRY_BASE_DELAY"
+  local status=""
 
   mkdir -p "$(dirname -- "$tmpfile")"
   printf 'Fetching %s\n' "$target"
-  curl --fail --location --silent --show-error --output "$tmpfile" "$url"
 
-  if [[ ! -s "$tmpfile" ]]; then
-    printf 'Downloaded file is empty: %s\n' "$url" >&2
+  while (( attempt <= CURL_RETRY_MAX_ATTEMPTS )); do
+    local headers_file="${tmpdir}/headers-${target//\//-}-${attempt}"
+
+    status="$(
+      curl --location --silent --show-error \
+        --output "$tmpfile" \
+        --dump-header "$headers_file" \
+        --write-out '%{http_code}' \
+        "$url"
+    )"
+
+    if [[ "$status" == "200" && -s "$tmpfile" ]]; then
+      rm -f "$headers_file"
+      return 0
+    fi
+
+    if [[ "$status" == "429" && attempt -lt CURL_RETRY_MAX_ATTEMPTS ]]; then
+      local retry_after="$delay"
+      if [[ -f "$headers_file" ]]; then
+        local header_retry
+        header_retry="$(
+          awk 'tolower($1) == "retry-after:" { print $2; exit }' "$headers_file" | tr -d '\r'
+        )"
+        if [[ "$header_retry" =~ ^[0-9]+$ ]]; then
+          retry_after="$header_retry"
+        fi
+      fi
+      printf 'Rate limited fetching %s (HTTP 429, attempt %d/%d); retrying in %ss\n' \
+        "$target" "$attempt" "$CURL_RETRY_MAX_ATTEMPTS" "$retry_after" >&2
+      rm -f "$headers_file"
+      sleep "$retry_after"
+      attempt=$((attempt + 1))
+      delay=$((delay * 2))
+      continue
+    fi
+
+    rm -f "$headers_file"
+    if [[ ! -s "$tmpfile" ]]; then
+      printf 'Failed to fetch %s: HTTP %s (empty response)\n' "$url" "$status" >&2
+    else
+      printf 'Failed to fetch %s: HTTP %s\n' "$url" "$status" >&2
+    fi
     return 1
-  fi
+  done
+
+  printf 'Giving up on %s after %d attempts (last HTTP status: %s)\n' \
+    "$url" "$CURL_RETRY_MAX_ATTEMPTS" "$status" >&2
+  return 1
 }
 
 for entry in "${files[@]}"; do
   IFS='|' read -r target url <<< "$entry"
   download "$target" "$url"
+  sleep "$REQUEST_DELAY_SECONDS"
 done
 
 for entry in "${files[@]}"; do

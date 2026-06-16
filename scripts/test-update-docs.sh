@@ -25,11 +25,19 @@ write_fake_curl() {
 set -euo pipefail
 
 output=""
+write_out=""
 url=""
 while [[ \$# -gt 0 ]]; do
   case "\$1" in
     --output)
       output="\$2"
+      shift 2
+      ;;
+    --write-out)
+      write_out="\$2"
+      shift 2
+      ;;
+    --dump-header)
       shift 2
       ;;
     http*)
@@ -43,7 +51,7 @@ while [[ \$# -gt 0 ]]; do
 done
 
 case "\$url" in
-  *"/api/v2/openapi.json")
+  *"/client-v2/main/openapi.json"|*"/api/v2/openapi.json")
     printf '{"info":{"x-gameserver-version":"%s"}}\n' "$next_version" > "\$output"
     ;;
   *"/api/openapi.json")
@@ -53,6 +61,10 @@ case "\$url" in
     printf 'refreshed from %s\n' "\$url" > "\$output"
     ;;
 esac
+
+if [[ "\$write_out" == '%{http_code}' ]]; then
+  printf '200'
+fi
 EOF
   chmod +x "${bin_dir}/curl"
 }
@@ -97,7 +109,7 @@ test_commits_when_gameserver_version_changes() {
 
   (
     cd "$fixture"
-    PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
+    REQUEST_DELAY_SECONDS=0 PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
   )
 
   local subject
@@ -114,7 +126,7 @@ test_does_not_commit_when_gameserver_version_is_unchanged() {
 
   (
     cd "$fixture"
-    PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
+    REQUEST_DELAY_SECONDS=0 PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
   )
 
   local subject
@@ -141,6 +153,99 @@ test_workflow_configures_git_identity_before_refreshing_docs() {
   fi
 }
 
+write_rate_limited_curl() {
+  local next_version="$1"
+  local fail_pattern="$2"
+  local bin_dir="$3"
+  local state_file="${bin_dir}/.rate-limit-state"
+
+  cat > "${bin_dir}/curl" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+output=""
+write_out=""
+header_file=""
+url=""
+while [[ \$# -gt 0 ]]; do
+  case "\$1" in
+    --output)
+      output="\$2"
+      shift 2
+      ;;
+    --write-out)
+      write_out="\$2"
+      shift 2
+      ;;
+    --dump-header)
+      header_file="\$2"
+      shift 2
+      ;;
+    http*)
+      url="\$1"
+      shift
+      ;;
+    *)
+      shift
+      ;;
+  esac
+done
+
+status="200"
+case "\$url" in
+  *"$fail_pattern"*)
+    count=0
+    if [[ -f "$state_file" ]]; then
+      count="\$(<"$state_file")"
+    fi
+    count=\$((count + 1))
+    printf '%s' "\$count" > "$state_file"
+    if (( count == 1 )); then
+      status="429"
+      printf '{"error":"rate_limited"}\n' > "\$output"
+      if [[ -n "\$header_file" ]]; then
+        printf 'HTTP/1.1 429 Too Many Requests\r\nRetry-After: 0\r\n\r\n' > "\$header_file"
+      fi
+    else
+      printf '{"openapi":"3.0.0"}\n' > "\$output"
+    fi
+    ;;
+  *"/client-v2/main/openapi.json"|*"/api/v2/openapi.json")
+    printf '{"info":{"x-gameserver-version":"%s"}}\n' "$next_version" > "\$output"
+    ;;
+  *"/api/openapi.json")
+    printf '{"openapi":"3.0.0"}\n' > "\$output"
+    ;;
+  *)
+    printf 'refreshed from %s\n' "\$url" > "\$output"
+    ;;
+esac
+
+if [[ "\$write_out" == '%{http_code}' ]]; then
+  printf '%s' "\$status"
+fi
+EOF
+  chmod +x "${bin_dir}/curl"
+}
+
+test_retries_after_rate_limit() {
+  local fixture="${workdir}/rate-limited"
+  local bin_dir="${workdir}/bin-rate-limited"
+  mkdir -p "$bin_dir"
+  make_fixture_repo "$fixture" "v1.0.0"
+  write_rate_limited_curl "v2.0.0" "/api/openapi.json" "$bin_dir"
+
+  # The fake curl always succeeds on retry, so keep retries fast in tests.
+  (
+    cd "$fixture"
+    CURL_RETRY_BASE_DELAY=0 REQUEST_DELAY_SECONDS=0 PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
+  )
+
+  local subject
+  subject="$(git -C "$fixture" log -1 --format=%s)"
+  assert_eq "v2.0.0" "$subject" "script should retry past transient 429 responses"
+}
+
 test_workflow_pushes_script_created_commits() {
   local workflow="${repo_root}/.github/workflows/update-docs.yml"
 
@@ -157,6 +262,7 @@ test_workflow_pushes_script_created_commits() {
 
 test_commits_when_gameserver_version_changes
 test_does_not_commit_when_gameserver_version_is_unchanged
+test_retries_after_rate_limit
 test_workflow_configures_git_identity_before_refreshing_docs
 test_workflow_pushes_script_created_commits
 
