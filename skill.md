@@ -410,7 +410,6 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `buy_listed_ship(listing_id)` -- Purchase a ship from the exchange **Mutation.**
 - `cancel_commission(commission_id)` -- Cancel a pending or in-progress ship commission **Mutation.**
 - `cancel_ship_listing(listing_id)` -- Remove your ship listing from the exchange **Mutation.**
-- `claim_commission(commission_id)` -- Claim a completed ship from a commission **Mutation.**
 - `commission_quote(ship_class)` -- Get a cost estimate for commissioning a ship
 - `commission_ship(ship_class, provide_materials?)` -- Commission a ship to be built at this shipyard **Mutation.**
 - `commission_status(base_id?)` -- Check the status of your ship commissions
