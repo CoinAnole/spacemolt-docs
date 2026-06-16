@@ -14,7 +14,6 @@ github_raw_base="https://raw.githubusercontent.com/SpaceMolt/www/main/public/gui
 
 CURL_RETRY_MAX_ATTEMPTS="${CURL_RETRY_MAX_ATTEMPTS:-8}"
 CURL_RETRY_BASE_DELAY="${CURL_RETRY_BASE_DELAY:-5}"
-REQUEST_DELAY_SECONDS="${REQUEST_DELAY_SECONDS:-2}"
 
 files=(
   "api.md|https://www.spacemolt.com/api.md"
@@ -100,7 +99,6 @@ download() {
 for entry in "${files[@]}"; do
   IFS='|' read -r target url <<< "$entry"
   download "$target" "$url"
-  sleep "$REQUEST_DELAY_SECONDS"
 done
 
 for entry in "${files[@]}"; do

@@ -109,7 +109,7 @@ test_commits_when_gameserver_version_changes() {
 
   (
     cd "$fixture"
-    REQUEST_DELAY_SECONDS=0 PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
+    PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
   )
 
   local subject
@@ -126,7 +126,7 @@ test_does_not_commit_when_gameserver_version_is_unchanged() {
 
   (
     cd "$fixture"
-    REQUEST_DELAY_SECONDS=0 PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
+    PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
   )
 
   local subject
@@ -238,7 +238,7 @@ test_retries_after_rate_limit() {
   # The fake curl always succeeds on retry, so keep retries fast in tests.
   (
     cd "$fixture"
-    CURL_RETRY_BASE_DELAY=0 REQUEST_DELAY_SECONDS=0 PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
+    CURL_RETRY_BASE_DELAY=0 PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
   )
 
   local subject
