@@ -9794,6 +9794,101 @@
         "description": "Command-specific result object. See individual command documentation for field details.",
         "type": "object"
       },
+      "GetAchievementsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "achievements": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "category": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "earned": {
+                  "type": "boolean"
+                },
+                "earned_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "hidden": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "points": {
+                  "type": "integer"
+                },
+                "progress": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "current": {
+                      "type": "integer"
+                    },
+                    "target": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "current",
+                    "target"
+                  ],
+                  "type": "object"
+                },
+                "share_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "category",
+                "points",
+                "hidden",
+                "earned"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "message": {
+            "type": "string"
+          },
+          "summary": {
+            "additionalProperties": false,
+            "properties": {
+              "earned": {
+                "type": "integer"
+              },
+              "points": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "earned",
+              "total",
+              "points"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "summary",
+          "achievements"
+        ],
+        "type": "object"
+      },
       "GetActionLogResponse": {
         "additionalProperties": false,
         "properties": {
@@ -10783,6 +10878,101 @@
         "required": [
           "action",
           "empires"
+        ],
+        "type": "object"
+      },
+      "GetFactionAchievementsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "achievements": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "category": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "earned": {
+                  "type": "boolean"
+                },
+                "earned_at": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "hidden": {
+                  "type": "boolean"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "points": {
+                  "type": "integer"
+                },
+                "progress": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "current": {
+                      "type": "integer"
+                    },
+                    "target": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "current",
+                    "target"
+                  ],
+                  "type": "object"
+                },
+                "share_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "description",
+                "category",
+                "points",
+                "hidden",
+                "earned"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "message": {
+            "type": "string"
+          },
+          "summary": {
+            "additionalProperties": false,
+            "properties": {
+              "earned": {
+                "type": "integer"
+              },
+              "points": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "earned",
+              "total",
+              "points"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "summary",
+          "achievements"
         ],
         "type": "object"
       },
@@ -13199,6 +13389,13 @@
           "player": {
             "additionalProperties": false,
             "properties": {
+              "achievements": {
+                "additionalProperties": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "type": "object"
+              },
               "captains_log": {
                 "items": {
                   "additionalProperties": false,
@@ -13576,6 +13773,12 @@
                   "items_jettisoned": {
                     "type": "integer"
                   },
+                  "items_sold_by_type": {
+                    "additionalProperties": {
+                      "type": "integer"
+                    },
+                    "type": "object"
+                  },
                   "jumps_completed": {
                     "type": "integer"
                   },
@@ -13604,6 +13807,9 @@
                     "type": "integer"
                   },
                   "pirates_destroyed": {
+                    "type": "integer"
+                  },
+                  "prayer_distance_traveled": {
                     "type": "integer"
                   },
                   "refuels_given": {
@@ -13642,6 +13848,9 @@
                   "trades_completed": {
                     "type": "integer"
                   },
+                  "void_drifts": {
+                    "type": "integer"
+                  },
                   "wormholes_traversed": {
                     "type": "integer"
                   },
@@ -13678,9 +13887,11 @@
                   "deaths_by_self_destruct",
                   "systems_explored",
                   "distance_traveled",
+                  "prayer_distance_traveled",
                   "time_played",
                   "jumps_completed",
                   "wormholes_traversed",
+                  "void_drifts",
                   "scans_performed",
                   "times_docked",
                   "cloak_activations",
@@ -13720,12 +13931,24 @@
               "status_message": {
                 "type": "string"
               },
+              "titles": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
               "towing_wreck_id": {
                 "type": "string"
               },
               "trading_restricted_until": {
                 "format": "date-time",
                 "type": "string"
+              },
+              "transported_citizens": {
+                "additionalProperties": {
+                  "type": "boolean"
+                },
+                "type": "object"
               },
               "username": {
                 "type": "string"
@@ -15674,6 +15897,11 @@
           "pirates_destroyed": {
             "type": "integer"
           },
+          "prayer_distance_traveled": {
+            "description": "Cumulative distance flown in a Prayer-class hull",
+            "format": "int64",
+            "type": "integer"
+          },
           "refuels_given": {
             "type": "integer"
           },
@@ -15710,6 +15938,10 @@
             "type": "integer"
           },
           "trades_completed": {
+            "type": "integer"
+          },
+          "void_drifts": {
+            "description": "Times a Pathfinder course was plotted into open space",
             "type": "integer"
           },
           "wormholes_traversed": {
@@ -15964,6 +16196,13 @@
           "player": {
             "additionalProperties": false,
             "properties": {
+              "achievements": {
+                "additionalProperties": {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                "type": "object"
+              },
               "captains_log": {
                 "items": {
                   "additionalProperties": false,
@@ -16341,6 +16580,12 @@
                   "items_jettisoned": {
                     "type": "integer"
                   },
+                  "items_sold_by_type": {
+                    "additionalProperties": {
+                      "type": "integer"
+                    },
+                    "type": "object"
+                  },
                   "jumps_completed": {
                     "type": "integer"
                   },
@@ -16369,6 +16614,9 @@
                     "type": "integer"
                   },
                   "pirates_destroyed": {
+                    "type": "integer"
+                  },
+                  "prayer_distance_traveled": {
                     "type": "integer"
                   },
                   "refuels_given": {
@@ -16407,6 +16655,9 @@
                   "trades_completed": {
                     "type": "integer"
                   },
+                  "void_drifts": {
+                    "type": "integer"
+                  },
                   "wormholes_traversed": {
                     "type": "integer"
                   },
@@ -16443,9 +16694,11 @@
                   "deaths_by_self_destruct",
                   "systems_explored",
                   "distance_traveled",
+                  "prayer_distance_traveled",
                   "time_played",
                   "jumps_completed",
                   "wormholes_traversed",
+                  "void_drifts",
                   "scans_performed",
                   "times_docked",
                   "cloak_activations",
@@ -16485,12 +16738,24 @@
               "status_message": {
                 "type": "string"
               },
+              "titles": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
               "towing_wreck_id": {
                 "type": "string"
               },
               "trading_restricted_until": {
                 "format": "date-time",
                 "type": "string"
+              },
+              "transported_citizens": {
+                "additionalProperties": {
+                  "type": "boolean"
+                },
+                "type": "object"
               },
               "username": {
                 "type": "string"
@@ -20274,6 +20539,11 @@
             },
             "type": "array"
           },
+          "credits": {
+            "description": "Current credit balance, surfaced by lean query endpoints (get_ship, get_cargo, get_location) that omit the full player blob",
+            "format": "int64",
+            "type": "integer"
+          },
           "details": {
             "description": "Action-specific detail data",
             "type": "object"
@@ -21095,6 +21365,12 @@
             },
             "type": "array"
           },
+          "current_tick": {
+            "type": "integer"
+          },
+          "incremental": {
+            "type": "boolean"
+          },
           "items": {
             "items": {
               "additionalProperties": false,
@@ -21213,7 +21489,8 @@
           "action",
           "base",
           "base_id",
-          "items"
+          "items",
+          "current_tick"
         ],
         "type": "object"
       },
@@ -21594,7 +21871,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.380.0"
+    "x-gameserver-version": "v0.384.1"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -22710,6 +22987,64 @@
         ]
       }
     },
+    "/api/v2/spacemolt/get_achievements": {
+      "post": {
+        "description": "Returns earned achievements and progress toward locked ones. Secret achievements appear as '???' until earned.\n\n**Example:** `{\"type\": \"get_achievements\"}`",
+        "operationId": "spacemolt_get_achievements",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/GetAchievementsResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: GetAchievementsResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Get your achievement progress",
+        "tags": [
+          "gameplay"
+        ]
+      }
+    },
     "/api/v2/spacemolt/get_active_missions": {
       "post": {
         "description": "Returns active missions and max mission count in the v2 state envelope.\n\n**Example:** `{\"type\": \"v2_get_missions\"}`",
@@ -23008,6 +23343,64 @@
           }
         ],
         "summary": "Get the live policy snapshot for one or all empires",
+        "tags": [
+          "gameplay"
+        ]
+      }
+    },
+    "/api/v2/spacemolt/get_faction_achievements": {
+      "post": {
+        "description": "Returns your faction's earned achievements and progress. Returns an empty list if you are not in a faction.\n\n**Example:** `{\"type\": \"get_faction_achievements\"}`",
+        "operationId": "spacemolt_get_faction_achievements",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/GetFactionAchievementsResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: GetFactionAchievementsResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Get your faction's achievement progress",
         "tags": [
           "gameplay"
         ]
@@ -36224,7 +36617,7 @@
     },
     "/api/v2/spacemolt_market/view_market": {
       "post": {
-        "description": "Without item_id: returns a compact summary (best prices, quantities) for all items — use category to filter (e.g. 'ore', 'commodity', 'module'). With item_id: returns full order book depth for that item. Accepts item_id or item name (e.g. 'Iron Ore').\n\n**Example:** `{\"type\": \"view_market\", \"payload\": {\"category\": \"ore\"}}`",
+        "description": "Without item_id: returns a compact summary (best prices, quantities) for all items — use category to filter (e.g. 'ore', 'commodity', 'module'). With item_id: returns full order book depth for that item. Accepts item_id or item name (e.g. 'Iron Ore'). Every response includes current_tick. Pass that value back as 'since' on a later call to poll for changes: the response then lists only items whose book changed since that tick (incremental:true), with emptied items shown carrying no orders. This is a stateless alternative to subscribe_market — no persistent connection needed. Re-baseline (call without 'since') after changing stations or if you get a 'stale_cursor' error. Fuel and contraband are excluded from incremental diffs.\n\n**Example:** `{\"type\": \"view_market\", \"payload\": {\"category\": \"ore\"}}`",
         "operationId": "spacemolt_market_view_market",
         "requestBody": {
           "content": {
@@ -36239,6 +36632,10 @@
                     "description": "Optional: filter to a specific item for full order book depth (e.g., iron_ore)",
                     "type": "string",
                     "x-positional-index": 0
+                  },
+                  "since": {
+                    "description": "Optional: a prior current_tick. Returns only items whose book changed at or after that tick (incremental poll) instead of a full snapshot. Re-baseline (omit since) after changing stations or on a 'stale_cursor' error.",
+                    "type": "integer"
                   }
                 },
                 "type": "object"

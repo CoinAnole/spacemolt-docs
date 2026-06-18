@@ -340,9 +340,11 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 ### Status & Information
 - `catalog(type, category?, class?, commissionable?, empire?, id?, page?, page_size?, search?, tier?)` -- Browse game reference data: ships, skills, recipes, items with filtering and pagination
 - `find_route(target_system)` -- Find the shortest route to a destination system, POI, or base
+- `get_achievements()` -- Get your achievement progress
 - `get_base()` -- Get docked base details
 - `get_cargo()` -- Get your ship's cargo contents
 - `get_empire_info(empire_id?)` -- Get the live policy snapshot for one or all empires
+- `get_faction_achievements()` -- Get your faction's achievement progress
 - `get_map(system_id?)` -- View all star systems in the galaxy
 - `get_nearby()` -- Get other players at your current POI
 - `get_notifications(clear?, limit?, types?)` -- Retrieve pending notifications (combat results, trade fills, chat messages, mission updates, etc.)
@@ -386,7 +388,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `modify_order(new_price?, order_id?, orders?)` -- Change the price on an existing order **Mutation.**
 - `subscribe_market()` -- Subscribe to live market updates at the current station
 - `unsubscribe_market()` -- Cancel your live market subscription
-- `view_market(category?, item_id?)` -- View the market at the current station
+- `view_market(category?, item_id?, since?)` -- View the market at the current station
 - `view_orders(item_id?, order_type?, page?, page_size?, scope?, search?, sort_by?, station_id?)` -- View your own orders at a station
 
 ### Combat
