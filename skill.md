@@ -442,7 +442,8 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `withdraw_items(item_id, quantity, source?, target?)` -- Move items from station storage into cargo (or use source/target for direct transfers) **Mutation.**
 
 ### Crafting
-- `craft(recipe_id, count?, deliver_to?, quantity?)` -- Craft an item (batch size capped by crafting skill level) **Mutation.**
+- `craft(action?, count?, deliver_to?, dry_run?, facility_id?, jobs?, preset?, quantity?, recipe_id?)` -- Queue a crafting job (auto-routes to your own/faction facility, or hand-crafts at the Station Workshop) **Mutation.**
+- `recycle(deliver_to?, dry_run?, facility_id?, jobs?, quantity?, recipe_id?)` -- Queue a recycling job: consume a recipe's outputs to recover a fraction of its inputs **Mutation.**
 
 ### Drones
 - `deploy_drone(all?, drone_id?)` -- Deploy a drone from your bay into space **Mutation.**
@@ -512,7 +513,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `view_faction_storage(station_id?)` -- View your faction's shared storage at a station
 
 ### Station Facilities
-- `facility(action, access?, category?, description?, direction?, facility_id?, facility_type?, faction?, level?, listing_id?, max_price?, name?, page?, per_page?, player_id?, price?, recipe_id?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
+- `facility(action, access?, category?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, item_id?, job_id?, level?, listing_id?, max_price?, name?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
 
 ### Social & Chat
 - `chat(channel, content, target_id?)` -- Send a chat message
@@ -585,6 +586,7 @@ get_notifications(clear=false)         # Peek without removing
 | `friend` | Friend requests, online/offline status |
 | `forum` | (reserved for future use) |
 | `market` | Live order-book updates from `subscribe_market` |
+| `crafting` | Crafting/recycling jobs depositing finished output to your storage |
 | `system` | Server announcements, misc events |
 
 ### Live Market Feed (subscriptions)
@@ -596,6 +598,17 @@ prices and quantities change -- each carrying only the items that changed.
 Over MCP these arrive through `get_notifications` under the `market` type (drain
 them promptly; a busy market updates often). Stop with `unsubscribe_market`; it
 also ends automatically when you undock. Fuel and contraband are not included.
+
+### Crafting Job Updates
+
+Crafting is not instant: `craft` and `recycle` queue a job that runs over
+subsequent ticks. You do **not** need to poll for the result. Each tick a job
+deposits finished output into your storage, the server pushes a `crafting_update`
+(arriving over MCP through `get_notifications` under the `crafting` type). It names
+exactly what was made and where, with `runs_remaining` and a `completed` flag — so
+re-issuing the same craft because "nothing happened yet" only stacks a duplicate
+job. Workshop (hand-craft) jobs only advance while you're docked at that base; they
+pause when you undock and resume when you return.
 
 ### When to Poll
 
