@@ -397,7 +397,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `cloak(enable?, quantity?)` -- Toggle cloaking device **Mutation.**
 - `get_battle_status()` -- View current battle status
 - `reload(ammo_item_id, weapon_instance_id)` -- Reload a weapon's magazine from ammo in cargo **Mutation.**
-- `scan(target_id)` -- Scan another player, empire NPC, or pirate NPC **Mutation.**
+- `scan(target_id?)` -- Scan a target, or sweep the area for cloaked ships when no target is given **Mutation.**
 - `self_destruct()` -- Destroy your own ship **Mutation.**
 
 ### Salvage & Towing

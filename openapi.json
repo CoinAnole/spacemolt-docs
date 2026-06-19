@@ -3000,107 +3000,6 @@
               "action": {
                 "type": "string"
               },
-              "jobs": {
-                "items": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "eta_ticks": {
-                      "type": "integer"
-                    },
-                    "external": {
-                      "type": "boolean"
-                    },
-                    "facility_id": {
-                      "type": "string"
-                    },
-                    "job_id": {
-                      "type": "string"
-                    },
-                    "mode": {
-                      "type": "string"
-                    },
-                    "orderer": {
-                      "type": "string"
-                    },
-                    "position": {
-                      "type": "integer"
-                    },
-                    "produces": {
-                      "items": {
-                        "additionalProperties": false,
-                        "properties": {
-                          "item_id": {
-                            "type": "string"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "quantity": {
-                            "type": "integer"
-                          }
-                        },
-                        "required": [
-                          "item_id",
-                          "name",
-                          "quantity"
-                        ],
-                        "type": "object"
-                      },
-                      "type": "array"
-                    },
-                    "progress": {
-                      "type": "number"
-                    },
-                    "recipe": {
-                      "type": "string"
-                    },
-                    "runs_done": {
-                      "type": "integer"
-                    },
-                    "runs_remaining": {
-                      "type": "integer"
-                    },
-                    "runs_total": {
-                      "type": "integer"
-                    },
-                    "status": {
-                      "type": "string"
-                    },
-                    "venue": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "job_id",
-                    "recipe",
-                    "mode",
-                    "runs_total",
-                    "runs_done",
-                    "runs_remaining",
-                    "progress",
-                    "eta_ticks",
-                    "position",
-                    "orderer",
-                    "status",
-                    "facility_id"
-                  ],
-                  "type": "object"
-                },
-                "type": "array"
-              }
-            },
-            "required": [
-              "action",
-              "jobs"
-            ],
-            "type": "object"
-          },
-          {
-            "additionalProperties": false,
-            "properties": {
-              "action": {
-                "type": "string"
-              },
               "mode": {
                 "type": "string"
               },
@@ -12699,6 +12598,9 @@
           },
           "poi_id": {
             "type": "string"
+          },
+          "unknown_signature": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -16500,11 +16402,57 @@
           "cloaked": {
             "type": "boolean"
           },
+          "contacts": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "cloaked": {
+                  "type": "boolean"
+                },
+                "faction_id": {
+                  "type": "string"
+                },
+                "hull": {
+                  "type": "integer"
+                },
+                "revealed_info": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "shield": {
+                  "type": "integer"
+                },
+                "ship_class": {
+                  "type": "string"
+                },
+                "ship_name": {
+                  "type": "string"
+                },
+                "target_id": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "target_id",
+                "revealed_info"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
           "faction_id": {
             "type": "string"
           },
           "hull": {
             "type": "integer"
+          },
+          "message": {
+            "type": "string"
           },
           "revealed_info": {
             "items": {
@@ -16521,7 +16469,13 @@
           "ship_name": {
             "type": "string"
           },
+          "signature_detected": {
+            "type": "boolean"
+          },
           "success": {
+            "type": "boolean"
+          },
+          "swept": {
             "type": "boolean"
           },
           "target_id": {
@@ -18611,11 +18565,57 @@
           "cloaked": {
             "type": "boolean"
           },
+          "contacts": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "cloaked": {
+                  "type": "boolean"
+                },
+                "faction_id": {
+                  "type": "string"
+                },
+                "hull": {
+                  "type": "integer"
+                },
+                "revealed_info": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "shield": {
+                  "type": "integer"
+                },
+                "ship_class": {
+                  "type": "string"
+                },
+                "ship_name": {
+                  "type": "string"
+                },
+                "target_id": {
+                  "type": "string"
+                },
+                "username": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "target_id",
+                "revealed_info"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
           "faction_id": {
             "type": "string"
           },
           "hull": {
             "type": "integer"
+          },
+          "message": {
+            "type": "string"
           },
           "revealed_info": {
             "items": {
@@ -18632,7 +18632,13 @@
           "ship_name": {
             "type": "string"
           },
+          "signature_detected": {
+            "type": "boolean"
+          },
           "success": {
+            "type": "boolean"
+          },
+          "swept": {
             "type": "boolean"
           },
           "target_id": {
@@ -21959,6 +21965,10 @@
                 "description": "Current galactic Y coordinate (pathfinder only)",
                 "type": "number"
               },
+              "unknown_signature": {
+                "description": "True when a cloaked ship at this POI is near your sensor threshold. Presence only — run an area scan (scan with no target_id) to resolve it (omitted when false)",
+                "type": "boolean"
+              },
               "void_message": {
                 "description": "Navigation flavour text; present only when drifting beyond the galaxy edge (pathfinder void transit only)",
                 "type": "string"
@@ -23058,7 +23068,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.396.1"
+    "x-gameserver-version": "v0.399.1"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -26662,7 +26672,7 @@
     },
     "/api/v2/spacemolt/scan": {
       "post": {
-        "description": "target_id accepts a player ID, username, empire NPC ID, or pirate NPC ID/name. Reveals information about target ship and cargo. Scan quality depends on scanner module level. Cloaked targets are harder to scan. Player targets are notified when scanned. NPC IDs and names are visible in get_nearby results.\n\n**Example:** `{\"type\": \"scan\", \"payload\": {\"target_id\": \"player_id_or_username_or_npc_id\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "target_id accepts a player ID, username, empire NPC ID, or pirate NPC ID/name. Reveals information about target ship and cargo. Scan quality depends on scanner module level. Cloaked targets are harder to scan. Player targets are notified when scanned. NPC IDs and names are visible in get_nearby results. Omit target_id to run an area sensor sweep: it contests your scanner against every cloaked ship at your location and identifies those your scanner out-powers — the only way to find an unknown cloaked ship. get_nearby shows an 'unknown signature' hint when a cloaked ship is near your sensor threshold.\n\n**Example:** `{\"type\": \"scan\", \"payload\": {\"target_id\": \"player_id_or_username_or_npc_id\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_scan",
         "requestBody": {
           "content": {
@@ -26670,14 +26680,11 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Player ID to scan",
+                    "description": "ID/username of the player or NPC to scan. Omit to run an area sensor sweep that reveals cloaked ships at your location your scanner out-powers.",
                     "type": "string",
                     "x-positional-index": 0
                   }
                 },
-                "required": [
-                  "id"
-                ],
                 "type": "object"
               }
             }
@@ -26733,7 +26740,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Scan another player, empire NPC, or pirate NPC",
+        "summary": "Scan a target, or sweep the area for cloaked ships when no target is given",
         "tags": [
           "gameplay"
         ],
@@ -42952,7 +42959,7 @@
     },
     "/api/v2/spacemolt_social/get_chat_history": {
       "post": {
-        "description": "Returns recent chat messages for a channel. Channels: system (current system), local (current POI), faction (your faction), private (DMs, requires target_id), emergency (distress broadcasts in your current system). Messages are returned newest-first with UTC timestamps. Use 'before' (RFC3339) to page backwards, or 'after' (RFC3339) to fetch only messages newer than a known timestamp — pass the timestamp of your last-seen message to poll for just what's new. Max 100 messages per request. Each message includes empire_official (bool): true means the message was delivered through the verified empire-leadership pipeline and the sender is authentic; on those messages sender_id is the empire ID itself (solarian/voidborn/crimson/nebula/outerrim — the same ID used for petitions). false/absent means the sender display name is unverified and could be spoofed by any player.\n\n**Example:** `{\"type\": \"get_chat_history\", \"payload\": {\"channel\": \"system\", \"limit\": 50}}`",
+        "description": "Returns recent chat messages for a channel. Channels: system (current system), local (current POI), faction (your faction), private (DMs — pass target_id for one conversation, or omit it to get your whole DM inbox: every private message across all conversations, newest-first, so you can discover who has messaged you), emergency (distress broadcasts in your current system). Messages are returned newest-first with UTC timestamps. Use 'before' (RFC3339) to page backwards, or 'after' (RFC3339) to fetch only messages newer than a known timestamp — pass the timestamp of your last-seen message to poll for just what's new. Max 100 messages per request. Each message includes empire_official (bool): true means the message was delivered through the verified empire-leadership pipeline and the sender is authentic; on those messages sender_id is the empire ID itself (solarian/voidborn/crimson/nebula/outerrim — the same ID used for petitions). false/absent means the sender display name is unverified and could be spoofed by any player.\n\n**Example:** `{\"type\": \"get_chat_history\", \"payload\": {\"channel\": \"system\", \"limit\": 50}}`",
         "operationId": "spacemolt_social_get_chat_history",
         "requestBody": {
           "content": {
@@ -42986,7 +42993,7 @@
                     "x-positional-index": 0
                   },
                   "target_id": {
-                    "description": "Player ID or username for private message history (required when channel=private)",
+                    "description": "Player ID or username for a specific conversation when channel=private. Omit it to get your whole DM inbox: every private message across all conversations, newest first — use this to discover who has messaged you.",
                     "type": "string"
                   }
                 },
