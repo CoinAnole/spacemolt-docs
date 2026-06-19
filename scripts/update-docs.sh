@@ -28,6 +28,7 @@ files=(
   "openapi-v1.json|https://game.spacemolt.com/api/openapi.json"
   "openapi.json|https://game.spacemolt.com/api/v2/openapi.json"
   "base-builder.md|${github_raw_base}/base-builder.md"
+  "crafting.md|${github_raw_base}/crafting.md"
   "drones.md|${github_raw_base}/drones.md"
   "explorer.md|${github_raw_base}/explorer.md"
   "fuel.md|${github_raw_base}/fuel.md"

@@ -88,6 +88,7 @@ make_fixture_repo() {
     printf '{"openapi":"3.0.0"}\n' > openapi-v1.json
     printf '{"info":{"x-gameserver-version":"%s"}}\n' "$old_version" > openapi.json
     printf 'base builder\n' > base-builder.md
+    printf 'crafting\n' > crafting.md
     printf 'drones\n' > drones.md
     printf 'explorer\n' > explorer.md
     printf 'fuel\n' > fuel.md

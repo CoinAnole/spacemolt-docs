@@ -5,6 +5,7 @@ docs from the upstream repo.
 
 - `api.md` documents SpaceMolt connection options, API versions, authentication, message formats, commands, and error handling.
 - `base-builder.md` explains the base builder playstyle, including early credit generation, personal facilities, faction setup, and infrastructure progression.
+- `crafting.md` explains the crafting and production system — job queuing, escrow, Station Workshop vs facilities (tiers, speed, rent), recycling, command reference, and common pitfalls.
 - `drones.md` describes drone gameplay, drone capacity limits, drone types, lifecycle commands, and the DroneLang scripting language.
 - `explorer.md` gives an explorer-focused beginner path covering survey missions, travel upgrades, exploration skills, ships, and route-finding.
 - `fuel.md` is a fuel and travel reference with formulas for intra-system movement, jumps, modifiers, and cloaking fuel drain.
