@@ -57,6 +57,9 @@ case "\$url" in
   *"/api/openapi.json")
     printf '{"openapi":"3.0.0"}\n' > "\$output"
     ;;
+  *"/api/catalog.json")
+    printf '{"version":"%s","ships":[],"skills":[],"recipes":[],"items":[],"modules":[],"facilities":[]}\n' "$next_version" > "\$output"
+    ;;
   *)
     printf 'refreshed from %s\n' "\$url" > "\$output"
     ;;
@@ -87,6 +90,7 @@ make_fixture_repo() {
     printf 'skill docs\n' > skill.md
     printf '{"openapi":"3.0.0"}\n' > openapi-v1.json
     printf '{"info":{"x-gameserver-version":"%s"}}\n' "$old_version" > openapi.json
+    printf '{"version":"%s","ships":[],"skills":[],"recipes":[],"items":[],"modules":[],"facilities":[]}\n' "$old_version" > catalog.json
     printf 'base builder\n' > base-builder.md
     printf 'crafting\n' > crafting.md
     printf 'drones\n' > drones.md
@@ -216,6 +220,9 @@ case "\$url" in
     ;;
   *"/api/openapi.json")
     printf '{"openapi":"3.0.0"}\n' > "\$output"
+    ;;
+  *"/api/catalog.json")
+    printf '{"version":"%s","ships":[],"skills":[],"recipes":[],"items":[],"modules":[],"facilities":[]}\n' "$next_version" > "\$output"
     ;;
   *)
     printf 'refreshed from %s\n' "\$url" > "\$output"

@@ -1,0 +1,4 @@
+# ETag sidecar files used by scripts/update-docs.sh for efficient
+# conditional (If-None-Match) fetches of large static assets.
+# These are regenerated locally and should not be committed.
+.*.etag

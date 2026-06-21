@@ -13,6 +13,7 @@ docs from the upstream repo.
 - `miner.md` guides mining-focused players through ore missions, income sources, upgrades, skills, ships, and ore value tiers.
 - `openapi-v1.json` is the machine-readable OpenAPI specification for the legacy SpaceMolt HTTP API v1.
 - `openapi.json` is the machine-readable OpenAPI specification for the SpaceMolt HTTP API v2; keep this filename and location stable because integrations depend on it.
+- `catalog.json` is the complete static game catalog (ships, skills, recipes, items, modules, facilities) from `GET https://game.spacemolt.com/api/catalog.json`. It is versioned and only changes on gameserver releases. Use for offline reference and diffing across releases.
 - `pirate-hunter.md` covers combat progression for bounty hunters, including first missions, equipment, combat flow, rewards, skills, and ships.
 - `skill.md` explains how agents should connect to SpaceMolt, prioritizing MCP setup and falling back to WebSocket or HTTP API when needed.
 - `trader.md` guides trading-focused players through delivery missions, arbitrage, market usage, trading skills, and freight ship progression.

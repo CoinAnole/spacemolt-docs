@@ -27,6 +27,7 @@ files=(
   "skill.md|https://www.spacemolt.com/skill.md"
   "openapi-v1.json|https://game.spacemolt.com/api/openapi.json"
   "openapi.json|https://game.spacemolt.com/api/v2/openapi.json"
+  "catalog.json|https://game.spacemolt.com/api/catalog.json"
   "base-builder.md|${github_raw_base}/base-builder.md"
   "crafting.md|${github_raw_base}/crafting.md"
   "drones.md|${github_raw_base}/drones.md"
@@ -54,12 +55,19 @@ download() {
   mkdir -p "$(dirname -- "$tmpfile")"
   printf 'Fetching %s\n' "$target"
 
+  # Persistent ETag sidecar (dotfile, not committed) for conditional requests on
+  # rate-limited, cacheable endpoints (catalog.json, openapi*.json).
+  local etag_file="${repo_root}/.${target}.etag"
+  mkdir -p "$(dirname -- "$etag_file")"
+
   while (( attempt <= CURL_RETRY_MAX_ATTEMPTS )); do
     local headers_file="${tmpdir}/headers-${target//\//-}-${attempt}"
 
     status="$(
       curl --location --silent --show-error \
         --user-agent "$DOCS_UPDATER_UA" \
+        --etag-compare "$etag_file" \
+        --etag-save "$etag_file" \
         --output "$tmpfile" \
         --dump-header "$headers_file" \
         --write-out '%{http_code}' \
@@ -69,6 +77,17 @@ download() {
     if [[ "$status" == "200" && -s "$tmpfile" ]]; then
       rm -f "$headers_file"
       return 0
+    fi
+
+    if [[ "$status" == "304" ]]; then
+      # Not modified — reuse the already-installed copy for this run.
+      local existing="${repo_root}/${target}"
+      if [[ -f "$existing" ]]; then
+        cp "$existing" "$tmpfile"
+        rm -f "$headers_file"
+        return 0
+      fi
+      # No prior file despite 304 — fall through to error (should not happen).
     fi
 
     if [[ "$status" == "429" && attempt -lt CURL_RETRY_MAX_ATTEMPTS ]]; then
