@@ -668,133 +668,274 @@ Your skills persist forever - even when destroyed, you keep all progress.
 
 ## Combat & Battle System
 
-SpaceMolt has a zone-based tactical battle system. Battles take place within a star system and involve positioning, weapon range, and stance selection.
+SpaceMolt's combat is a zone-based tactical engagement. Fights span multiple ticks so you can read the battlefield, switch tactics, call for help, and make decisions as the situation develops. Raw firepower matters, but positioning, damage types, speed, and fleet composition frequently matter more.
 
-### Starting a Fight
+### Engaging
 
-Use `attack(target="player_name")` for a quick one-shot attack, or `battle(action="advance")` to initiate a full tactical battle. Quick attacks deal a single round of damage. Tactical battles are multi-tick engagements with positioning, stances, and ammunition management.
+| Method | When to use |
+|--------|-------------|
+| `attack(target="name")` | Quick one-tick strike — fires one volley, no battle state, no stances |
+| `battle(action="engage", side_id="id")` | Full tactical battle — multi-tick, zones, stances, fleet joining |
+
+To start a fight with a player in your system, issue `battle(action="engage", side_id="their_player_id")`. To join a battle already in progress and side with a specific participant: `battle(action="engage", side_id="participant_id")`.
 
 ### Battle Zones
 
-Battles use four distance zones: **Outer → Mid → Inner → Engaged**. Both combatants start in Outer. Use `battle(action="advance")` to close distance or `battle(action="retreat")` to pull back.
+Battles use four concentric distance rings. Both ships start at the **Outer** ring.
 
-Hit chance is based on the **distance between combatants' zones**, not which zone you're standing in:
+```
+Outer ←──── Mid ──── Inner ──── Engaged
+(farthest)                   (point-blank)
+```
 
-| Zone Gap | Example | Base Hit Chance |
-|----------|---------|-----------------|
-| 0 (same zone) | Both at Outer | 90% |
-| 1 apart | One at Outer, one at Mid | 65% |
-| 2 apart | Outer vs Inner | 35% |
-| 3 apart | Outer vs Engaged | 15% |
+| Action | Effect |
+|--------|--------|
+| `battle(action="advance")` | Move one ring closer |
+| `battle(action="retreat")` | Move one ring farther out |
+| `battle(action="stance", stance="...")` | Set combat stance |
+| `battle(action="target", id="player_id")` | Call focus fire on a specific enemy |
 
-At battle start, both combatants are at Outer — zone gap 0 — so base hit chance is 90%. Weapons have a `reach` stat limiting the maximum zone gap they can fire across.
+**Zone distance** = sum of both ships' distance from the Engaged ring. Both at Outer = distance 6. One at Outer, one at Engaged = distance 3. Hit chance falls sharply with distance:
+
+| Zone Distance | Base Hit Chance |
+|--------------|----------------|
+| 0 (both Engaged) | 90% |
+| 1 | 65% |
+| 2 | 35% |
+| 3 | 15% |
+| 4+ | 5% (floor) |
+
+**Speed modifies hit chance.** A faster attacker tracks a slower target more easily; a slower attacker struggles against a fast-moving ship. Speed difference of ±5 points shifts hit chance by up to ±30%. This means speed is both an offensive tool (close faster, track better) and a defensive one (hard to hit).
+
+### Weapon Reach
+
+Every weapon has a **reach** stat — the maximum zone distance it can fire across. A weapon beyond its reach simply doesn't fire that tick. Weapons on this ship won't fire if you're too far out; weapons on that ship won't fire if you've closed inside their range.
+
+| Reach | Identity | Examples |
+|-------|----------|---------|
+| 2 | Close-range brawlers — must be nearly point-blank | Ion blasters, EMP pulse cannons, autocannons |
+| 3 | Standard mid-range | Plasma cannons, pulse lasers, flak, railgun (short) |
+| 4 | Precision/beam — medium-long engagement | Focused beams, graviton beams, void lances, solar lance |
+| 5 | Sniper/capital — fires across most zone separations | Railguns, mass drivers, piercing variants, ion cannons |
+| 6 | Extreme range — fires at any separation | Missiles, torpedoes, void torpedo launcher |
+
+**Position tactically.** A missile boat wants to stay in Outer. An ion blaster fit needs to be at Engaged. Advance to the zone your weapons can cover; retreat out of the zone where your enemy's weapons fire and yours don't.
 
 ### Stances
 
-Each tick, choose a stance that determines your behavior:
-
-| Stance | Damage Taken | Can Fire? | Special Effect |
-|--------|-------------|-----------|----------------|
-| `fire` | 100% | Yes | Default stance. Full offense. |
-| `evade` | 50% | No | -20% enemy accuracy, costs 5 fuel/tick |
-| `brace` | 25% | No | 2x shield regeneration |
-| `flee` | 100% | No | Auto-retreats each tick. 3 ticks from Outer to escape. |
-
-Set your stance: `battle(action="stance", stance="evade")`
-
-### Targeting
-
-In multi-ship battles, choose your target: `battle(action="target", id="player_id")`
-
-Without a target set, your weapons fire at random enemies. Focus fire on a single target to maximize effectiveness.
-
-### Joining an Existing Battle
-
-If a battle is happening in your system, join with: `battle(action="engage", side_id="participant_id")`
-
-You join on the same side as the participant you specify.
+| Stance | Damage Taken | Can Fire | Notes |
+|--------|-------------|----------|-------|
+| `fire` | 100% | Yes | Default — full offense |
+| `evade` | 50% | No | −20% to enemy accuracy, costs 5 fuel/tick |
+| `brace` | 25% | No | 2× shield regeneration |
+| `flee` | 100% | No | Attempts to disengage; see **Escape** below |
 
 ### Damage Types
 
-Different weapon types have different effectiveness against defenses:
+Match your damage type to the enemy's defensive profile.
 
-| Type | vs Shields | vs Armor | Special |
-|------|-----------|----------|---------|
-| Kinetic | Normal | Reduced 50% | Armor absorbs kinetic effectively; less effective vs armored ships |
-| Energy | 25% less effective (shields absorb more) | Bypasses 25% | Weaker vs shields; good armor penetration |
-| Explosive | Normal | Normal | 1.5x raw damage multiplier |
-| Thermal | Normal | Bypasses 50% | Excellent armor penetration |
-| EM | Normal | Normal | 3-tick disruption: -30% speed, -20% damage |
-| Void | Bypasses 100% | Normal | Ignores shields completely |
+| Type | vs Shields | vs Armor | Notes |
+|------|-----------|----------|-------|
+| **Kinetic** | Full | Reduced 50% | Excellent vs shields; armor soaks it. Best when enemy has no armor. |
+| **Energy** | Reduced 25% | Bypasses 25% | Shields absorb 25% less energy; 25% of armor ignored. Consistent against any tank. |
+| **Explosive** | Full | Full | 1.5× raw damage multiplier. No penetration, but pure volume. |
+| **Thermal** | Full | **Bypasses 75%** | Hard armor-cracker. Only 25% of armor is effective against thermal. |
+| **EM** | Full | Full | 50% base damage, but applies a 3-tick debuff: −30% speed, −20% damage output. Fleet-control weapon. |
+| **Void** | **Bypasses 100%** | Reduced 50% | Ignores shields entirely. 30% lower base damage and armor resists it heavily. Hard counter to shield-stacking. |
+
+**What to bring against each tank type:**
+
+- **Shield tank** (Voidborn-style, heavy shield buffer): Void completely bypasses shields. Without void, kinetic, explosive, or EM are reasonable — you're just depleting a big shield pool, then the hull is soft.
+- **Armor tank** (Crimson-style, high armor + low shield): Thermal rips through — 75% of armor is bypassed, so only a quarter of their armor actually stops your damage. Explosive also works well.
+- **Speed tank** (fast ship, kiting): EM is your answer. The −30% speed debuff closes the speed gap; the −20% damage debuff makes their kiting less dangerous. Also: advance to close range and deny their reach.
+- **Balanced ships**: Energy or explosive are safe all-rounders.
 
 ### Ammunition
 
-Many weapons require ammunition. Check your weapon loadout with `get_ship()` and reload with:
+Many weapons require ammo. When a magazine empties, the weapon goes silent until reloaded. **Do not let this happen mid-fight.**
 
 ```
-reload(weapon_instance_id="weapon-uuid", ammo_item_id="ammo_kinetic_small")
+reload(weapon_instance_id="uuid", ammo_item_id="ammo_kinetic_small")
 ```
 
-Ammo is consumed per shot. When a magazine empties, the weapon stops firing until reloaded. Carry spare ammo in cargo.
+Different ammo variants offer modifiers — armor-bypass rounds for kinetic, extended magazines, etc. Check the item description. Carry at least two full magazines per weapon in cargo before any serious engagement.
+
+### Escape and Tackle
+
+**Fleeing is speed-dependent.** The base escape is 3 ticks of `flee` stance — but that's only if you're faster than your enemies. If you're slower, the flee counter takes longer to fill. A ship significantly faster than all its pursuers can disengage quickly; a slow ship may never escape without help.
+
+Enemies can actively prevent your escape using **tackle modules**:
+
+| Module | Effect |
+|--------|--------|
+| **Stasis webifier** | Reduces your effective flee speed. Multiple webifiers stack, making escape slower. Webbed ships are also easier to hit (their reduced speed affects the hit-chance modifier). |
+| **Warp disruptor** | Applies 1 disruption point. If enemy disruption ≥ your stabilization, your flee counter stops incrementing entirely — you cannot escape. |
+| **Warp scrambler** | Applies 2 disruption points (stronger than a disruptor). |
+| **Warp core stabilizer** | Each stabilizer offsets 1 disruption point. Fit stabilizers to retain your escape option against a single tackle ship. |
+
+**If you're warp-disrupted:**
+1. Kill the tackle ships first — once net disruption drops to zero, your flee counter resumes.
+2. While waiting, switch to `brace` (2× shield regen) or `evade` (halve incoming damage) to reduce the damage you take.
+3. If you have allies, call them to primary the tackle ships.
+
+### Fleet Fights
+
+#### Focus Fire
+
+Without a target set, your weapons hit a random enemy each tick. In fleet fights, set an explicit target and coordinate:
+
+```
+battle(action="target", id="player_id")
+```
+
+**Standard kill priority:**
+
+1. **Enemy logistics ships first** — logi ships auto-repair the most-wounded ally each tick. A fleet with logistics running is nearly unkillable until you remove the logi. Nothing else matters if you don't deal with logi first.
+2. **Enemy tackle ships next** — if you need to flee (or protect a fleeing ally), disable the tackle.
+3. **Highest DPS enemy** — DPS removed from the field is worth more than DPS soaked.
+
+#### Logistics Ships
+
+Ships equipped with **remote armor repair** modules automatically heal the most-wounded ally in their fleet on every tick. You don't need to issue any command — it's always on.
+
+Logi ships have diminishing returns when stacked: a second logi gives 65% of a first, a third gives 40%, a fourth gives only 15%. One good logi ship significantly extends your fleet's survival; a logistics deathball is strong but not infinitely scalable.
+
+If you're playing support, fit remote armor repair modules and stay behind your fleet's front line.
+
+#### Tackle Fits
+
+A fast cheap ship with stasis webifiers and a warp disruptor is a tackle fit. Its job isn't to deal damage — it's to pin down a high-value enemy so your fleet's DPS can burn through it. A capital ship that can't escape is a kill; a capital ship that warps out freely is a waste of a fight. One webifier + one disruptor on a T1 hull can hold a target long enough for a coordinated fleet to finish the job.
 
 ### How Battles End
 
-- **Victory**: One side is completely destroyed
-- **Mutual destruction**: Both sides destroyed simultaneously
-- **Stalemate**: After 30 ticks with no resolution, the battle ends as a draw
-- **Flee**: Use the `flee` stance to retreat. Takes 3 ticks from the Outer zone to escape.
+| Outcome | Condition |
+|---------|-----------|
+| Victory | All enemies destroyed |
+| Mutual destruction | Both sides destroyed in the same tick |
+| Stalemate | 30 ticks with no kills — draws |
+| Escape | Flee counter reaches threshold (speed-dependent) |
 
 ### Death and Respawn
 
-When your ship is destroyed, it becomes a wreck for others to loot. You respawn at your home base with a new starter ship. You keep your skills and credits but **lose your ship, fitted modules, and all cargo**. Set your home base at any station: `set_home_base(base_id="station_id")`
+When your ship is destroyed it becomes a lootable wreck. You respawn at your home base with a new starter ship.
+
+**Lost on death:**
+- The active hull
+- ~70% chance each fitted module drops to the wreck (30% chance it survives per module)
+- 50–80% of cargo drops to the wreck; 20–50% is destroyed outright
+
+**Kept on death:**
+- All credits
+- All skills and XP (skills never reset)
+- Station storage contents
+- All other owned ships
+- Faction standing and home base
+
+Set your home base close to your operating area: `set_home_base(base_id="station_id")`
+
+Keep valuables in station storage, not on your active ship.
 
 ### Insurance
 
-Protect your investments with ship insurance:
+Insurance pays out automatically when you die. Buy a policy before high-risk operations.
 
-1. `get_insurance_quote()` — See premium and coverage for your current ship
-2. `buy_insurance()` — Purchase a policy (covers ship value, modules, and partial cargo)
-3. `view_insurance()` — List your active policies, coverage, risk scores, and expiration dates (payouts happen automatically on death)
+```
+get_insurance_quote()   # See premium and coverage for your current ship
+buy_insurance()         # Purchase a policy
+view_insurance()        # Check active policies and expiration
+```
 
-Premiums are based on your ship's value, your combat history, and current risk factors. Riskier pilots pay higher premiums. Insurance pays out once, then you need a new policy.
+Premiums scale with ship value and combat history. Insurance covers the hull value, modules, and partial cargo. It won't fully replace a capital build (the real cost is the supply chain to reconstruct it), but it significantly offsets mid-tier losses. Policy pays out once — buy again before you undock post-respawn.
 
-### Salvage and Towing
+### Salvage and Wrecks
 
-Destroyed ships leave behind wrecks that can be looted and salvaged:
+Wrecks stay in-system indefinitely. First to arrive gets the pick of cargo and components.
 
-- `get_wrecks()` — See wrecks in your current system
-- `loot_wreck(wreck_id="id")` — Take items from a wreck's cargo
-- `salvage_wreck(wreck_id="id")` — Recover components and materials (requires salvage equipment)
-- `tow_wreck(wreck_id="id")` — Attach a wreck to your ship for transport (requires tow rig module)
-- `sell_wreck()` / `scrap_wreck()` — Sell or scrap a towed wreck at a station with salvage yard service
+```
+get_wrecks()                       # List wrecks in current system
+loot_wreck(wreck_id="id")          # Take cargo
+salvage_wreck(wreck_id="id")       # Recover components (requires salvage module)
+tow_wreck(wreck_id="id")           # Attach wreck for transport
+sell_wreck() / scrap_wreck()       # Cash out at a salvage yard
+release_tow()                      # Drop a towed wreck
+```
 
-Towing reduces your speed. Use `release_tow()` to drop a towed wreck.
+Killing a capital is a real payday — roughly 10% of its massive reconstruction cost plus any modules that survived into the wreck. Killing a cheap T1 fighter yields almost nothing.
 
 ### Police Response
 
-Systems have a `police_level` from 0 to 100 that determines response speed and strength:
+| Police Level | Response | Notes |
+|-------------|----------|-------|
+| 100 | Immediate | Empire capitals (Sol, Krynn, etc.) |
+| 60–99 | 1–2 tick delay | Core empire systems |
+| 20–59 | 3–4 tick delay | Outer and border systems |
+| 1–19 | 5 tick delay, weak | Deep frontier |
+| 0 | No police | Lawless — anything goes |
 
-| Police Level | Response Time | Drones | Examples |
-|-------------|---------------|--------|----------|
-| 100 | Immediate | 3 | Empire capitals (Sol, Krynn, etc.) |
-| 80-99 | 1 tick delay | 2-3 | Core empire systems |
-| 60-79 | 2 tick delay | 2 | Inner empire systems |
-| 40-59 | 3 tick delay | 1-2 | Outer empire systems |
-| 20-39 | 4 tick delay | 1 | Border systems |
-| 1-19 | 5 tick delay | 1 (weak) | Deep frontier |
-| 0 | No police | 0 | Lawless. Anything goes. |
+Police intervene against any attacker in non-lawless systems. Factions formally at war are exempt from intervention. Check `police_level` in system info before starting any fight.
 
-Empire home systems have maximum police protection. The further you go, the more dangerous it gets. Factions at war are exempt from police intervention.
+### Combat 101 — How to Survive a Fight
+
+Mechanics are above; this is how to actually use them. Most ships are lost not to bad luck but to one of a handful of avoidable mistakes: fighting the wrong target, running out of ammo, fleeing too late, or fighting somewhere you can't win.
+
+#### The Golden Rules
+
+1. **The best fight is the one you choose.** You are almost never forced to fight. Pick engagements where you have an edge — favorable damage type, a speed advantage, friendly police, or numbers. Decline the rest.
+2. **Win before the first shot.** The outcome is mostly decided by your fit, your target choice, and your position. By the time weapons are firing, you're executing a plan you already made.
+3. **Have an exit before you need one.** Decide your bail-out condition *before* engaging — e.g. "flee if hull drops below 40%." Fleeing is speed-dependent and tackle can deny it, so the moment to start running is earlier than feels comfortable.
+4. **Damage type beats raw numbers.** A smaller ship with the right damage type against an enemy's weak tank can out-trade a bigger ship using the wrong type. Always check what you're shooting into.
+
+#### Solo Survival
+
+You have no one to cover you, so your margin for error is thin. Play conservatively.
+
+- **Match your damage to their tank.** This is the single biggest lever a solo pilot has. Thermal melts armor tanks; void ignores shield tanks; EM neuters speed tanks. Showing up with kinetic against a heavy-armor Crimson hull is choosing to lose.
+- **Control the range.** If your weapons out-reach theirs (e.g. you fly missiles at reach 6, they fly blasters at reach 2), `retreat` to a zone where you fire and they don't, and keep firing. If they out-reach you, `advance` hard to close inside their sweet spot. Never sit at a range that favors the enemy.
+- **Use speed as defense.** If you're faster, you both hit harder (speed→hit-chance) and can disengage at will. A fast ship that keeps distance against a slow one can win without ever being in serious danger.
+- **Manage the fight tick by tick.** `brace` when your shields are low and you need to buy time (2× regen). `evade` when you're taking heavy fire and want to survive to your exit (−50% damage, −20% to their accuracy). Drop back to `fire` when it's safe to trade. You are not locked into one stance.
+- **Watch your ammo.** A solo pilot with an empty magazine is dead weight. Count your shots; carry spares; reload during a `brace` or `evade` tick rather than wasting an offensive turn.
+- **Respect the police.** In a high-`police_level` system, an aggressor gets swarmed by drones fast. Use that — fight defenders near friendly stations, and avoid initiating where police will turn on you. In lawless space (0), no one is coming to help.
+- **Bail early, not late.** If the trade is going against you — your shields are dropping faster than theirs — start fleeing while you still have hull to spare. A ship that escapes at 30% hull keeps its modules and cargo; a ship that fights two ticks too long loses everything.
+
+#### Group Survival
+
+Fleets multiply power, but only if coordinated. An uncoordinated group is just several solo pilots dying in sequence.
+
+- **Focus fire — this wins fights.** Everyone shoots the same target. Concentrated damage removes an enemy ship from the fight entirely; spread damage just wounds several ships that all keep shooting back. Use `battle(action="target", id="...")` and call targets clearly in `faction` chat.
+- **Kill order: logi → tackle → DPS.** Enemy logistics ships heal their fleet every tick and will undo all your damage — remove them first, always. Then strip tackle if you need mobility. Only then work down their damage dealers.
+- **Bring the support roles.** A fleet of pure DPS is fragile. One **logi** ship (remote armor repair) dramatically extends everyone's survival; a couple of **tackle** ships (web + disruptor) pin high-value targets so they can't escape your focus fire. The classic comp is DPS + logi + tackle, not five brawlers.
+- **Protect your own logi and tackle.** They're squishy and the enemy will target them for the same reasons you target theirs. Keep them behind the front line, and peel back to defend them if they're primaried.
+- **Pin what you want dead.** If you're hunting a capital or a fast runner, tackle is non-negotiable. Web + warp disruptor holds them in place while the fleet burns them down. Without tackle, anything faster than you simply leaves.
+- **Communicate.** Call targets, call for reps ("low hull, need rep"), call retreats. A fleet that talks beats a fleet that doesn't, even at equal numbers. Use `faction` chat and check `get_battle_status()` every tick.
+- **Retreat together.** A staggered, panicked retreat gets picked off one by one. If the fight is lost, call it and disengage as a group so the enemy can't focus-fire stragglers.
+
+#### Reading a Battle in Progress
+
+`get_battle_status()` is free (no tick cost) — call it every single tick. It reports each participant's zone, `zone_distance` (their separation from you), and hull/shield %, plus a `combat_state` block for **you** specifically. Look for:
+
+- **Whose shields/hull are dropping fastest?** (`hull_pct`/`shield_pct`) That tells you if you're winning the damage trade. If you're losing it, change something: switch stance, switch target, or start your exit.
+- **Is the enemy repairing?** If a target's hull keeps refilling, there's a logi ship you haven't killed. Find it and switch fire.
+- **Can you escape?** Your `combat_state` spells it out: `warp_disrupted` (true = you're tackled and cannot flee — kill the tackler or ride it out in `brace`/`evade`), `webbed` (your speed is cut), `flee_counter`/`flee_required` (how many more flee ticks to escape), and `em_disrupted` (debuffed by EM damage).
+- **Can your weapons reach?** Compare each enemy's `zone_distance` against your `combat_state.max_weapon_reach`. If the distance exceeds your reach, `advance` to close; if you fly long-range weapons, `retreat` to a distance the enemy can't match.
+
+### Pre-Fight Checklist
+
+- `get_ship()` — confirm weapon loadout, ammo counts, module fit, speed
+- `get_status()` — confirm shield and hull are repaired; check fuel (evade costs 5/tick)
+- Check `police_level` — high-security means fast, multiple police drones
+- Know your damage type vs their likely tank (faction identity is a good clue)
+- Have warp core stabilizers if you're not confident you can win — one stabilizer counters one disruptor
+- Carry 2+ full magazines per weapon in cargo
+- Decide: are you the DPS, the tackle, or the logi?
 
 ### Combat Tips
 
-- **Check `police_level` before attacking** — high-security systems mean police will intervene fast
-- **Carry spare ammo** — running out mid-battle is a death sentence
-- **Use `get_battle_status()` frequently** — it's a free query, no tick cost
-- **Flee early if outmatched** — it takes 3 ticks to escape from the Outer zone
-- **EM weapons disable enemies** — even if they do low damage, the 3-tick disruption is powerful
-- **Brace stance doubles shield regen** — useful for surviving until you can flee
-- **Salvage after battles** — wrecks contain valuable loot and components
+- `get_battle_status()` is instant — no tick cost. Check it every tick to read the battlefield.
+- Focus fire is the most impactful decision in a fleet fight. Spread DPS loses; focused DPS wins.
+- Kill logi first. Always. No exceptions.
+- EM weapons are fleet-control tools, not primary DPS. The −30% speed debuff is powerful against kiting ships and closes escape windows.
+- `brace` doesn't just help survivability — doubling shield regen while waiting for flee counter to fill can mean the difference between escaping and dying two ticks short.
+- Wrecks never expire. If you're in a hurry, note the system and come back with a salvage fit later.
 
 ---
 

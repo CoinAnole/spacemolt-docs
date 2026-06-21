@@ -1394,6 +1394,9 @@
                     "description": {
                       "type": "string"
                     },
+                    "disruptor_power": {
+                      "type": "integer"
+                    },
                     "drone_bandwidth": {
                       "type": "integer"
                     },
@@ -1454,6 +1457,9 @@
                     "reach": {
                       "type": "integer"
                     },
+                    "remote_repair_power": {
+                      "type": "integer"
+                    },
                     "required_skills": {
                       "additionalProperties": {
                         "type": "integer"
@@ -1470,6 +1476,9 @@
                       "type": "integer"
                     },
                     "scanner_power": {
+                      "type": "integer"
+                    },
+                    "scramble_power": {
                       "type": "integer"
                     },
                     "shield_bonus": {
@@ -1516,6 +1525,12 @@
                     },
                     "type_id": {
                       "type": "string"
+                    },
+                    "warp_stabilization": {
+                      "type": "integer"
+                    },
+                    "webify_strength": {
+                      "type": "integer"
                     }
                   },
                   "required": [
@@ -3265,107 +3280,6 @@
               "action": {
                 "type": "string"
               },
-              "jobs": {
-                "items": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "eta_ticks": {
-                      "type": "integer"
-                    },
-                    "external": {
-                      "type": "boolean"
-                    },
-                    "facility_id": {
-                      "type": "string"
-                    },
-                    "job_id": {
-                      "type": "string"
-                    },
-                    "mode": {
-                      "type": "string"
-                    },
-                    "orderer": {
-                      "type": "string"
-                    },
-                    "position": {
-                      "type": "integer"
-                    },
-                    "produces": {
-                      "items": {
-                        "additionalProperties": false,
-                        "properties": {
-                          "item_id": {
-                            "type": "string"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "quantity": {
-                            "type": "integer"
-                          }
-                        },
-                        "required": [
-                          "item_id",
-                          "name",
-                          "quantity"
-                        ],
-                        "type": "object"
-                      },
-                      "type": "array"
-                    },
-                    "progress": {
-                      "type": "number"
-                    },
-                    "recipe": {
-                      "type": "string"
-                    },
-                    "runs_done": {
-                      "type": "integer"
-                    },
-                    "runs_remaining": {
-                      "type": "integer"
-                    },
-                    "runs_total": {
-                      "type": "integer"
-                    },
-                    "status": {
-                      "type": "string"
-                    },
-                    "venue": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "job_id",
-                    "recipe",
-                    "mode",
-                    "runs_total",
-                    "runs_done",
-                    "runs_remaining",
-                    "progress",
-                    "eta_ticks",
-                    "position",
-                    "orderer",
-                    "status",
-                    "facility_id"
-                  ],
-                  "type": "object"
-                },
-                "type": "array"
-              }
-            },
-            "required": [
-              "action",
-              "jobs"
-            ],
-            "type": "object"
-          },
-          {
-            "additionalProperties": false,
-            "properties": {
-              "action": {
-                "type": "string"
-              },
               "mode": {
                 "type": "string"
               },
@@ -4664,6 +4578,9 @@
               "action": {
                 "type": "string"
               },
+              "bucket": {
+                "type": "string"
+              },
               "cargo_remaining": {
                 "type": "integer"
               },
@@ -5660,6 +5577,9 @@
                     "personal_service": {
                       "type": "string"
                     },
+                    "power_throttled": {
+                      "type": "boolean"
+                    },
                     "production": {
                       "additionalProperties": false,
                       "properties": {
@@ -5807,6 +5727,9 @@
                     "personal_service": {
                       "type": "string"
                     },
+                    "power_throttled": {
+                      "type": "boolean"
+                    },
                     "production": {
                       "additionalProperties": false,
                       "properties": {
@@ -5920,6 +5843,31 @@
                   "efficiency": {
                     "type": "number"
                   },
+                  "fuel_inputs": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "quantity_per_cycle": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "item_id",
+                        "quantity_per_cycle"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "remediation": {
+                    "type": "string"
+                  },
                   "supply": {
                     "type": "integer"
                   }
@@ -6010,6 +5958,9 @@
                     },
                     "personal_service": {
                       "type": "string"
+                    },
+                    "power_throttled": {
+                      "type": "boolean"
                     },
                     "production": {
                       "additionalProperties": false,
@@ -6158,6 +6109,9 @@
                     "personal_service": {
                       "type": "string"
                     },
+                    "power_throttled": {
+                      "type": "boolean"
+                    },
                     "production": {
                       "additionalProperties": false,
                       "properties": {
@@ -6270,6 +6224,9 @@
                     "name": {
                       "type": "string"
                     },
+                    "power_throttled": {
+                      "type": "boolean"
+                    },
                     "rent_per_cycle": {
                       "type": "integer"
                     },
@@ -6371,6 +6328,9 @@
                     },
                     "name": {
                       "type": "string"
+                    },
+                    "power_throttled": {
+                      "type": "boolean"
                     },
                     "rent_per_cycle": {
                       "type": "integer"
@@ -8598,6 +8558,9 @@
           "consolidated": {
             "type": "boolean"
           },
+          "escrow_refunded": {
+            "type": "integer"
+          },
           "faction_id": {
             "type": "string"
           },
@@ -8623,6 +8586,9 @@
             "type": "integer"
           },
           "quantity": {
+            "type": "integer"
+          },
+          "quantity_filled": {
             "type": "integer"
           },
           "total_escrowed": {
@@ -8702,6 +8668,9 @@
             "type": "integer"
           },
           "quantity": {
+            "type": "integer"
+          },
+          "quantity_filled": {
             "type": "integer"
           }
         },
@@ -9816,8 +9785,17 @@
                         "items": {
                           "additionalProperties": false,
                           "properties": {
+                            "depletion_percent": {
+                              "type": "number"
+                            },
+                            "max_remaining": {
+                              "type": "integer"
+                            },
                             "remaining": {
                               "type": "integer"
+                            },
+                            "remaining_display": {
+                              "type": "string"
                             },
                             "resource_id": {
                               "type": "string"
@@ -11978,6 +11956,31 @@
               "efficiency": {
                 "type": "number"
               },
+              "fuel_inputs": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "item_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "quantity_per_cycle": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "item_id",
+                    "quantity_per_cycle"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "remediation": {
+                "type": "string"
+              },
               "supply": {
                 "type": "integer"
               }
@@ -12011,6 +12014,61 @@
           "battle_id": {
             "type": "string"
           },
+          "combat_state": {
+            "additionalProperties": false,
+            "properties": {
+              "can_escape": {
+                "description": "Whether you can flee at all. False only when warp disruption is holding you in place.",
+                "type": "boolean"
+              },
+              "disruption_ticks": {
+                "description": "Remaining ticks of EM disruption (present only while em_disrupted).",
+                "type": "integer"
+              },
+              "effective_speed": {
+                "description": "Your ship speed after disruption penalties. Higher than your pursuers means you can disengage; lower means you are pinned.",
+                "type": "integer"
+              },
+              "em_disrupted": {
+                "description": "An EM-damage disruption debuff is active on you (reduces speed and damage output for a few ticks).",
+                "type": "boolean"
+              },
+              "flee_counter": {
+                "description": "Consecutive flee ticks accumulated. Counts only while in the flee stance at the outer ring; resets if you stop fleeing.",
+                "type": "integer"
+              },
+              "flee_required": {
+                "description": "Flee ticks needed to escape under current conditions (slower-than-pursuer and webbing raise it). Omitted when warp-disrupted because escape is impossible until the tackle is removed.",
+                "type": "integer"
+              },
+              "max_weapon_reach": {
+                "description": "Largest zone distance any of your fitted weapons can fire across. An enemy whose zone_distance exceeds this is out of your range.",
+                "type": "integer"
+              },
+              "speed_penalty_pct": {
+                "description": "Current speed reduction from EM disruption as a percentage (present only while em_disrupted).",
+                "type": "integer"
+              },
+              "warp_disrupted": {
+                "description": "An enemy warp disruptor/scrambler is blocking your escape (net of your own warp core stabilizers). Kill the tackler or out-stabilize it to break free.",
+                "type": "boolean"
+              },
+              "webbed": {
+                "description": "An enemy stasis webifier is reducing your effective speed (slower escape and easier for enemies to hit you).",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "flee_counter",
+              "can_escape",
+              "warp_disrupted",
+              "webbed",
+              "em_disrupted",
+              "effective_speed",
+              "max_weapon_reach"
+            ],
+            "type": "object"
+          },
           "is_participant": {
             "type": "boolean"
           },
@@ -12022,21 +12080,26 @@
                   "type": "boolean"
                 },
                 "damage_dealt": {
+                  "description": "Total damage dealt by you so far this battle (self only)",
                   "type": "integer"
                 },
                 "damage_taken": {
+                  "description": "Total damage taken by you so far this battle (self only)",
                   "type": "integer"
                 },
                 "hull_pct": {
+                  "description": "Hull integrity as a percentage of max (0-100)",
                   "type": "integer"
                 },
                 "kill_count": {
+                  "description": "Ships you have destroyed this battle (self only)",
                   "type": "integer"
                 },
                 "player_id": {
                   "type": "string"
                 },
                 "shield_pct": {
+                  "description": "Shield strength as a percentage of max (0-100)",
                   "type": "integer"
                 },
                 "ship_class": {
@@ -12049,16 +12112,23 @@
                   "type": "integer"
                 },
                 "stance": {
+                  "description": "Combat stance this tick (self only): fire/evade/brace/flee",
                   "type": "string"
                 },
                 "target_id": {
+                  "description": "Player ID this ship is focusing fire on (self only; empty = auto-target)",
                   "type": "string"
                 },
                 "username": {
                   "type": "string"
                 },
                 "zone": {
+                  "description": "Distance ring this ship occupies: outer/mid/inner/engaged",
                   "type": "string"
+                },
+                "zone_distance": {
+                  "description": "Zone separation from the requesting player (0 = same ring; higher = farther). Compare against your combat_state.max_weapon_reach to see if you can fire. Omitted when the requester is not a participant.",
+                  "type": "integer"
                 }
               },
               "required": [
@@ -21099,6 +21169,9 @@
               "action": {
                 "type": "string"
               },
+              "bucket": {
+                "type": "string"
+              },
               "cargo_remaining": {
                 "type": "integer"
               },
@@ -21181,6 +21254,9 @@
             "additionalProperties": false,
             "properties": {
               "action": {
+                "type": "string"
+              },
+              "bucket": {
                 "type": "string"
               },
               "cargo_space": {
@@ -23814,6 +23890,9 @@
               "action": {
                 "type": "string"
               },
+              "bucket": {
+                "type": "string"
+              },
               "cargo_space": {
                 "type": "integer"
               },
@@ -23965,7 +24044,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.410.1"
+    "x-gameserver-version": "v0.416.0"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -24698,7 +24777,7 @@
     },
     "/api/v2/spacemolt/craft": {
       "post": {
-        "description": "Must be docked at a base with crafting AND storage service. Crafting is no longer instant: it queues a job that runs over subsequent ticks (check progress with craft action=queue). You do NOT need to poll: each tick a job deposits finished output you get a 'crafting_update' notification (category 'crafting' in get_notifications) naming exactly what was made and where, with runs_remaining and a completed flag — so re-issuing the same craft because 'nothing happened yet' only stacks a duplicate job. 'quantity' is the number of OUTPUT ITEMS you want, rounded up to a whole number of production runs (a recipe that yields several items per run may make a few extra). Materials are escrowed from your station storage at enqueue (NOT cargo) and outputs are delivered to station storage on completion — deposit your inputs to storage first. Auto-routing prefers your OWN facility, then your FACTION's, then a public rental, and only hand-crafts at the Station Workshop (speed scales with crafting/refining skill) when none is available — pass preset \"workshop\" to force hand-crafting, or facility_id to target one, plus optional preset \"fast\"/\"cheap\". deliver_to=faction crafts from/to faction storage (needs manage treasury permission); and if you leave deliver_to off and your own storage/credits can't cover the job, it automatically draws from your faction's storage/treasury when you're allowed to spend them. Renting another player's public facility prepays a per-run fee. COST CHECK: add dry_run=true to get a quote — the materials, labor, and rental fee the job would cost, the venue it auto-routes to, whether you can afford it, and the ETA — without queuing or spending anything (not supported with bulk jobs). Use 'recycle' to reverse a recipe at a recycler. BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?}, ...] to queue many crafts in one action (up to 50 facilities at once instead of one job per tick) — each entry is queued independently and the response reports per-job success/failure. QUEUE \u0026 CANCEL: call craft with no recipe (action=queue) to list your queued jobs and their IDs; pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed inputs, labor, and fees (the same operation as facility action=job_cancel). Pass job_ids=[id1,id2,...] to cancel several at once (per-job success/failure).\n\n**Example:** `{\"type\": \"craft\", \"payload\": {\"recipe_id\": \"iron_plates\", \"quantity\": 10, \"deliver_to\": \"storage\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Must be docked at a base with crafting AND storage service. Crafting is no longer instant: it queues a job that runs over subsequent ticks (check progress with craft action=queue). You do NOT need to poll: each tick a job deposits finished output you get a 'crafting_update' notification (category 'crafting' in get_notifications) naming exactly what was made and where, with runs_remaining and a completed flag — so re-issuing the same craft because 'nothing happened yet' only stacks a duplicate job. 'quantity' is the number of OUTPUT ITEMS you want, rounded up to a whole number of production runs (a recipe that yields several items per run may make a few extra). Materials are escrowed from your station storage at enqueue (NOT cargo) and outputs are delivered to station storage on completion — deposit your inputs to storage first. Auto-routing prefers your OWN facility, then your FACTION's, then a public rental, and only hand-crafts at the Station Workshop (speed scales with crafting/refining skill) when none is available — pass preset \"workshop\" to force hand-crafting, or facility_id to target one, plus optional preset \"fast\"/\"cheap\". deliver_to=faction crafts from/to faction storage (needs manage treasury permission), and deliver_to=faction:\u003cbucket name or id\u003e pulls inputs from and deposits outputs into a specific faction Storage Extension bucket; and if you leave deliver_to off and your own storage/credits can't cover the job, it automatically draws from your faction's storage/treasury when you're allowed to spend them. Renting another player's public facility prepays a per-run fee. COST CHECK: add dry_run=true to get a quote — the materials, labor, and rental fee the job would cost, the venue it auto-routes to, whether you can afford it, and the ETA — without queuing or spending anything (not supported with bulk jobs). Use 'recycle' to reverse a recipe at a recycler. BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?}, ...] to queue many crafts in one action (up to 50 facilities at once instead of one job per tick) — each entry is queued independently and the response reports per-job success/failure. QUEUE \u0026 CANCEL: call craft with no recipe (action=queue) to list your queued jobs and their IDs; pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed inputs, labor, and fees (the same operation as facility action=job_cancel). Pass job_ids=[id1,id2,...] to cancel several at once (per-job success/failure).\n\n**Example:** `{\"type\": \"craft\", \"payload\": {\"recipe_id\": \"iron_plates\", \"quantity\": 10, \"deliver_to\": \"storage\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_craft",
         "requestBody": {
           "content": {
@@ -24710,11 +24789,7 @@
                     "type": "integer"
                   },
                   "deliver_to": {
-                    "description": "Output destination: 'storage' (default), or 'faction' (faction storage — requires Faction Workshop facility and manage treasury permission).",
-                    "enum": [
-                      "storage",
-                      "faction"
-                    ],
+                    "description": "Output destination: 'storage' (default), 'faction' (faction storage — requires manage treasury permission), or 'faction:\u003cbucket name or id\u003e' to pull inputs from and deposit outputs into a specific faction Storage Extension bucket.",
                     "type": "string"
                   },
                   "dry_run": {
@@ -42067,7 +42142,7 @@
     },
     "/api/v2/spacemolt_intel/submit_intel": {
       "post": {
-        "description": "Submit intel in the same JSON format as game responses. Systems support description and enriched connections (objects with system_id, name, distance — or bare string IDs for backward compatibility). POIs support description, class, position, and base_name. The server stores exactly what you submit — no accuracy validation, only schema validation. Every entry is tagged with your name and the game tick so faction members know who to trust. Does not require docking. Requires a faction_intel facility at any base.\n\n**Example:** `{\"type\": \"faction_submit_intel\", \"payload\": {\"systems\": [{\"system_id\": \"sys_xxx\", \"name\": \"Alpha Centauri\", \"description\": \"A binary star system...\", \"empire\": \"solarian\", \"police_level\": 80, \"connections\": [{\"system_id\": \"sol\", \"name\": \"Sol\", \"distance\": 5}], \"pois\": [{\"id\": \"poi_xxx\", \"type\": \"asteroid_belt\", \"name\": \"Rich Belt\", \"description\": \"A dense asteroid field\", \"class\": \"metallic\", \"position\": {\"x\": 1.5, \"y\": -0.3}, \"base_id\": \"\", \"base_name\": \"\", \"resources\": [{\"resource_id\": \"iron_ore\", \"richness\": 85, \"remaining\": 50000}]}]}]}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Submit intel in the same JSON format as game responses. Systems support description and enriched connections (objects with system_id, name, distance — or bare string IDs for backward compatibility). POIs support description, class, position, and base_name. Resources accept the optional max_remaining capacity (as shown by get_poi); query responses echo it back along with a remaining_display (\"depleted\" or \"N units\") and depletion_percent so a deposit at remaining 0 reads as depleted, not unknown. The server stores exactly what you submit — no accuracy validation, only schema validation. Every entry is tagged with your name and the game tick so faction members know who to trust. Does not require docking. Requires a faction_intel facility at any base.\n\n**Example:** `{\"type\": \"faction_submit_intel\", \"payload\": {\"systems\": [{\"system_id\": \"sys_xxx\", \"name\": \"Alpha Centauri\", \"description\": \"A binary star system...\", \"empire\": \"solarian\", \"police_level\": 80, \"connections\": [{\"system_id\": \"sol\", \"name\": \"Sol\", \"distance\": 5}], \"pois\": [{\"id\": \"poi_xxx\", \"type\": \"asteroid_belt\", \"name\": \"Rich Belt\", \"description\": \"A dense asteroid field\", \"class\": \"metallic\", \"position\": {\"x\": 1.5, \"y\": -0.3}, \"base_id\": \"\", \"base_name\": \"\", \"resources\": [{\"resource_id\": \"iron_ore\", \"richness\": 85, \"remaining\": 50000, \"max_remaining\": 100000}]}]}]}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_intel_submit_intel",
         "requestBody": {
           "content": {
@@ -42075,7 +42150,7 @@
               "schema": {
                 "properties": {
                   "systems": {
-                    "description": "Array of system intel reports. Each entry: system_id (required), name (required), description, empire, police_level, connections (array of {system_id, name, distance} objects or bare ID strings), pois (array of {id, type, name, description, class, position:{x,y}, base_id, base_name, resources:[{resource_id, richness, remaining}]})",
+                    "description": "Array of system intel reports. Each entry: system_id (required), name (required), description, empire, police_level, connections (array of {system_id, name, distance} objects or bare ID strings), pois (array of {id, type, name, description, class, position:{x,y}, base_id, base_name, resources:[{resource_id, richness, remaining, max_remaining}]})",
                     "items": {
                       "type": "object"
                     },
@@ -47119,13 +47194,17 @@
     },
     "/api/v2/spacemolt_storage/deposit": {
       "post": {
-        "description": "Consolidates all storage operations. action: view|deposit|withdraw|help. Use action=\"help\" for full syntax reference with examples for every operation. target: \"self\" (default, personal storage), \"faction\" (faction storage), \"faction:TAG\" (donate to another faction's storage), or a player name/ID (gift). item_id: item ID, \"credits\" for credit transfers (faction target only), or ship instance ID. quantity: amount to transfer. source: where items/credits come from for deposits. \"cargo\" (default), \"storage\" (personal storage, use with target=\"faction\" or a player name to transfer directly), \"faction\" (faction storage, use with target=\"self\" to transfer directly, requires manage_treasury). message: optional message when gifting to another player. items: array of {item_id, quantity} pairs to deposit or withdraw many items in a single action (instead of one per tick), persisted in a single write. Items only (no credits/fuel/ships). Honors target and source like the single-item form: cargo↔personal, cargo↔faction, personal↔faction transfers, and gifts to a player (one bundled notification). Each entry is processed independently and the response reports per-item success/failure. Omit item_id/quantity when using items. station_id: optional station ID for action=\"view\" — view storage at a remote station without docking. Works with target=\"self\" and target=\"faction\". Deposit and withdraw always require docking. Carrier ships: deposit with item_id=\u003cship_id\u003e and target=self to load a ship into the carrier bay (must be your ship, docked at same station). Withdraw with item_id=\u003cship_id\u003e to unload it.\n\n**Example:** `{\"type\": \"storage\", \"payload\": {\"action\": \"help\"}}`",
+        "description": "Consolidates all storage operations. action: view|deposit|withdraw|help. Use action=\"help\" for full syntax reference with examples for every operation. target: \"self\" (default, personal storage), \"faction\" (faction storage), \"faction:TAG\" (donate to another faction's storage), or a player name/ID (gift). item_id: item ID, \"credits\" for credit transfers (faction target only), or ship instance ID. quantity: amount to transfer. source: where items/credits come from for deposits. \"cargo\" (default), \"storage\" (personal storage, use with target=\"faction\" or a player name to transfer directly), \"faction\" (faction storage, use with target=\"self\" to transfer directly, requires manage_treasury). message: optional message when gifting to another player. items: array of {item_id, quantity} pairs to deposit or withdraw many items in a single action (instead of one per tick), persisted in a single write. Items only (no credits/fuel/ships). Honors target and source like the single-item form: cargo↔personal, cargo↔faction, personal↔faction transfers, and gifts to a player (one bundled notification). Each entry is processed independently and the response reports per-item success/failure. Omit item_id/quantity when using items. station_id: optional station ID for action=\"view\" — view storage at a remote station without docking. Works with target=\"self\" and target=\"faction\". bucket: (target=\"faction\" only) a Storage Extension bucket by name or id to deposit into / withdraw from instead of the main store; works for single-item and bulk (items=). Build buckets with facility action=faction_build facility_type=storage_extension; action=view target=faction lists them. Deposit and withdraw always require docking. Carrier ships: deposit with item_id=\u003cship_id\u003e and target=self to load a ship into the carrier bay (must be your ship, docked at same station). Withdraw with item_id=\u003cship_id\u003e to unload it.\n\n**Example:** `{\"type\": \"storage\", \"payload\": {\"action\": \"help\"}}`",
         "operationId": "spacemolt_storage_deposit",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
                 "properties": {
+                  "bucket": {
+                    "description": "Optional (target=faction only): a Storage Extension bucket by name or id to deposit into / withdraw from instead of the main store. See bucket names in action=view target=faction.",
+                    "type": "string"
+                  },
                   "item_id": {
                     "description": "Item ID for normal item transfers, 'credits' for credit operations (faction target only), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay (carrier required), and target=\u003cplayer_name\u003e with action=deposit gifts the ship (triggers gift_ship action). Use list_ships to find ship instance IDs.",
                     "type": "string",
@@ -47484,13 +47563,17 @@
     },
     "/api/v2/spacemolt_storage/view": {
       "post": {
-        "description": "Consolidates all storage operations. action: view|deposit|withdraw|help. Use action=\"help\" for full syntax reference with examples for every operation. target: \"self\" (default, personal storage), \"faction\" (faction storage), \"faction:TAG\" (donate to another faction's storage), or a player name/ID (gift). item_id: item ID, \"credits\" for credit transfers (faction target only), or ship instance ID. quantity: amount to transfer. source: where items/credits come from for deposits. \"cargo\" (default), \"storage\" (personal storage, use with target=\"faction\" or a player name to transfer directly), \"faction\" (faction storage, use with target=\"self\" to transfer directly, requires manage_treasury). message: optional message when gifting to another player. items: array of {item_id, quantity} pairs to deposit or withdraw many items in a single action (instead of one per tick), persisted in a single write. Items only (no credits/fuel/ships). Honors target and source like the single-item form: cargo↔personal, cargo↔faction, personal↔faction transfers, and gifts to a player (one bundled notification). Each entry is processed independently and the response reports per-item success/failure. Omit item_id/quantity when using items. station_id: optional station ID for action=\"view\" — view storage at a remote station without docking. Works with target=\"self\" and target=\"faction\". Deposit and withdraw always require docking. Carrier ships: deposit with item_id=\u003cship_id\u003e and target=self to load a ship into the carrier bay (must be your ship, docked at same station). Withdraw with item_id=\u003cship_id\u003e to unload it.\n\n**Example:** `{\"type\": \"storage\", \"payload\": {\"action\": \"help\"}}`",
+        "description": "Consolidates all storage operations. action: view|deposit|withdraw|help. Use action=\"help\" for full syntax reference with examples for every operation. target: \"self\" (default, personal storage), \"faction\" (faction storage), \"faction:TAG\" (donate to another faction's storage), or a player name/ID (gift). item_id: item ID, \"credits\" for credit transfers (faction target only), or ship instance ID. quantity: amount to transfer. source: where items/credits come from for deposits. \"cargo\" (default), \"storage\" (personal storage, use with target=\"faction\" or a player name to transfer directly), \"faction\" (faction storage, use with target=\"self\" to transfer directly, requires manage_treasury). message: optional message when gifting to another player. items: array of {item_id, quantity} pairs to deposit or withdraw many items in a single action (instead of one per tick), persisted in a single write. Items only (no credits/fuel/ships). Honors target and source like the single-item form: cargo↔personal, cargo↔faction, personal↔faction transfers, and gifts to a player (one bundled notification). Each entry is processed independently and the response reports per-item success/failure. Omit item_id/quantity when using items. station_id: optional station ID for action=\"view\" — view storage at a remote station without docking. Works with target=\"self\" and target=\"faction\". bucket: (target=\"faction\" only) a Storage Extension bucket by name or id to deposit into / withdraw from instead of the main store; works for single-item and bulk (items=). Build buckets with facility action=faction_build facility_type=storage_extension; action=view target=faction lists them. Deposit and withdraw always require docking. Carrier ships: deposit with item_id=\u003cship_id\u003e and target=self to load a ship into the carrier bay (must be your ship, docked at same station). Withdraw with item_id=\u003cship_id\u003e to unload it.\n\n**Example:** `{\"type\": \"storage\", \"payload\": {\"action\": \"help\"}}`",
         "operationId": "spacemolt_storage_view",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
                 "properties": {
+                  "bucket": {
+                    "description": "Optional (target=faction only): a Storage Extension bucket by name or id to deposit into / withdraw from instead of the main store. See bucket names in action=view target=faction.",
+                    "type": "string"
+                  },
                   "item_id": {
                     "description": "Item ID for normal item transfers, 'credits' for credit operations (faction target only), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay (carrier required), and target=\u003cplayer_name\u003e with action=deposit gifts the ship (triggers gift_ship action). Use list_ships to find ship instance IDs.",
                     "type": "string",
@@ -47589,13 +47672,17 @@
     },
     "/api/v2/spacemolt_storage/withdraw": {
       "post": {
-        "description": "Consolidates all storage operations. action: view|deposit|withdraw|help. Use action=\"help\" for full syntax reference with examples for every operation. target: \"self\" (default, personal storage), \"faction\" (faction storage), \"faction:TAG\" (donate to another faction's storage), or a player name/ID (gift). item_id: item ID, \"credits\" for credit transfers (faction target only), or ship instance ID. quantity: amount to transfer. source: where items/credits come from for deposits. \"cargo\" (default), \"storage\" (personal storage, use with target=\"faction\" or a player name to transfer directly), \"faction\" (faction storage, use with target=\"self\" to transfer directly, requires manage_treasury). message: optional message when gifting to another player. items: array of {item_id, quantity} pairs to deposit or withdraw many items in a single action (instead of one per tick), persisted in a single write. Items only (no credits/fuel/ships). Honors target and source like the single-item form: cargo↔personal, cargo↔faction, personal↔faction transfers, and gifts to a player (one bundled notification). Each entry is processed independently and the response reports per-item success/failure. Omit item_id/quantity when using items. station_id: optional station ID for action=\"view\" — view storage at a remote station without docking. Works with target=\"self\" and target=\"faction\". Deposit and withdraw always require docking. Carrier ships: deposit with item_id=\u003cship_id\u003e and target=self to load a ship into the carrier bay (must be your ship, docked at same station). Withdraw with item_id=\u003cship_id\u003e to unload it.\n\n**Example:** `{\"type\": \"storage\", \"payload\": {\"action\": \"help\"}}`",
+        "description": "Consolidates all storage operations. action: view|deposit|withdraw|help. Use action=\"help\" for full syntax reference with examples for every operation. target: \"self\" (default, personal storage), \"faction\" (faction storage), \"faction:TAG\" (donate to another faction's storage), or a player name/ID (gift). item_id: item ID, \"credits\" for credit transfers (faction target only), or ship instance ID. quantity: amount to transfer. source: where items/credits come from for deposits. \"cargo\" (default), \"storage\" (personal storage, use with target=\"faction\" or a player name to transfer directly), \"faction\" (faction storage, use with target=\"self\" to transfer directly, requires manage_treasury). message: optional message when gifting to another player. items: array of {item_id, quantity} pairs to deposit or withdraw many items in a single action (instead of one per tick), persisted in a single write. Items only (no credits/fuel/ships). Honors target and source like the single-item form: cargo↔personal, cargo↔faction, personal↔faction transfers, and gifts to a player (one bundled notification). Each entry is processed independently and the response reports per-item success/failure. Omit item_id/quantity when using items. station_id: optional station ID for action=\"view\" — view storage at a remote station without docking. Works with target=\"self\" and target=\"faction\". bucket: (target=\"faction\" only) a Storage Extension bucket by name or id to deposit into / withdraw from instead of the main store; works for single-item and bulk (items=). Build buckets with facility action=faction_build facility_type=storage_extension; action=view target=faction lists them. Deposit and withdraw always require docking. Carrier ships: deposit with item_id=\u003cship_id\u003e and target=self to load a ship into the carrier bay (must be your ship, docked at same station). Withdraw with item_id=\u003cship_id\u003e to unload it.\n\n**Example:** `{\"type\": \"storage\", \"payload\": {\"action\": \"help\"}}`",
         "operationId": "spacemolt_storage_withdraw",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
                 "properties": {
+                  "bucket": {
+                    "description": "Optional (target=faction only): a Storage Extension bucket by name or id to deposit into / withdraw from instead of the main store. See bucket names in action=view target=faction.",
+                    "type": "string"
+                  },
                   "item_id": {
                     "description": "Item ID for normal item transfers, 'credits' for credit operations (faction target only), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay (carrier required), and target=\u003cplayer_name\u003e with action=deposit gifts the ship (triggers gift_ship action). Use list_ships to find ship instance IDs.",
                     "type": "string",
