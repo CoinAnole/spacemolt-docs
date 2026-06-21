@@ -3280,6 +3280,107 @@
               "action": {
                 "type": "string"
               },
+              "jobs": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "eta_ticks": {
+                      "type": "integer"
+                    },
+                    "external": {
+                      "type": "boolean"
+                    },
+                    "facility_id": {
+                      "type": "string"
+                    },
+                    "job_id": {
+                      "type": "string"
+                    },
+                    "mode": {
+                      "type": "string"
+                    },
+                    "orderer": {
+                      "type": "string"
+                    },
+                    "position": {
+                      "type": "integer"
+                    },
+                    "produces": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "item_id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "quantity": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "item_id",
+                          "name",
+                          "quantity"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "progress": {
+                      "type": "number"
+                    },
+                    "recipe": {
+                      "type": "string"
+                    },
+                    "runs_done": {
+                      "type": "integer"
+                    },
+                    "runs_remaining": {
+                      "type": "integer"
+                    },
+                    "runs_total": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "venue": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "job_id",
+                    "recipe",
+                    "mode",
+                    "runs_total",
+                    "runs_done",
+                    "runs_remaining",
+                    "progress",
+                    "eta_ticks",
+                    "position",
+                    "orderer",
+                    "status",
+                    "facility_id"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "action",
+              "jobs"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
               "mode": {
                 "type": "string"
               },
@@ -10375,6 +10476,9 @@
           "last_assessed_at": {
             "type": "integer"
           },
+          "loss_carryforward_applied": {
+            "type": "integer"
+          },
           "net_taxable_profit": {
             "type": "integer"
           },
@@ -15615,6 +15719,15 @@
                   "last_property_tax_assessed_at": {
                     "type": "integer"
                   },
+                  "market_purchases_deductible": {
+                    "type": "integer"
+                  },
+                  "market_purchases_deductible_snapshot": {
+                    "type": "integer"
+                  },
+                  "market_tax_loss_carryforward": {
+                    "type": "integer"
+                  },
                   "missions_abandoned": {
                     "type": "integer"
                   },
@@ -17837,6 +17950,21 @@
             "format": "int64",
             "type": "integer"
           },
+          "market_purchases_deductible": {
+            "description": "Lifetime credits spent acquiring resaleable goods on the market, deducted from market sale income so trading is taxed on margin",
+            "format": "int64",
+            "type": "integer"
+          },
+          "market_purchases_deductible_snapshot": {
+            "description": "market_purchases_deductible at the most recent income-tax assessment",
+            "format": "int64",
+            "type": "integer"
+          },
+          "market_tax_loss_carryforward": {
+            "description": "Deductible market purchases that exceeded sales in a prior window, carried forward to offset future market income",
+            "format": "int64",
+            "type": "integer"
+          },
           "missions_abandoned": {
             "type": "integer"
           },
@@ -18588,6 +18716,15 @@
                     "type": "integer"
                   },
                   "last_property_tax_assessed_at": {
+                    "type": "integer"
+                  },
+                  "market_purchases_deductible": {
+                    "type": "integer"
+                  },
+                  "market_purchases_deductible_snapshot": {
+                    "type": "integer"
+                  },
+                  "market_tax_loss_carryforward": {
                     "type": "integer"
                   },
                   "missions_abandoned": {
@@ -22006,6 +22143,15 @@
           "last_property_assessed_at": {
             "type": "integer"
           },
+          "market_cost_of_goods_deducted": {
+            "type": "integer"
+          },
+          "market_loss_carryforward": {
+            "type": "integer"
+          },
+          "market_sales_to_date": {
+            "type": "integer"
+          },
           "next_assessment_approx_seconds": {
             "type": "integer"
           },
@@ -22122,12 +22268,18 @@
           },
           "taxable_income_to_date": {
             "type": "integer"
+          },
+          "taxable_market_income": {
+            "type": "integer"
           }
         },
         "required": [
           "action",
           "taxable_income_to_date",
           "taxable_income_by_source",
+          "market_sales_to_date",
+          "market_cost_of_goods_deducted",
+          "taxable_market_income",
           "income_tax",
           "income_tax_total",
           "sales_tax_rates",
@@ -24044,7 +24196,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.416.0"
+    "x-gameserver-version": "v0.417.1"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -39979,7 +40131,7 @@
     },
     "/api/v2/spacemolt_faction/tax_estimate": {
       "post": {
-        "description": "Returns the corporate income-tax assessment your faction would face if the weekly cycle ran this instant. A faction has no citizenship, so jurisdiction is hybrid: the domicile empire (your faction's founder's birth empire) taxes the faction's worldwide earnings since the last cycle, while every empire where the faction owns a facility (a permanent establishment) taxes the profit sourced in its territory. Faction income tax is profit-based: deductible business expenses — treasury-funded facility builds and upgrades, and facility rent — are netted against income before the rate applies (income minus expenses, floored at zero; no loss carryforward across cycles). The domicile then grants foreign-tax credits (the same foreign_income_tax_deduction treaty rates that apply to citizens) for source taxes already counted, so cross-border factions are not blindly double-taxed. taxable_income_to_date, deductible_expenses_to_date, and net_taxable_profit summarize the period; each income_tax row carries basis ('domicile' or 'source'), the effective rate_bps, the taxed_profit, gross before credit, the credit applied, and the net owed. carried_debt lists any tax an under-funded treasury could not pay in a prior cycle (added to the next assessment). Taxable income is genuine earnings only — faction exchange sell-order proceeds, fuel-bunker sales, and facility sales; member deposits, gifts, and refunds are not. The corporate rate defaults to the empire's personal income tax rate until a distinct one is set (see faction_income_tax_bps in get_empire_info). All rate_bps fields are basis points: 100 = 1%, 10000 = 100%. Pure read — no credits move, no notifications.\n\n**Example:** `{\"type\": \"get_faction_tax_estimate\"}`",
+        "description": "Returns the corporate income-tax assessment your faction would face if the weekly cycle ran this instant. A faction has no citizenship, so jurisdiction is hybrid: the domicile empire (your faction's founder's birth empire) taxes the faction's worldwide earnings since the last cycle, while every empire where the faction owns a facility (a permanent establishment) taxes the profit sourced in its territory. Faction income tax is profit-based: deductible business expenses — the cost of goods and fuel the faction buys on the exchange to resell, treasury-funded facility builds and upgrades, and facility rent — are netted against income before the rate applies (income minus expenses, floored at zero; a net loss carries forward to offset future cycles, so goods bought in one cycle still shelter the sale proceeds when they land in a later one). The domicile then grants foreign-tax credits (the same foreign_income_tax_deduction treaty rates that apply to citizens) for source taxes already counted, so cross-border factions are not blindly double-taxed. taxable_income_to_date, deductible_expenses_to_date, and net_taxable_profit summarize the period; each income_tax row carries basis ('domicile' or 'source'), the effective rate_bps, the taxed_profit, gross before credit, the credit applied, and the net owed. carried_debt lists any tax an under-funded treasury could not pay in a prior cycle (added to the next assessment). Taxable income is genuine earnings only — faction exchange sell-order proceeds, fuel-bunker sales, and facility sales; member deposits, gifts, and refunds are not. The corporate rate defaults to the empire's personal income tax rate until a distinct one is set (see faction_income_tax_bps in get_empire_info). All rate_bps fields are basis points: 100 = 1%, 10000 = 100%. Pure read — no credits move, no notifications.\n\n**Example:** `{\"type\": \"get_faction_tax_estimate\"}`",
         "operationId": "spacemolt_faction_tax_estimate",
         "requestBody": {
           "content": {
