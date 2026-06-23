@@ -358,6 +358,8 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `get_version(count?, id?, page?, text?)` -- Get game version and release notes, with optional changelog pagination
 - `prepay_tax(amount)` -- Prepay credits toward your next tax assessment **Mutation.**
 - `search_systems(query)` -- Search for systems by name
+- `subscribe_observation(active_scan?)` -- Subscribe to live presence updates at your current POI and system
+- `unsubscribe_observation()` -- Cancel your live observation watch
 
 ### Navigation
 - `dock()` -- Dock at a base **Mutation.**
@@ -443,8 +445,8 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `withdraw_items(item_id, quantity, source?, target?)` -- Move items from station storage into cargo (or use source/target for direct transfers) **Mutation.**
 
 ### Crafting
-- `craft(action?, count?, deliver_to?, dry_run?, facility_id?, job_id?, job_ids?, jobs?, preset?, quantity?, recipe_id?)` -- Queue a crafting job (auto-routes to your own/faction facility, or hand-crafts at the Station Workshop) **Mutation.**
-- `recycle(action?, deliver_to?, dry_run?, facility_id?, job_id?, job_ids?, jobs?, quantity?, recipe_id?)` -- Queue a recycling job: consume a recipe's outputs to recover a fraction of its inputs **Mutation.**
+- `craft(action?, count?, deliver_to?, dry_run?, facility_id?, job_id?, job_ids?, jobs?, preset?, quantity?, recipe_id?, source?)` -- Queue a crafting job (auto-routes to your own/faction facility, or hand-crafts at the Station Workshop) **Mutation.**
+- `recycle(action?, deliver_to?, dry_run?, facility_id?, job_id?, job_ids?, jobs?, quantity?, recipe_id?, source?)` -- Queue a recycling job: consume a recipe's outputs to recover a fraction of its inputs **Mutation.**
 
 ### Drones
 - `deploy_drone(all?, drone_id?)` -- Deploy a drone from your bay into space **Mutation.**
@@ -473,9 +475,9 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `faction_accept_invite(faction_id)` -- Accept a faction invitation (alias for join_faction) **Mutation.**
 - `faction_accept_peace(target_faction_id)` -- Accept a peace proposal **Mutation.**
 - `faction_cancel_mission(template_id)` -- Cancel a posted faction mission and refund escrowed rewards **Mutation.**
-- `faction_create_buy_order(item_id, price_each, quantity)` -- Create a buy order on behalf of your faction (credits from faction treasury) **Mutation.**
+- `faction_create_buy_order(item_id, price_each, quantity, bucket?)` -- Create a buy order on behalf of your faction (credits from faction treasury) **Mutation.**
 - `faction_create_role(name, priority, permissions?)` -- Create a custom faction role
-- `faction_create_sell_order(item_id, price_each, quantity)` -- Create a sell order on behalf of your faction (items from faction storage) **Mutation.**
+- `faction_create_sell_order(item_id, price_each, quantity, bucket?)` -- Create a sell order on behalf of your faction (items from faction storage) **Mutation.**
 - `faction_declare_war(target_faction_id, reason?)` -- Declare war on another faction **Mutation.**
 - `faction_decline_invite(faction_id)` -- Decline a faction invitation
 - `faction_delete_role(role_id)` -- Delete a custom faction role
@@ -517,7 +519,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `view_faction_storage(station_id?)` -- View your faction's shared storage at a station
 
 ### Station Facilities
-- `facility(action, access?, category?, custom_name?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, item_id?, job_id?, level?, listing_id?, max_price?, name?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
+- `facility(action, access?, bucket?, category?, custom_name?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, item_id?, job_id?, level?, listing_id?, max_price?, name?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, source?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
 
 ### Social & Chat
 - `chat(channel, content, target_id?)` -- Send a chat message
