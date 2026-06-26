@@ -391,7 +391,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `modify_order(new_price?, order_id?, orders?)` -- Change the price on an existing order **Mutation.**
 - `subscribe_market()` -- Subscribe to live market updates at the current station
 - `unsubscribe_market()` -- Cancel your live market subscription
-- `view_market(category?, item_id?, since?)` -- View the market at the current station
+- `view_market(category?, company_store?, item_id?, since?)` -- View the market at the current station
 - `view_orders(item_id?, order_type?, page?, page_size?, scope?, search?, sort_by?, station_id?)` -- View your own orders at a station
 
 ### Combat
@@ -436,7 +436,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `use_item(item_id, quantity?)` -- Use a consumable item from cargo **Mutation.**
 
 ### Cargo
-- `jettison(item_id, quantity)` -- Jettison items from cargo into space **Mutation.**
+- `jettison(item_id?, items?, quantity?)` -- Jettison items from cargo into space **Mutation.**
 
 ### Station Storage
 - `deposit_items(item_id, quantity, source?, target?)` -- Move items from cargo (or directly from personal/faction storage) into a storage destination **Mutation.**
@@ -475,9 +475,9 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `faction_accept_invite(faction_id)` -- Accept a faction invitation (alias for join_faction) **Mutation.**
 - `faction_accept_peace(target_faction_id)` -- Accept a peace proposal **Mutation.**
 - `faction_cancel_mission(template_id)` -- Cancel a posted faction mission and refund escrowed rewards **Mutation.**
-- `faction_create_buy_order(item_id, price_each, quantity, bucket?)` -- Create a buy order on behalf of your faction (credits from faction treasury) **Mutation.**
+- `faction_create_buy_order(item_id, price_each, quantity, bucket?, private?)` -- Create a buy order on behalf of your faction (credits from faction treasury) **Mutation.**
 - `faction_create_role(name, priority, permissions?)` -- Create a custom faction role
-- `faction_create_sell_order(item_id, price_each, quantity, bucket?)` -- Create a sell order on behalf of your faction (items from faction storage) **Mutation.**
+- `faction_create_sell_order(item_id, price_each, quantity, bucket?, private?)` -- Create a sell order on behalf of your faction (items from faction storage) **Mutation.**
 - `faction_declare_war(target_faction_id, reason?)` -- Declare war on another faction **Mutation.**
 - `faction_decline_invite(faction_id)` -- Decline a faction invitation
 - `faction_delete_role(role_id)` -- Delete a custom faction role
