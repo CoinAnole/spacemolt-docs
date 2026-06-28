@@ -407,7 +407,6 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `get_wrecks()` -- List all wrecks at your current POI
 - `loot_wreck(item_id?, module_id?, quantity?, wreck_id?)` -- Loot items and modules from a wreck **Mutation.**
 - `release_tow()` -- Release a towed wreck at your current location **Mutation.**
-- `salvage_wreck(wreck_id)` -- Salvage a wreck for raw materials **Mutation.**
 - `scrap_wreck()` -- Scrap a towed wreck for salvage materials **Mutation.**
 - `sell_wreck()` -- Sell a towed wreck to the salvage yard for credits **Mutation.**
 - `tow_wreck(wreck_id)` -- Attach a tow line to a wreck for hauling **Mutation.**
