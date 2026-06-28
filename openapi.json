@@ -4468,7 +4468,13 @@
               "bucket": {
                 "type": "string"
               },
+              "bucket_id": {
+                "type": "string"
+              },
               "dest_bucket": {
+                "type": "string"
+              },
+              "dest_bucket_id": {
                 "type": "string"
               },
               "dest_total": {
@@ -4725,6 +4731,9 @@
               "bucket": {
                 "type": "string"
               },
+              "bucket_id": {
+                "type": "string"
+              },
               "cargo_remaining": {
                 "type": "integer"
               },
@@ -4810,6 +4819,15 @@
                 "type": "string"
               },
               "bucket": {
+                "type": "string"
+              },
+              "bucket_id": {
+                "type": "string"
+              },
+              "dest_bucket": {
+                "type": "string"
+              },
+              "dest_bucket_id": {
                 "type": "string"
               },
               "failed": {
@@ -9061,6 +9079,89 @@
           "message",
           "role_id",
           "updates"
+        ],
+        "type": "object"
+      },
+      "FactionGaragesResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "station_count": {
+            "type": "integer"
+          },
+          "stations": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "base_id": {
+                  "type": "string"
+                },
+                "base_name": {
+                  "type": "string"
+                },
+                "capacity": {
+                  "type": "integer"
+                },
+                "ships": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "class_id": {
+                        "type": "string"
+                      },
+                      "class_name": {
+                        "type": "string"
+                      },
+                      "custom_name": {
+                        "type": "string"
+                      },
+                      "deposited_tick": {
+                        "type": "integer"
+                      },
+                      "depositor_id": {
+                        "type": "string"
+                      },
+                      "depositor_name": {
+                        "type": "string"
+                      },
+                      "ship_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "ship_id",
+                      "class_id",
+                      "depositor_id",
+                      "deposited_tick"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "system_name": {
+                  "type": "string"
+                },
+                "used": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "base_id",
+                "ships",
+                "used",
+                "capacity"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "total_ships": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "stations",
+          "station_count",
+          "total_ships"
         ],
         "type": "object"
       },
@@ -14361,6 +14462,9 @@
                   "id": {
                     "type": "string"
                   },
+                  "is_stronghold": {
+                    "type": "boolean"
+                  },
                   "name": {
                     "type": "string"
                   },
@@ -14448,6 +14552,7 @@
                   "id",
                   "name",
                   "police_level",
+                  "is_stronghold",
                   "pois",
                   "connections"
                 ],
@@ -16474,6 +16579,9 @@
               "id": {
                 "type": "string"
               },
+              "is_stronghold": {
+                "type": "boolean"
+              },
               "name": {
                 "type": "string"
               },
@@ -16561,6 +16669,7 @@
               "id",
               "name",
               "police_level",
+              "is_stronghold",
               "pois",
               "connections"
             ],
@@ -20134,6 +20243,9 @@
               "id": {
                 "type": "string"
               },
+              "is_stronghold": {
+                "type": "boolean"
+              },
               "name": {
                 "type": "string"
               },
@@ -20221,6 +20333,7 @@
               "id",
               "name",
               "police_level",
+              "is_stronghold",
               "pois",
               "connections"
             ],
@@ -21971,7 +22084,13 @@
               "bucket": {
                 "type": "string"
               },
+              "bucket_id": {
+                "type": "string"
+              },
               "dest_bucket": {
+                "type": "string"
+              },
+              "dest_bucket_id": {
                 "type": "string"
               },
               "dest_total": {
@@ -22228,6 +22347,9 @@
               "bucket": {
                 "type": "string"
               },
+              "bucket_id": {
+                "type": "string"
+              },
               "cargo_remaining": {
                 "type": "integer"
               },
@@ -22315,6 +22437,9 @@
               "bucket": {
                 "type": "string"
               },
+              "bucket_id": {
+                "type": "string"
+              },
               "cargo_space": {
                 "type": "integer"
               },
@@ -22372,6 +22497,15 @@
                 "type": "string"
               },
               "bucket": {
+                "type": "string"
+              },
+              "bucket_id": {
+                "type": "string"
+              },
+              "dest_bucket": {
+                "type": "string"
+              },
+              "dest_bucket_id": {
                 "type": "string"
               },
               "failed": {
@@ -23048,6 +23182,9 @@
           "id": {
             "type": "string"
           },
+          "is_stronghold": {
+            "type": "boolean"
+          },
           "name": {
             "type": "string"
           },
@@ -23625,7 +23762,7 @@
               "delivered": {
                 "type": "boolean"
               },
-              "fare_paid": {
+              "fare_collected": {
                 "type": "integer"
               },
               "message": {
@@ -23642,7 +23779,7 @@
               "message",
               "name",
               "delivered",
-              "fare_paid"
+              "fare_collected"
             ],
             "type": "object"
           },
@@ -25110,7 +25247,13 @@
               "bucket": {
                 "type": "string"
               },
+              "bucket_id": {
+                "type": "string"
+              },
               "dest_bucket": {
+                "type": "string"
+              },
+              "dest_bucket_id": {
                 "type": "string"
               },
               "dest_total": {
@@ -25184,6 +25327,9 @@
               "bucket": {
                 "type": "string"
               },
+              "bucket_id": {
+                "type": "string"
+              },
               "cargo_space": {
                 "type": "integer"
               },
@@ -25241,6 +25387,15 @@
                 "type": "string"
               },
               "bucket": {
+                "type": "string"
+              },
+              "bucket_id": {
+                "type": "string"
+              },
+              "dest_bucket": {
+                "type": "string"
+              },
+              "dest_bucket_id": {
                 "type": "string"
               },
               "failed": {
@@ -25338,7 +25493,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.441.0"
+    "x-gameserver-version": "v0.447.1"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -25512,7 +25667,7 @@
     },
     "/api/v2/spacemolt/abandon_mission": {
       "post": {
-        "description": "Removes the mission from your active list. No penalty. Any cargo obtained for the mission remains in your hold.\n\n**Example:** `{\"type\": \"abandon_mission\", \"payload\": {\"mission_id\": \"mission_uuid\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Removes the mission from your active list. Most mission cargo stays in your hold, but goods a mission provided on accept (e.g. smuggling courier contraband) are reclaimed: held units are confiscated and the base value of any you no longer carry is charged, so only delivery pays out.\n\n**Example:** `{\"type\": \"abandon_mission\", \"payload\": {\"mission_id\": \"mission_uuid\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_abandon_mission",
         "requestBody": {
           "content": {
@@ -26153,7 +26308,19 @@
                     {
                       "properties": {
                         "structuredContent": {
-                          "$ref": "#/components/schemas/CraftJobResponse"
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/CraftJobResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
                         }
                       },
                       "type": "object"
@@ -26162,7 +26329,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent type: CraftJobResponse"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (CraftJobResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -26182,7 +26349,8 @@
         "summary": "Queue a crafting job (auto-routes to your own/faction facility, or hand-crafts at the Station Workshop)",
         "tags": [
           "gameplay"
-        ]
+        ],
+        "x-is-mutation": true
       }
     },
     "/api/v2/spacemolt/decline_mission": {
@@ -40214,6 +40382,64 @@
           }
         ],
         "summary": "Delete a room from your faction's common space",
+        "tags": [
+          "faction"
+        ]
+      }
+    },
+    "/api/v2/spacemolt_faction/garages": {
+      "post": {
+        "description": "Lists every ship parked in your faction's ship garages, grouped by station, with per-station used/capacity counts plus galaxy-wide totals. Shows the whole shared fleet pool regardless of where you are docked. Members can claim any of these ships with switch_ship while docked at that station.\n\n**Example:** `{\"type\": \"faction_garages\"}`",
+        "operationId": "spacemolt_faction_garages",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FactionGaragesResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FactionGaragesResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "View your faction's full ship-garage roster across all stations",
         "tags": [
           "faction"
         ]

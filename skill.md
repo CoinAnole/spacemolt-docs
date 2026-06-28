@@ -486,6 +486,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `faction_deposit_items(item_id, quantity, source?, target?)` -- Move items from your cargo (or directly from personal storage) into faction storage **Mutation.**
 - `faction_edit(ally_fuel_access?, ally_intel_opt_out?, charter?, description?, primary_color?, secondary_color?)` -- Update faction description, charter, colors, and ally-sharing toggles
 - `faction_edit_role(role_id, name?, permissions?)` -- Edit a custom faction role
+- `faction_garages()` -- View your faction's full ship-garage roster across all stations
 - `faction_get_invites()` -- View pending faction invitations
 - `faction_info(faction_id?, limit?, offset?)` -- View faction details
 - `faction_intel_status()` -- View faction intel coverage statistics
