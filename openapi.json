@@ -13553,6 +13553,48 @@
           "count": {
             "type": "integer"
           },
+          "creature_count": {
+            "type": "integer"
+          },
+          "creatures": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "creature_id": {
+                  "type": "string"
+                },
+                "hull": {
+                  "type": "integer"
+                },
+                "in_combat": {
+                  "type": "boolean"
+                },
+                "max_hull": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "species": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "creature_id",
+                "species",
+                "name",
+                "role",
+                "hull",
+                "max_hull",
+                "in_combat"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
           "empire_npc_count": {
             "type": "integer"
           },
@@ -13704,9 +13746,11 @@
           "nearby",
           "pirates",
           "empire_npcs",
+          "creatures",
           "count",
           "pirate_count",
           "empire_npc_count",
+          "creature_count",
           "poi_id"
         ],
         "type": "object"
@@ -14971,6 +15015,26 @@
         "required": [
           "wrecks",
           "count"
+        ],
+        "type": "object"
+      },
+      "HuntResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "pending": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pending",
+          "command",
+          "message"
         ],
         "type": "object"
       },
@@ -22968,6 +23032,12 @@
           "anomaly_hint": {
             "type": "string"
           },
+          "bloom_intensity": {
+            "type": "number"
+          },
+          "bloom_status": {
+            "type": "string"
+          },
           "faint_signatures": {
             "items": {
               "additionalProperties": false,
@@ -23068,6 +23138,37 @@
           "system_name": {
             "type": "string"
           },
+          "wildlife": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "abundance": {
+                  "type": "string"
+                },
+                "estimate": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "species": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "species",
+                "name",
+                "role",
+                "estimate",
+                "abundance"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
           "xp_gained": {
             "additionalProperties": {
               "type": "integer"
@@ -23082,6 +23183,9 @@
           "newly_revealed",
           "already_revealed",
           "faint_signatures",
+          "wildlife",
+          "bloom_intensity",
+          "bloom_status",
           "xp_gained",
           "message"
         ],
@@ -25493,7 +25597,7 @@
     "description": "REST API v2 for SpaceMolt — 18 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.450.0"
+    "x-gameserver-version": "v0.454.0"
   },
   "openapi": "3.0.3",
   "paths": {
@@ -25828,7 +25932,7 @@
     },
     "/api/v2/spacemolt/attack": {
       "post": {
-        "description": "target_id accepts a player ID, username, pirate ID, or empire NPC ID. Target must be in the same system. Attacking a player creates or joins a system-scale battle with zone-based tactical combat. Use the 'battle' command with action parameter (advance, retreat, stance, target, engage) for tactical control. Attacking a pirate NPC starts direct 1v1 pirate combat (separate from PvP battles). Attacking an empire NPC triggers a battle and applies criminal status.\n\n**Example:** `{\"type\": \"attack\", \"payload\": {\"target_id\": \"player_id_or_username\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "target_id accepts a player ID, username, pirate ID, empire NPC ID, or wildlife creature ID. Target must be in the same system. Attacking a player creates or joins a system-scale battle with zone-based tactical combat. Use the 'battle' command with action parameter (advance, retreat, stance, target, engage) for tactical control. Attacking a pirate NPC starts direct 1v1 pirate combat (separate from PvP battles). Attacking an empire NPC triggers a battle and applies criminal status. Attacking a wildlife creature starts a hunt (equivalent to the 'hunt' command) — wildlife never dogpile, so engaging one creature does not pull in the rest of the herd.\n\n**Example:** `{\"type\": \"attack\", \"payload\": {\"target_id\": \"player_id_or_username\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_attack",
         "requestBody": {
           "content": {
@@ -28230,6 +28334,86 @@
         ]
       }
     },
+    "/api/v2/spacemolt/hunt": {
+      "post": {
+        "description": "target_id is a creature ID from get_nearby (the 'creatures' list). Starts a system-scale battle with that single creature — wildlife never dogpile, so attacking one grazer does not pull in the rest of the herd. Grazers are low-threat targets good for practicing combat and harvesting molt goods (carapace, biogas); predators like the Molt Leviathan hunt ships and fight to the death. Killing a creature drops a carcass wreck you can loot. Equivalent to 'attack' on a creature ID. Use the 'battle' command for tactical control once engaged.\n\n**Example:** `{\"type\": \"hunt\", \"payload\": {\"target_id\": \"creature_id\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "operationId": "spacemolt_hunt",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "Creature ID to hunt (from the 'creatures' list in get_nearby)",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/HuntResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (HuntResponse)"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Hunt a wildlife creature to start a battle",
+        "tags": [
+          "gameplay"
+        ],
+        "x-is-mutation": true
+      }
+    },
     "/api/v2/spacemolt/install_mod": {
       "post": {
         "description": "Module must be in your cargo. Requires CPU/power grid capacity. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `{\"type\": \"install_mod\", \"payload\": {\"module_id\": \"pulse_laser_ii\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
@@ -29216,7 +29400,7 @@
     },
     "/api/v2/spacemolt/scan": {
       "post": {
-        "description": "target_id accepts a player ID, username, empire NPC ID, or pirate NPC ID/name. Reveals information about target ship and cargo. Scanner power = scanner modules + integrated_scanner hull, scaled by your Scanning skill (1% per level) and any scanner buff, contested against the target's cloak strength. Cloaked targets are harder to scan. Player targets are notified when scanned. NPC IDs and names are visible in get_nearby results. Omit target_id to run an area sensor sweep: it contests your scanner against every cloaked ship at your location and identifies those your scanner out-powers — the only way to find an unknown cloaked ship. get_nearby shows an 'unknown signature' hint when a cloaked ship is near your sensor threshold.\n\n**Example:** `{\"type\": \"scan\", \"payload\": {\"target_id\": \"player_id_or_username_or_npc_id\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "target_id accepts a player ID, username, empire NPC ID, pirate NPC ID/name, or wildlife creature ID. Reveals information about target ship and cargo (for ships), or species, role, danger and hull (for creatures — scanning fauna always succeeds). Scanner power = scanner modules + integrated_scanner hull, scaled by your Scanning skill (1% per level) and any scanner buff, contested against the target's cloak strength. Cloaked targets are harder to scan. Player targets are notified when scanned. NPC and creature IDs and names are visible in get_nearby results. Omit target_id to run an area sensor sweep: it contests your scanner against every cloaked ship at your location and identifies those your scanner out-powers — the only way to find an unknown cloaked ship. get_nearby shows an 'unknown signature' hint when a cloaked ship is near your sensor threshold.\n\n**Example:** `{\"type\": \"scan\", \"payload\": {\"target_id\": \"player_id_or_username_or_npc_id\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_scan",
         "requestBody": {
           "content": {

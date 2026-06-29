@@ -399,6 +399,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `battle(action, side_id?, stance?, target_id?)` -- Manage your battle — move, change stance, target enemies, or join a fight
 - `cloak(enable?, quantity?)` -- Toggle cloaking device **Mutation.**
 - `get_battle_status()` -- View current battle status
+- `hunt(target_id)` -- Hunt a wildlife creature to start a battle **Mutation.**
 - `reload(ammo_item_id, weapon_instance_id)` -- Reload a weapon's magazine from ammo in cargo **Mutation.**
 - `scan(target_id?)` -- Scan a target, or sweep the area for cloaked ships when no target is given **Mutation.**
 - `self_destruct()` -- Destroy your own ship **Mutation.**
