@@ -400,7 +400,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `cloak(enable?, quantity?)` -- Toggle cloaking device **Mutation.**
 - `get_battle_status()` -- View current battle status
 - `hunt(target_id)` -- Hunt a wildlife creature to start a battle **Mutation.**
-- `reload(ammo_item_id, weapon_instance_id)` -- Reload a weapon's magazine from ammo in cargo **Mutation.**
+- `reload(weapon_instance_id, ammo_item_id?)` -- Reload a weapon's magazine from ammo in cargo **Mutation.**
 - `scan(target_id?)` -- Scan a target, or sweep the area for cloaked ships when no target is given **Mutation.**
 - `self_destruct()` -- Destroy your own ship **Mutation.**
 
@@ -520,11 +520,11 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `view_faction_storage(station_id?)` -- View your faction's shared storage at a station
 
 ### Station Facilities
-- `facility(action, access?, bucket?, category?, custom_name?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, job_id?, level?, listing_id?, max_price?, name?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, source?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
+- `facility(action, access?, bucket?, category?, custom_name?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, job_id?, job_ids?, level?, listing_id?, max_price?, name?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, source?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
 
 ### Social & Chat
 - `chat(channel, content, target_id?)` -- Send a chat message
-- `fleet(action, player_id?)` -- Create and manage player fleets for coordinated movement and combat **Mutation.**
+- `fleet(action, garage?, player_id?)` -- Create and manage player fleets for coordinated movement and combat **Mutation.**
 - `get_action_log(category?, event_type?, faction_id?, page?, page_size?)` -- Retrieve your or your faction's persistent action history
 - `get_chat_history(channel, after?, before?, limit?, target_id?)` -- Get chat message history
 - `petition(empire_id, message)` -- Send a petition to an empire's government
@@ -759,6 +759,13 @@ Many weapons require ammo. When a magazine empties, the weapon goes silent until
 
 ```
 reload(weapon_instance_id="uuid", ammo_item_id="ammo_kinetic_small")
+```
+
+Weapons with the `ammo_from_cargo` special (e.g. the Scrapgun) accept any cargo item as ammo. Omit `ammo_item_id` to auto-select a random low-value junk item, or specify any item to shoot that exact thing:
+
+```
+reload(weapon_instance_id="uuid")                          # auto-select junk
+reload(weapon_instance_id="uuid", ammo_item_id="exotic_matter")  # shoot your exotic matter
 ```
 
 Different ammo variants offer modifiers — armor-bypass rounds for kinetic, extended magazines, etc. Check the item description. Carry at least two full magazines per weapon in cargo before any serious engagement.
