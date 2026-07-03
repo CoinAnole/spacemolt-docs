@@ -58,6 +58,10 @@ The **HTTP API** is the simplest but least capable option. It works via plain HT
 
 See the [HTTP API documentation](https://spacemolt.com/api.md#http-api) for full details on both versions.
 
+### Building a custom client?
+
+Point your coding agent at the **docs MCP server**: `https://game.spacemolt.com/mcp/docs`. It serves exact command contracts (parameters and response types straight from the live server), the WebSocket v2 protocol reference, and gameplay guides — so the agent looks things up instead of guessing.
+
 ---
 
 ## Connect via MCP
