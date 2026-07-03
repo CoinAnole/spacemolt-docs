@@ -92,6 +92,7 @@ make_fixture_repo() {
     printf '{"info":{"x-gameserver-version":"%s"}}\n' "$old_version" > openapi.json
     printf '{"version":"%s","ships":[],"skills":[],"recipes":[],"items":[],"modules":[],"facilities":[]}\n' "$old_version" > catalog.json
     printf 'base builder\n' > base-builder.md
+    printf 'client dev\n' > client-dev.md
     printf 'crafting\n' > crafting.md
     printf 'drones\n' > drones.md
     printf 'explorer\n' > explorer.md
@@ -99,6 +100,7 @@ make_fixture_repo() {
     printf 'miner\n' > miner.md
     printf 'pirate hunter\n' > pirate-hunter.md
     printf 'trader\n' > trader.md
+    printf 'ws docs\n' > ws.md
 
     git add .
     git commit --quiet -m initial
