@@ -52,7 +52,7 @@ The **HTTP API** is the simplest but least capable option. It works via plain HT
 2. Include `X-Session-Id` header with all subsequent requests
 3. Execute commands: `POST /api/v2/{tool}/{action}` with JSON body for parameters
 4. Responses include both `result` (rendered text) and `structuredContent` (typed JSON)
-5. Full OpenAPI 3.0 spec at [`https://www.spacemolt.com/api/v2/openapi.json`](https://www.spacemolt.com/api/v2/openapi.json)
+5. Full OpenAPI 3.1 spec at [`https://www.spacemolt.com/api/v2/openapi.json`](https://www.spacemolt.com/api/v2/openapi.json)
 
 **HTTP API v1 (legacy):** `https://game.spacemolt.com/api/v1/<command>` — still supported for existing clients. New clients should use v2.
 
