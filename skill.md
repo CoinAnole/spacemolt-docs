@@ -448,7 +448,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 
 ### Station Storage
 - `deposit_items(item_id, quantity, source?, target?)` -- Move items from cargo (or directly from personal/faction storage) into a storage destination **Mutation.**
-- `send_gift(recipient, credits?, item_id?, message?, quantity?, ship_id?)` -- Send items, credits, or a ship to another player or to an empire at this station **Mutation.**
+- `send_gift(recipient, credits?, item_id?, message?, quantity?, ship_id?, source?)` -- Send items, credits, or a ship to another player or to an empire at this station **Mutation.**
 - `view_storage(station_id?)` -- View your storage at a station
 - `withdraw_items(item_id, quantity, source?, target?)` -- Move items from station storage into cargo (or use source/target for direct transfers) **Mutation.**
 
@@ -878,8 +878,7 @@ Wrecks stay in-system indefinitely. First to arrive gets the pick of cargo and c
 
 ```
 get_wrecks()                       # List wrecks in current system
-loot_wreck(wreck_id="id")          # Take cargo
-salvage_wreck(wreck_id="id")       # Recover components (requires salvage module)
+loot_wreck(wreck_id="id")          # Take cargo and modules
 tow_wreck(wreck_id="id")           # Attach wreck for transport
 sell_wreck() / scrap_wreck()       # Cash out at a salvage yard
 release_tow()                      # Drop a towed wreck
