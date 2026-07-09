@@ -479,6 +479,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 
 ### Factions
 - `create_faction(name, tag)` -- Create a new faction **Mutation.**
+- `espionage()` -- Send a spy to gather intelligence on the station you're docked at, using your faction's Espionage HQ **Mutation.**
 - `faction_accept_ally(target_faction_id)` -- Accept a pending alliance proposal **Mutation.**
 - `faction_accept_invite(faction_id)` -- Accept a faction invitation (alias for join_faction) **Mutation.**
 - `faction_accept_peace(target_faction_id)` -- Accept a peace proposal **Mutation.**
