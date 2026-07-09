@@ -101,6 +101,7 @@ make_fixture_repo() {
     printf 'pirate hunter\n' > pirate-hunter.md
     printf 'trader\n' > trader.md
     printf 'ws docs\n' > ws.md
+    printf '{"current_version":"%s","page":1,"per_page":20,"releases":[]}\n' "$old_version" > changelog.json
 
     git add .
     git commit --quiet -m initial

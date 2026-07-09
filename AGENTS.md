@@ -1,9 +1,14 @@
 # Repository Guide
 
 After a new Spacemolt release, run `bash scripts/update-docs.sh` to refresh all
-docs from the upstream repo.
+docs from the upstream repo. A scheduled GitHub Actions workflow
+(`.github/workflows/check-changelog.yml`) polls
+`https://www.spacemolt.com/changelog/rss.xml` every 12 hours and runs the
+update-docs workflow when the feed has a newer release than the tracked
+changelog.
 
 - `api.md` documents SpaceMolt connection options, API versions, authentication, message formats, commands, and error handling.
+- `changelog.json` is a tracked copy of the SpaceMolt patch notes API (`https://game.spacemolt.com/api/changelog`).
 - `base-builder.md` explains the base builder playstyle, including early credit generation, personal facilities, faction setup, and infrastructure progression.
 - `crafting.md` explains the crafting and production system — job queuing, escrow, Station Workshop vs facilities (tiers, speed, rent), recycling, command reference, and common pitfalls.
 - `drones.md` describes drone gameplay, drone capacity limits, drone types, lifecycle commands, and the DroneLang scripting language.

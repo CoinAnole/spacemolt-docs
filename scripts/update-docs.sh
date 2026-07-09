@@ -29,6 +29,7 @@ files=(
   "openapi.json|https://game.spacemolt.com/api/v2/openapi.json"
   "catalog.json|https://game.spacemolt.com/api/catalog.json"
   "ws.md|https://game.spacemolt.com/ws.md"
+  "changelog.json|https://game.spacemolt.com/api/changelog"
   "base-builder.md|${github_raw_base}/base-builder.md"
   "client-dev.md|${github_raw_base}/client-dev.md"
   "crafting.md|${github_raw_base}/crafting.md"

@@ -1,0 +1,79 @@
+name: Check changelog
+
+on:
+  schedule:
+    # Every 12 hours (00:00 and 12:00 UTC)
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-changelog
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.compare.outputs.changed }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Check RSS feed for new releases
+        id: compare
+        env:
+          DOCS_UPDATER_UA: spacemolt-docs-updater/1.0 (https://github.com/CoinAnole/spacemolt-docs)
+          CHANGELOG_RSS_URL: https://www.spacemolt.com/changelog/rss.xml
+          CHANGELOG_FILE: changelog.json
+        run: |
+          set -euo pipefail
+
+          curl --location --fail --silent --show-error \
+            --user-agent "$DOCS_UPDATER_UA" \
+            --output /tmp/changelog.rss.xml \
+            "$CHANGELOG_RSS_URL"
+
+          if [[ ! -s /tmp/changelog.rss.xml ]]; then
+            echo "Fetched changelog RSS is empty." >&2
+            exit 1
+          fi
+
+          # Newest item is first; guids look like .../changelog#v0.482.0
+          rss_version="$(
+            sed -n 's|.*changelog#v\([^"<]*\).*|\1|p' /tmp/changelog.rss.xml | head -n 1
+          )"
+          if [[ -z "$rss_version" ]]; then
+            echo "Could not parse latest version from changelog RSS." >&2
+            exit 1
+          fi
+          # Normalize optional leading "v"
+          rss_version="${rss_version#v}"
+
+          tracked_version=""
+          if [[ -f "$CHANGELOG_FILE" ]]; then
+            tracked_version="$(jq -r '.current_version // empty' "$CHANGELOG_FILE")"
+            tracked_version="${tracked_version#v}"
+          fi
+
+          echo "RSS latest version: ${rss_version}"
+          echo "Tracked changelog version: ${tracked_version:-<missing>}"
+
+          if [[ -z "$tracked_version" || "$rss_version" != "$tracked_version" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Changelog has updates; will run update-docs."
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Changelog unchanged; skipping update-docs."
+          fi
+
+  update-docs:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
+    uses: ./.github/workflows/update-docs.yml
+    secrets: inherit
+    permissions:
+      contents: write
