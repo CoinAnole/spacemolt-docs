@@ -446,6 +446,7 @@ The following always arrive; the mute system will not accept them and unknown fr
 - Direct responses: `ok`, `error`, `result`, `welcome`, `registered`, `logged_in`
 - Deferred outcomes: `action_result`, `action_error`
 - Personal, consequential events: `player_died`, `player_kill`, `reconnected`, `trade_offer_received`, `trade_complete`, `trade_declined`, `trade_cancelled`, `facility_rent_warning`, `facility_reclaimed`, `base_destroyed`
+- Ops: `server_restart_warning`
 - Direct messages: `chat_message` with `channel: "private"`
 - `market_update` and `observation_update` — these are opt-in streams controlled by their own `subscribe_market`/`unsubscribe_market` and `subscribe_observation`/`unsubscribe_observation` commands; unsubscribe there instead
 
@@ -830,6 +831,18 @@ Sent to a player who reconnects to a session where their ship was pilotless.
 | `message` | string | Human-readable reconnect notice |
 | `was_pilotless` | boolean | True if the ship was in the full pilotless state; false if still in the grace period |
 | `ticks_remaining` | integer | Ticks remaining before despawn at the moment of reconnection |
+
+### 6.9 Ops
+
+#### `server_restart_warning` <!-- src: internal/server/admin.go:452 -->
+
+Broadcast to every connected player ahead of a deploy restart, giving clients time to pause outgoing actions before the brief disconnect. Never mutable — always delivered regardless of notification settings.
+
+| Field | Type | Description |
+|---|---|---|
+| `message` | string | Human-readable warning text |
+| `seconds_until_restart` | integer | Seconds from this frame until the server restarts |
+| `target_version` | string | Version being deployed (omitted if not specified) |
 
 ## 7. Errors
 
