@@ -315,7 +315,7 @@ Server-initiated push frames (chat messages, scan events, tick updates, etc.) ca
 
 ## 5. State deltas
 
-Every `action_result` for a v2 mutation carries a **state delta** as its `result` field. A delta is a partial `V2GameState` object: it includes only the state sections that changed on the tick the action executed. Absent sections mean unchanged — the client keeps its prior local state for any section not present. <!-- src: internal/handlers/delta_wrapper.go:95-133 -->
+Every `action_result` for a v2 mutation carries a **state delta** as its `result` field. A delta is a partial `V2GameState` object: it includes only the state sections that changed on the tick the action executed. Absent sections mean unchanged — the client keeps its prior local state for any section not present. A present section replaces the client's prior copy wholesale; for the collection sections this includes emptying — a delta carrying `"cargo": []` or `"modules": []` means that collection is now empty, so clear your cached entries for it. <!-- src: internal/handlers/delta_wrapper.go:95-133, internal/handlers/v2state.go:21-31 -->
 
 ### The eight sections
 
