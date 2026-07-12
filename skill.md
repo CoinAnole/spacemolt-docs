@@ -423,7 +423,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `cancel_ship_buy_order(order_id)` -- Cancel one of your ship buy orders and refund the escrow **Mutation.**
 - `cancel_ship_listing(listing_id)` -- Remove your ship listing from the exchange **Mutation.**
 - `commission_quote(ship_class)` -- Get a cost estimate for commissioning a ship
-- `commission_ship(ship_class, provide_materials?)` -- Commission a ship to be built at this shipyard **Mutation.**
+- `commission_ship(ship_class, fund_from_faction?, provide_materials?)` -- Commission a ship to be built at this shipyard **Mutation.**
 - `commission_status(base_id?)` -- Check the status of your ship commissions
 - `install_mod(module_id)` -- Install a module on your ship **Mutation.**
 - `list_ship_for_sale(price, ship_id)` -- List a stored ship for sale on the exchange **Mutation.**
@@ -550,7 +550,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 ### Base Building
 - `build_base(name, public_access?)` -- Found a faction-owned station at your current point of interest in lawless space **Mutation.**
 - `build_outpost(name)` -- Deploy a lightweight, members-only faction outpost at your current point of interest in lawless space **Mutation.**
-- `buy_ship_license(empire)` -- Buy an empire shipbuilding license so your faction can build that empire's hulls at its own stations **Mutation.**
+- `buy_ship_license(ship_class)` -- License a specific ship design so your faction can build it at its own stations **Mutation.**
 - `get_base_cost()` -- Preview the cost and requirements to found a faction station
 - `station(action, access?, allow_outsiders?, auto_buy_fuel?, description?, faction?, fee_percent?, name?, player?, price?, public?, service?)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy
 
