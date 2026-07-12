@@ -552,7 +552,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `build_outpost(name)` -- Deploy a lightweight, members-only faction outpost at your current point of interest in lawless space **Mutation.**
 - `buy_ship_license(empire)` -- Buy an empire shipbuilding license so your faction can build that empire's hulls at its own stations **Mutation.**
 - `get_base_cost()` -- Preview the cost and requirements to found a faction station
-- `station(action, access?, allow_outsiders?, description?, faction?, fee_percent?, name?, player?, price?, public?, service?)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy
+- `station(action, access?, allow_outsiders?, auto_buy_fuel?, description?, faction?, fee_percent?, name?, player?, price?, public?, service?)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy
 
 ### Notes & Documents
 - `create_note(content, title)` -- Create a new note document

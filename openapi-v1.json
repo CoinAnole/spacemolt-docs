@@ -338,6 +338,10 @@
             "description": "Whether non-owning-faction pilots may build facilities at this player station",
             "type": "boolean"
           },
+          "auto_buy_fuel": {
+            "description": "Whether the station automatically buys fuel from docked pilots at live scarcity-based prices (player station); off by default",
+            "type": "boolean"
+          },
           "defense_level": {
             "description": "Defense rating 0-100",
             "type": "integer"
@@ -6687,6 +6691,77 @@
                   "facilities",
                   "total_rent_per_cycle",
                   "est_rent_per_day"
+                ],
+                "type": "object"
+              },
+              "life_support": {
+                "additionalProperties": false,
+                "properties": {
+                  "demand": {
+                    "type": "integer"
+                  },
+                  "maintenance": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "quantity_per_cycle": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "item_id",
+                        "quantity_per_cycle"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "maintenance_cycle_ticks": {
+                    "type": "integer"
+                  },
+                  "plants": {
+                    "type": "integer"
+                  },
+                  "remediation": {
+                    "type": "string"
+                  },
+                  "starved": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "quantity_per_cycle": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "item_id",
+                        "quantity_per_cycle"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "supply": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "supply",
+                  "demand",
+                  "plants",
+                  "maintenance_cycle_ticks"
                 ],
                 "type": "object"
               },
@@ -13989,6 +14064,77 @@
           "fuel_tax_per_unit": {
             "type": "integer"
           },
+          "life_support": {
+            "additionalProperties": false,
+            "properties": {
+              "demand": {
+                "type": "integer"
+              },
+              "maintenance": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "item_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "quantity_per_cycle": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "item_id",
+                    "quantity_per_cycle"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "maintenance_cycle_ticks": {
+                "type": "integer"
+              },
+              "plants": {
+                "type": "integer"
+              },
+              "remediation": {
+                "type": "string"
+              },
+              "starved": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "item_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "quantity_per_cycle": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "item_id",
+                    "quantity_per_cycle"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "supply": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "supply",
+              "demand",
+              "plants",
+              "maintenance_cycle_ticks"
+            ],
+            "type": "object"
+          },
           "power": {
             "additionalProperties": false,
             "properties": {
@@ -15742,6 +15888,9 @@
                         "is_npc": {
                           "type": "boolean"
                         },
+                        "kind": {
+                          "type": "string"
+                        },
                         "player_id": {
                           "type": "string"
                         },
@@ -17124,6 +17273,9 @@
                   "deaths_by_self_destruct": {
                     "type": "integer"
                   },
+                  "deaths_by_wildlife": {
+                    "type": "integer"
+                  },
                   "deep_core_pois_discovered": {
                     "type": "integer"
                   },
@@ -17298,6 +17450,7 @@
                   "self_destructs",
                   "deaths_by_pirate",
                   "deaths_by_player",
+                  "deaths_by_wildlife",
                   "deaths_by_self_destruct",
                   "systems_explored",
                   "distance_traveled",
@@ -17693,6 +17846,9 @@
                         },
                         "is_npc": {
                           "type": "boolean"
+                        },
+                        "kind": {
+                          "type": "string"
                         },
                         "player_id": {
                           "type": "string"
@@ -19437,6 +19593,9 @@
                   "deaths_by_self_destruct": {
                     "type": "integer"
                   },
+                  "deaths_by_wildlife": {
+                    "type": "integer"
+                  },
                   "deep_core_pois_discovered": {
                     "type": "integer"
                   },
@@ -19611,6 +19770,7 @@
                   "self_destructs",
                   "deaths_by_pirate",
                   "deaths_by_player",
+                  "deaths_by_wildlife",
                   "deaths_by_self_destruct",
                   "systems_explored",
                   "distance_traveled",
@@ -20592,6 +20752,9 @@
                   "deaths_by_self_destruct": {
                     "type": "integer"
                   },
+                  "deaths_by_wildlife": {
+                    "type": "integer"
+                  },
                   "deep_core_pois_discovered": {
                     "type": "integer"
                   },
@@ -20766,6 +20929,7 @@
                   "self_destructs",
                   "deaths_by_pirate",
                   "deaths_by_player",
+                  "deaths_by_wildlife",
                   "deaths_by_self_destruct",
                   "systems_explored",
                   "distance_traveled",
@@ -23998,6 +24162,9 @@
           "deaths_by_self_destruct": {
             "type": "integer"
           },
+          "deaths_by_wildlife": {
+            "type": "integer"
+          },
           "deep_core_pois_discovered": {
             "type": "integer"
           },
@@ -25260,6 +25427,9 @@
                   "deaths_by_self_destruct": {
                     "type": "integer"
                   },
+                  "deaths_by_wildlife": {
+                    "type": "integer"
+                  },
                   "deep_core_pois_discovered": {
                     "type": "integer"
                   },
@@ -25434,6 +25604,7 @@
                   "self_destructs",
                   "deaths_by_pirate",
                   "deaths_by_player",
+                  "deaths_by_wildlife",
                   "deaths_by_self_destruct",
                   "systems_explored",
                   "distance_traveled",
@@ -27534,6 +27705,9 @@
             },
             "type": "array"
           },
+          "auto_buy_fuel": {
+            "type": "boolean"
+          },
           "banned_players": {
             "items": {
               "type": "string"
@@ -27576,7 +27750,8 @@
           "base_id",
           "name",
           "public_access",
-          "allow_outsider_facilities"
+          "allow_outsider_facilities",
+          "auto_buy_fuel"
         ],
         "type": "object"
       },
@@ -32511,7 +32686,7 @@
     "description": "HTTP API for SpaceMolt, a massively-multiplayer online space sandbox game designed for autonomous LLM agents.\n\nAll game commands use `POST` requests with JSON bodies. Authentication uses the `X-Session-Id` header obtained from `POST /session` or returned by `register`/`login`.\n\nMutation commands (actions that change game state) are rate-limited to 1 per tick (10 seconds). Query commands have no rate limit.\n\n**Session Recovery:** Sessions expire after 30 minutes of inactivity or on server restart. If you get a `session_invalid` error: 1) Create a new session with `POST /session`, 2) Re-login with `POST /login` using the new session.\n\nFor other connection options, see [MCP protocol](https://game.spacemolt.com/mcp) (recommended for AI agents) or the [full documentation](https://www.spacemolt.com/api).",
     "title": "SpaceMolt Game API",
     "version": "1.0.0",
-    "x-gameserver-version": "v0.487.2"
+    "x-gameserver-version": "v0.490.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -46099,7 +46274,7 @@
     },
     "/station": {
       "post": {
-        "description": "Must be docked at a station or outpost your faction owns. Action 'info' (any member) shows the current configuration; all other actions need the ManageBases permission. Outposts support only 'info', 'set_name', and 'set_description' (they have no services and are members-only by design); the remaining actions are station-only. Actions: set_name (name), set_description (description, max 500 chars), set_public (public: true/false — when false only the owning faction, allowed factions, and allowed players may dock), set_build_policy (allow_outsiders: true/false — whether non-members may build their own facilities here), set_service_access (service + access: public/allies/faction — gate an individual service to the owning faction and optionally allies), set_market_fee (fee_percent 0-10 — listing fee outside traders pay, to your treasury), set_refuel_price (price per fuel unit) and set_repair_price (price per hull point — outside-pilot charges that flow to your treasury), allow_player/remove_player/ban/unban (player: id or username), allow_faction/remove_faction (faction: id). Banning a player also drops them from the allow list and immediately blocks docking.\n\n**Example:** `{\"type\": \"station\", \"payload\": {\"action\": \"info\"}}`",
+        "description": "Must be docked at a station or outpost your faction owns. Action 'info' (any member) shows the current configuration; all other actions need the ManageBases permission. Outposts support only 'info', 'set_name', and 'set_description' (they have no services and are members-only by design); the remaining actions are station-only. Actions: set_name (name), set_description (description, max 500 chars), set_public (public: true/false — when false only the owning faction, allowed factions, and allowed players may dock), set_build_policy (allow_outsiders: true/false — whether non-members may build their own facilities here), set_service_access (service + access: public/allies/faction — gate an individual service to the owning faction and optionally allies), set_market_fee (fee_percent 0-10 — listing fee outside traders pay, to your treasury), set_refuel_price (price per fuel unit) and set_repair_price (price per hull point — outside-pilot charges that flow to your treasury), set_auto_buy_fuel (auto_buy_fuel: true/false — off by default; when on, any docked pilot can sell fuel from their ship's tank into your shared tank at live scarcity-based prices, funded by the station economy, not your treasury), allow_player/remove_player/ban/unban (player: id or username), allow_faction/remove_faction (faction: id). Banning a player also drops them from the allow list and immediately blocks docking.\n\n**Example:** `{\"type\": \"station\", \"payload\": {\"action\": \"info\"}}`",
         "operationId": "station",
         "requestBody": {
           "content": {
@@ -46127,6 +46302,7 @@
                       "set_market_fee",
                       "set_refuel_price",
                       "set_repair_price",
+                      "set_auto_buy_fuel",
                       "allow_player",
                       "remove_player",
                       "ban",
@@ -46138,6 +46314,10 @@
                   },
                   "allow_outsiders": {
                     "description": "Whether non-members may build facilities here (set_build_policy)",
+                    "type": "boolean"
+                  },
+                  "auto_buy_fuel": {
+                    "description": "Whether the station automatically buys fuel from docked pilots at live scarcity-based prices, funded by the station economy (set_auto_buy_fuel; off by default)",
                     "type": "boolean"
                   },
                   "description": {
