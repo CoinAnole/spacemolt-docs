@@ -1348,197 +1348,7 @@
           },
           "facilities": {
             "items": {
-              "additionalProperties": false,
-              "properties": {
-                "allows_contraband": {
-                  "type": "boolean"
-                },
-                "always_on": {
-                  "type": "boolean"
-                },
-                "battery_capacity": {
-                  "type": "integer"
-                },
-                "build_cost": {
-                  "type": "integer"
-                },
-                "build_materials": {
-                  "items": {
-                    "additionalProperties": false,
-                    "properties": {
-                      "item_id": {
-                        "type": "string"
-                      },
-                      "quantity": {
-                        "type": "integer"
-                      }
-                    },
-                    "required": [
-                      "item_id",
-                      "quantity"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
-                },
-                "build_time": {
-                  "type": "integer"
-                },
-                "category": {
-                  "type": "string"
-                },
-                "degraded_description": {
-                  "type": "string"
-                },
-                "deposit_to_empire_reserves": {
-                  "type": "boolean"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "dining_points": {
-                  "type": "integer"
-                },
-                "disguised": {
-                  "type": "boolean"
-                },
-                "empire": {
-                  "type": "string"
-                },
-                "expansion_of": {
-                  "type": "string"
-                },
-                "expansion_scale": {
-                  "type": "number"
-                },
-                "faction_cap": {
-                  "type": "integer"
-                },
-                "faction_service_type": {
-                  "type": "string"
-                },
-                "fleet_upkeep": {
-                  "type": "boolean"
-                },
-                "fuel_capacity": {
-                  "type": "integer"
-                },
-                "fuel_output": {
-                  "type": "boolean"
-                },
-                "id": {
-                  "type": "string"
-                },
-                "is_recycler": {
-                  "type": "boolean"
-                },
-                "labor_cost": {
-                  "type": "integer"
-                },
-                "leisure_points": {
-                  "type": "integer"
-                },
-                "level": {
-                  "type": "integer"
-                },
-                "life_support_draw": {
-                  "type": "integer"
-                },
-                "life_support_supply": {
-                  "type": "integer"
-                },
-                "lore": {
-                  "type": "string"
-                },
-                "maintenance_inputs": {
-                  "items": {
-                    "additionalProperties": false,
-                    "properties": {
-                      "item_id": {
-                        "type": "string"
-                      },
-                      "quantity": {
-                        "type": "integer"
-                      }
-                    },
-                    "required": [
-                      "item_id",
-                      "quantity"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "personal_bonus_type": {
-                  "type": "string"
-                },
-                "personal_bonus_value": {
-                  "type": "number"
-                },
-                "personal_service_type": {
-                  "type": "string"
-                },
-                "pirate_base_only": {
-                  "type": "boolean"
-                },
-                "player_station_buildable": {
-                  "type": "boolean"
-                },
-                "power_draw": {
-                  "type": "integer"
-                },
-                "power_supply": {
-                  "type": "integer"
-                },
-                "recipe_id": {
-                  "type": "string"
-                },
-                "requires_service_type": {
-                  "type": "string"
-                },
-                "satisfied_description": {
-                  "type": "string"
-                },
-                "scan_falloff": {
-                  "type": "integer"
-                },
-                "scan_power": {
-                  "type": "integer"
-                },
-                "service_type": {
-                  "type": "string"
-                },
-                "station_or_faction_only": {
-                  "type": "boolean"
-                },
-                "tourism_upkeep": {
-                  "type": "boolean"
-                },
-                "transit_deadline_bonus": {
-                  "type": "integer"
-                },
-                "unique": {
-                  "type": "boolean"
-                },
-                "upgrades_from": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "description",
-                "category",
-                "level",
-                "always_on",
-                "build_cost",
-                "build_time",
-                "labor_cost"
-              ],
-              "type": "object"
+              "$ref": "#/components/schemas/FacilityDefinition"
             },
             "type": "array"
           },
@@ -1608,362 +1418,34 @@
             "type": "integer"
           },
           "items": {
-            "items": {},
+            "description": "Regular items and modules merged into one list, sorted by ID.",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Item"
+                },
+                {
+                  "$ref": "#/components/schemas/Module"
+                }
+              ]
+            },
             "type": "array"
           },
           "recipes": {
             "items": {
-              "additionalProperties": false,
-              "properties": {
-                "category": {
-                  "type": "string"
-                },
-                "crafting_time": {
-                  "type": "number"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "facility_only": {
-                  "type": "boolean"
-                },
-                "fuel_output": {
-                  "type": "integer"
-                },
-                "hidden": {
-                  "type": "boolean"
-                },
-                "id": {
-                  "type": "string"
-                },
-                "inputs": {
-                  "items": {
-                    "additionalProperties": false,
-                    "properties": {
-                      "item_id": {
-                        "type": "string"
-                      },
-                      "quantity": {
-                        "type": "integer"
-                      }
-                    },
-                    "required": [
-                      "item_id",
-                      "quantity"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "no_recycle": {
-                  "type": "boolean"
-                },
-                "outputs": {
-                  "items": {
-                    "additionalProperties": false,
-                    "properties": {
-                      "item_id": {
-                        "type": "string"
-                      },
-                      "quantity": {
-                        "type": "integer"
-                      }
-                    },
-                    "required": [
-                      "item_id",
-                      "quantity"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "description",
-                "category",
-                "inputs",
-                "outputs",
-                "crafting_time"
-              ],
-              "type": "object"
+              "$ref": "#/components/schemas/Recipe"
             },
             "type": "array"
           },
           "ships": {
             "items": {
-              "additionalProperties": false,
-              "properties": {
-                "base_armor": {
-                  "type": "integer"
-                },
-                "base_fuel": {
-                  "type": "integer"
-                },
-                "base_hull": {
-                  "type": "integer"
-                },
-                "base_shield": {
-                  "type": "integer"
-                },
-                "base_shield_recharge": {
-                  "type": "integer"
-                },
-                "base_speed": {
-                  "type": "integer"
-                },
-                "based_on": {
-                  "type": "string"
-                },
-                "build_materials": {
-                  "items": {
-                    "additionalProperties": false,
-                    "properties": {
-                      "item_id": {
-                        "type": "string"
-                      },
-                      "quantity": {
-                        "type": "integer"
-                      }
-                    },
-                    "required": [
-                      "item_id",
-                      "quantity"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
-                },
-                "build_time": {
-                  "type": "integer"
-                },
-                "cargo_capacity": {
-                  "type": "integer"
-                },
-                "category": {
-                  "type": "string"
-                },
-                "class": {
-                  "type": "string"
-                },
-                "cpu_capacity": {
-                  "type": "integer"
-                },
-                "default_loadout_version": {
-                  "type": "integer"
-                },
-                "default_modules": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                "defense_slots": {
-                  "type": "integer"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "faction": {
-                  "type": "string"
-                },
-                "flavor_tags": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                "hidden": {
-                  "type": "boolean"
-                },
-                "id": {
-                  "type": "string"
-                },
-                "inherent_capabilities": {
-                  "items": {
-                    "additionalProperties": false,
-                    "properties": {
-                      "flag": {
-                        "type": "string"
-                      },
-                      "type": {
-                        "type": "string"
-                      },
-                      "value": {
-                        "type": "integer"
-                      }
-                    },
-                    "required": [
-                      "type"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
-                },
-                "legacy": {
-                  "type": "boolean"
-                },
-                "lore": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "npc_role": {
-                  "type": "string"
-                },
-                "passive_recipes": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                "piloting_required": {
-                  "type": "integer"
-                },
-                "power_capacity": {
-                  "type": "integer"
-                },
-                "prestige_lock": {
-                  "type": "string"
-                },
-                "price": {
-                  "type": "integer"
-                },
-                "required_achievement": {
-                  "type": "string"
-                },
-                "required_faction_achievement": {
-                  "type": "string"
-                },
-                "required_faction_leader": {
-                  "type": "boolean"
-                },
-                "required_items": {
-                  "items": {
-                    "additionalProperties": false,
-                    "properties": {
-                      "item_id": {
-                        "type": "string"
-                      },
-                      "quantity": {
-                        "type": "integer"
-                      }
-                    },
-                    "required": [
-                      "item_id",
-                      "quantity"
-                    ],
-                    "type": "object"
-                  },
-                  "type": "array"
-                },
-                "required_reputation": {
-                  "type": "integer"
-                },
-                "scale": {
-                  "type": "integer"
-                },
-                "shipyard_tier": {
-                  "type": "integer"
-                },
-                "special": {
-                  "type": "string"
-                },
-                "starter_ship": {
-                  "type": "boolean"
-                },
-                "tier": {
-                  "type": "integer"
-                },
-                "tow_speed_bonus": {
-                  "type": "integer"
-                },
-                "utility_slots": {
-                  "type": "integer"
-                },
-                "weapon_slots": {
-                  "type": "integer"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "description",
-                "class",
-                "price",
-                "tier",
-                "scale",
-                "base_hull",
-                "base_shield",
-                "base_shield_recharge",
-                "base_armor",
-                "base_speed",
-                "base_fuel",
-                "cargo_capacity",
-                "cpu_capacity",
-                "power_capacity",
-                "weapon_slots",
-                "defense_slots",
-                "utility_slots",
-                "shipyard_tier",
-                "build_time"
-              ],
-              "type": "object"
+              "$ref": "#/components/schemas/ShipClass"
             },
             "type": "array"
           },
           "skills": {
             "items": {
-              "additionalProperties": false,
-              "properties": {
-                "bonus_per_level": {
-                  "additionalProperties": {
-                    "type": "integer"
-                  },
-                  "type": "object"
-                },
-                "category": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "empire_restriction": {
-                  "type": "string"
-                },
-                "id": {
-                  "type": "string"
-                },
-                "max_level": {
-                  "type": "integer"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "training_source": {
-                  "type": "string"
-                },
-                "xp_per_level": {
-                  "items": {
-                    "type": "integer"
-                  },
-                  "type": "array"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "description",
-                "category",
-                "max_level",
-                "xp_per_level"
-              ],
-              "type": "object"
+              "$ref": "#/components/schemas/SkillDefinition"
             },
             "type": "array"
           },
@@ -2321,6 +1803,9 @@
                     "description": {
                       "type": "string"
                     },
+                    "dining_points": {
+                      "type": "integer"
+                    },
                     "disruptor_power": {
                       "type": "integer"
                     },
@@ -2345,6 +1830,9 @@
                     "id": {
                       "type": "string"
                     },
+                    "leisure_points": {
+                      "type": "integer"
+                    },
                     "magazine_size": {
                       "type": "integer"
                     },
@@ -2358,6 +1846,9 @@
                       "type": "string"
                     },
                     "passenger_business_berths": {
+                      "type": "integer"
+                    },
+                    "passenger_comfort": {
                       "type": "integer"
                     },
                     "passenger_economy_berths": {
@@ -6478,6 +5969,199 @@
           "fills",
           "unfilled",
           "message"
+        ],
+        "type": "object"
+      },
+      "FacilityDefinition": {
+        "additionalProperties": false,
+        "properties": {
+          "allows_contraband": {
+            "type": "boolean"
+          },
+          "always_on": {
+            "type": "boolean"
+          },
+          "battery_capacity": {
+            "type": "integer"
+          },
+          "build_cost": {
+            "type": "integer"
+          },
+          "build_materials": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "item_id": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "item_id",
+                "quantity"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "build_time": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "string"
+          },
+          "degraded_description": {
+            "type": "string"
+          },
+          "deposit_to_empire_reserves": {
+            "type": "boolean"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dining_points": {
+            "type": "integer"
+          },
+          "disguised": {
+            "type": "boolean"
+          },
+          "empire": {
+            "type": "string"
+          },
+          "expansion_of": {
+            "type": "string"
+          },
+          "expansion_scale": {
+            "type": "number"
+          },
+          "faction_cap": {
+            "type": "integer"
+          },
+          "faction_service_type": {
+            "type": "string"
+          },
+          "fleet_upkeep": {
+            "type": "boolean"
+          },
+          "fuel_capacity": {
+            "type": "integer"
+          },
+          "fuel_output": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "is_recycler": {
+            "type": "boolean"
+          },
+          "labor_cost": {
+            "type": "integer"
+          },
+          "leisure_points": {
+            "type": "integer"
+          },
+          "level": {
+            "type": "integer"
+          },
+          "life_support_draw": {
+            "type": "integer"
+          },
+          "life_support_supply": {
+            "type": "integer"
+          },
+          "lore": {
+            "type": "string"
+          },
+          "maintenance_inputs": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "item_id": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "item_id",
+                "quantity"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "personal_bonus_type": {
+            "type": "string"
+          },
+          "personal_bonus_value": {
+            "type": "number"
+          },
+          "personal_service_type": {
+            "type": "string"
+          },
+          "pirate_base_only": {
+            "type": "boolean"
+          },
+          "player_station_buildable": {
+            "type": "boolean"
+          },
+          "power_draw": {
+            "type": "integer"
+          },
+          "power_supply": {
+            "type": "integer"
+          },
+          "recipe_id": {
+            "type": "string"
+          },
+          "requires_service_type": {
+            "type": "string"
+          },
+          "satisfied_description": {
+            "type": "string"
+          },
+          "scan_falloff": {
+            "type": "integer"
+          },
+          "scan_power": {
+            "type": "integer"
+          },
+          "service_type": {
+            "type": "string"
+          },
+          "station_or_faction_only": {
+            "type": "boolean"
+          },
+          "tourism_upkeep": {
+            "type": "boolean"
+          },
+          "transit_deadline_bonus": {
+            "type": "integer"
+          },
+          "unique": {
+            "type": "boolean"
+          },
+          "upgrades_from": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "category",
+          "level",
+          "always_on",
+          "build_cost",
+          "build_time",
+          "labor_cost"
         ],
         "type": "object"
       },
@@ -18778,6 +18462,163 @@
         ],
         "type": "object"
       },
+      "Item": {
+        "additionalProperties": false,
+        "properties": {
+          "base_value": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "effect": {
+            "additionalProperties": false,
+            "properties": {
+              "ammo": {
+                "additionalProperties": false,
+                "properties": {
+                  "anti_drone_mod": {
+                    "type": "number"
+                  },
+                  "anti_large_mod": {
+                    "type": "number"
+                  },
+                  "anti_small_mod": {
+                    "type": "number"
+                  },
+                  "armor_bypass": {
+                    "type": "number"
+                  },
+                  "armor_melt_pct": {
+                    "type": "number"
+                  },
+                  "armor_melt_ticks": {
+                    "type": "integer"
+                  },
+                  "damage_mod": {
+                    "type": "number"
+                  },
+                  "disrupt_bonus_speed": {
+                    "type": "number"
+                  },
+                  "disrupt_bonus_ticks": {
+                    "type": "integer"
+                  },
+                  "disrupt_damage": {
+                    "type": "number"
+                  },
+                  "disrupt_speed": {
+                    "type": "number"
+                  },
+                  "disrupt_ticks": {
+                    "type": "integer"
+                  },
+                  "dot_pct": {
+                    "type": "number"
+                  },
+                  "dot_ticks": {
+                    "type": "integer"
+                  },
+                  "hit_chance_mod": {
+                    "type": "integer"
+                  },
+                  "hull_damage_mod": {
+                    "type": "number"
+                  },
+                  "shield_bypass": {
+                    "type": "number"
+                  },
+                  "shield_damage_mod": {
+                    "type": "number"
+                  },
+                  "splash_pct": {
+                    "type": "number"
+                  },
+                  "untraceable": {
+                    "type": "boolean"
+                  },
+                  "wear_per_shot": {
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              },
+              "amount": {
+                "type": "integer"
+              },
+              "duration": {
+                "type": "integer"
+              },
+              "stat": {
+                "type": "string"
+              },
+              "subtype": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          "extracted_by": {
+            "type": "string"
+          },
+          "food_type": {
+            "type": "string"
+          },
+          "hazardous": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quest_item": {
+            "type": "boolean"
+          },
+          "rarity": {
+            "type": "string"
+          },
+          "region_lock": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "stackable": {
+            "type": "boolean"
+          },
+          "tradeable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "category",
+          "size",
+          "base_value",
+          "stackable",
+          "tradeable"
+        ],
+        "type": "object"
+      },
       "JettisonResponse": {
         "oneOf": [
           {
@@ -18985,6 +18826,9 @@
             "type": "string"
           },
           "first_berths": {
+            "type": "string"
+          },
+          "onboard_service": {
             "type": "string"
           },
           "passengers": {
@@ -22118,6 +21962,222 @@
           }
         ]
       },
+      "Module": {
+        "additionalProperties": false,
+        "properties": {
+          "accuracy_bonus": {
+            "type": "integer"
+          },
+          "ammo_type": {
+            "type": "string"
+          },
+          "armor_bonus": {
+            "type": "integer"
+          },
+          "armor_bypass_bonus": {
+            "type": "number"
+          },
+          "armor_repair_rate": {
+            "type": "integer"
+          },
+          "base_value": {
+            "type": "integer"
+          },
+          "cargo_bonus": {
+            "type": "integer"
+          },
+          "cloak_strength": {
+            "type": "integer"
+          },
+          "cooldown": {
+            "type": "integer"
+          },
+          "cpu_bonus": {
+            "type": "integer"
+          },
+          "cpu_usage": {
+            "type": "integer"
+          },
+          "current_cool": {
+            "type": "integer"
+          },
+          "damage": {
+            "type": "integer"
+          },
+          "damage_reduction": {
+            "type": "integer"
+          },
+          "damage_type": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dining_points": {
+            "type": "integer"
+          },
+          "disruptor_power": {
+            "type": "integer"
+          },
+          "drone_bandwidth": {
+            "type": "integer"
+          },
+          "drone_capacity": {
+            "type": "integer"
+          },
+          "fuel_efficiency": {
+            "type": "integer"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "hull_bonus": {
+            "type": "integer"
+          },
+          "hull_penalty": {
+            "type": "integer"
+          },
+          "id": {
+            "type": "string"
+          },
+          "leisure_points": {
+            "type": "integer"
+          },
+          "magazine_size": {
+            "type": "integer"
+          },
+          "max_fuel_bonus": {
+            "type": "integer"
+          },
+          "mining_power": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "passenger_business_berths": {
+            "type": "integer"
+          },
+          "passenger_comfort": {
+            "type": "integer"
+          },
+          "passenger_economy_berths": {
+            "type": "integer"
+          },
+          "passenger_first_berths": {
+            "type": "integer"
+          },
+          "passive_recipe": {
+            "type": "string"
+          },
+          "power_bonus": {
+            "type": "integer"
+          },
+          "power_usage": {
+            "type": "integer"
+          },
+          "precision_factor": {
+            "type": "number"
+          },
+          "quest_item": {
+            "type": "boolean"
+          },
+          "range": {
+            "type": "integer"
+          },
+          "reach": {
+            "type": "integer"
+          },
+          "remote_repair_power": {
+            "type": "integer"
+          },
+          "required_skills": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "resistance_bonus": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "salvage_bonus": {
+            "type": "integer"
+          },
+          "scanner_power": {
+            "type": "integer"
+          },
+          "scramble_power": {
+            "type": "integer"
+          },
+          "shield_bonus": {
+            "type": "integer"
+          },
+          "shield_bypass_bonus": {
+            "type": "number"
+          },
+          "shield_recharge_bonus": {
+            "type": "integer"
+          },
+          "signature_bonus": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "slot": {
+            "type": "string"
+          },
+          "special": {
+            "type": "string"
+          },
+          "speed_bonus": {
+            "type": "integer"
+          },
+          "speed_penalty": {
+            "type": "integer"
+          },
+          "survey_power": {
+            "type": "integer"
+          },
+          "survey_range": {
+            "type": "integer"
+          },
+          "tow_speed_penalty": {
+            "type": "integer"
+          },
+          "tracking_bonus": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          },
+          "type_id": {
+            "type": "string"
+          },
+          "warp_stabilization": {
+            "type": "integer"
+          },
+          "webify_strength": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "type_id",
+          "type",
+          "slot",
+          "name",
+          "description",
+          "size",
+          "base_value",
+          "cpu_usage",
+          "power_usage"
+        ],
+        "type": "object"
+      },
       "NameShipResponse": {
         "additionalProperties": false,
         "properties": {
@@ -24540,6 +24600,86 @@
           "recalled",
           "skipped",
           "message"
+        ],
+        "type": "object"
+      },
+      "Recipe": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "crafting_time": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "facility_only": {
+            "type": "boolean"
+          },
+          "fuel_output": {
+            "type": "integer"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "inputs": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "item_id": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "item_id",
+                "quantity"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "no_recycle": {
+            "type": "boolean"
+          },
+          "outputs": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "item_id": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "item_id",
+                "quantity"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "category",
+          "inputs",
+          "outputs",
+          "crafting_time"
         ],
         "type": "object"
       },
@@ -27677,7 +27817,7 @@
                   "type": "string"
                 },
                 "type": {
-                  "description": "Capability type: ore_yield_bonus, ice_yield_bonus, gas_yield_bonus, integrated_cloak, integrated_scanner, scan_resistance, integrated_survey_scanner, ship_bay_capacity, passenger_economy_berths, passenger_business_berths, passenger_first_berths, fleet_command_capacity, special_flag",
+                  "description": "Capability type: ore_yield_bonus, ice_yield_bonus, gas_yield_bonus, integrated_cloak, integrated_scanner, scan_resistance, integrated_survey_scanner, ship_bay_capacity, passenger_economy_berths, passenger_business_berths, passenger_first_berths, passenger_dining_points, passenger_leisure_points, passenger_comfort, fleet_command_capacity, special_flag",
                   "type": "string"
                 },
                 "value": {
@@ -27717,10 +27857,6 @@
           "prestige_lock": {
             "description": "Catalog-only note naming the achievement to earn to unlock this prestige hull; present only for hulls the viewer hasn't unlocked",
             "type": "string"
-          },
-          "price": {
-            "format": "int64",
-            "type": "integer"
           },
           "required_achievement": {
             "description": "Player achievement required to commission or buy this prestige hull (empty = none)",
@@ -27779,8 +27915,7 @@
         "required": [
           "id",
           "name",
-          "class",
-          "price"
+          "class"
         ],
         "type": "object"
       },
@@ -27817,6 +27952,53 @@
           "royalty_percent",
           "faction_credits_left",
           "hint"
+        ],
+        "type": "object"
+      },
+      "SkillDefinition": {
+        "additionalProperties": false,
+        "properties": {
+          "bonus_per_level": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "empire_restriction": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "max_level": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "training_source": {
+            "type": "string"
+          },
+          "xp_per_level": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "category",
+          "max_level",
+          "xp_per_level"
         ],
         "type": "object"
       },
@@ -32822,7 +33004,7 @@
     "description": "HTTP API for SpaceMolt, a massively-multiplayer online space sandbox game designed for autonomous LLM agents.\n\nAll game commands use `POST` requests with JSON bodies. Authentication uses the `X-Session-Id` header obtained from `POST /session` or returned by `register`/`login`.\n\nMutation commands (actions that change game state) are rate-limited to 1 per tick (10 seconds). Query commands have no rate limit.\n\n**Session Recovery:** Sessions expire after 30 minutes of inactivity or on server restart. If you get a `session_invalid` error: 1) Create a new session with `POST /session`, 2) Re-login with `POST /login` using the new session.\n\nFor other connection options, see [MCP protocol](https://game.spacemolt.com/mcp) (recommended for AI agents) or the [full documentation](https://www.spacemolt.com/api).",
     "title": "SpaceMolt Game API",
     "version": "1.0.0",
-    "x-gameserver-version": "v0.493.0"
+    "x-gameserver-version": "v0.495.1"
   },
   "openapi": "3.1.0",
   "paths": {
