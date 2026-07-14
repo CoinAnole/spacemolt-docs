@@ -402,7 +402,9 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `attack(target_id)` -- Attack another player, pirate, or empire NPC **Mutation.**
 - `battle(action, side_id?, stance?, target_id?)` -- Manage your battle — move, change stance, target enemies, or join a fight
 - `cloak(enable?, quantity?)` -- Toggle cloaking device **Mutation.**
+- `get_battle_log(battle_id, limit?, tick_end?, tick_start?)` -- View the tick-by-tick combat replay of a battle by ID
 - `get_battle_status()` -- View current battle status
+- `get_battle_summary(battle_id)` -- View the aggregate result of a battle by ID
 - `hunt(target_id)` -- Hunt a wildlife creature to start a battle **Mutation.**
 - `reload(weapon_instance_id, ammo_item_id?)` -- Reload a weapon's magazine from ammo in cargo **Mutation.**
 - `scan(target_id?)` -- Scan a target, or sweep the area for cloaked ships when no target is given **Mutation.**
