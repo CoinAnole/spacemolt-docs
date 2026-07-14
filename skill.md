@@ -399,7 +399,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `view_orders(item_id?, order_type?, page?, page_size?, scope?, search?, sort_by?, station_id?)` -- View your own orders at a station
 
 ### Combat
-- `attack(target_id)` -- Attack another player, pirate, or empire NPC **Mutation.**
+- `attack(target_id)` -- Attack another player, pirate, empire NPC, creature, or station **Mutation.**
 - `battle(action, side_id?, stance?, target_id?)` -- Manage your battle — move, change stance, target enemies, or join a fight
 - `cloak(enable?, quantity?)` -- Toggle cloaking device **Mutation.**
 - `get_battle_log(battle_id, limit?, tick_end?, tick_start?)` -- View the tick-by-tick combat replay of a battle by ID
@@ -570,7 +570,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `captains_log_list(index?)` -- List all entries in your captain's log
 
 ### Insurance
-- `buy_insurance(ticks)` -- Purchase ship insurance **Mutation.**
+- `buy_insurance()` -- Purchase ship insurance **Mutation.**
 - `claim_insurance()` -- View your active insurance policies
 - `get_insurance_quote()` -- Get a risk-based insurance quote for your current ship
 - `set_home_base(base_id)` -- Set your home base for respawning **Mutation.**

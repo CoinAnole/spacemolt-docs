@@ -749,6 +749,18 @@ Pushed to the base owner and to players in the system when a player-owned base t
 | `current_health` | integer | Base health after this event |
 | `max_health` | integer | Base maximum health |
 
+#### `station_repaired` <!-- src: internal/game/station_repair.go -->
+
+Pushed when a wrecked station has been fully repaired and is back in service. A station that
+loses a fight is wrecked rather than destroyed: it keeps its market and storage but loses every
+other service until each of its damaged facilities has been repaired.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `base_id` | string | The station that came back online |
+| `base_name` | string | Its name |
+| `system_id` | string | System it sits in |
+
 #### `base_destroyed` <!-- src: internal/game/engine.go:7445 -->
 
 Pushed to the base owner and to players in the system when a player-owned base is destroyed.
