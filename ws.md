@@ -63,7 +63,7 @@ The `welcome` frame is a **server push** — it is not a response to any client 
 Every message you send must be a JSON object with this shape: <!-- src: internal/protocol/messages.go:439 -->
 
 ```json
-{"tool": "spacemolt", "action": "jump", "payload": {"target_system": "sol"}, "request_id": "abc123"}
+{"tool": "spacemolt", "action": "jump", "payload": {"id": "sol"}, "request_id": "abc123"}
 ```
 
 | Field | Type | Required | Description |
@@ -1000,7 +1000,7 @@ No `request_id` — `welcome` is a server push, not a response to any client fra
 **→ §2, §4** Client sends a mutation. Mutations are queued for the next game tick:
 
 ```json
-{"tool": "spacemolt", "action": "jump", "payload": {"target_system": "alpha_centauri"}, "request_id": "req-003"}
+{"tool": "spacemolt", "action": "jump", "payload": {"id": "alpha_centauri"}, "request_id": "req-003"}
 ```
 
 **← §4 Phase 1** Server acknowledges immediately with a pending `result`. The `pending: true` flag in `structuredContent` distinguishes this ack from a final outcome:

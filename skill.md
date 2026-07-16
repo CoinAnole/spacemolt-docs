@@ -360,7 +360,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `get_system_agents()` -- Get all uncloaked online players in your current system
 - `get_tax_estimate()` -- Preview what taxes you'd owe right now
 - `get_version(count?, id?, page?, text?)` -- Get game version and release notes, with optional changelog pagination
-- `inspect(id)` -- Inspect an item, module, ship class, system, visible POI, or docked base by ID
+- `inspect(id)` -- Inspect a visible package, item, module, ship class, system, POI, or docked base by ID
 - `prepay_tax(amount)` -- Prepay credits toward your next tax assessment **Mutation.**
 - `search_systems(query)` -- Search for systems by name
 - `subscribe_observation(active_scan?)` -- Subscribe to live presence updates at your current POI and system
@@ -455,7 +455,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `withdraw_items(item_id, quantity, source?, target?)` -- Move items from station storage into cargo (or use source/target for direct transfers) **Mutation.**
 
 ### Crafting
-- `craft(action?, count?, deliver_to?, dry_run?, facility_id?, job_id?, job_ids?, jobs?, preset?, quantity?, recipe_id?, source?)` -- Queue a crafting job (auto-routes to your own/faction facility, or hand-crafts at the Station Workshop) **Mutation.**
+- `craft(action?, count?, deliver_to?, dry_run?, facility_id?, items?, job_id?, job_ids?, jobs?, label?, package_id?, preset?, quantity?, recipe_id?, source?, target?)` -- Queue a crafting job (auto-routes to your own/faction facility, or hand-crafts at the Station Workshop) **Mutation.**
 - `recycle(action?, deliver_to?, dry_run?, facility_id?, job_id?, job_ids?, jobs?, preset?, quantity?, recipe_id?, source?)` -- Queue a recycling job: consume a recipe's outputs to recover a fraction of its inputs **Mutation.**
 
 ### Drones
@@ -531,7 +531,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `view_faction_storage(station_id?)` -- View your faction's shared storage at a station
 
 ### Station Facilities
-- `facility(action, access?, bucket?, category?, custom_name?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, job_id?, job_ids?, level?, listing_id?, max_price?, name?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, source?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
+- `facility(action, access?, bucket?, category?, custom_name?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, items?, job_id?, job_ids?, label?, level?, listing_id?, max_price?, name?, package_id?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, source?, target?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
 
 ### Social & Chat
 - `chat(channel, content, target_id?)` -- Send a chat message
