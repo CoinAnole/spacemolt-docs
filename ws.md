@@ -625,6 +625,20 @@ Pushed to players subscribed to a station's market (via `subscribe_market`) when
 | `tick` | integer | Tick on which the change occurred |
 | `items` | array | Changed items, each with `item_id`, `item_name`, `sell_orders`, and `buy_orders` (each order level has `price_each`, `quantity`, and optional `source`) |
 
+#### `ship_commission_complete` <!-- src: internal/game/shipyard_production.go:63 -->
+
+Pushed to a player the tick their shipyard commission finishes building and the hull is docked into their fleet. This is the completion signal for `commission_ship`: the commission record is deleted the moment the hull exists, so `commission_status` stops returning it and this frame is the only place `commission_id` and the resulting `ship_id` appear together. A durable copy is written to your action log as `ship.commission_completed`. Never mutable — always delivered.
+
+| Field | Type | Description |
+|---|---|---|
+| `tick` | integer | Tick on which the build completed |
+| `commission_id` | string | The commission that finished — matches the id returned by `commission_ship` |
+| `ship_id` | string | The delivered hull, ready for `switch_ship` |
+| `ship_class` | string | Ship class ID |
+| `ship_name` | string | Ship class display name |
+| `base_id` | string | Station the hull is docked at |
+| `base_name` | string | Station display name |
+
 #### `trade_offer_received` <!-- src: internal/handlers/trading.go:1207 -->
 
 Pushed to a player when another player sends them a trade offer.
