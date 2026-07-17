@@ -39,6 +39,9 @@
                       "$ref": "#/components/schemas/Notification_station_repaired"
                     },
                     {
+                      "$ref": "#/components/schemas/Notification_ranch_poached"
+                    },
+                    {
                       "$ref": "#/components/schemas/Notification_base_raid_update"
                     },
                     {
@@ -832,6 +835,9 @@
           },
           "target_type": {
             "type": "string"
+          },
+          "warning": {
+            "type": "string"
           }
         },
         "required": [
@@ -963,6 +969,10 @@
           "allow_outsider_facilities": {
             "description": "Whether non-owning-faction pilots may build facilities at this player station",
             "type": "boolean"
+          },
+          "anchor_poi_id": {
+            "description": "The landmark POI a player-built base was founded beside (the base occupies its own station POI); ranches bind their herd to this habitat POI",
+            "type": "string"
           },
           "auto_buy_fuel": {
             "description": "Whether the station automatically buys fuel from docked pilots at live scarcity-based prices (player station); off by default",
@@ -2099,6 +2109,208 @@
           "kind",
           "results",
           "summary"
+        ],
+        "type": "object"
+      },
+      "BulkFactionBuyOrderResult": {
+        "additionalProperties": false,
+        "properties": {
+          "bucket": {
+            "type": "string"
+          },
+          "consolidated": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "escrow_refunded": {
+            "type": "integer"
+          },
+          "index": {
+            "type": "integer"
+          },
+          "item": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "listing_fee": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "order_id": {
+            "type": "string"
+          },
+          "price_each": {
+            "type": "integer"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "quantity_filled": {
+            "type": "integer"
+          },
+          "quantity_listed": {
+            "type": "integer"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "total_escrowed": {
+            "type": "integer"
+          },
+          "total_spent": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "index",
+          "success"
+        ],
+        "type": "object"
+      },
+      "BulkFactionCreateBuyOrdersResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "faction_create_buy_order"
+            ],
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "bulk"
+            ],
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "bulk"
+            ],
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkFactionBuyOrderResult"
+            },
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/BulkSummary"
+          }
+        },
+        "required": [
+          "action",
+          "mode",
+          "kind",
+          "results",
+          "summary"
+        ],
+        "type": "object"
+      },
+      "BulkFactionCreateSellOrdersResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "faction_create_sell_order"
+            ],
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "bulk"
+            ],
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "bulk"
+            ],
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkFactionSellOrderResult"
+            },
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/BulkSummary"
+          }
+        },
+        "required": [
+          "action",
+          "mode",
+          "kind",
+          "results",
+          "summary"
+        ],
+        "type": "object"
+      },
+      "BulkFactionSellOrderResult": {
+        "additionalProperties": false,
+        "properties": {
+          "bucket": {
+            "type": "string"
+          },
+          "consolidated": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "index": {
+            "type": "integer"
+          },
+          "item": {
+            "type": "string"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "listing_fee": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "order_id": {
+            "type": "string"
+          },
+          "price_each": {
+            "type": "integer"
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "quantity_filled": {
+            "type": "integer"
+          },
+          "quantity_listed": {
+            "type": "integer"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "total_earned": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "index",
+          "success"
         ],
         "type": "object"
       },
@@ -5035,6 +5247,15 @@
       "CreatureInfo": {
         "additionalProperties": false,
         "properties": {
+          "brand_faction": {
+            "type": "string"
+          },
+          "brand_ranch": {
+            "type": "string"
+          },
+          "branded": {
+            "type": "boolean"
+          },
           "creature_id": {
             "type": "string"
           },
@@ -6570,6 +6791,12 @@
             },
             "type": "array"
           },
+          "max_cull_per_cycle": {
+            "type": "integer"
+          },
+          "max_species_tier": {
+            "type": "integer"
+          },
           "name": {
             "type": "string"
           },
@@ -6594,6 +6821,9 @@
           "power_supply": {
             "type": "integer"
           },
+          "ranch_capacity": {
+            "type": "integer"
+          },
           "recipe_id": {
             "type": "string"
           },
@@ -6602,6 +6832,9 @@
           },
           "repair_item": {
             "type": "string"
+          },
+          "required_xenobiology": {
+            "type": "integer"
           },
           "requires_service_type": {
             "type": "string"
@@ -7785,6 +8018,12 @@
           },
           {
             "$ref": "#/components/schemas/SetFacilityDescriptionResponse"
+          },
+          {
+            "$ref": "#/components/schemas/RanchStatusResponse"
+          },
+          {
+            "$ref": "#/components/schemas/RanchSetCullResponse"
           }
         ]
       },
@@ -8407,6 +8646,23 @@
         ],
         "type": "object"
       },
+      "FactionCreateBuyOrderCommandResponse": {
+        "discriminator": {
+          "mapping": {
+            "bulk": "#/components/schemas/BulkFactionCreateBuyOrdersResponse",
+            "single": "#/components/schemas/FactionCreateBuyOrderResponse"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/FactionCreateBuyOrderResponse"
+          },
+          {
+            "$ref": "#/components/schemas/BulkFactionCreateBuyOrdersResponse"
+          }
+        ]
+      },
       "FactionCreateBuyOrderResponse": {
         "additionalProperties": false,
         "properties": {
@@ -8432,6 +8688,12 @@
             "type": "string"
           },
           "item_id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "single"
+            ],
             "type": "string"
           },
           "listing_fee": {
@@ -8464,6 +8726,7 @@
         },
         "required": [
           "action",
+          "kind",
           "order_id",
           "faction_id",
           "faction_tag",
@@ -8549,6 +8812,23 @@
         ],
         "type": "object"
       },
+      "FactionCreateSellOrderCommandResponse": {
+        "discriminator": {
+          "mapping": {
+            "bulk": "#/components/schemas/BulkFactionCreateSellOrdersResponse",
+            "single": "#/components/schemas/FactionCreateSellOrderResponse"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/FactionCreateSellOrderResponse"
+          },
+          {
+            "$ref": "#/components/schemas/BulkFactionCreateSellOrdersResponse"
+          }
+        ]
+      },
       "FactionCreateSellOrderResponse": {
         "additionalProperties": false,
         "properties": {
@@ -8571,6 +8851,12 @@
             "type": "string"
           },
           "item_id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "single"
+            ],
             "type": "string"
           },
           "listing_fee": {
@@ -8600,6 +8886,7 @@
         },
         "required": [
           "action",
+          "kind",
           "order_id",
           "faction_id",
           "faction_tag",
@@ -16456,6 +16743,58 @@
         ],
         "type": "object"
       },
+      "Notification_ranch_poached": {
+        "additionalProperties": false,
+        "properties": {
+          "herd_left": {
+            "type": "integer"
+          },
+          "killer_id": {
+            "type": "string"
+          },
+          "killer_name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "poi_id": {
+            "type": "string"
+          },
+          "poi_name": {
+            "type": "string"
+          },
+          "ranch_id": {
+            "type": "string"
+          },
+          "ranch_name": {
+            "type": "string"
+          },
+          "species_id": {
+            "type": "string"
+          },
+          "species_name": {
+            "type": "string"
+          },
+          "system_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ranch_id",
+          "ranch_name",
+          "species_id",
+          "species_name",
+          "poi_id",
+          "poi_name",
+          "system_id",
+          "killer_id",
+          "killer_name",
+          "herd_left",
+          "message"
+        ],
+        "type": "object"
+      },
       "Notification_reconnected": {
         "additionalProperties": false,
         "properties": {
@@ -17978,6 +18317,183 @@
           "tax_prepaid_balance",
           "credits",
           "message"
+        ],
+        "type": "object"
+      },
+      "RanchFeedInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "cycles_left": {
+            "type": "integer"
+          },
+          "per_cycle": {
+            "type": "integer"
+          },
+          "resource": {
+            "type": "string"
+          },
+          "stocked": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "resource",
+          "per_cycle",
+          "stocked",
+          "cycles_left"
+        ],
+        "type": "object"
+      },
+      "RanchSetCullResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "cull_target": {
+            "type": "integer"
+          },
+          "facility_id": {
+            "type": "string"
+          },
+          "herd": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "facility_id",
+          "cull_target",
+          "herd",
+          "message"
+        ],
+        "type": "object"
+      },
+      "RanchStatusResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "anchor_name": {
+            "type": "string"
+          },
+          "anchor_poi": {
+            "type": "string"
+          },
+          "base_id": {
+            "type": "string"
+          },
+          "base_name": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "integer"
+          },
+          "cull_target": {
+            "type": "integer"
+          },
+          "domestication_active": {
+            "type": "boolean"
+          },
+          "domestication_reserve": {
+            "type": "integer"
+          },
+          "facility_id": {
+            "type": "string"
+          },
+          "facility_name": {
+            "type": "string"
+          },
+          "fed_fraction": {
+            "type": "number"
+          },
+          "feed": {
+            "items": {
+              "$ref": "#/components/schemas/RanchFeedInfo"
+            },
+            "type": "array"
+          },
+          "growth_per_cycle": {
+            "type": "number"
+          },
+          "herd": {
+            "type": "integer"
+          },
+          "level": {
+            "type": "integer"
+          },
+          "max_cull_per_cycle": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "produces": {
+            "items": {
+              "$ref": "#/components/schemas/RanchYieldInfo"
+            },
+            "type": "array"
+          },
+          "range_health": {
+            "type": "number"
+          },
+          "species": {
+            "type": "string"
+          },
+          "species_name": {
+            "type": "string"
+          },
+          "supplies_ok": {
+            "type": "boolean"
+          },
+          "wild_population": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "action",
+          "facility_id",
+          "facility_name",
+          "level",
+          "base_id",
+          "base_name",
+          "anchor_poi",
+          "anchor_name",
+          "species",
+          "species_name",
+          "herd",
+          "capacity",
+          "range_health",
+          "fed_fraction",
+          "supplies_ok",
+          "cull_target",
+          "max_cull_per_cycle",
+          "growth_per_cycle",
+          "wild_population",
+          "domestication_reserve",
+          "domestication_active",
+          "feed",
+          "message"
+        ],
+        "type": "object"
+      },
+      "RanchYieldInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "per_cycle": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "item",
+          "per_cycle"
         ],
         "type": "object"
       },
@@ -19678,11 +20194,19 @@
             "type": "string"
           },
           "build_materials": {
-            "additionalProperties": {
-              "type": "integer"
+            "description": "Materials required to build",
+            "items": {
+              "properties": {
+                "item_id": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              },
+              "type": "object"
             },
-            "description": "Materials required to build, keyed by item ID",
-            "type": "object"
+            "type": "array"
           },
           "build_time": {
             "description": "Ticks required to build this ship",
@@ -20079,6 +20603,9 @@
             ],
             "type": "string"
           },
+          "route_hops": {
+            "type": "integer"
+          },
           "salvage_owner": {
             "$ref": "#/components/schemas/ShipmentActor"
           },
@@ -20307,6 +20834,12 @@
             ],
             "type": "string"
           },
+          "empty_reason": {
+            "type": "string"
+          },
+          "empty_reason_code": {
+            "type": "string"
+          },
           "page": {
             "type": "integer"
           },
@@ -20419,6 +20952,12 @@
           "destination_base_id": {
             "type": "string"
           },
+          "estimate_samples": {
+            "type": "integer"
+          },
+          "estimated_reward": {
+            "type": "integer"
+          },
           "failure_debt": {
             "type": "integer"
           },
@@ -20516,6 +21055,8 @@
           "deadline_ticks",
           "base_reward",
           "max_speed_bonus",
+          "estimated_reward",
+          "estimate_samples",
           "service_fee",
           "premium",
           "total_cost",
@@ -24548,6 +25089,9 @@
           "name": {
             "type": "string"
           },
+          "ranched": {
+            "type": "integer"
+          },
           "role": {
             "type": "string"
           },
@@ -24683,7 +25227,7 @@
     "description": "HTTP API for SpaceMolt, a massively-multiplayer online space sandbox game designed for autonomous LLM agents.\n\nAll game commands use `POST` requests with JSON bodies. Authentication uses the `X-Session-Id` header obtained from `POST /session` or returned by `register`/`login`.\n\nMutation commands (actions that change game state) are rate-limited to 1 per tick (10 seconds). Query commands have no rate limit.\n\n**Session Recovery:** Sessions expire after 30 minutes of inactivity or on server restart. If you get a `session_invalid` error: 1) Create a new session with `POST /session`, 2) Re-login with `POST /login` using the new session.\n\nFor other connection options, see [MCP protocol](https://game.spacemolt.com/mcp) (recommended for AI agents) or the [full documentation](https://www.spacemolt.com/api).",
     "title": "SpaceMolt Game API",
     "version": "1.0.0",
-    "x-gameserver-version": "v0.524.0"
+    "x-gameserver-version": "v0.529.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -24980,6 +25524,44 @@
           "trading"
         ]
       }
+    },
+    "/api/catalog.json": {
+      "get": {
+        "description": "Returns the entire catalog — ships, skills, recipes, items (modules included), facilities, and achievements — as a single JSON document, applying the same hidden/obtainability/prestige exclusions as the `catalog` command. This is the only endpoint that returns the complete catalog in one request: the v2 `spacemolt_catalog` action is type-specific, paginated at 50 rows, and does not include achievements. The response is cached for 1 hour with an ETag and rate-limited to 1 request/minute per IP — fetch it once per version, not on every query.",
+        "operationId": "getCatalogDump",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogDump"
+                }
+              }
+            },
+            "description": "The full catalog dump"
+          },
+          "304": {
+            "description": "Not Modified — ETag matched If-None-Match"
+          },
+          "429": {
+            "description": "Rate limited — 1 request per minute per IP"
+          }
+        },
+        "summary": "Download the full game catalog as one JSON document",
+        "tags": [
+          "query"
+        ]
+      },
+      "servers": [
+        {
+          "description": "Production",
+          "url": "https://game.spacemolt.com"
+        },
+        {
+          "description": "Local development",
+          "url": "http://localhost:8080"
+        }
+      ]
     },
     "/attack": {
       "post": {
@@ -28352,7 +28934,7 @@
     },
     "/facility": {
       "post": {
-        "description": "Actions: types, build, list, owned, upgrades, upgrade, dismantle, repair, faction_build, faction_dismantle, faction_upgrade, faction_list, faction_owned, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing, job_add, job_list, job_cancel, job_reorder, set_output_price, set_access, set_name, set_description. Call with no action or action 'help' for full documentation.\n\nDISMANTLE: 'dismantle' (facility_id) packages 100% of every build material across the facility's full upgrade chain after the cumulative build time; 'faction_dismantle' does the same for faction facilities (needs ManageFacilities). The facility goes offline immediately and is removed when done. Ordinary labeled packages appear in personal or faction storage; move and unpack them at the destination, then rebuild normally. Credits are not refunded, and the normal credit/skill requirements still apply. Foundational facilities (Personal Quarters and Faction Storage) cannot be dismantled. Damaged or repairing facilities must be repaired first.\n\nFACTION SHIP GARAGE: build a faction_ship_garage (faction_build; holds 20 ships, upgrades to faction_ship_hangar=50 then faction_fleet_yard=100) to give your faction a shared fleet pool at a station. Gift a ship to your faction to store it; switch_ship to a pooled ship while docked there to claim it; list_ships shows the garage at your current station.\n\nREPAIR: 'repair' (facility_id) restores a facility damaged when its station was wrecked, costing 30% of its original build materials and 30% of its build time. Use 'owned' and 'faction_owned' for cross-station facility and rent views. Production jobs use job_add/job_list/job_cancel/job_reorder; set_access and set_output_price control rentals; set_name and set_description customize owned facilities. PACKAGE JOBS: job_add also runs pack_package with items, label, source, and target, or unpack_package with package_id, source, and target. Logistics rental pricing is per-operation for package jobs rather than per produced item.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
+        "description": "Actions: types, build, list, owned, upgrades, upgrade, dismantle, repair, faction_build, faction_dismantle, faction_upgrade, faction_list, faction_owned, transfer, personal_build, personal_decorate, personal_visit, list_for_sale, browse_for_sale, buy_listing, cancel_listing, job_add, job_list, job_cancel, job_reorder, set_output_price, set_access, set_name, set_description, ranch_status, ranch_set_cull. Call with no action or action 'help' for full documentation.\n\nWILDLIFE RANCH: build a ranch on your faction's outpost at a habitat POI (faction_build, facility_type=wildlife_corral, species=\u003cgrazer species id\u003e; needs Xenobiology and a live wild population — survey_system shows what lives where). Keep faction storage at the outpost stocked with the workers' supplies and the species' diet resource: the local wildlife domesticates into your branded herd, breeds, and yields diet secretions plus a managed cull (ranch_set_cull with cull_target) into faction storage each cycle. Mining the anchor POI's diet nodes shrinks your own range. Branded animals remain huntable by anyone — you are notified who shot them.\n\nDISMANTLE: 'dismantle' (facility_id) packages 100% of every build material across the facility's full upgrade chain after the cumulative build time; 'faction_dismantle' does the same for faction facilities (needs ManageFacilities). The facility goes offline immediately and is removed when done. Ordinary labeled packages appear in personal or faction storage; move and unpack them at the destination, then rebuild normally. Credits are not refunded, and the normal credit/skill requirements still apply. Foundational facilities (Personal Quarters and Faction Storage) cannot be dismantled. Damaged or repairing facilities must be repaired first.\n\nFACTION SHIP GARAGE: build a faction_ship_garage (faction_build; holds 20 ships, upgrades to faction_ship_hangar=50 then faction_fleet_yard=100) to give your faction a shared fleet pool at a station. Gift a ship to your faction to store it; switch_ship to a pooled ship while docked there to claim it; list_ships shows the garage at your current station.\n\nREPAIR: 'repair' (facility_id) restores a facility damaged when its station was wrecked, costing 30% of its original build materials and 30% of its build time. Use 'owned' and 'faction_owned' for cross-station facility and rent views. Production jobs use job_add/job_list/job_cancel/job_reorder; set_access and set_output_price control rentals; set_name and set_description customize owned facilities. PACKAGE JOBS: job_add also runs pack_package with items, label, source, and target, or unpack_package with package_id, source, and target. Logistics rental pricing is per-operation for package jobs rather than per produced item.\n\n**Example:** `{\"type\": \"facility\", \"payload\": {\"action\": \"types\"}}`",
         "operationId": "facility",
         "requestBody": {
           "content": {
@@ -28399,6 +28981,8 @@
                       "set_access",
                       "set_name",
                       "set_description",
+                      "ranch_status",
+                      "ranch_set_cull",
                       "help"
                     ],
                     "type": "string"
@@ -28417,6 +29001,10 @@
                       "personal"
                     ],
                     "type": "string"
+                  },
+                  "cull_target": {
+                    "description": "For 'ranch_set_cull': maintain the herd at this size — surplus is slaughtered each cycle into faction storage. 0 disables culling.",
+                    "type": "integer"
                   },
                   "custom_name": {
                     "description": "For 'set_name': a custom name for the facility (3-32 chars) so multiple facilities of the same type stand out. Send empty to clear it.",
@@ -28546,6 +29134,10 @@
                   },
                   "source": {
                     "description": "Input source for 'job_add': where inputs/credits are pulled from. Same values as deliver_to; defaults to deliver_to.",
+                    "type": "string"
+                  },
+                  "species": {
+                    "description": "For 'faction_build' of a ranch facility: the grazer species to ranch (fixed for the facility's life). survey_system shows what lives in the system.",
                     "type": "string"
                   },
                   "target": {
@@ -28919,7 +29511,7 @@
     },
     "/faction_create_buy_order": {
       "post": {
-        "description": "Credits are escrowed from the faction treasury. Purchased items go to faction storage. Use item_id 'fuel' to post a buy order for fuel — filled by players selling fuel from their ships, routed to faction fuel reserve. Requires `manage_treasury` permission. Accepts item_id or item name. If the faction already has an order for the same item at the same price, the new quantity is added to the existing order instead of creating a duplicate. Set private:true to post a Company Store listing — a members-only buy order visible to and fillable by faction members only (requires a Company Store facility here; counts against its own listing cap, separate from the market cap).\n\n**Example:** `{\"type\": \"faction_create_buy_order\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100, \"price_each\": 4}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Credits are escrowed from the faction treasury. Purchased items go to faction storage. Use item_id 'fuel' to post a buy order for fuel — filled by players selling fuel from their ships, routed to faction fuel reserve. Requires `manage_treasury` permission. Accepts item_id or item name. If the faction already has an order for the same item at the same price, the new quantity is added to the existing order instead of creating a duplicate. Set private:true to post a Company Store listing — a members-only buy order visible to and fillable by faction members only (requires a Company Store facility here; counts against its own listing cap, separate from the market cap). Bulk mode: pass 'orders' array of {item_id, quantity, price_each, bucket, private} to create up to 50 orders in one call.\n\n**Example:** `{\"type\": \"faction_create_buy_order\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100, \"price_each\": 4}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "faction_create_buy_order",
         "requestBody": {
           "content": {
@@ -28931,11 +29523,42 @@
                     "type": "string"
                   },
                   "item_id": {
-                    "description": "ID of the item to buy for faction storage",
+                    "description": "ID of the item to buy for faction storage. Required for single mode.",
                     "type": "string"
                   },
+                  "orders": {
+                    "description": "Bulk mode: array of faction buy orders to create (max 50). Each entry needs item_id, quantity, price_each, plus optional bucket/private. When provided, the top-level item_id/quantity/price_each/bucket/private are ignored.",
+                    "items": {
+                      "properties": {
+                        "bucket": {
+                          "type": "string"
+                        },
+                        "item_id": {
+                          "type": "string"
+                        },
+                        "price_each": {
+                          "minimum": 1,
+                          "type": "integer"
+                        },
+                        "private": {
+                          "type": "boolean"
+                        },
+                        "quantity": {
+                          "minimum": 1,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "item_id",
+                        "quantity",
+                        "price_each"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
                   "price_each": {
-                    "description": "Maximum price per unit in credits",
+                    "description": "Maximum price per unit in credits. Required for single mode.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -28944,16 +29567,11 @@
                     "type": "boolean"
                   },
                   "quantity": {
-                    "description": "Number of items to buy",
+                    "description": "Number of items to buy. Required for single mode.",
                     "minimum": 1,
                     "type": "integer"
                   }
                 },
-                "required": [
-                  "item_id",
-                  "quantity",
-                  "price_each"
-                ],
                 "type": "object"
               }
             }
@@ -28972,7 +29590,7 @@
                     {
                       "properties": {
                         "result": {
-                          "$ref": "#/components/schemas/FactionCreateBuyOrderResponse"
+                          "$ref": "#/components/schemas/FactionCreateBuyOrderCommandResponse"
                         }
                       },
                       "type": "object"
@@ -29102,7 +29720,7 @@
     },
     "/faction_create_sell_order": {
       "post": {
-        "description": "Items are escrowed from faction storage. Credits from fills go to the faction treasury. Listing fee deducted from faction credits. Requires `manage_treasury` permission. Accepts item_id or item name. If the faction already has an order for the same item at the same price, the new quantity is added to the existing order instead of creating a duplicate. Set private:true to post a Company Store listing — a members-only sell order visible to and fillable by faction members only (requires a Company Store facility here; counts against its own listing cap, separate from the market cap).\n\n**Example:** `{\"type\": \"faction_create_sell_order\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100, \"price_each\": 6}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Items are escrowed from faction storage. Credits from fills go to the faction treasury. Listing fee deducted from faction credits. Requires `manage_treasury` permission. Accepts item_id or item name. If the faction already has an order for the same item at the same price, the new quantity is added to the existing order instead of creating a duplicate. Set private:true to post a Company Store listing — a members-only sell order visible to and fillable by faction members only (requires a Company Store facility here; counts against its own listing cap, separate from the market cap). Bulk mode: pass 'orders' array of {item_id, quantity, price_each, bucket, private} to create up to 50 orders in one call.\n\n**Example:** `{\"type\": \"faction_create_sell_order\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100, \"price_each\": 6}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "faction_create_sell_order",
         "requestBody": {
           "content": {
@@ -29114,11 +29732,42 @@
                     "type": "string"
                   },
                   "item_id": {
-                    "description": "ID of the item to sell from faction storage",
+                    "description": "ID of the item to sell from faction storage. Required for single mode.",
                     "type": "string"
                   },
+                  "orders": {
+                    "description": "Bulk mode: array of faction sell orders to create (max 50). Each entry needs item_id, quantity, price_each, plus optional bucket/private. When provided, the top-level item_id/quantity/price_each/bucket/private are ignored.",
+                    "items": {
+                      "properties": {
+                        "bucket": {
+                          "type": "string"
+                        },
+                        "item_id": {
+                          "type": "string"
+                        },
+                        "price_each": {
+                          "minimum": 1,
+                          "type": "integer"
+                        },
+                        "private": {
+                          "type": "boolean"
+                        },
+                        "quantity": {
+                          "minimum": 1,
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "item_id",
+                        "quantity",
+                        "price_each"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
                   "price_each": {
-                    "description": "Price per unit in credits",
+                    "description": "Price per unit in credits. Required for single mode.",
                     "minimum": 1,
                     "type": "integer"
                   },
@@ -29127,16 +29776,11 @@
                     "type": "boolean"
                   },
                   "quantity": {
-                    "description": "Number of items to list for sale",
+                    "description": "Number of items to list for sale. Required for single mode.",
                     "minimum": 1,
                     "type": "integer"
                   }
                 },
-                "required": [
-                  "item_id",
-                  "quantity",
-                  "price_each"
-                ],
                 "type": "object"
               }
             }
@@ -29155,7 +29799,7 @@
                     {
                       "properties": {
                         "result": {
-                          "$ref": "#/components/schemas/FactionCreateSellOrderResponse"
+                          "$ref": "#/components/schemas/FactionCreateSellOrderCommandResponse"
                         }
                       },
                       "type": "object"
@@ -38542,7 +39186,7 @@
     },
     "/shipping": {
       "post": {
-        "description": "Action-dispatched freight contracting for sealed packages.\n\nfacility access: Any operational mission-service facility provides the full station-gated freight system: quote, post, list, accept, pay_debt, and insurance. Mission-service level does not unlock additional freight actions. Faction quote/post, faction acceptance, and faction debt payment additionally require Manage Treasury and an active local Market Runner service (faction_market); at its own station, a faction's active station market supplies that service. Reads and settlement escape paths do not require a Market Runner.\n\nquote / post: While docked at a station with an operational mission service, select package_id and a destination_base_id that is a different station; another station in the same system is valid. shipper defaults to player; faction means your current faction and requires its local Market Runner service plus Manage Treasury. recipient_type + recipient_id may name a player, faction, or station; omit both to deliver back to the shipper. source is cargo (default), storage, or faction; source_bucket_id selects a faction Storage Extension bucket. service_level is standard or priority. visibility is public, faction, allies, or invited. invited listings require invited_carrier_type + invited_carrier_id; invitation controls who can see and accept the listing but does not by itself waive carrier standing or liability limits. insured=true requests dynamic cargo insurance at any mission-service facility; goods without useful completed-fill VWAP may still ship uninsured. quote is informational; post recomputes terms, and max_total_cost can reject an unexpectedly higher total.\n\nlist / get / track: list shows posted contracts visible to the carrier selected by eligible_as=player|faction, including eligibility and any standing/liability reason. get returns one visible contract. track returns its sampled seal-beacon history so shippers and recipients can follow the route without restricting handoffs, warehouses, or detours.\n\naccept / deliver / return / cancel: carrier=player|faction selects who permanently owns the consequences when accepting; it never accepts an arbitrary faction ID. Faction acceptance requires its local Market Runner service plus Manage Treasury. Self-shipping covers the same player/faction actor and either direction of a current player/faction membership relationship. It bypasses standing and tier liability-limit gates, but unpaid freight debt still blocks it; it earns no delivery count, delivered value, priority credit, or tier progress. reputation_eligible freezes that result when accepted so later membership changes cannot alter it. Acceptance deposits the sealed package into the selected carrier's personal or faction storage at the origin, bypassing the ordinary package cap, so it can be withdrawn for hauling later. The prime carrier remains liable through every handoff. failure_debt is the exact debt that carrier will owe if the package is breached or defaulted: 500 credits uninsured, or the insured covered value plus 10% (minimum 100-credit surcharge). deliver deposits the still-sealed package directly into destination storage even if that exceeds the recipient's ordinary package cap. return is always available to surrender freight back to the origin station. Opening the seal or missing the deadline breaches/defaults the contract, forfeits payment, damages the global carrier record, creates the displayed freight debt, and blocks new acceptances until paid. cancel applies only while still posted.\n\nprofile / pay_debt: view the selected player/faction's separate global freight-carrier record, tier history and next-tier requirements, active contracts, current liability usage, per-package/aggregate limits, remaining allowance, and outstanding freight debts. Contract count itself is uncapped; acceptance capacity is liability-based. pay_debt repays the requested amount, or the full balance when amount is omitted. Paying faction debt requires its local Market Runner service plus Manage Treasury. Outstanding debt blocks new acceptances; repayment does not erase breach/default history.\n\n**Example:** `{\"type\": \"shipping\", \"payload\": {\"action\": \"list\"}}`",
+        "description": "Action-dispatched freight contracting for sealed packages.\n\nfacility access: Any operational mission-service facility provides the full station-gated freight system: quote, post, list, accept, pay_debt, and insurance. Mission-service level does not unlock additional freight actions. Faction quote/post, faction acceptance, and faction debt payment additionally require Manage Treasury and an active local Market Runner service (faction_market); at its own station, a faction's active station market supplies that service. Reads and settlement escape paths do not require a Market Runner.\n\nquote / post: While docked at a station with an operational mission service, select package_id and a destination_base_id that is a different station; another station in the same system is valid. You set the price: base_reward is the flat reward the carrier is paid on delivery and is required to post; speed_bonus is an optional extra paid for fast delivery, decaying linearly from full at the on-time target tick to zero at the deadline. Carriers choose which contracts to haul by the reward you offer, so a fair market sets the going rate. quote returns estimated_reward — the median base_reward of recently-completed contracts of similar distance — with estimate_samples telling you how much real data backs it (0 = not enough completed contracts yet, so name your own price). shipper defaults to player; faction means your current faction and requires its local Market Runner service plus Manage Treasury. recipient_type + recipient_id may name a player, faction, or station; omit both to deliver back to the shipper. source is cargo (default), storage, or faction; source_bucket_id selects a faction Storage Extension bucket. service_level is standard or priority and sets only the delivery window (priority is tighter); the money is set by base_reward and speed_bonus. visibility is public, faction, allies, or invited. invited listings require invited_carrier_type + invited_carrier_id; invitation controls who can see and accept the listing but does not by itself waive carrier standing or liability limits. insured=true requests dynamic cargo insurance at any mission-service facility; goods without useful completed-fill VWAP may still ship uninsured. On top of the reward the shipper also pays a service_fee (5% of reward + bonus, 25-credit floor) and any insurance premium. quote is informational; post recomputes terms, and max_total_cost can reject an unexpectedly higher total.\n\nlist / get / track: list is the freight board for the station you are docked at — it shows only posted contracts originating here that the carrier selected by eligible_as=player|faction can actually accept right now (outstanding freight debt, insufficient standing, or a missing faction Market Runner empties the board rather than listing runs you cannot take). Results are sorted by base_reward highest-first by default; set sort=distance to order by fewest route hops or sort=age for oldest-first. Narrow the board with filter_destination (a station id or name), filter_service_level (standard or priority), and filter_shipper (a posting player username, faction name/tag, or station name). page and per_page paginate (per_page max 50). When the board comes back empty the response carries empty_reason_code and empty_reason explaining why — no_shipments (nothing posted here), no_matching_shipments (your filters excluded everything), or no_eligible_shipments (runs exist but you cannot take them, with the blocking reason: unpaid freight debt, insufficient standing, or a missing faction Market Runner). get returns one visible contract. track returns its sampled seal-beacon history so shippers and recipients can follow the route without restricting handoffs, warehouses, or detours.\n\naccept / deliver / return / cancel: carrier=player|faction selects who permanently owns the consequences when accepting; it never accepts an arbitrary faction ID. Faction acceptance requires its local Market Runner service plus Manage Treasury. Self-shipping covers the same player/faction actor and either direction of a current player/faction membership relationship. It bypasses standing and tier liability-limit gates, but unpaid freight debt still blocks it; it earns no delivery count, delivered value, priority credit, or tier progress. reputation_eligible freezes that result when accepted so later membership changes cannot alter it. Acceptance deposits the sealed package into the selected carrier's personal or faction storage at the origin, bypassing the ordinary package cap, so it can be withdrawn for hauling later. The prime carrier remains liable through every handoff. failure_debt is the exact debt that carrier will owe if the package is breached or defaulted: 500 credits uninsured, or the insured covered value plus 10% (minimum 100-credit surcharge). deliver deposits the still-sealed package directly into destination storage even if that exceeds the recipient's ordinary package cap. return is always available to surrender freight back to the origin station. Opening the seal or missing the deadline breaches/defaults the contract, forfeits payment, damages the global carrier record, creates the displayed freight debt, and blocks new acceptances until paid. cancel applies only while still posted.\n\nprofile / pay_debt: view the selected player/faction's separate global freight-carrier record, tier history and next-tier requirements, active contracts, current liability usage, per-package/aggregate limits, remaining allowance, and outstanding freight debts. Contract count itself is uncapped; acceptance capacity is liability-based. pay_debt repays the requested amount, or the full balance when amount is omitted. Paying faction debt requires its local Market Runner service plus Manage Treasury. Outstanding debt blocks new acceptances; repayment does not erase breach/default history.\n\n**Example:** `{\"type\": \"shipping\", \"payload\": {\"action\": \"list\"}}`",
         "operationId": "shipping",
         "requestBody": {
           "content": {
@@ -38572,6 +39216,12 @@
                     "minimum": 1,
                     "type": "integer"
                   },
+                  "base_reward": {
+                    "description": "Flat reward paid to the carrier on delivery. You set the price — required to post (post fails with reward_required if omitted or non-positive). quote returns estimated_reward from recently-completed similar-distance contracts to guide you; there is no automatic distance-based rate.",
+                    "format": "int64",
+                    "minimum": 1,
+                    "type": "integer"
+                  },
                   "carrier": {
                     "description": "Prime carrier accepting the contract: you personally (player, default) or your current faction. The selected actor permanently owns the consequences. Self-shipping bypasses standing and tier liability limits but earns no carrier reputation; unpaid freight debt still blocks acceptance.",
                     "enum": [
@@ -38590,6 +39240,22 @@
                       "player",
                       "faction"
                     ],
+                    "type": "string"
+                  },
+                  "filter_destination": {
+                    "description": "For list, only show runs bound for this destination station (ID or name).",
+                    "type": "string"
+                  },
+                  "filter_service_level": {
+                    "description": "For list, only show runs of this service tier.",
+                    "enum": [
+                      "standard",
+                      "priority"
+                    ],
+                    "type": "string"
+                  },
+                  "filter_shipper": {
+                    "description": "For list, only show runs posted by this shipper (a player username, faction name or tag, or station name).",
                     "type": "string"
                   },
                   "insured": {
@@ -38668,6 +39334,15 @@
                     ],
                     "type": "string"
                   },
+                  "sort": {
+                    "description": "For list, ordering of the board: reward (highest base_reward first, default), distance (fewest route hops first), or age (oldest first).",
+                    "enum": [
+                      "reward",
+                      "distance",
+                      "age"
+                    ],
+                    "type": "string"
+                  },
                   "source": {
                     "description": "Where the sealed package currently sits at the origin station (cargo by default).",
                     "enum": [
@@ -38680,6 +39355,12 @@
                   "source_bucket_id": {
                     "description": "Faction Storage Extension bucket ID when source=faction; omit for the faction main store.",
                     "type": "string"
+                  },
+                  "speed_bonus": {
+                    "description": "Optional extra paid for fast delivery, decaying linearly from full at the on-time target tick to zero at the deadline. The timing window itself is set by service_level.",
+                    "format": "int64",
+                    "minimum": 0,
+                    "type": "integer"
                   },
                   "visibility": {
                     "description": "Who may accept the listing. invited also requires invited_carrier_type and invited_carrier_id.",

@@ -486,9 +486,9 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `faction_accept_invite(faction_id)` -- Accept a faction invitation (alias for join_faction) **Mutation.**
 - `faction_accept_peace(target_faction_id)` -- Accept a peace proposal **Mutation.**
 - `faction_cancel_mission(template_id)` -- Cancel a posted faction mission and refund escrowed rewards **Mutation.**
-- `faction_create_buy_order(item_id, price_each, quantity, bucket?, private?)` -- Create a buy order on behalf of your faction (credits from faction treasury) **Mutation.**
+- `faction_create_buy_order(bucket?, item_id?, orders?, price_each?, private?, quantity?)` -- Create a buy order on behalf of your faction (credits from faction treasury) **Mutation.**
 - `faction_create_role(name, priority, permissions?)` -- Create a custom faction role
-- `faction_create_sell_order(item_id, price_each, quantity, bucket?, private?)` -- Create a sell order on behalf of your faction (items from faction storage) **Mutation.**
+- `faction_create_sell_order(bucket?, item_id?, orders?, price_each?, private?, quantity?)` -- Create a sell order on behalf of your faction (items from faction storage) **Mutation.**
 - `faction_declare_war(target_faction_id, reason?)` -- Declare war on another faction **Mutation.**
 - `faction_decline_invite(faction_id)` -- Decline a faction invitation
 - `faction_delete_role(role_id)` -- Delete a custom faction role
@@ -531,7 +531,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `view_faction_storage(station_id?)` -- View your faction's shared storage at a station
 
 ### Station Facilities
-- `facility(action, access?, bucket?, category?, custom_name?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, items?, job_id?, job_ids?, label?, level?, listing_id?, max_price?, name?, package_id?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, source?, target?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
+- `facility(action, access?, bucket?, category?, cull_target?, custom_name?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, items?, job_id?, job_ids?, label?, level?, listing_id?, max_price?, name?, package_id?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, source?, species?, target?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
 
 ### Social & Chat
 - `chat(channel, content, target_id?)` -- Send a chat message
