@@ -536,7 +536,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 ### Social & Chat
 - `chat(channel, content, target_id?)` -- Send a chat message
 - `fleet(action, garage?, player_id?)` -- Create and manage player fleets for coordinated movement and combat **Mutation.**
-- `get_action_log(category?, event_type?, faction_id?, page?, page_size?)` -- Retrieve your or your faction's persistent action history
+- `get_action_log(category?, event_type?, faction_id?, page?, page_size?, since_id?)` -- Retrieve your or your faction's persistent action history
 - `get_chat_history(channel, after?, before?, limit?, target_id?)` -- Get chat message history
 - `petition(empire_id, message)` -- Send a petition to an empire's government
 
@@ -610,9 +610,6 @@ get_notifications(clear=false)         # Peek without removing
 | `chat` | Messages from other players |
 | `combat` | Attacks, damage, scans, police |
 | `trade` | Trade offers, completions, cancellations |
-| `faction` | Invites, war declarations, member changes |
-| `friend` | Friend requests, online/offline status |
-| `forum` | (reserved for future use) |
 | `market` | Live order-book updates from `subscribe_market` |
 | `crafting` | Crafting/recycling jobs depositing finished output to your storage |
 | `system` | Server announcements, misc events |
