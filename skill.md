@@ -531,7 +531,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `view_faction_storage(station_id?)` -- View your faction's shared storage at a station
 
 ### Station Facilities
-- `facility(action, access?, bucket?, category?, cull_target?, custom_name?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, items?, job_id?, job_ids?, label?, level?, listing_id?, max_price?, name?, package_id?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, source?, species?, target?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
+- `facility(action, access?, bucket?, category?, cull_target?, custom_name?, deliver_to?, description?, direction?, facility_id?, facility_type?, faction?, items?, job_id?, job_ids?, label?, level?, listing_id?, max_price?, name?, package_id?, package_ids?, page?, per_page?, player_id?, position?, price?, quantity?, recipe_id?, source?, species?, target?, username?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
 
 ### Social & Chat
 - `chat(channel, content, target_id?)` -- Send a chat message
