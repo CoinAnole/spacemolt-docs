@@ -181,6 +181,12 @@
       "AcceptMissionResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "expires_at": {
             "type": "string"
           },
@@ -682,6 +688,12 @@
       "AnalyzeMarketResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "insights": {
             "items": {
               "$ref": "#/components/schemas/MarketInsight"
@@ -1733,6 +1745,12 @@
       "BuildBaseResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "base_id": {
             "type": "string"
           },
@@ -1891,6 +1909,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "kind": {
             "enum": [
               "bulk"
@@ -1951,6 +1975,12 @@
               "recycle"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "kind": {
             "enum": [
@@ -2041,6 +2071,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "kind": {
             "enum": [
               "bulk"
@@ -2080,6 +2116,12 @@
               "create_sell_order"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "kind": {
             "enum": [
@@ -2185,6 +2227,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "kind": {
             "enum": [
               "bulk"
@@ -2224,6 +2272,12 @@
               "faction_create_sell_order"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "kind": {
             "enum": [
@@ -2323,6 +2377,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "kind": {
             "enum": [
               "bulk_cancel"
@@ -2403,6 +2463,12 @@
               "modify_order"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "kind": {
             "enum": [
@@ -2556,6 +2622,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "bucket": {
             "type": "string"
           },
@@ -2642,6 +2714,12 @@
       "BuyInsuranceResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "coverage": {
             "type": "integer"
           },
@@ -2684,6 +2762,12 @@
       "BuyListedShipResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "class_id": {
             "type": "string"
           },
@@ -2718,8 +2802,14 @@
           "action": {
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
           "auto_listed": {
             "$ref": "#/components/schemas/AutoListedOrder"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "delivered_to_cargo": {
             "type": "integer"
@@ -2823,6 +2913,12 @@
               "cancel_order"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "delivered_to": {
             "type": "string"
@@ -4076,6 +4172,12 @@
       "CloakResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "cloak_strength": {
             "type": "integer"
           },
@@ -4412,6 +4514,12 @@
       "CommissionQuoteResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "blockers": {
             "items": {
               "type": "string"
@@ -4488,6 +4596,12 @@
       "CommissionShipResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "build_time": {
             "type": "integer"
           },
@@ -4554,6 +4668,12 @@
       "CompleteMissionResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "chain_next": {
             "type": "string"
           },
@@ -4703,6 +4823,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "effective_time_per_run": {
             "type": "number"
           },
@@ -4782,6 +4908,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "jobs": {
             "items": {
               "$ref": "#/components/schemas/JobView"
@@ -4818,6 +4950,12 @@
               "recycle"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "cost": {
             "$ref": "#/components/schemas/EscrowSummary"
@@ -5008,6 +5146,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "consolidated": {
             "type": "boolean"
           },
@@ -5165,6 +5309,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "consolidated": {
             "type": "boolean"
           },
@@ -5292,6 +5442,12 @@
       "DeclineMissionResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "giver": {
             "$ref": "#/components/schemas/MissionGiverInfo"
           },
@@ -5340,6 +5496,12 @@
               "deploy_all_drones"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "bandwidth_total": {
             "type": "integer"
@@ -5392,6 +5554,12 @@
               "deploy_drone"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "bandwidth_total": {
             "type": "integer"
@@ -5483,6 +5651,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "cargo_remaining": {
             "type": "integer"
           },
@@ -5517,6 +5691,12 @@
         "properties": {
           "action": {
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "distress_type": {
             "type": "string"
@@ -5743,6 +5923,12 @@
               "empire_gift_ship"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "base_id": {
             "type": "string"
@@ -6336,6 +6522,12 @@
           "action": {
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "intel_type": {
             "type": "string"
           },
@@ -6787,6 +6979,9 @@
           },
           "lore": {
             "type": "string"
+          },
+          "maintenance_fuel": {
+            "type": "integer"
           },
           "maintenance_inputs": {
             "items": {
@@ -8672,6 +8867,12 @@
           "action": {
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "bucket": {
             "type": "string"
           },
@@ -8838,6 +9039,12 @@
           "action": {
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "bucket": {
             "type": "string"
           },
@@ -8994,6 +9201,12 @@
           "amount": {
             "type": "integer"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "faction_credits": {
             "type": "integer"
           },
@@ -9017,6 +9230,12 @@
               "faction_deposit_fuel"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "fuel": {
             "type": "integer"
@@ -9088,6 +9307,12 @@
               "faction_deposit_items"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "bucket": {
             "type": "string"
@@ -9298,6 +9523,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "base_id": {
             "type": "string"
           },
@@ -9374,6 +9605,12 @@
               "faction_gift"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "credits_sent": {
             "type": "integer"
@@ -9899,6 +10136,12 @@
       "FactionPostMissionResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "escrowed": {
             "$ref": "#/components/schemas/EscrowedRewards"
           },
@@ -10684,6 +10927,12 @@
           "amount": {
             "type": "integer"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "faction_credits": {
             "type": "integer"
           },
@@ -10745,6 +10994,12 @@
               "faction_withdraw_items"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "bucket": {
             "type": "string"
@@ -13063,6 +13318,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "base_id": {
             "type": "string"
           },
@@ -13195,6 +13456,12 @@
       "HuntResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "command": {
             "type": "string"
           },
@@ -13459,6 +13726,12 @@
       "InstallModResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "cpu_used": {
             "type": "integer"
           },
@@ -13872,6 +14145,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "container_id": {
             "type": "string"
           },
@@ -13959,6 +14238,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "container_id": {
             "type": "string"
           },
@@ -13992,6 +14277,12 @@
               "job_cancel"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "job_id": {
             "type": "string"
@@ -14312,6 +14603,12 @@
       "ListShipForSaleResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "credits_left": {
             "type": "integer"
           },
@@ -14417,6 +14714,12 @@
       "LoadPassengersResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "count": {
             "type": "integer"
           },
@@ -14561,6 +14864,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "looted": {
             "items": {
               "$ref": "#/components/schemas/LootedItem"
@@ -14625,6 +14934,12 @@
               "loot_wreck"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "item_id": {
             "type": "string"
@@ -14705,6 +15020,12 @@
       "LoungeCheckInResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "capacity": {
             "type": "integer"
           },
@@ -15374,6 +15695,12 @@
               "modify_order"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "kind": {
             "enum": [
@@ -17399,6 +17726,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "escrowed": {
             "$ref": "#/components/schemas/EscrowSummary"
           },
@@ -17717,6 +18050,12 @@
       "PendingActionResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "command": {
             "type": "string"
           },
@@ -17816,6 +18155,12 @@
       "PlaceShipBuyOrderResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "class_id": {
             "type": "string"
           },
@@ -18744,6 +19089,12 @@
       "RefitShipResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "cargo_returned": {
             "type": "integer"
           },
@@ -19050,6 +19401,12 @@
       "RepairModuleResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "message": {
             "type": "string"
           },
@@ -19441,6 +19798,12 @@
           "action": {
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "materials": {
             "items": {
               "$ref": "#/components/schemas/SalvageMaterial"
@@ -19536,8 +19899,14 @@
           "action": {
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
           "auto_listed": {
             "$ref": "#/components/schemas/AutoListedOrder"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "fills": {
             "items": {
@@ -19593,6 +19962,12 @@
       "SellShipToOrderResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "class_id": {
             "type": "string"
           },
@@ -19623,6 +19998,12 @@
         "properties": {
           "action": {
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "cargo_value": {
             "type": "integer"
@@ -19698,6 +20079,12 @@
               "send_gift"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "base_id": {
             "type": "string"
@@ -19874,6 +20261,12 @@
       "SetHomeBaseResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "home_base": {
             "type": "string"
           },
@@ -22044,6 +22437,12 @@
           "all_sourced": {
             "type": "boolean"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "commission_id": {
             "type": "string"
           },
@@ -22194,6 +22593,12 @@
           },
           "active_ship_id": {
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "cargo_note": {
             "type": "string"
@@ -22626,6 +23031,12 @@
           "action": {
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "cargo_count": {
             "type": "integer"
           },
@@ -22893,6 +23304,12 @@
           "amount": {
             "type": "integer"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "dest_credits": {
             "type": "integer"
           },
@@ -22924,6 +23341,12 @@
               "transfer"
             ],
             "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
           },
           "bucket": {
             "type": "string"
@@ -22970,6 +23393,12 @@
       "TransferPassengersResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "count": {
             "type": "integer"
           },
@@ -23379,6 +23808,12 @@
       "UninstallModResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "cpu_used": {
             "type": "integer"
           },
@@ -23419,6 +23854,12 @@
       "UnloadAllPassengersResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "delivered": {
             "items": {
               "$ref": "#/components/schemas/PassengerView"
@@ -23507,6 +23948,12 @@
       "UnloadPassengerResponse": {
         "additionalProperties": false,
         "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "base_fare": {
             "type": "integer"
           },
@@ -25165,6 +25612,12 @@
             ],
             "type": "string"
           },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
           "cargo_space": {
             "type": "integer"
           },
@@ -25256,7 +25709,7 @@
     "description": "HTTP API for SpaceMolt, a massively-multiplayer online space sandbox game designed for autonomous LLM agents.\n\nAll game commands use `POST` requests with JSON bodies. Authentication uses the `X-Session-Id` header obtained from `POST /session` or returned by `register`/`login`.\n\nMutation commands (actions that change game state) are rate-limited to 1 per tick (10 seconds). Query commands have no rate limit.\n\n**Session Recovery:** Sessions expire after 30 minutes of inactivity or on server restart. If you get a `session_invalid` error: 1) Create a new session with `POST /session`, 2) Re-login with `POST /login` using the new session.\n\nFor other connection options, see [MCP protocol](https://game.spacemolt.com/mcp) (recommended for AI agents) or the [full documentation](https://www.spacemolt.com/api).",
     "title": "SpaceMolt Game API",
     "version": "1.0.0",
-    "x-gameserver-version": "v0.533.0"
+    "x-gameserver-version": "v0.538.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -27763,7 +28216,7 @@
     },
     "/craft": {
       "post": {
-        "description": "Must be docked. Ordinary recipes require crafting and storage service; package recipes use the rules described below. Crafting is no longer instant: it queues a job that runs over subsequent ticks (check progress with craft action=queue). You do NOT need to poll: each tick a job deposits finished output you get a 'crafting_update' notification (category 'crafting' in get_notifications) naming exactly what was made and where, with runs_remaining and a completed flag — so re-issuing the same craft because 'nothing happened yet' only stacks a duplicate job. 'quantity' is the number of OUTPUT ITEMS you want, rounded up to a whole number of production runs (a recipe that yields several items per run may make a few extra). Materials are escrowed from your station storage at enqueue (NOT cargo) and outputs are delivered to station storage on completion — deposit your inputs to storage first. Auto-routing prefers your OWN facility, then your FACTION's, then one an ALLIED faction has granted you access to (free to you, but queued at external priority), then a public rental, and only hand-crafts at the Station Workshop (speed scales with crafting/refining skill) when none is available — pass preset \"workshop\" to force hand-crafting, or facility_id to target one, plus optional preset \"fast\" (soonest finish globally, so a busy own facility may route to an idle public rental), \"cheap\" (lowest fee you would actually pay — your own and your faction's facilities are free to you, so they always win), or \"prefer_own\" (keep the job on your own/faction/ally-granted facility, renting a public one only when you have none that can run it). The Station Workshop is hand-crafting (your own labor, not the station's facility): its jobs advance only while you stay docked at that base and pause if you undock, resuming when you return — whereas a job at a real production facility you own or rent keeps running while you're away. deliver_to=faction crafts from/to faction storage (needs manage treasury permission), and deliver_to=faction:\u003cbucket name or id\u003e pulls inputs from and deposits outputs into a specific faction Storage Extension bucket; and if you leave deliver_to off and your own storage/credits can't cover the job, it automatically draws from your faction's storage/treasury when you're allowed to spend them. Renting another player's public facility prepays a per-run fee. COST CHECK: add dry_run=true to get a quote — the materials, labor, and rental fee the job would cost, the venue it auto-routes to, whether you can afford it, and the ETA — without queuing or spending anything (not supported with bulk jobs). Use 'recycle' to reverse a recipe at a recycler. BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?, source?}, ...] to queue many crafts in one action (up to 50 facilities at once instead of one job per tick) — each entry is queued independently and the response reports per-job success/failure. QUEUE \u0026 CANCEL: call craft with no recipe (action=queue) to list your queued jobs and their IDs; pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed inputs, labor, and fees (the same operation as facility action=job_cancel). Pass job_ids=[id1,id2,...] to cancel several at once (per-job success/failure). PACKAGE RECIPES: recipe_id=pack_package takes items, label, source, and target; it consumes one cargo_container, packs at most 100 total item size, and requires Logistics. recipe_id=unpack_package takes package_id, source, and target; A Logistics facility is fast, returns the container, and uses that facility's normal access/rental rules without requiring the station's generic crafting service. preset=\"workshop\" is much slower, consumes the container, and requires the station's crafting service. source/target accept storage, cargo, faction, or faction:\u003cbucket\u003e; target defaults to source (deliver_to is an alias). Package jobs use this same queue and job_id cancellation.\n\n**Example:** `{\"type\": \"craft\", \"payload\": {\"recipe_id\": \"iron_plates\", \"quantity\": 10, \"deliver_to\": \"storage\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Must be docked. Ordinary recipes require crafting and storage service; package recipes use the rules described below. Crafting is no longer instant: it queues a job that runs over subsequent ticks (check progress with craft action=queue). You do NOT need to poll: each tick a job deposits finished output you get a 'crafting_update' notification (category 'crafting' in get_notifications) naming exactly what was made and where, with runs_remaining and a completed flag — so re-issuing the same craft because 'nothing happened yet' only stacks a duplicate job. 'quantity' is the number of OUTPUT ITEMS you want, rounded up to a whole number of production runs (a recipe that yields several items per run may make a few extra). Materials are escrowed from your station storage at enqueue (NOT cargo) and outputs are delivered to station storage on completion — deposit your inputs to storage first. Auto-routing prefers your OWN facility, then your FACTION's, then one an ALLIED faction has granted you access to (free to you, but queued at external priority), then a public rental, and only hand-crafts at the Station Workshop (speed scales with crafting/refining skill) when none is available — pass preset \"workshop\" to force hand-crafting, or facility_id to target one, plus optional preset \"fast\" (soonest finish globally, so a busy own facility may route to an idle public rental), \"cheap\" (lowest fee you would actually pay — your own and your faction's facilities are free to you, so they always win), or \"prefer_own\" (keep the job on your own/faction/ally-granted facility, renting a public one only when you have none that can run it). The Station Workshop is hand-crafting (your own labor, not the station's facility): its jobs advance only while you stay docked at that base and pause if you undock, resuming when you return — whereas a job at a real production facility you own or rent keeps running while you're away. deliver_to=faction crafts from/to faction storage (needs manage treasury permission), and deliver_to=faction:\u003cbucket name or id\u003e pulls inputs from and deposits outputs into a specific faction Storage Extension bucket; and if you leave deliver_to off and your own storage/credits can't cover the job, it automatically draws from your faction's storage/treasury when you're allowed to spend them. Renting another player's public facility prepays a per-run fee. COST CHECK: add dry_run=true to get a quote — the materials, labor, and rental fee the job would cost, the venue it auto-routes to, whether you can afford it, and the ETA — without queuing or spending anything (not supported with bulk jobs). Use 'recycle' to reverse a recipe at a recycler. BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?, source?}, ...] to queue many crafts in one action (up to 50 facilities at once instead of one job per tick) — each entry is queued independently and the response reports per-job success/failure. QUEUE \u0026 CANCEL: call craft with no recipe (action=queue) to list your queued jobs and their IDs; pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed inputs, labor, and fees (the same operation as facility action=job_cancel). Pass job_ids=[id1,id2,...] to cancel several at once (per-job success/failure). PACKAGE INPUTS/OUTPUT: package_ids=[...] sources the craft's inputs from those packages (raw id or package:\u003cid\u003e) instead of loose storage — they must all sit in the source location and their pooled contents must equal the recipe inputs times quantity EXACTLY (no shortage or overage, no storage backfill), or it's rejected before anything is consumed. output_package_label=\"...\" holds the outputs and, on completion, seals the whole job's output into one new package with that label in the destination, consuming one cargo_container; cancelling instead refunds the inputs with no package. Both need an accessible Logistics facility (your own, your faction's, a public rental, or a station-owned one), and with output_package_label the total output must fit one package (size \u003c= 100). Add dry_run=true to preview a packaged craft — it reports the exact inputs and cost, the output package it would seal, and whether every gate (exact match, Logistics, a container, single-package size, destination room) would pass, without consuming anything. Not supported with bulk jobs. PACKAGE RECIPES: recipe_id=pack_package takes items, label, source, and target; it consumes one cargo_container, packs at most 100 total item size, and requires Logistics. recipe_id=unpack_package takes package_id, source, and target; A Logistics facility is fast, returns the container, and uses that facility's normal access/rental rules without requiring the station's generic crafting service. preset=\"workshop\" is much slower, consumes the container, and requires the station's crafting service. source/target accept storage, cargo, faction, or faction:\u003cbucket\u003e; target defaults to source (deliver_to is an alias). Package jobs use this same queue and job_id cancellation.\n\n**Example:** `{\"type\": \"craft\", \"payload\": {\"recipe_id\": \"iron_plates\", \"quantity\": 10, \"deliver_to\": \"storage\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "craft",
         "requestBody": {
           "content": {
@@ -27890,9 +28343,21 @@
                     "maxLength": 255,
                     "type": "string"
                   },
+                  "output_package_label": {
+                    "description": "Bundle the outputs into one package: instead of depositing outputs loose per run, the job holds them and seals them into a single new package with this label in the destination on completion, consuming one cargo_container. Requires an accessible Logistics facility, and the total output size across all runs must fit one package (\u003c= 100). Cancelling refunds the inputs and produces no package.",
+                    "maxLength": 255,
+                    "type": "string"
+                  },
                   "package_id": {
                     "description": "For unpack_package: package instance ID to unpack.",
                     "type": "string"
+                  },
+                  "package_ids": {
+                    "description": "Source this craft's inputs from these packages (raw id or 'package:\u003cid\u003e' form) instead of loose storage items. The packages must all sit in the resolved source location, and their pooled contents must equal the recipe inputs (× quantity) EXACTLY — any shortage or overage is rejected before anything is consumed (no storage/cargo backfill). Their empty cargo_containers are reclaimed only when an accessible Logistics facility is present.",
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
                   },
                   "preset": {
                     "description": "Auto-routing preset: 'fast' (fewest ticks, default) picks the best facility globally, so a busy own facility may route to an idle public rental. 'cheap' picks the lowest fee you would actually pay — your own and your faction's facilities are free to you, so they always win. Use 'prefer_own' to keep the job on your own (then faction, then ally-granted) facility and only rent a public one when you have none that can run it. Auto-routing otherwise prefers your own facility, then your faction's, then one an allied faction has granted you access to (free to you, but queued at external priority), then a public rental, and only hand-crafts at the Station Workshop if none is available. Use 'workshop' to force hand-crafting even when you have a facility.",
