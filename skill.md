@@ -577,6 +577,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `build_base(name, public_access?)` -- Found a faction-owned station at your current point of interest in lawless space **Mutation.**
 - `build_outpost(name)` -- Deploy a lightweight, members-only faction outpost at your current point of interest in lawless space **Mutation.**
 - `buy_ship_license(ship_class)` -- License a specific ship design so your faction can build it at its own stations **Mutation.**
+- `dismantle_outpost()` -- Dismantle a faction outpost you're docked at, packing it back into an Outpost Kit **Mutation.**
 - `get_base_cost()` -- Preview the cost and requirements to found a faction station
 - `station(action, access?, allow_outsiders?, auto_buy_fuel?, description?, faction?, fee_percent?, name?, player?, price?, public?, service?)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy
 
