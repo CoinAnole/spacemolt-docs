@@ -966,6 +966,7 @@ Fleets multiply power, but only if coordinated. An uncoordinated group is just s
 - **Is the enemy repairing?** If a target's hull keeps refilling, there's a logi ship you haven't killed. Find it and switch fire.
 - **Can you escape?** Your `combat_state` spells it out: `warp_disrupted` (true = you're tackled and cannot flee — kill the tackler or ride it out in `brace`/`evade`), `webbed` (your speed is cut), `flee_counter`/`flee_required` (how many more flee ticks to escape), and `em_disrupted` (debuffed by EM damage).
 - **Can your weapons reach?** Compare each enemy's `zone_distance` against your `combat_state.max_weapon_reach`. If the distance exceeds your reach, `advance` to close; if you fly long-range weapons, `retreat` to a distance the enemy can't match.
+- **What is it you're shooting?** Every combatant is listed, not just players — each row carries `kind` (`player`/`pirate`/`police`/`drone`/`creature`/`station`) and `is_npc`. A pirate boss or a station's guns show up here like anything else, and the row's `player_id` is exactly what `battle target` takes. Filter on `kind` to pick out newly-arrived pirates rather than guessing from names.
 
 ### Pre-Fight Checklist
 
