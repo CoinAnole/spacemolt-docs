@@ -10,9 +10,9 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-github_raw_base="https://raw.githubusercontent.com/SpaceMolt/www/main/public/guides"
-github_guides_api="https://api.github.com/repos/SpaceMolt/www/contents/public/guides?ref=main"
-guide_manifest="guides-manifest.txt"
+github_api_base="https://api.github.com/repos/SpaceMolt/www/contents/public"
+github_raw_base="https://raw.githubusercontent.com/SpaceMolt/www/main/public"
+collections=("docs" "guides")
 
 CURL_RETRY_MAX_ATTEMPTS="${CURL_RETRY_MAX_ATTEMPTS:-8}"
 CURL_RETRY_BASE_DELAY="${CURL_RETRY_BASE_DELAY:-5}"
@@ -24,7 +24,7 @@ DOCS_UPDATER_UA="${DOCS_UPDATER_UA:-spacemolt-docs-updater/1.0 (https://github.c
 # Small delay between top-level fetches to reduce burstiness against origin rate limits.
 INTER_FETCH_DELAY="${INTER_FETCH_DELAY:-2}"
 
-files=(
+fixed_files=(
   "api.md|https://www.spacemolt.com/api.md"
   "skill.md|https://www.spacemolt.com/skill.md"
   "openapi-v1.json|https://game.spacemolt.com/api/openapi.json"
@@ -34,10 +34,10 @@ files=(
   "changelog.json|https://game.spacemolt.com/api/changelog"
 )
 
-declare -A fixed_targets=()
-for entry in "${files[@]}"; do
+fixed_targets=()
+for entry in "${fixed_files[@]}"; do
   IFS='|' read -r target _ <<< "$entry"
-  fixed_targets["$target"]=1
+  fixed_targets+=("$target")
 done
 
 openapi_path="${repo_root}/openapi.json"
@@ -130,86 +130,96 @@ download() {
   return 1
 }
 
-# raw.githubusercontent.com cannot list a directory, so use GitHub's contents API
-# to discover the current set of top-level Markdown guides before downloading any
-# installable files. Do not persist an ETag for this temporary index: a 304 would
-# be unusable without a tracked copy of the response.
-guide_index="_guides-index.json"
-download "$guide_index" "$github_guides_api" false
+# raw.githubusercontent.com cannot list directories, so discover each managed
+# Markdown collection through GitHub's contents API. Collection names are also
+# repository directories; files outside them are never considered for pruning.
+collection_files=()
+declare -A collection_counts=()
+declare -A current_collection_files=()
 
-if ! jq -e 'type == "array"' "${tmpdir}/${guide_index}" >/dev/null; then
-  printf 'Invalid guide directory response from %s\n' "$github_guides_api" >&2
-  exit 1
-fi
+for collection in "${collections[@]}"; do
+  index_target="_collection-index/${collection}.json"
+  index_url="${github_api_base}/${collection}?ref=main"
+  download "$index_target" "$index_url" false
+  sleep "$INTER_FETCH_DELAY"
 
-guide_names_json="$(
-  jq -c '[
-    .[]
-    | select(.type == "file")
-    | .name
-    | select(endswith(".md"))
-  ] | unique | sort' "${tmpdir}/${guide_index}"
-)"
-
-if [[ "$(jq 'length' <<< "$guide_names_json")" -eq 0 ]]; then
-  printf 'No Markdown guides found in %s; refusing to remove tracked guides.\n' \
-    "$github_guides_api" >&2
-  exit 1
-fi
-
-mapfile -t guide_names < <(jq -r '.[]' <<< "$guide_names_json")
-declare -A current_guides=()
-for guide in "${guide_names[@]}"; do
-  # Guide names become repository-root paths. Restrict them to plain basenames
-  # before using them for downloads, installs, removals, or git pathspecs.
-  if [[ ! "$guide" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*\.md$ ]]; then
-    printf 'Unsafe guide filename returned by GitHub: %s\n' "$guide" >&2
+  if ! jq -e 'type == "array"' "${tmpdir}/${index_target}" >/dev/null; then
+    printf 'Invalid %s directory response from %s\n' "$collection" "$index_url" >&2
     exit 1
   fi
-  if [[ -v 'fixed_targets[$guide]' ]]; then
-    printf 'Upstream guide conflicts with fixed document target: %s\n' "$guide" >&2
+
+  names_json="$(
+    jq -c '[
+      .[]
+      | select(.type == "file")
+      | .name
+      | select(endswith(".md"))
+    ] | unique | sort' "${tmpdir}/${index_target}"
+  )"
+
+  collection_count="$(jq 'length' <<< "$names_json")"
+  if [[ "$collection_count" -eq 0 ]]; then
+    printf 'No Markdown files found in upstream %s; refusing to prune the collection.\n' \
+      "$collection" >&2
     exit 1
   fi
-  current_guides["$guide"]=1
-  files+=("${guide}|${github_raw_base}/${guide}")
+  collection_counts["$collection"]="$collection_count"
+
+  mapfile -t names < <(jq -r '.[]' <<< "$names_json")
+  for name in "${names[@]}"; do
+    # Names become paths under an updater-owned directory. Only accept a plain,
+    # portable basename before using one for downloads, installs, or removals.
+    if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*\.md$ ]]; then
+      printf 'Unsafe filename returned for upstream %s: %s\n' "$collection" "$name" >&2
+      exit 1
+    fi
+
+    target="${collection}/${name}"
+    current_collection_files["$target"]=1
+    collection_files+=("${target}|${github_raw_base}/${collection}/${name}")
+  done
 done
 
-removed_guides=()
-if [[ -f "${repo_root}/${guide_manifest}" ]]; then
-  while IFS= read -r guide || [[ -n "$guide" ]]; do
-    [[ -z "$guide" ]] && continue
-    if [[ ! "$guide" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*\.md$ ]]; then
-      printf 'Unsafe guide filename in %s: %s\n' "$guide_manifest" "$guide" >&2
-      exit 1
-    fi
-    if [[ -v 'fixed_targets[$guide]' ]]; then
-      printf 'Guide manifest conflicts with fixed document target: %s\n' "$guide" >&2
-      exit 1
-    fi
-    if [[ ! -v 'current_guides[$guide]' ]]; then
-      removed_guides+=("$guide")
-    fi
-  done < "${repo_root}/${guide_manifest}"
-fi
-
-for entry in "${files[@]}"; do
+# Fetch every installable file before modifying tracked documentation. Persistent
+# ETags remain enabled for fixed artifacts; collection Markdown is small and uses
+# temporary responses so it can never receive an unusable 304.
+for entry in "${fixed_files[@]}"; do
   IFS='|' read -r target url <<< "$entry"
   download "$target" "$url"
   sleep "$INTER_FETCH_DELAY"
 done
 
-for entry in "${files[@]}"; do
+for entry in "${collection_files[@]}"; do
+  IFS='|' read -r target url <<< "$entry"
+  download "$target" "$url" false
+  sleep "$INTER_FETCH_DELAY"
+done
+
+for collection in "${collections[@]}"; do
+  mkdir -p "${repo_root}/${collection}"
+done
+
+for entry in "${fixed_files[@]}"; do
   IFS='|' read -r target _ <<< "$entry"
   install -m 0644 "${tmpdir}/${target}" "${repo_root}/${target}"
 done
 
-printf '%s\n' "${guide_names[@]}" > "${tmpdir}/${guide_manifest}"
-install -m 0644 "${tmpdir}/${guide_manifest}" "${repo_root}/${guide_manifest}"
-
-for guide in "${removed_guides[@]}"; do
-  rm -f -- "${repo_root}/${guide}"
-  printf 'Removed upstream guide %s\n' "$guide"
+for entry in "${collection_files[@]}"; do
+  IFS='|' read -r target _ <<< "$entry"
+  install -m 0644 "${tmpdir}/${target}" "${repo_root}/${target}"
 done
+
+shopt -s nullglob
+for collection in "${collections[@]}"; do
+  for existing in "${repo_root}/${collection}/"*.md; do
+    target="${collection}/$(basename -- "$existing")"
+    if [[ ! -v 'current_collection_files[$target]' ]]; then
+      rm -f -- "$existing"
+      printf 'Removed upstream %s file %s\n' "$collection" "$(basename -- "$existing")"
+    fi
+  done
+done
+shopt -u nullglob
 
 current_gameserver_version="$(jq -r '.info."x-gameserver-version" // ""' "$openapi_path")"
 if [[ -z "$current_gameserver_version" ]]; then
@@ -217,15 +227,11 @@ if [[ -z "$current_gameserver_version" ]]; then
   exit 1
 fi
 
-printf 'Updated %d documents (%d guides).\n' "${#files[@]}" "${#guide_names[@]}"
+printf 'Updated %d fixed documents, %d reference docs, and %d guides.\n' \
+  "${#fixed_files[@]}" "${collection_counts[docs]}" "${collection_counts[guides]}"
 
 if [[ "$current_gameserver_version" != "$previous_gameserver_version" ]]; then
-  targets=("$guide_manifest")
-  for entry in "${files[@]}"; do
-    IFS='|' read -r target _ <<< "$entry"
-    targets+=("$target")
-  done
-  targets+=("${removed_guides[@]}")
+  targets=("${fixed_targets[@]}" "${collections[@]}")
 
   git -C "$repo_root" add --all -- "${targets[@]}"
   if git -C "$repo_root" diff --cached --quiet -- "${targets[@]}"; then

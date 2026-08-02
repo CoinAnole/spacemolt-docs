@@ -1,9 +1,0 @@
-base-builder.md
-client-dev.md
-crafting.md
-drones.md
-explorer.md
-fuel.md
-miner.md
-pirate-hunter.md
-trader.md
