@@ -11,6 +11,8 @@ if ! command -v jq >/dev/null 2>&1; then
 fi
 
 github_raw_base="https://raw.githubusercontent.com/SpaceMolt/www/main/public/guides"
+github_guides_api="https://api.github.com/repos/SpaceMolt/www/contents/public/guides?ref=main"
+guide_manifest="guides-manifest.txt"
 
 CURL_RETRY_MAX_ATTEMPTS="${CURL_RETRY_MAX_ATTEMPTS:-8}"
 CURL_RETRY_BASE_DELAY="${CURL_RETRY_BASE_DELAY:-5}"
@@ -30,16 +32,13 @@ files=(
   "catalog.json|https://game.spacemolt.com/api/catalog.json"
   "ws.md|https://game.spacemolt.com/ws.md"
   "changelog.json|https://game.spacemolt.com/api/changelog"
-  "base-builder.md|${github_raw_base}/base-builder.md"
-  "client-dev.md|${github_raw_base}/client-dev.md"
-  "crafting.md|${github_raw_base}/crafting.md"
-  "drones.md|${github_raw_base}/drones.md"
-  "explorer.md|${github_raw_base}/explorer.md"
-  "fuel.md|${github_raw_base}/fuel.md"
-  "miner.md|${github_raw_base}/miner.md"
-  "pirate-hunter.md|${github_raw_base}/pirate-hunter.md"
-  "trader.md|${github_raw_base}/trader.md"
 )
+
+declare -A fixed_targets=()
+for entry in "${files[@]}"; do
+  IFS='|' read -r target _ <<< "$entry"
+  fixed_targets["$target"]=1
+done
 
 openapi_path="${repo_root}/openapi.json"
 previous_gameserver_version=""
@@ -50,6 +49,7 @@ fi
 download() {
   local target="$1"
   local url="$2"
+  local use_persistent_etag="${3:-true}"
   local tmpfile="${tmpdir}/${target}"
   local attempt=1
   local delay="$CURL_RETRY_BASE_DELAY"
@@ -61,7 +61,11 @@ download() {
   # Persistent ETag sidecar (dotfile, not committed) for conditional requests on
   # rate-limited, cacheable endpoints (catalog.json, openapi*.json).
   local etag_file="${repo_root}/.${target}.etag"
-  mkdir -p "$(dirname -- "$etag_file")"
+  local etag_args=()
+  if [[ "$use_persistent_etag" == "true" ]]; then
+    mkdir -p "$(dirname -- "$etag_file")"
+    etag_args=(--etag-compare "$etag_file" --etag-save "$etag_file")
+  fi
 
   while (( attempt <= CURL_RETRY_MAX_ATTEMPTS )); do
     local headers_file="${tmpdir}/headers-${target//\//-}-${attempt}"
@@ -69,8 +73,7 @@ download() {
     status="$(
       curl --location --silent --show-error \
         --user-agent "$DOCS_UPDATER_UA" \
-        --etag-compare "$etag_file" \
-        --etag-save "$etag_file" \
+        "${etag_args[@]}" \
         --output "$tmpfile" \
         --dump-header "$headers_file" \
         --write-out '%{http_code}' \
@@ -127,6 +130,68 @@ download() {
   return 1
 }
 
+# raw.githubusercontent.com cannot list a directory, so use GitHub's contents API
+# to discover the current set of top-level Markdown guides before downloading any
+# installable files. Do not persist an ETag for this temporary index: a 304 would
+# be unusable without a tracked copy of the response.
+guide_index="_guides-index.json"
+download "$guide_index" "$github_guides_api" false
+
+if ! jq -e 'type == "array"' "${tmpdir}/${guide_index}" >/dev/null; then
+  printf 'Invalid guide directory response from %s\n' "$github_guides_api" >&2
+  exit 1
+fi
+
+guide_names_json="$(
+  jq -c '[
+    .[]
+    | select(.type == "file")
+    | .name
+    | select(endswith(".md"))
+  ] | unique | sort' "${tmpdir}/${guide_index}"
+)"
+
+if [[ "$(jq 'length' <<< "$guide_names_json")" -eq 0 ]]; then
+  printf 'No Markdown guides found in %s; refusing to remove tracked guides.\n' \
+    "$github_guides_api" >&2
+  exit 1
+fi
+
+mapfile -t guide_names < <(jq -r '.[]' <<< "$guide_names_json")
+declare -A current_guides=()
+for guide in "${guide_names[@]}"; do
+  # Guide names become repository-root paths. Restrict them to plain basenames
+  # before using them for downloads, installs, removals, or git pathspecs.
+  if [[ ! "$guide" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*\.md$ ]]; then
+    printf 'Unsafe guide filename returned by GitHub: %s\n' "$guide" >&2
+    exit 1
+  fi
+  if [[ -v 'fixed_targets[$guide]' ]]; then
+    printf 'Upstream guide conflicts with fixed document target: %s\n' "$guide" >&2
+    exit 1
+  fi
+  current_guides["$guide"]=1
+  files+=("${guide}|${github_raw_base}/${guide}")
+done
+
+removed_guides=()
+if [[ -f "${repo_root}/${guide_manifest}" ]]; then
+  while IFS= read -r guide || [[ -n "$guide" ]]; do
+    [[ -z "$guide" ]] && continue
+    if [[ ! "$guide" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*\.md$ ]]; then
+      printf 'Unsafe guide filename in %s: %s\n' "$guide_manifest" "$guide" >&2
+      exit 1
+    fi
+    if [[ -v 'fixed_targets[$guide]' ]]; then
+      printf 'Guide manifest conflicts with fixed document target: %s\n' "$guide" >&2
+      exit 1
+    fi
+    if [[ ! -v 'current_guides[$guide]' ]]; then
+      removed_guides+=("$guide")
+    fi
+  done < "${repo_root}/${guide_manifest}"
+fi
+
 for entry in "${files[@]}"; do
   IFS='|' read -r target url <<< "$entry"
   download "$target" "$url"
@@ -138,22 +203,31 @@ for entry in "${files[@]}"; do
   install -m 0644 "${tmpdir}/${target}" "${repo_root}/${target}"
 done
 
+printf '%s\n' "${guide_names[@]}" > "${tmpdir}/${guide_manifest}"
+install -m 0644 "${tmpdir}/${guide_manifest}" "${repo_root}/${guide_manifest}"
+
+for guide in "${removed_guides[@]}"; do
+  rm -f -- "${repo_root}/${guide}"
+  printf 'Removed upstream guide %s\n' "$guide"
+done
+
 current_gameserver_version="$(jq -r '.info."x-gameserver-version" // ""' "$openapi_path")"
 if [[ -z "$current_gameserver_version" ]]; then
   printf 'Missing info.x-gameserver-version in %s\n' "$openapi_path" >&2
   exit 1
 fi
 
-printf 'Updated %d files.\n' "${#files[@]}"
+printf 'Updated %d documents (%d guides).\n' "${#files[@]}" "${#guide_names[@]}"
 
 if [[ "$current_gameserver_version" != "$previous_gameserver_version" ]]; then
-  targets=()
+  targets=("$guide_manifest")
   for entry in "${files[@]}"; do
     IFS='|' read -r target _ <<< "$entry"
     targets+=("$target")
   done
+  targets+=("${removed_guides[@]}")
 
-  git -C "$repo_root" add -- "${targets[@]}"
+  git -C "$repo_root" add --all -- "${targets[@]}"
   if git -C "$repo_root" diff --cached --quiet -- "${targets[@]}"; then
     printf 'Gameserver version changed to %s, but there are no staged doc changes to commit.\n' "$current_gameserver_version"
   else

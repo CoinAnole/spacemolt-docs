@@ -4,6 +4,7 @@ set -euo pipefail
 repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 workdir="$(mktemp -d)"
 trap 'rm -rf "$workdir"' EXIT
+export INTER_FETCH_DELAY=0
 
 assert_eq() {
   local expected="$1"
@@ -51,6 +52,22 @@ while [[ \$# -gt 0 ]]; do
 done
 
 case "\$url" in
+  *"/repos/SpaceMolt/www/contents/public/guides"*)
+    printf '%s\n' '[
+      {"name":"base-builder.md","type":"file"},
+      {"name":"client-dev.md","type":"file"},
+      {"name":"crafting.md","type":"file"},
+      {"name":"drones.md","type":"file"},
+      {"name":"explorer.md","type":"file"},
+      {"name":"fuel.md","type":"file"},
+      {"name":"miner.md","type":"file"},
+      {"name":"new-guide.md","type":"file"},
+      {"name":"pirate-hunter.md","type":"file"},
+      {"name":"trader.md","type":"file"},
+      {"name":"ignored.txt","type":"file"},
+      {"name":"nested","type":"dir"}
+    ]' > "\$output"
+    ;;
   *"/api/v2/openapi.json")
     printf '{"info":{"x-gameserver-version":"%s"}}\n' "$next_version" > "\$output"
     ;;
@@ -78,6 +95,8 @@ make_fixture_repo() {
 
   mkdir -p "${dir}/scripts"
   cp "${repo_root}/scripts/update-docs.sh" "${dir}/scripts/update-docs.sh"
+  cp "${repo_root}/guides-manifest.txt" "${dir}/guides-manifest.txt"
+  printf 'removed-guide.md\n' >> "${dir}/guides-manifest.txt"
   chmod +x "${dir}/scripts/update-docs.sh"
 
   (
@@ -97,8 +116,10 @@ make_fixture_repo() {
     printf 'drones\n' > drones.md
     printf 'explorer\n' > explorer.md
     printf 'fuel\n' > fuel.md
+    printf 'local limits docs\n' > limits.md
     printf 'miner\n' > miner.md
     printf 'pirate hunter\n' > pirate-hunter.md
+    printf 'removed guide\n' > removed-guide.md
     printf 'trader\n' > trader.md
     printf 'ws docs\n' > ws.md
     printf '{"current_version":"%s","page":1,"per_page":20,"releases":[]}\n' "$old_version" > changelog.json
@@ -140,6 +161,48 @@ test_does_not_commit_when_gameserver_version_is_unchanged() {
   local subject
   subject="$(git -C "$fixture" log -1 --format=%s)"
   assert_eq "initial" "$subject" "script should not create a release commit without a version change"
+}
+
+test_discovers_added_guides_and_removes_only_manifested_guides() {
+  local fixture="${workdir}/guide-sync"
+  local bin_dir="${workdir}/bin-guide-sync"
+  mkdir -p "$bin_dir"
+  make_fixture_repo "$fixture" "v1.0.0"
+  write_fake_curl "v2.0.0" "$bin_dir"
+
+  (
+    cd "$fixture"
+    PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
+  )
+
+  if [[ ! -f "${fixture}/new-guide.md" ]]; then
+    printf 'Dynamically discovered guide was not installed.\n' >&2
+    exit 1
+  fi
+  if [[ -e "${fixture}/removed-guide.md" ]]; then
+    printf 'Guide absent from the upstream listing was not removed.\n' >&2
+    exit 1
+  fi
+  if [[ ! -f "${fixture}/limits.md" ]]; then
+    printf 'Local Markdown file outside the guide manifest was removed.\n' >&2
+    exit 1
+  fi
+  if ! git -C "$fixture" ls-files --error-unmatch new-guide.md >/dev/null 2>&1; then
+    printf 'Dynamically discovered guide was not committed.\n' >&2
+    exit 1
+  fi
+  if git -C "$fixture" ls-files --error-unmatch removed-guide.md >/dev/null 2>&1; then
+    printf 'Removed upstream guide is still tracked.\n' >&2
+    exit 1
+  fi
+  if grep -q '^removed-guide\.md$' "${fixture}/guides-manifest.txt"; then
+    printf 'Removed guide remains in the generated manifest.\n' >&2
+    exit 1
+  fi
+  if ! grep -q '^new-guide\.md$' "${fixture}/guides-manifest.txt"; then
+    printf 'New guide is missing from the generated manifest.\n' >&2
+    exit 1
+  fi
 }
 
 test_workflow_configures_git_identity_before_refreshing_docs() {
@@ -201,6 +264,20 @@ done
 
 status="200"
 case "\$url" in
+  *"/repos/SpaceMolt/www/contents/public/guides"*)
+    printf '%s\n' '[
+      {"name":"base-builder.md","type":"file"},
+      {"name":"client-dev.md","type":"file"},
+      {"name":"crafting.md","type":"file"},
+      {"name":"drones.md","type":"file"},
+      {"name":"explorer.md","type":"file"},
+      {"name":"fuel.md","type":"file"},
+      {"name":"miner.md","type":"file"},
+      {"name":"new-guide.md","type":"file"},
+      {"name":"pirate-hunter.md","type":"file"},
+      {"name":"trader.md","type":"file"}
+    ]' > "\$output"
+    ;;
   *"$fail_pattern"*)
     count=0
     if [[ -f "$state_file" ]]; then
@@ -273,6 +350,7 @@ test_workflow_pushes_script_created_commits() {
 
 test_commits_when_gameserver_version_changes
 test_does_not_commit_when_gameserver_version_is_unchanged
+test_discovers_added_guides_and_removes_only_manifested_guides
 test_retries_after_rate_limit
 test_workflow_configures_git_identity_before_refreshing_docs
 test_workflow_pushes_script_created_commits
