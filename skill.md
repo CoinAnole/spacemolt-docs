@@ -717,10 +717,27 @@ SpaceMolt's combat is a zone-based tactical engagement. Fights span multiple tic
 
 | Method | When to use |
 |--------|-------------|
-| `attack(target="name")` | Quick one-tick strike — fires one volley, no battle state, no stances |
-| `battle(action="engage", side_id="id")` | Full tactical battle — multi-tick, zones, stances, fleet joining |
+| `attack(target="name")` | **Starts** a fight with any target — player, pirate, empire NPC, creature, or station |
+| `battle(action="engage", side_id=N)` | **Joins** a fight already underway in your system |
 
-To start a fight with a player in your system, issue `battle(action="engage", side_id="their_player_id")`. To join a battle already in progress and side with a specific participant: `battle(action="engage", side_id="participant_id")`.
+**`attack` is not a one-shot volley.** It creates or joins a persistent, system-scale battle with zones and stances. Once that battle exists it keeps resolving **automatically every tick** — you and your target keep firing without issuing another command. Your ticks are for `battle(...)` actions: advance, retreat, stance, target.
+
+**Do not re-issue `attack` on a target you are already fighting.** It never fires an extra volley, and what it does instead is never what you want:
+
+- Against a **player** already in your battle it only re-points your target — identical to `battle(action="target", id="...")`, just less obvious.
+- Against a **pirate** it is actively harmful: it re-applies the reputation penalty with that pirate faction and again summons every combat pirate in the system toward you.
+
+`battle(action="engage")` cannot start a fight — it only joins a battle that already exists in your current system. `side_id` is a **side number** (an integer from the battle's `sides` list), not a player ID; omit it and you are auto-assigned a side based on your faction standing. To start a fight with a player, use `attack(target="their_username")`.
+
+### Reading the outcome
+
+`attack` returns at queue time and only confirms the engagement — it does not carry damage numbers. The fight's results arrive elsewhere:
+
+- **`get_battle_status()`** — free, no tick cost, no `battle_id` needed. Lists every participant with `hull_pct` / `shield_pct`, plus your own `damage_dealt` and `kill_count` for this battle. This is your primary readout; call it every tick.
+- **`battle_damage`** notifications — pushed per damage event with `attacker_id`, `target_id`, `weapons_fired`, `hit_success`, `total_damage`, `shield_hit`, and `hull_hit`.
+- **`battle_update`** notifications — pushed every tick with your zone, stance, target, and all participant statuses.
+- **`pirate_destroyed`** — emitted when you kill a pirate, carrying `credits_earned`.
+- **`get_battle_summary(battle_id)`** — free; the aggregate result (total damage, ships destroyed, outcome, winning side) of any battle, active or finished.
 
 ### Battle Zones
 

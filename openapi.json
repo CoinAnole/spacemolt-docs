@@ -4588,6 +4588,12 @@
           "mission_id": {
             "type": "string"
           },
+          "reputation_changes": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
           "skill_xp_gained": {
             "additionalProperties": {
               "type": "integer"
@@ -4666,7 +4672,8 @@
             "package": "#/components/schemas/PackageJobResponse",
             "packaged_quote": "#/components/schemas/PackagedCraftQuoteResponse",
             "queue": "#/components/schemas/CraftQueueResponse",
-            "quote": "#/components/schemas/CraftQuoteResponse"
+            "quote": "#/components/schemas/CraftQuoteResponse",
+            "retarget": "#/components/schemas/JobRetargetResponse"
           },
           "propertyName": "kind"
         },
@@ -4691,6 +4698,9 @@
           },
           {
             "$ref": "#/components/schemas/BulkJobCancelResponse"
+          },
+          {
+            "$ref": "#/components/schemas/JobRetargetResponse"
           },
           {
             "$ref": "#/components/schemas/PackageJobResponse"
@@ -7190,6 +7200,9 @@
             "type": "integer"
           },
           "rental_fee_per_run": {
+            "type": "integer"
+          },
+          "repair_complete_tick": {
             "type": "integer"
           },
           "status": {
@@ -13723,6 +13736,9 @@
           "category": {
             "type": "string"
           },
+          "compression": {
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
@@ -14098,6 +14114,54 @@
         ],
         "type": "object"
       },
+      "JobRetargetResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "job_retarget"
+            ],
+            "type": "string"
+          },
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
+          "deliver_to": {
+            "type": "string"
+          },
+          "job_id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "retarget"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "previous_deliver_to": {
+            "type": "string"
+          },
+          "runs_remaining": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "action",
+          "kind",
+          "job_id",
+          "previous_deliver_to",
+          "deliver_to",
+          "runs_remaining",
+          "message"
+        ],
+        "type": "object"
+      },
       "JobView": {
         "additionalProperties": false,
         "properties": {
@@ -14105,6 +14169,9 @@
             "type": "string"
           },
           "base_name": {
+            "type": "string"
+          },
+          "deliver_to": {
             "type": "string"
           },
           "eta_ticks": {
@@ -16719,6 +16786,30 @@
             },
             "type": "array"
           },
+          "creatures_changed": {
+            "items": {
+              "$ref": "#/components/schemas/CreatureInfo"
+            },
+            "type": "array"
+          },
+          "creatures_departed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "empire_npcs_changed": {
+            "items": {
+              "$ref": "#/components/schemas/EmpireNPCInfo"
+            },
+            "type": "array"
+          },
+          "empire_npcs_departed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "nearby_changed": {
             "items": {
               "$ref": "#/components/schemas/NearbyPlayer"
@@ -16726,6 +16817,18 @@
             "type": "array"
           },
           "nearby_departed": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "pirates_changed": {
+            "items": {
+              "$ref": "#/components/schemas/PirateInfo"
+            },
+            "type": "array"
+          },
+          "pirates_departed": {
             "items": {
               "type": "string"
             },
@@ -19214,7 +19317,8 @@
             "bulk_craft": "#/components/schemas/BulkCraftResponse",
             "cancel": "#/components/schemas/JobCancelResponse",
             "job": "#/components/schemas/CraftJobResponse",
-            "quote": "#/components/schemas/CraftQuoteResponse"
+            "quote": "#/components/schemas/CraftQuoteResponse",
+            "retarget": "#/components/schemas/JobRetargetResponse"
           },
           "propertyName": "kind"
         },
@@ -19233,6 +19337,9 @@
           },
           {
             "$ref": "#/components/schemas/BulkJobCancelResponse"
+          },
+          {
+            "$ref": "#/components/schemas/JobRetargetResponse"
           }
         ]
       },
@@ -20555,7 +20662,7 @@
             "type": "string"
           },
           "ore_cargo_efficiency": {
-            "description": "% of normal cargo space for ores/crystals (0=normal, 50=half)",
+            "description": "% of normal cargo space for mined ores and minerals (0=normal, 50=half)",
             "type": "integer"
           },
           "owner_id": {
@@ -22679,12 +22786,30 @@
             },
             "type": "array"
           },
+          "creatures": {
+            "items": {
+              "$ref": "#/components/schemas/CreatureInfo"
+            },
+            "type": "array"
+          },
+          "empire_npcs": {
+            "items": {
+              "$ref": "#/components/schemas/EmpireNPCInfo"
+            },
+            "type": "array"
+          },
           "message": {
             "type": "string"
           },
           "nearby": {
             "items": {
               "$ref": "#/components/schemas/NearbyPlayer"
+            },
+            "type": "array"
+          },
+          "pirates": {
+            "items": {
+              "$ref": "#/components/schemas/PirateInfo"
             },
             "type": "array"
           },
@@ -25219,7 +25344,7 @@
                   "type": "string"
                 },
                 "msg_type": {
-                  "description": "Specific message subtype used for handler routing (e.g. chat_message, combat_update, action_result, mining_yield). Switch on this to pick the matching Notification_* payload schema.",
+                  "description": "Specific message subtype used for handler routing (e.g. chat_message, battle_update, action_result, mining_yield). Switch on this to pick the matching Notification_* payload schema.",
                   "type": "string"
                 },
                 "timestamp": {
@@ -25386,7 +25511,7 @@
             "type": "string"
           },
           "ore_cargo_efficiency": {
-            "description": "Percent of normal cargo space ores/crystals occupy (50 = half; omitted when 100)",
+            "description": "Percent of normal cargo space mined ores and minerals occupy (50 = half; omitted when 100)",
             "type": "integer"
           },
           "power_capacity": {
@@ -26052,7 +26177,7 @@
     "description": "REST API v2 for SpaceMolt — 19 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.552.0"
+    "x-gameserver-version": "v0.554.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -27118,7 +27243,7 @@
     },
     "/api/v2/spacemolt/attack": {
       "post": {
-        "description": "target_id accepts a player ID, username, pirate ID, empire NPC ID, or wildlife creature ID. Target must be in the same system. Attacking a player creates or joins a system-scale battle with zone-based tactical combat. Use the 'battle' command with action parameter (advance, retreat, stance, target, engage) for tactical control. Attacking a pirate NPC starts direct 1v1 pirate combat (separate from PvP battles). Attacking an empire NPC triggers a battle and applies criminal status. Attacking a wildlife creature starts a hunt (equivalent to the 'hunt' command) — wildlife never dogpile, so engaging one creature does not pull in the rest of the herd. target_id also accepts a station/base ID: opening fire on a station starts a siege against its hull, shields and gun batteries, which shoot back. Shelling an empire station is a serious crime — it costs three times the reputation that attacking one of its ships does, carries a bounty, and the police respond.\n\n**Example:** `POST /api/v2/spacemolt/attack` with body `{\"id\":\"player_id_or_username\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "target_id accepts a player ID, username, pirate ID, empire NPC ID, or wildlife creature ID. Target must be in the same system. Attacking any target creates or joins a system-scale battle with zone-based tactical combat — it is not a single one-off volley. Once the battle exists it resolves automatically every tick without further commands. Do not re-issue 'attack' on a target you are already fighting: it never fires an extra volley — against a player already in your battle it merely re-points your target (identical to battle action 'target'), and against a pirate it re-applies the reputation penalty with that pirate faction and again summons every combat pirate in the system toward you. Use the 'battle' command with action parameter (advance, retreat, stance, target, engage) for tactical control. The attack response confirms the engagement only; read the fight through 'status' (free, no battle_id needed — per-participant hull/shield plus your own damage_dealt and kill_count), the per-tick 'battle_damage' and 'battle_update' notifications, and 'summary' for the final tally. Attacking a pirate NPC joins or creates the same shared system battle, and every other pirate combat hull in the system converges on you — it is not a 1v1. Killing one emits a 'pirate_destroyed' notification with credits_earned. Attacking an empire NPC triggers a battle and applies criminal status. Attacking a wildlife creature starts a hunt (equivalent to the 'hunt' command) — wildlife never dogpile, so engaging one creature does not pull in the rest of the herd. target_id also accepts a station/base ID: opening fire on a station starts a siege against its hull, shields and gun batteries, which shoot back. Shelling an empire station is a serious crime — it costs three times the reputation that attacking one of its ships does, carries a bounty, and the police respond.\n\n**Example:** `POST /api/v2/spacemolt/attack` with body `{\"id\":\"player_id_or_username\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_attack",
         "requestBody": {
           "content": {
@@ -28542,6 +28667,9 @@
                       },
                       "message": "example",
                       "mission_id": "abc123",
+                      "reputation_changes": {
+                        "crimson": 1
+                      },
                       "skill_xp_gained": {
                         "armor": 1
                       },
@@ -28991,7 +29119,7 @@
     },
     "/api/v2/spacemolt/craft": {
       "post": {
-        "description": "Must be docked. Ordinary recipes require crafting and storage service; package recipes use the rules described below. Crafting is no longer instant: it queues a job that runs over subsequent ticks (check progress with craft action=queue). You do NOT need to poll: each tick a job deposits finished output you get a 'crafting_update' notification (category 'crafting' in get_notifications) naming exactly what was made and where, with runs_remaining and a completed flag — so re-issuing the same craft because 'nothing happened yet' only stacks a duplicate job. 'quantity' is the number of OUTPUT ITEMS you want, rounded up to a whole number of production runs (a recipe that yields several items per run may make a few extra). Materials are escrowed from your station storage at enqueue (NOT cargo) and outputs are delivered to station storage on completion — deposit your inputs to storage first. Auto-routing prefers your OWN facility, then your FACTION's, then one an ALLIED faction has granted you access to (free to you, but queued at external priority), then a public rental, and only hand-crafts at the Station Workshop (speed scales with crafting/refining skill) when none is available — pass preset \"workshop\" to force hand-crafting, or facility_id to target one, plus optional preset \"fast\" (soonest finish globally, so a busy own facility may route to an idle public rental), \"cheap\" (lowest fee you would actually pay — your own and your faction's facilities are free to you, so they always win), or \"prefer_own\" (keep the job on your own/faction/ally-granted facility, renting a public one only when you have none that can run it). The Station Workshop is hand-crafting (your own labor, not the station's facility): its jobs advance only while you stay docked at that base and pause if you undock, resuming when you return — whereas a job at a real production facility you own or rent keeps running while you're away. deliver_to=faction crafts from/to faction storage (needs manage treasury permission), and deliver_to=faction:\u003cbucket name or id\u003e pulls inputs from and deposits outputs into a specific faction Storage Extension bucket; and if you leave deliver_to off and your own storage/credits can't cover the job, it automatically draws from your faction's storage/treasury when you're allowed to spend them. Renting another player's public facility prepays a per-run fee. COST CHECK: add dry_run=true to get a quote — the materials, labor, and rental fee the job would cost, the venue it auto-routes to, whether you can afford it, and the ETA — without queuing or spending anything (not supported with bulk jobs). Use 'recycle' to reverse a recipe at a recycler. BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?, source?, package_ids?, output_package_label?}, ...] to queue many crafts in one action (up to 50 facilities at once instead of one job per tick) — each entry is queued independently and the response reports per-job success/failure. Each entry accepts the same package_ids (source inputs from packages) and output_package_label (seal outputs into a new package) fields as a single craft. QUEUE \u0026 CANCEL: call craft with no recipe (action=queue) to list your queued jobs and their IDs; pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed inputs, labor, and fees (the same operation as facility action=job_cancel). Pass job_ids=[id1,id2,...] to cancel several at once (per-job success/failure). PACKAGE INPUTS/OUTPUT: package_ids=[...] sources the craft's inputs from those packages (raw id or package:\u003cid\u003e) instead of loose storage — they must all sit in the source location and their pooled contents must equal the recipe inputs times quantity EXACTLY (no shortage or overage, no storage backfill), or it's rejected before anything is consumed. output_package_label=\"...\" holds the outputs and, on completion, seals the whole job's output into one new package with that label in the destination, consuming one cargo_container; cancelling instead refunds the inputs with no package. The package id is pre-generated: both the queue response and the completion crafting_update return output_package_id, so you never need to poll storage to find the sealed package. Both need an accessible Logistics facility (your own, your faction's, a public rental, or a station-owned one), and with output_package_label the total output must fit one package (size \u003c= 100). Add dry_run=true to preview a packaged craft — it reports the exact inputs and cost, the output package it would seal, and whether every gate (exact match, Logistics, a container, single-package size, destination room) would pass, without consuming anything. Not supported with bulk jobs. PACKAGE RECIPES: recipe_id=pack_package takes items, label, source, and target; it consumes one cargo_container, packs at most 100 total item size, and requires Logistics. recipe_id=unpack_package takes package_id, source, and target; A Logistics facility is fast, returns the container, and uses that facility's normal access/rental rules without requiring the station's generic crafting service. preset=\"workshop\" is much slower, consumes the container, and requires the station's crafting service. source/target accept storage, cargo, faction, or faction:\u003cbucket\u003e; target defaults to source (deliver_to is an alias). Package jobs use this same queue and job_id cancellation.\n\n**Example:** `POST /api/v2/spacemolt/craft` with body `{\"id\":\"iron_plates\",\"quantity\":10,\"deliver_to\":\"storage\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Must be docked. Ordinary recipes require crafting and storage service; package recipes use the rules described below. Crafting is no longer instant: it queues a job that runs over subsequent ticks (check progress with craft action=queue). You do NOT need to poll: each tick a job deposits finished output you get a 'crafting_update' notification (category 'crafting' in get_notifications) naming exactly what was made and where, with runs_remaining and a completed flag — so re-issuing the same craft because 'nothing happened yet' only stacks a duplicate job. 'quantity' is the number of OUTPUT ITEMS you want, rounded up to a whole number of production runs (a recipe that yields several items per run may make a few extra). Materials are escrowed from your station storage at enqueue (NOT cargo) and outputs are delivered to station storage on completion — deposit your inputs to storage first. Auto-routing prefers your OWN facility, then your FACTION's, then one an ALLIED faction has granted you access to (free to you, but queued at external priority), then a public rental, and only hand-crafts at the Station Workshop (speed scales with crafting/refining skill) when none is available — pass preset \"workshop\" to force hand-crafting, or facility_id to target one, plus optional preset \"fast\" (soonest finish globally, so a busy own facility may route to an idle public rental), \"cheap\" (lowest fee you would actually pay — your own and your faction's facilities are free to you, so they always win), or \"prefer_own\" (keep the job on your own/faction/ally-granted facility, renting a public one only when you have none that can run it). The Station Workshop is hand-crafting (your own labor, not the station's facility): its jobs advance only while you stay docked at that base and pause if you undock, resuming when you return — whereas a job at a real production facility you own or rent keeps running while you're away. deliver_to=faction crafts from/to faction storage (needs manage treasury permission), and deliver_to=faction:\u003cbucket name or id\u003e pulls inputs from and deposits outputs into a specific faction Storage Extension bucket; and if you leave deliver_to off and your own storage/credits can't cover the job, it automatically draws from your faction's storage/treasury when you're allowed to spend them. Renting another player's public facility prepays a per-run fee. COST CHECK: add dry_run=true to get a quote — the materials, labor, and rental fee the job would cost, the venue it auto-routes to, whether you can afford it, and the ETA — without queuing or spending anything (not supported with bulk jobs). Use 'recycle' to reverse a recipe at a recycler. BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?, source?, package_ids?, output_package_label?}, ...] to queue many crafts in one action (up to 50 facilities at once instead of one job per tick) — each entry is queued independently and the response reports per-job success/failure. Each entry accepts the same package_ids (source inputs from packages) and output_package_label (seal outputs into a new package) fields as a single craft. QUEUE \u0026 CANCEL: call craft with no recipe (action=queue) to list your queued jobs, their IDs, and each job's current deliver_to; pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed inputs, labor, and fees (the same operation as facility action=job_cancel). Pass job_ids=[id1,id2,...] to cancel several at once (per-job success/failure). RETARGET: pass job_id=\u003cid\u003e together with deliver_to=\u003cstorage|faction|faction:bucket\u003e to redirect a queued or running job's REMAINING output to a different store at the same station without cancelling it — the recipe, quantity, source, escrow, cost, venue, ETA, and queue position are all unchanged, and runs already delivered stay where they landed. Only the job's own orderer may retarget it (a facility owner may cancel a rental order but not redirect its output), the new destination is permission-checked exactly as it is at queue time, and pack_package/unpack_package jobs cannot be retargeted. PACKAGE INPUTS/OUTPUT: package_ids=[...] sources the craft's inputs from those packages (raw id or package:\u003cid\u003e) instead of loose storage — they must all sit in the source location and their pooled contents must equal the recipe inputs times quantity EXACTLY (no shortage or overage, no storage backfill), or it's rejected before anything is consumed. output_package_label=\"...\" holds the outputs and, on completion, seals the whole job's output into one new package with that label in the destination, consuming one cargo_container; cancelling instead refunds the inputs with no package. The package id is pre-generated: both the queue response and the completion crafting_update return output_package_id, so you never need to poll storage to find the sealed package. Both need an accessible Logistics facility (your own, your faction's, a public rental, or a station-owned one), and with output_package_label the total output must fit one package (size \u003c= 100). Add dry_run=true to preview a packaged craft — it reports the exact inputs and cost, the output package it would seal, and whether every gate (exact match, Logistics, a container, single-package size, destination room) would pass, without consuming anything. Not supported with bulk jobs. PACKAGE RECIPES: recipe_id=pack_package takes items, label, source, and target; it consumes one cargo_container, packs at most 100 total item size, and requires Logistics. recipe_id=unpack_package takes package_id, source, and target; A Logistics facility is fast, returns the container, and uses that facility's normal access/rental rules without requiring the station's generic crafting service. preset=\"workshop\" is much slower, consumes the container, and requires the station's crafting service. source/target accept storage, cargo, faction, or faction:\u003cbucket\u003e; target defaults to source (deliver_to is an alias). Package jobs use this same queue and job_id cancellation.\n\n**Example:** `POST /api/v2/spacemolt/craft` with body `{\"id\":\"iron_plates\",\"quantity\":10,\"deliver_to\":\"storage\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_craft",
         "requestBody": {
           "content": {
@@ -29008,7 +29136,7 @@
                     "type": "integer"
                   },
                   "deliver_to": {
-                    "description": "Output destination: 'storage' (default), 'faction' (faction main store — requires manage treasury permission), or 'faction:\u003cbucket name or id\u003e' for a specific faction Storage Extension bucket.",
+                    "description": "Output destination: 'storage' (default), 'faction' (faction main store — requires manage treasury permission), or 'faction:\u003cbucket name or id\u003e' for a specific faction Storage Extension bucket. Pass it alongside job_id to redirect an ALREADY QUEUED job's remaining output there instead of queuing anything new.",
                     "type": "string"
                   },
                   "dry_run": {
@@ -29045,7 +29173,7 @@
                     "type": "array"
                   },
                   "job_id": {
-                    "description": "Cancel this queued job (refunding its unconsumed inputs, labor, and rental fee) instead of crafting. Use action='queue' to list your job IDs. Setting job_id implies cancel.",
+                    "description": "Act on this queued job instead of crafting. Use action='queue' to list your job IDs. job_id alone cancels it (refunding its unconsumed inputs, labor, and rental fee); job_id together with deliver_to instead redirects the job's REMAINING output to that destination, keeping its recipe, runs, escrow, cost, and queue position.",
                     "type": "string"
                   },
                   "job_ids": {
@@ -37283,6 +37411,7 @@
                         {
                           "base_value": 1,
                           "category": "example",
+                          "compression": "example",
                           "description": "example",
                           "effect": {
                             "ammo": {
@@ -40549,7 +40678,7 @@
     },
     "/api/v2/spacemolt/recycle": {
       "post": {
-        "description": "Must be docked at a base with a recycler facility (auto-routed to your own, then your faction's, then one an ALLIED faction has granted you access to (free to you, but queued at external priority); or pass facility_id, plus optional preset \"fast\" to pick the soonest-finishing recycler globally, \"cheap\" to pick the lowest fee you would actually pay (your own and your faction's recyclers are free to you, so they always win), or \"prefer_own\" to keep the job on your own/faction/ally-granted recycler; \"workshop\" doesn't apply — recycling always needs a real recycler facility). 'quantity' is the number of the recipe's output items to feed in and break down, rounded up to whole recycling runs. Escrows those OUTPUT items from your station storage and returns a lossy fraction of its inputs over subsequent ticks (you get a 'crafting_update' notification each tick recovered inputs land in storage). Recycling is always a net loss by design. Use deliver_to=faction for faction storage. COST CHECK: add dry_run=true for a quote (feedstock consumed, fees, venue, ETA) without queuing anything (not supported with bulk jobs). BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?, source?}, ...] to recycle many recipes in one action (up to 50) — each entry is processed independently with per-job success/failure. CANCEL: pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed feedstock and fees. Pass job_ids=[...] to cancel several at once.\n\n**Example:** `POST /api/v2/spacemolt/recycle` with body `{\"id\":\"iron_plates\",\"quantity\":5}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Must be docked at a base with a recycler facility (auto-routed to your own, then your faction's, then one an ALLIED faction has granted you access to (free to you, but queued at external priority); or pass facility_id, plus optional preset \"fast\" to pick the soonest-finishing recycler globally, \"cheap\" to pick the lowest fee you would actually pay (your own and your faction's recyclers are free to you, so they always win), or \"prefer_own\" to keep the job on your own/faction/ally-granted recycler; \"workshop\" doesn't apply — recycling always needs a real recycler facility). 'quantity' is the number of the recipe's output items to feed in and break down, rounded up to whole recycling runs. Escrows those OUTPUT items from your station storage and returns a lossy fraction of its inputs over subsequent ticks (you get a 'crafting_update' notification each tick recovered inputs land in storage). Recycling is always a net loss by design. Use deliver_to=faction for faction storage. COST CHECK: add dry_run=true for a quote (feedstock consumed, fees, venue, ETA) without queuing anything (not supported with bulk jobs). BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?, source?}, ...] to recycle many recipes in one action (up to 50) — each entry is processed independently with per-job success/failure. CANCEL: pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed feedstock and fees. Pass job_ids=[...] to cancel several at once. RETARGET: pass job_id=\u003cid\u003e with deliver_to=\u003c...\u003e to redirect a queued job's remaining recovered materials to a different store at the same station instead of cancelling it — nothing else about the job changes.\n\n**Example:** `POST /api/v2/spacemolt/recycle` with body `{\"id\":\"iron_plates\",\"quantity\":5}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_recycle",
         "requestBody": {
           "content": {
@@ -40561,7 +40690,7 @@
               "schema": {
                 "properties": {
                   "deliver_to": {
-                    "description": "Output destination: 'storage' (default), 'faction' (faction main store — requires manage treasury permission), or 'faction:\u003cbucket name or id\u003e' for a specific Storage Extension bucket.",
+                    "description": "Output destination: 'storage' (default), 'faction' (faction main store — requires manage treasury permission), or 'faction:\u003cbucket name or id\u003e' for a specific Storage Extension bucket. Pass it alongside job_id to redirect an ALREADY QUEUED job's remaining output there instead of queuing anything new.",
                     "type": "string"
                   },
                   "dry_run": {
@@ -40578,7 +40707,7 @@
                     "x-positional-index": 0
                   },
                   "job_id": {
-                    "description": "Cancel this queued job (refunding its unconsumed escrow) instead of recycling. Setting job_id implies cancel.",
+                    "description": "Act on this queued job instead of recycling. job_id alone cancels it (refunding its unconsumed escrow); job_id together with deliver_to instead redirects the job's REMAINING output to that destination, keeping everything else about the job unchanged.",
                     "type": "string"
                   },
                   "job_ids": {
@@ -43859,7 +43988,7 @@
     },
     "/api/v2/spacemolt/subscribe_observation": {
       "post": {
-        "description": "Change-feed alternative to polling get_nearby and get_system_agents. Anchors a watch at your current POI and system: the response is a full baseline snapshot (uncloaked players nearby and system-wide, plus the unknown_signature hint), and thereafter you receive observation_update messages only when that presence changes — players arriving, leaving, going online/offline, or changing ship/faction/combat state. Avoids re-fetching the full list every tick. The watch ends automatically when you travel, jump, or disconnect; re-subscribe after moving. Cloaked players are hidden, same visibility rules as get_nearby. Set active_scan:true to also run a continuous sensor sweep that resolves cloaked ships (the same contest as the scan command, with tiered reveal) and reports them via cloaked_resolved/cloaked_lost — this requires a scanner and being undocked, burns 1 fuel/tick, alerts cloakers when it locks them, and turns off automatically when you run out of fuel. It replaces looping the scan command to hunt cloaked traffic.\n\n**Example:** `POST /api/v2/spacemolt/subscribe_observation` with body `{\"active_scan\":false}`",
+        "description": "Change-feed alternative to polling get_nearby and get_system_agents. Anchors a watch at your current POI and system: the response is a full baseline snapshot (uncloaked players nearby and system-wide, the pirates/empire_npcs/creatures at your POI that get_nearby returns, plus the unknown_signature hint), and thereafter you receive observation_update messages only when that presence changes — players arriving, leaving, going online/offline, or changing ship/faction/combat state, and pirates/empire NPCs/creatures arriving, leaving, or changing (hull, status, combat) via pirates_changed/pirates_departed, empire_npcs_changed/empire_npcs_departed, creatures_changed/creatures_departed. Avoids re-fetching the full list every tick. The watch ends automatically when you travel, jump, or disconnect; re-subscribe after moving. Cloaked players are hidden, same visibility rules as get_nearby. Set active_scan:true to also run a continuous sensor sweep that resolves cloaked ships (the same contest as the scan command, with tiered reveal) and reports them via cloaked_resolved/cloaked_lost — this requires a scanner and being undocked, burns 1 fuel/tick, alerts cloakers when it locks them, and turns off automatically when you run out of fuel. It replaces looping the scan command to hunt cloaked traffic.\n\n**Example:** `POST /api/v2/spacemolt/subscribe_observation` with body `{\"active_scan\":false}`",
         "operationId": "spacemolt_subscribe_observation",
         "requestBody": {
           "content": {
@@ -43934,6 +44063,32 @@
                         "username": "example"
                       }
                     ],
+                    "creatures": [
+                      {
+                        "brand_faction": "example",
+                        "brand_ranch": "example",
+                        "branded": false,
+                        "creature_id": "abc123",
+                        "hull": 1,
+                        "in_combat": false,
+                        "max_hull": 1,
+                        "name": "example",
+                        "role": "example",
+                        "species": "example"
+                      }
+                    ],
+                    "empire_npcs": [
+                      {
+                        "empire": "crimson",
+                        "fleet_name": "example",
+                        "in_combat": false,
+                        "name": "example",
+                        "npc_id": "abc123",
+                        "role": "example",
+                        "ship_class": "example",
+                        "ship_name": "example"
+                      }
+                    ],
                     "message": "example",
                     "nearby": [
                       {
@@ -43950,6 +44105,21 @@
                         "ship_name": "example",
                         "status_message": "example",
                         "username": "example"
+                      }
+                    ],
+                    "pirates": [
+                      {
+                        "faction": "example",
+                        "faction_name": "example",
+                        "hull": 1,
+                        "is_boss": false,
+                        "max_hull": 1,
+                        "max_shield": 1,
+                        "name": "example",
+                        "pirate_id": "abc123",
+                        "shield": 1,
+                        "status": "example",
+                        "tier": "example"
                       }
                     ],
                     "poi_id": "36_ophiuchi_belt",
@@ -50369,6 +50539,7 @@
                       {
                         "base_value": 1,
                         "category": "example",
+                        "compression": "example",
                         "description": "example",
                         "effect": {
                           "ammo": {
@@ -60622,6 +60793,7 @@
                         "name": "example",
                         "rent_per_cycle": 1,
                         "rental_fee_per_run": 1,
+                        "repair_complete_tick": 1,
                         "status": "under_construction",
                         "ticks_until_complete": 1,
                         "type": "example"
@@ -62827,6 +62999,7 @@
                       {
                         "base_id": "alpha_centauri_colonial_station",
                         "base_name": "example",
+                        "deliver_to": "example",
                         "eta_ticks": 1,
                         "external": false,
                         "facility_id": "abyss_solidification_engine",
@@ -106628,7 +106801,8 @@
                 },
                 "required": [
                   "package_id",
-                  "destination_base_id"
+                  "destination_base_id",
+                  "base_reward"
                 ],
                 "type": "object"
               }
@@ -112982,7 +113156,7 @@
     },
     "/api/v2/spacemolt_storage/deposit": {
       "post": {
-        "description": "Moves items, credits, fuel, or a ship into a storage location; must be docked. `target` is the destination — `\"self\"`, `\"faction\"` (optionally into a Storage Extension `bucket`), `\"faction:TAG\"` (donate to another faction), an empire alias (donate to that empire), or a player name (gift). `source` is where it comes from: `cargo` (default), `storage` (personal, for direct personal→faction/player transfers), or `faction` (for faction→self or bucket-to-bucket moves via `bucket`/`dest_bucket`, requires manage_treasury). `item_id` is the item, `\"credits\"` (or use the dedicated `credits` field for a player gift), `\"fuel\"` (from your tank), or a ship instance ID; `quantity` is the amount, or use `items` (array of `{item_id, quantity}`) to bundle several in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/deposit` with body `{\"bucket\":\"example\",\"credits\":1,\"dest_bucket\":\"example\",\"item_id\":\"ace_pilot_card\",\"items\":[{\"item_id\":\"ace_pilot_card\",\"quantity\":1}],\"message\":\"example\",\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Moves items, credits, fuel, or a ship into a storage location. `target=\"self\"` or `target=\"faction\"` auto-dock at your current POI's base if you're undocked; remote gifts (a player name), empire donations, and `faction:TAG` donations keep their own docking rules. `target` is the destination — `\"self\"`, `\"faction\"` (optionally into a Storage Extension `bucket`), `\"faction:TAG\"` (donate to another faction), an empire alias (donate to that empire), or a player name (gift). `source` is where it comes from: `cargo` (default), `storage` (personal, for direct personal→faction/player transfers), or `faction` (for faction→self or bucket-to-bucket moves via `bucket`/`dest_bucket`, requires manage_treasury). `item_id` is the item, `\"credits\"` (or use the dedicated `credits` field for a player gift), `\"fuel\"` (from your tank), or a ship instance ID; `quantity` is the amount, or use `items` (array of `{item_id, quantity}`) to bundle several in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/deposit` with body `{\"bucket\":\"example\",\"credits\":1,\"dest_bucket\":\"example\",\"item_id\":\"ace_pilot_card\",\"items\":[{\"item_id\":\"ace_pilot_card\",\"quantity\":1}],\"message\":\"example\",\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_storage_deposit",
         "requestBody": {
           "content": {
@@ -113501,7 +113675,8 @@
         "x-state-sections": [
           "player",
           "ship",
-          "cargo"
+          "cargo",
+          "location"
         ]
       }
     },
@@ -114643,7 +114818,7 @@
     },
     "/api/v2/spacemolt_storage/withdraw": {
       "post": {
-        "description": "Moves items, credits, or a ship out of a storage location back to cargo, wallet, or a carrier bay; must be docked. `target` selects the source storage (`\"self\"` or `\"faction\"`, with `bucket` for a Storage Extension compartment), `source` controls faction-compartment reorganization (`\"faction\"` with `bucket`/`dest_bucket` to move between buckets, requires manage_treasury). `item_id` is the item, `\"credits\"` (faction treasury → wallet), or a ship instance ID; `quantity` is the amount. Use `items` (array of `{item_id, quantity}`) to withdraw several items in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/withdraw` with body `{\"bucket\":\"example\",\"dest_bucket\":\"example\",\"item_id\":\"ace_pilot_card\",\"items\":[{\"item_id\":\"ace_pilot_card\",\"quantity\":1}],\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Moves items, credits, or a ship out of a storage location back to cargo, wallet, or a carrier bay. `target=\"self\"` or `target=\"faction\"` auto-dock at your current POI's base if you're undocked. `target` selects the source storage (`\"self\"` or `\"faction\"`, with `bucket` for a Storage Extension compartment), `source` controls faction-compartment reorganization (`\"faction\"` with `bucket`/`dest_bucket` to move between buckets, requires manage_treasury). `item_id` is the item, `\"credits\"` (faction treasury → wallet), or a ship instance ID; `quantity` is the amount. Use `items` (array of `{item_id, quantity}`) to withdraw several items in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/withdraw` with body `{\"bucket\":\"example\",\"dest_bucket\":\"example\",\"item_id\":\"ace_pilot_card\",\"items\":[{\"item_id\":\"ace_pilot_card\",\"quantity\":1}],\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_storage_withdraw",
         "requestBody": {
           "content": {
@@ -115134,7 +115309,8 @@
         "x-state-sections": [
           "player",
           "ship",
-          "cargo"
+          "cargo",
+          "location"
         ]
       }
     },

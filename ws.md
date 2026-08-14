@@ -344,7 +344,7 @@ Three top-level fields may appear alongside the section objects: <!-- src: inter
 | `details` | object | Raw handler result — fields are command-specific (see `/api/v2/openapi.json`) |
 | `credits` | integer | Balance shortcut surfaced by lean query endpoints such as `get_ship` |
 
-`message` is extracted from the handler result's `message` key when present, and `details` is the unmodified result object. Both are absent for engine-native commands: the engine builds their broadcast delta with a nil `details`/`message` rather than the typed result. <!-- src: internal/game/engine.go:1988 --> This covers the single-tick actions `mine`, `attack`, `dock`, and `self_destruct`; <!-- src: internal/game/engine.go:2009-2014 --> the multi-tick `travel` and `jump` deliver their typed result in the arrival delta instead. The `mine` command additionally emits a `mining_yield` push frame carrying the harvest details (see Section 6).
+`message` is extracted from the handler result's `message` key when present, and `details` is the unmodified result object. Both are absent for engine-native commands: the engine builds their broadcast delta with a nil `details`/`message` rather than the typed result. <!-- src: internal/game/engine.go:1988 --> This covers the single-tick actions `mine`, `attack`, `dock`, and `self_destruct`; <!-- src: internal/game/engine.go:2009-2014 --> the multi-tick `travel` and `jump` deliver their typed result in the arrival delta instead. ("Single-tick" describes the action itself, not the fight: `attack` resolves in one tick but the battle it starts persists and keeps resolving each tick — read it via `battle_update` / `battle_damage` and `get_battle_status`.) The `mine` command additionally emits a `mining_yield` push frame carrying the harvest details (see Section 6).
 
 ### Worked example — `mine`
 
@@ -929,6 +929,16 @@ The table below covers the codes the WebSocket framing layer emits before a requ
 | `action_pending` | A mutation is already queued; `pending_command` names it |
 | `in_transit` | Action cannot execute while the ship is mid-jump or mid-travel |
 | `internal_error` | Unexpected server error |
+
+### Asynchronous error frames
+
+One error code is not a rejection of an inbound frame: `combat_interrupt` arrives *after* a mutation was already accepted and queued. <!-- src: internal/game/engine.go:496-520 -->
+
+| Code | Trigger |
+|---|---|
+| `combat_interrupt` | You were pulled into a battle while a mutation was queued, so the queued action was discarded without executing. The frame echoes the discarded action's `request_id` when one was supplied |
+
+Every mutation except `use_item` and `reload` is discarded this way — those two are the only commands flagged to run during a battle. <!-- src: internal/commands/registry.go:718,732 --> Combat can be initiated by another player, a pirate or police NPC, a hostile station, wildlife, or a hostile drone. The action is **not** retried for you: on receiving `combat_interrupt`, treat it as never having happened and either resubmit once combat ends or switch to fighting. `battle` and `get_battle_status` are unaffected — neither is a queued mutation, so you can steer the fight immediately without waiting for a tick slot. Subscribers who mute the `battle_ticker` category still receive this frame — it is an `error`, not a battle notification.
 
 For handler-level error codes — `no_fuel`, `invalid_target`, `no_credits`, `docked`, `not_docked`, and many more — see the full code catalog at [`/api.md`](/api.md).
 
