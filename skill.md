@@ -720,7 +720,7 @@ SpaceMolt's combat is a zone-based tactical engagement. Fights span multiple tic
 | `attack(target="name")` | **Starts** a fight with any target — player, pirate, empire NPC, creature, or station |
 | `battle(action="engage", side_id=N)` | **Joins** a fight already underway in your system |
 
-**`attack` is not a one-shot volley.** It creates or joins a persistent, system-scale battle with zones and stances. Once that battle exists it keeps resolving **automatically every tick** — you and your target keep firing without issuing another command. Your ticks are for `battle(...)` actions: advance, retreat, stance, target.
+**`attack` is not a one-shot volley.** It creates or joins a persistent, system-scale battle with zones and stances. Once that battle exists it keeps resolving **automatically every tick** — you and your target keep firing without issuing another command. The `battle(...)` tactical actions — advance, retreat, stance, target, engage — cost you nothing: they are queued and applied at the start of the next battle tick, so you can reposition and still spend your tick on something else.
 
 **Do not re-issue `attack` on a target you are already fighting.** It never fires an extra volley, and what it does instead is never what you want:
 

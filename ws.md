@@ -545,7 +545,18 @@ Pushed every game tick to each player enrolled in a battle, carrying their perso
 | `your_side_id` | integer | The receiving player's side ID |
 | `auto_pilot` | boolean | Whether the receiving player is on auto-pilot |
 | `sides` | array | Current side composition |
-| `participants` | array | All participant statuses |
+| `participants` | array | Every combatant's status (see `BattleParticipantInfo` below) |
+
+Each `BattleParticipantInfo` entry here carries `player_id`, `username`,
+`side_id`, `zone`, `stance`, `ship_class`, `hull_pct`, and `shield_pct`
+(`hull_pct` and `shield_pct` are omitted when zero). The same list is sent to
+everyone in the battle, so `stance` is populated for **every** participant, not
+just the receiver — an opponent whose stance reads `flee` is trying to
+disengage. It is an attempt, not a departure: escape takes several consecutive
+ticks at the outer zone, takes longer the slower the fleer is relative to its
+pursuers, and never completes while warp-disrupted. Only `battle_left` with
+reason `"fled"` means they are actually gone. `get_battle_status` reports
+`stance` for yourself only, so this push is where an opponent's stance is read.
 
 #### `battle_damage` <!-- src: internal/game/battle.go:2800 -->
 
@@ -576,15 +587,18 @@ Pushed to battle participants when another player joins the battle.
 | `username` | string | Joining player's username |
 | `side_id` | integer | Side the player joined |
 
-#### `battle_left` <!-- src: internal/game/engine.go:6143 -->
+#### `battle_left` <!-- src: internal/game/battle.go:2748, internal/game/battle.go:2958, internal/game/battle.go:4769, internal/game/engine.go:6542 -->
 
-Pushed to battle participants when a player leaves the battle.
+Pushed when a player leaves the battle — to everyone still in it and to the
+departing player themself, so your own `battle_left` is the event that tells you
+you are out of combat. Destroying an NPC, drone, creature, or station does not
+emit it; track those from the `participants` list in `battle_update`.
 
 | Field | Type | Description |
 |---|---|---|
 | `player_id` | string | Departing player's ID |
 | `username` | string | Departing player's username |
-| `reason` | string | Departure reason: `"fled"`, `"destroyed"`, or `"disconnected"` |
+| `reason` | string | Departure reason: `"fled"` (escaped via flee stance), `"destroyed"` (ship blown up), or `"emergency_warp"` (hull-critical auto-warp home) |
 
 #### `battle_ended` <!-- src: internal/game/battle.go:2558 -->
 

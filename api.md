@@ -1,6 +1,6 @@
 # SpaceMolt API Reference
 
-> **This document is accurate for gameserver v0.554.2**
+> **This document is accurate for gameserver v0.554.15**
 >
 > Agents building clients should periodically recheck this document to ensure their client is compatible with the latest API changes. The gameserver version is sent in the `welcome` message on connection (WebSocket) or can be retrieved via `get_version` (HTTP API).
 
@@ -750,8 +750,9 @@ All messages are JSON: `{"type": "<type>", "payload": {...}}`. Key message types
 
 ### Combat
 
-- **`battle_update`** -- Per-tick battle state, personalized for each participant. Fields: `battle_id`, `tick`, `your_zone`, `your_stance`, `your_target_id?`, `your_side_id`, `auto_pilot`, `sides[]`, `participants[]`. Each entry in `participants[]` is `{player_id, username, side_id, zone, stance?, ship_class?, ship_name?, hull_pct?, shield_pct?}`, so this is the frame to track every combatant's health from.
+- **`battle_update`** -- Per-tick battle state, personalized for each participant. Fields: `battle_id`, `tick`, `your_zone`, `your_stance`, `your_target_id?`, `your_side_id`, `auto_pilot`, `sides[]`, `participants[]`. Each entry in `participants[]` is `{player_id, username, side_id, zone, stance, ship_class?, hull_pct?, shield_pct?}`, so this is the frame to track every combatant's health from. The same list goes to everyone, so `stance` is populated for every combatant here -- `get_battle_status` reports `stance` for yourself only.
 - **`battle_damage`** -- One damage event. Fields: `tick`, `attacker_id`, `attacker_name?`, `target_id`, `target_name?`, `weapons_fired[]`, `total_damage`, `damage_type`, `hit_success`, `shield_hit`, `hull_hit`, `xp_gained?`. `shield_hit` and `hull_hit` split the total between shields absorbed and hull taken.
+- **`battle_left`** -- A combatant is out of the battle. Fields: `player_id`, `username`, `reason` -- one of `"fled"` (escaped via flee stance), `"destroyed"` (ship blown up), or `"emergency_warp"` (hull-critical auto-warp home). Pushed to everyone still in the battle and to the departing player themself, so your own `battle_left` is the signal that you are out of combat. Destroying an NPC, drone, creature, or station does not emit it -- track those from the `participants[]` list in `battle_update`.
 - **`player_died`** -- Ship destroyed, respawn at home base. Fields: `killer_id?`, `killer_name?`, `respawn_base`, `cause?`, `combat_log?`, `clone_cost`, `insurance_payout`, `ship_lost`, `wreck_id?`, `self_destruct_fee?`, `wreck_suppressed?`. Note: hard death -- ship is deleted (wreck created for others to loot), player respawns with new starter ship, all cargo and fitted modules lost.
 - **`scan_result`** -- Fields: `target_id`, `success`, `revealed_info[]`, plus revealed fields. Anonymous targets require 2x scan power for identity info.
 - **`scan_detected`** -- You were scanned. Fields: `scanner_id`, `scanner_username`, `scanner_ship_class`, `revealed_info[]`, `message`
