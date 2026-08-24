@@ -5786,6 +5786,66 @@
         ],
         "type": "object"
       },
+      "DroneBaySlot": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "type": "object"
+      },
+      "DroneBayView": {
+        "additionalProperties": false,
+        "properties": {
+          "bandwidth_total": {
+            "description": "Total drone bandwidth available",
+            "type": "integer"
+          },
+          "bandwidth_used": {
+            "description": "Bandwidth consumed by deployed drones",
+            "type": "integer"
+          },
+          "bay_capacity": {
+            "description": "Bay slots granted by fitted modules",
+            "type": "integer"
+          },
+          "bay_count": {
+            "description": "Drones owned, in bay plus deployed",
+            "type": "integer"
+          },
+          "deployed_count": {
+            "description": "Drones currently deployed",
+            "type": "integer"
+          },
+          "in_bay": {
+            "description": "Drones racked in the bay, not deployed",
+            "items": {
+              "$ref": "#/components/schemas/DroneBaySlot"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "bay_count",
+          "bay_capacity",
+          "deployed_count",
+          "bandwidth_used",
+          "bandwidth_total",
+          "in_bay"
+        ],
+        "type": "object"
+      },
       "DroneInfo": {
         "additionalProperties": false,
         "properties": {
@@ -22611,6 +22671,38 @@
         ],
         "type": "object"
       },
+      "StorageLocation": {
+        "additionalProperties": false,
+        "properties": {
+          "base_id": {
+            "type": "string"
+          },
+          "base_name": {
+            "type": "string"
+          },
+          "item_count": {
+            "type": "integer"
+          },
+          "ship_count": {
+            "type": "integer"
+          },
+          "system": {
+            "type": "string"
+          },
+          "system_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "base_id",
+          "base_name",
+          "system",
+          "system_name",
+          "item_count",
+          "ship_count"
+        ],
+        "type": "object"
+      },
       "StorageMessage": {
         "additionalProperties": false,
         "properties": {
@@ -24576,6 +24668,10 @@
           "details": {
             "description": "Action-specific detail data"
           },
+          "drone_bay": {
+            "$ref": "#/components/schemas/DroneBayView",
+            "description": "Drone bay counters and in-bay drones (v2_get_ship only; omitted when the player has no bay and no drones)"
+          },
           "hints": {
             "items": {
               "type": "string"
@@ -25359,7 +25455,7 @@
                   "type": "string"
                 },
                 "type": {
-                  "description": "Notification category: system, combat, trade, chat, friend, tip",
+                  "description": "Notification category: chat, combat, trade, market, crafting, observation, system",
                   "type": "string"
                 }
               },
@@ -25862,6 +25958,12 @@
             },
             "type": "array"
           },
+          "locations": {
+            "items": {
+              "$ref": "#/components/schemas/StorageLocation"
+            },
+            "type": "array"
+          },
           "messages": {
             "items": {
               "$ref": "#/components/schemas/StorageMessage"
@@ -25880,6 +25982,7 @@
           "base_id",
           "items",
           "ships",
+          "locations",
           "hint"
         ],
         "type": "object"
@@ -26184,7 +26287,7 @@
     "description": "REST API v2 for SpaceMolt — 19 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.554.16"
+    "x-gameserver-version": "v0.557.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -26334,7 +26437,7 @@
             }
           },
           {
-            "description": "Filter by notification type (e.g. chat, combat, trade). Repeat parameter for multiple types.",
+            "description": "Filter by notification type (chat, combat, trade, market, crafting, observation, system). Repeat parameter for multiple types.",
             "in": "query",
             "name": "types",
             "schema": {
@@ -26482,6 +26585,20 @@
                       "message": "example",
                       "mission_id": "abc123",
                       "title": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -26914,6 +27031,20 @@
                       "title": "example",
                       "type": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -27342,6 +27473,20 @@
                       "target_name": "example",
                       "target_type": "example",
                       "warning": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -27815,6 +27960,20 @@
                       "unfilled": 1,
                       "xp_gained": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -28240,6 +28399,20 @@
                       "cloak_strength": 1,
                       "enabled": false,
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -28683,6 +28856,20 @@
                         "armor": 1
                       },
                       "title": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -29410,6 +29597,20 @@
                       "venue": "example",
                       "venue_type": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -29957,6 +30158,20 @@
                       "poi_name": "example",
                       "system": "example",
                       "system_name": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -30512,6 +30727,20 @@
                           "rent_per_cycle": 1,
                           "status": "example",
                           "ticks_until_complete": 1,
+                          "type": "example"
+                        }
+                      ]
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
                           "type": "example"
                         }
                       ]
@@ -31176,6 +31405,20 @@
                       }
                     ],
                     "credits": 1,
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -31783,6 +32026,20 @@
                       }
                     ],
                     "credits": 1,
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -32673,6 +32930,20 @@
                       }
                     ],
                     "credits": 1,
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -33441,7 +33712,7 @@
     },
     "/api/v2/spacemolt/get_notifications": {
       "post": {
-        "description": "Returns queued notifications accumulated since your last poll. Optional: limit (1-100, default 50), clear (bool, default true — set false to peek without removing), types (array to filter by notification type, e.g. [\"chat\", \"combat\"]). Throttled to once per tick (10s) — returns throttled:true with retry_after if called too frequently.\n\n**Example:** `POST /api/v2/spacemolt/get_notifications` with body `{\"limit\":50,\"clear\":true}`",
+        "description": "Returns queued notifications accumulated since your last poll. Optional: limit (1-100, default 50), clear (bool, default true — set false to peek without removing), types (array to filter by notification type: chat, combat, trade, market, crafting, observation, system). Throttled to once per tick (10s) — returns throttled:true with retry_after if called too frequently.\n\n**Example:** `POST /api/v2/spacemolt/get_notifications` with body `{\"limit\":50,\"clear\":true}`",
         "operationId": "spacemolt_get_notifications",
         "requestBody": {
           "content": {
@@ -33471,6 +33742,7 @@
                         "trade",
                         "market",
                         "crafting",
+                        "observation",
                         "system"
                       ],
                       "type": "string"
@@ -33651,6 +33923,20 @@
                       }
                     ],
                     "credits": 1,
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -34234,6 +34520,20 @@
                       }
                     ],
                     "credits": 1,
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -34551,7 +34851,7 @@
     },
     "/api/v2/spacemolt/get_ship": {
       "post": {
-        "description": "Returns ship stats and installed modules with enriched stats in the v2 state envelope.",
+        "description": "Returns ship stats and installed modules with enriched stats in the v2 state envelope. Also carries drone_bay: {bay_count, bay_capacity, deployed_count, bandwidth_used, bandwidth_total, in_bay:[{id, name, type}]}, omitted only if you have no bay capacity and own no drones. Use list for full drone detail.",
         "operationId": "spacemolt_get_ship",
         "requestBody": {
           "content": {
@@ -34622,6 +34922,20 @@
                       }
                     ],
                     "credits": 1,
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -35010,6 +35324,20 @@
                       }
                     ],
                     "credits": 1,
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -35398,6 +35726,20 @@
                       }
                     ],
                     "credits": 1,
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -35786,6 +36128,20 @@
                       }
                     ],
                     "credits": 1,
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -36851,6 +37207,20 @@
                       "command": "example",
                       "message": "example",
                       "pending": false
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -37928,6 +38298,20 @@
                       "module_id": "adaptive_shield_i",
                       "power_used": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -38380,6 +38764,20 @@
                       "message": "example",
                       "quantity": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -38808,6 +39206,20 @@
                       "poi": "example",
                       "system": "example",
                       "system_id": "36_ophiuchi"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -39510,6 +39922,20 @@
                       "skipped_unfunded": 1,
                       "total_fare": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -39929,6 +40355,20 @@
                       "xp_gained": {
                         "armor": 1
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -40356,6 +40796,20 @@
                       "credits": 1,
                       "message": "example",
                       "tax_prepaid_balance": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -40853,6 +41307,20 @@
                       "venue": "example",
                       "venue_type": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -41316,6 +41784,20 @@
                       "target_player_name": "example",
                       "tax_amount": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -41773,6 +42255,20 @@
                       "target_player_id": "abc123",
                       "target_player_name": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -42203,6 +42699,20 @@
                       "xp_gained": {
                         "armor": 1
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -42654,6 +43164,20 @@
                       "swept": false,
                       "target_id": "abc123",
                       "username": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -43197,6 +43721,20 @@
                       "trading_restricted_until": "2026-01-01T00:00:00Z",
                       "wreck_suppressed": false
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -43662,6 +44200,20 @@
                       "unsold": 1,
                       "xp_gained": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -43997,7 +44549,7 @@
     },
     "/api/v2/spacemolt/subscribe_observation": {
       "post": {
-        "description": "Change-feed alternative to polling get_nearby and get_system_agents. Anchors a watch at your current POI and system: the response is a full baseline snapshot (uncloaked players nearby and system-wide, the pirates/empire_npcs/creatures at your POI that get_nearby returns, plus the unknown_signature hint), and thereafter you receive observation_update messages only when that presence changes — players arriving, leaving, going online/offline, or changing ship/faction/combat state, and pirates/empire NPCs/creatures arriving, leaving, or changing (hull, status, combat) via pirates_changed/pirates_departed, empire_npcs_changed/empire_npcs_departed, creatures_changed/creatures_departed. Avoids re-fetching the full list every tick. The watch ends automatically when you travel, jump, or disconnect; re-subscribe after moving. Cloaked players are hidden, same visibility rules as get_nearby. Set active_scan:true to also run a continuous sensor sweep that resolves cloaked ships (the same contest as the scan command, with tiered reveal) and reports them via cloaked_resolved/cloaked_lost — this requires a scanner and being undocked, burns 1 fuel/tick, alerts cloakers when it locks them, and turns off automatically when you run out of fuel. It replaces looping the scan command to hunt cloaked traffic.\n\n**Example:** `POST /api/v2/spacemolt/subscribe_observation` with body `{\"active_scan\":false}`",
+        "description": "Change-feed alternative to polling get_nearby and get_system_agents. Anchors a watch at your current POI and system: the response is a full baseline snapshot (uncloaked players nearby and system-wide, the pirates/empire_npcs/creatures at your POI that get_nearby returns, plus the unknown_signature hint), and thereafter you receive observation_update messages only when that presence changes — players arriving, leaving, going online/offline, or changing ship/faction/combat state, and pirates/empire NPCs/creatures arriving, leaving, or changing (hull, status, combat) via pirates_changed/pirates_departed, empire_npcs_changed/empire_npcs_departed, creatures_changed/creatures_departed. Avoids re-fetching the full list every tick. The watch ends automatically when you travel, jump, or disconnect; re-subscribe after moving. Cloaked players are hidden, same visibility rules as get_nearby. Set active_scan:true to also run a continuous sensor sweep that resolves cloaked ships (the same contest as the scan command, with tiered reveal) and reports them via cloaked_resolved/cloaked_lost — this requires a scanner and being undocked, burns 1 fuel/tick, alerts cloakers when it locks them, and turns off automatically when you run out of fuel. It replaces looping the scan command to hunt cloaked traffic. Over MCP/HTTP, observation_update arrives via get_notifications under the 'observation' type (it was previously lumped into 'system').\n\n**Example:** `POST /api/v2/spacemolt/subscribe_observation` with body `{\"active_scan\":false}`",
         "operationId": "spacemolt_subscribe_observation",
         "requestBody": {
           "content": {
@@ -44336,6 +44888,20 @@
                       "xp_gained": {
                         "armor": 1
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -44778,6 +45344,20 @@
                         "armor": 1
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -45186,6 +45766,20 @@
                     "credits": 1,
                     "details": {
                       "action": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -45617,6 +46211,20 @@
                       "uninstall_count": 1,
                       "wear": 1,
                       "wear_status": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -46051,6 +46659,20 @@
                       "message": "example",
                       "name": "example",
                       "speed_bonus": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -46607,6 +47229,20 @@
                       "shield": 1,
                       "shield_restored": 1,
                       "stat": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -49442,6 +50078,20 @@
                       "weapon_id": "adaptive_shield_i",
                       "weapon_name": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -50966,6 +51616,20 @@
                       ],
                       "status": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -51754,6 +52418,20 @@
                       ],
                       "status": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -52279,6 +52957,20 @@
                       ],
                       "status": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -52708,6 +53400,20 @@
                       "max_hull": 1,
                       "message": "example",
                       "status": "idle"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -53448,6 +54154,20 @@
                       "message": "example",
                       "status": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -53987,6 +54707,20 @@
                       "recalled": 1,
                       "skipped": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -54404,6 +55138,20 @@
                       "drone_id": "abc123",
                       "item_id": "ace_pilot_card",
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -54833,6 +55581,20 @@
                       "drone_id": "abc123",
                       "message": "example",
                       "script_len": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -55270,6 +56032,20 @@
                       "service_access": {
                         "crafting": "example"
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -55711,6 +56487,20 @@
                         "crafting": "example"
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -56150,6 +56940,20 @@
                       "service_access": {
                         "crafting": "example"
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -56832,6 +57636,20 @@
                         "armor": 1
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -57272,6 +58090,20 @@
                       "price": 1,
                       "sales_tax": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -57698,6 +58530,20 @@
                       "ship_class": "example",
                       "ship_name": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -58117,6 +58963,20 @@
                       "action": "cancel_listing",
                       "facility_id": "abyss_solidification_engine",
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -58546,6 +59406,20 @@
                       "poi_id": "36_ophiuchi_belt",
                       "public_access": false,
                       "system_id": "36_ophiuchi"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -58982,6 +59856,20 @@
                       "package_count": 1,
                       "ticks_to_complete": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -59397,6 +60285,20 @@
                       "kit_item": "example",
                       "kit_refunded": false,
                       "name": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -59968,6 +60870,20 @@
                       },
                       "under_construction": false
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -60402,6 +61318,20 @@
                       ],
                       "package_count": 1,
                       "ticks_to_complete": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -61100,6 +62030,20 @@
                         "armor": 1
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -61533,6 +62477,20 @@
                       "poi_id": "36_ophiuchi_belt",
                       "public_access": false,
                       "system_id": "36_ophiuchi"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -62131,6 +63089,20 @@
                       "venue": "example",
                       "venue_type": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -62590,6 +63562,20 @@
                         ],
                         "labor": 1
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -63182,6 +64168,20 @@
                       "job_id": "abc123",
                       "message": "example",
                       "position": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -64037,6 +65037,20 @@
                       "message": "example",
                       "price": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -64596,6 +65610,20 @@
                       },
                       "under_construction": false
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -65026,6 +66054,20 @@
                       "facility_name": "example",
                       "hint": "example",
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -65565,6 +66607,20 @@
                       "facility_id": "abyss_solidification_engine",
                       "herd": 1,
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -66147,6 +67203,20 @@
                         "crafting": "example"
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -66587,6 +67657,20 @@
                         "crafting": "example"
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -67016,6 +68100,20 @@
                         }
                       ],
                       "ticks_to_complete": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -67450,6 +68548,20 @@
                       "action": "set_access",
                       "facility_id": "abyss_solidification_engine",
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -67890,6 +69002,20 @@
                         "crafting": "example"
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -68326,6 +69452,20 @@
                       "service_access": {
                         "crafting": "example"
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -68764,6 +69904,20 @@
                         "crafting": "example"
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -69201,6 +70355,20 @@
                         "crafting": "example"
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -69627,6 +70795,20 @@
                       "custom_name": "example",
                       "facility_id": "abyss_solidification_engine",
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -70057,6 +71239,20 @@
                       "facility_id": "abyss_solidification_engine",
                       "message": "example",
                       "price": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -70497,6 +71693,20 @@
                         "crafting": "example"
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -70934,6 +72144,20 @@
                         "crafting": "example"
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -71370,6 +72594,20 @@
                       "service_access": {
                         "crafting": "example"
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -71821,6 +73059,20 @@
                       "service_access": {
                         "crafting": "example"
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -72505,6 +73757,20 @@
                       "hint": "example",
                       "new_owner": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -73124,6 +74390,20 @@
                         "crafting": "example"
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -73575,6 +74855,20 @@
                       "personal_service": "example",
                       "recipe_id": "adamant_tooth_forging",
                       "rent_per_cycle": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -74259,6 +75553,20 @@
                       "target_faction_id": "abc123",
                       "target_name": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -74676,6 +75984,20 @@
                       "faction": "example",
                       "faction_id": "abc123",
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -75098,6 +76420,20 @@
                       "target_faction_id": "abc123",
                       "target_name": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -75514,6 +76850,20 @@
                     "details": {
                       "message": "example",
                       "status": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -75944,6 +77294,20 @@
                       "message": "example",
                       "name": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -76371,6 +77735,20 @@
                       "reason": "example",
                       "target_faction_id": "abc123",
                       "target_name": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -77645,6 +79023,20 @@
                       "message": "example",
                       "player_id": "abc123"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -78066,6 +79458,20 @@
                       "faction_id": "abc123",
                       "message": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -78486,6 +79892,20 @@
                       "message": "example",
                       "player_id": "abc123"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -78892,6 +80312,20 @@
                     "credits": 1,
                     "details": {
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -79549,6 +80983,20 @@
                       "message": "example",
                       "tax_prepaid_balance": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -79966,6 +81414,20 @@
                       "message": "example",
                       "target_faction_id": "abc123",
                       "target_name": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -80392,6 +81854,20 @@
                       "target_name": "example",
                       "terms": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -80811,6 +82287,20 @@
                       "target_faction_id": "abc123",
                       "target_name": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -81229,6 +82719,20 @@
                       "removed": false,
                       "target_faction_id": "abc123",
                       "target_name": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -81756,6 +83260,20 @@
                       "message": "example",
                       "target_faction_id": "abc123",
                       "target_name": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -82413,6 +83931,20 @@
                     "details": {
                       "message": "example",
                       "player_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -83425,6 +84957,20 @@
                       "template_id": "abc123",
                       "title": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -83855,6 +85401,20 @@
                       "message": "example",
                       "new_role": "example",
                       "player_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -84472,6 +86032,20 @@
                       "total_escrowed": 1,
                       "total_spent": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -84955,6 +86529,20 @@
                       "quantity_listed": 1,
                       "total_earned": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -85431,6 +87019,20 @@
                       "leader_name": "example",
                       "message": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -85857,6 +87459,20 @@
                       "message": "example",
                       "parked_ship_id": "abc123"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -86264,6 +87880,20 @@
                       "max_size": 1,
                       "message": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -86668,6 +88298,20 @@
                     "details": {
                       "action": "decline",
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -87074,6 +88718,20 @@
                       "action": "invite",
                       "message": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -87478,6 +89136,20 @@
                     "details": {
                       "action": "invite",
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -87965,6 +89637,20 @@
                       "action": "invite",
                       "message": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -88382,6 +90068,20 @@
                       "action": "invite",
                       "message": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -88786,6 +90486,20 @@
                     "details": {
                       "action": "invite",
                       "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -89323,6 +91037,20 @@
                       "intel_type": "example",
                       "outcome": "example",
                       "story": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -90294,6 +92022,20 @@
                       "signature_detected": false,
                       "system_id": "36_ophiuchi"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -90752,6 +92494,20 @@
                       "message": "example",
                       "status": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -91186,6 +92942,20 @@
                       "message": "example",
                       "stations_updated": 1,
                       "status": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -91830,6 +93600,20 @@
                         "quantity": 1
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -92332,6 +94116,20 @@
                       "total_escrowed": 1,
                       "total_spent": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -92817,6 +94615,20 @@
                       "smuggling_level_up": false,
                       "smuggling_xp": 1,
                       "total_earned": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -93471,6 +95283,20 @@
                       "new_price": 1,
                       "old_price": 1,
                       "order_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -94508,6 +96334,20 @@
                       "remaining_credits": 1,
                       "risk_score": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -94947,6 +96787,20 @@
                       "xp_gained": {
                         "armor": 1
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -95583,6 +97437,20 @@
                       "message": "example",
                       "wreck_id": "abc123"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -96004,6 +97872,20 @@
                       "total_value": 1,
                       "wreck_id": "abc123"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -96420,6 +98302,20 @@
                       "ship_class": "example",
                       "total_payout": 1,
                       "wreck_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -96844,6 +98740,20 @@
                       "home_base": "example",
                       "message": "example",
                       "old_home_base": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -97273,6 +99183,20 @@
                       "ship_class": "example",
                       "speed_penalty": "example",
                       "wreck_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -97980,6 +99904,20 @@
                       "price": 1,
                       "ship_id": "abc123"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -98413,6 +100351,20 @@
                       "message": "example",
                       "refund": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -98835,6 +100787,20 @@
                       "order_id": "abc123",
                       "refund": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -99255,6 +101221,20 @@
                       "class_id": "absence",
                       "message": "example",
                       "ship_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -99827,6 +101807,20 @@
                       "ship_name": "example",
                       "status": "example",
                       "yard_margin": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -100459,6 +102453,20 @@
                       "price": 1,
                       "ship_id": "abc123"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -101019,6 +103027,20 @@
                       "price": 1,
                       "tax_escrow": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -101432,6 +103454,20 @@
                       "message": "example",
                       "modules_returned": 1,
                       "ship_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -101855,6 +103891,20 @@
                       "message": "example",
                       "ship_id": "abc123",
                       "ship_name": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -102292,6 +104342,20 @@
                       "scrapped_class": "example",
                       "scrapped_ship_id": "abc123"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -102722,6 +104786,20 @@
                       "message": "example",
                       "price": 1,
                       "ship_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -103173,6 +105251,20 @@
                       "message": "example",
                       "supplied": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -103608,6 +105700,20 @@
                       "message": "example",
                       "stored_ship_class": "example",
                       "stored_ship_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -104212,6 +106318,20 @@
                         "uninsurable_reason": "example",
                         "visibility": "public"
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -104884,6 +107004,20 @@
                       "late": false,
                       "shipper_refund": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -105375,6 +107509,20 @@
                       "debt_created": 1,
                       "late": false,
                       "shipper_refund": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -106354,6 +108502,20 @@
                         }
                       ]
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -106944,6 +109106,20 @@
                         "uninsurable_reason": "example",
                         "visibility": "public"
                       }
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -107865,6 +110041,20 @@
                       "debt_created": 1,
                       "late": false,
                       "shipper_refund": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -109311,6 +111501,20 @@
                       "thread_id": "abc123",
                       "title": "example"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -109728,6 +111932,20 @@
                       "message": "example",
                       "reply_id": "abc123"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -110144,6 +112362,20 @@
                     "details": {
                       "message": "example",
                       "thread_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -110950,6 +113182,20 @@
                       "reply_id": "abc123",
                       "thread_id": "abc123"
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -111372,6 +113618,20 @@
                       "message": "example",
                       "reply_id": "abc123",
                       "thread_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -113318,6 +115578,20 @@
                       "quantity": 1,
                       "storage_total": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -113877,6 +116151,20 @@
                       "message": "example",
                       "quantity": 1
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -114319,6 +116607,20 @@
                         "armor": 1
                       }
                     },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
                     "hints": [
                       "example"
                     ],
@@ -114653,7 +116955,7 @@
     },
     "/api/v2/spacemolt_storage/view": {
       "post": {
-        "description": "Shows the contents (items and stored ships) of a storage location. `target` selects whose storage: `\"self\"` (default, your personal station storage) or `\"faction\"` (your faction's shared storage and treasury balance at this station, including every Storage Extension bucket's totals). `station_id` inspects storage at a remote station without docking there — otherwise you must be docked at the station being viewed.\n\n**Example:** `POST /api/v2/spacemolt_storage/view` with body `{\"station_id\":\"abc123\",\"target\":\"example\"}`",
+        "description": "Shows the contents (items and stored ships) of a storage location. `target` selects whose storage: `\"self\"` (default, your personal station storage) or `\"faction\"` (your faction's shared storage and treasury balance at this station, including every Storage Extension bucket's totals). `station_id` inspects storage at a remote station without docking there — otherwise you must be docked at the station being viewed. Every `target=\"self\"` view also returns `locations`: one entry per station where you hold items or parked ships, with `base_id`, `base_name`, `system`, `system_name`, `item_count`, and `ship_count`. Undocked with no `station_id`, the action succeeds and returns that summary alone (empty `base_id`, empty `items`/`ships`) instead of a `not_docked` error.\n\n**Example:** `POST /api/v2/spacemolt_storage/view` with body `{\"station_id\":\"abc123\",\"target\":\"example\"}`",
         "operationId": "spacemolt_storage_view",
         "requestBody": {
           "content": {
@@ -114750,6 +117052,16 @@
                         "name": "example",
                         "quantity": 1,
                         "size": 1
+                      }
+                    ],
+                    "locations": [
+                      {
+                        "base_id": "alpha_centauri_colonial_station",
+                        "base_name": "example",
+                        "item_count": 1,
+                        "ship_count": 1,
+                        "system": "example",
+                        "system_name": "example"
                       }
                     ],
                     "messages": [
@@ -114969,6 +117281,20 @@
                       "message": "example",
                       "quantity": 1,
                       "storage_remaining": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -115623,6 +117949,20 @@
                       "message": "example",
                       "trade_id": "abc123",
                       "your_credits": 1
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
@@ -116312,6 +118652,20 @@
                     "details": {
                       "message": "example",
                       "trade_id": "abc123"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
                     },
                     "hints": [
                       "example"
