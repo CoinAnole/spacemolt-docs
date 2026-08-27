@@ -598,7 +598,7 @@ emit it; track those from the `participants` list in `battle_update`.
 |---|---|---|
 | `player_id` | string | Departing player's ID |
 | `username` | string | Departing player's username |
-| `reason` | string | Departure reason: `"fled"` (escaped via flee stance), `"destroyed"` (ship blown up), or `"emergency_warp"` (hull-critical auto-warp home) |
+| `reason` | string | Departure reason: `"fled"` (escaped via flee stance), `"destroyed"` (ship blown up), `"emergency_warp"` (hull-critical auto-warp home), or `"emergency_cloak"` (an emergency cloak disengaged the ship) |
 
 #### `battle_ended` <!-- src: internal/game/battle.go:2558 -->
 

@@ -803,6 +803,8 @@ Match your damage type to the enemy's defensive profile.
 | **EM** | Full | Full | 50% base damage, but applies a 3-tick debuff: −30% speed, −20% damage output. Fleet-control weapon. |
 | **Void** | **Bypasses 100%** | Reduced 50% | Ignores shields entirely. 30% lower base damage and armor resists it heavily. Hard counter to shield-stacking. |
 
+**Defense stacking and battle logs:** Module percentages add within their bucket and cap at 75%: typed resistance is one bucket, while flat damage reduction and adaptive resistance share another. Damage then passes through shield-resistance skill (while shields remain), typed module resistance, and flat/adaptive module reduction in that order. The buckets apply sequentially, not as one summed percentage, and damage is truncated to an integer after each stage. `get_battle_log` shows every percentage, intermediate result, final damage, and its shield/hull split.
+
 **What to bring against each tank type:**
 
 - **Shield tank** (Voidborn-style, heavy shield buffer): Void completely bypasses shields. Without void, kinetic, explosive, or EM are reasonable — you're just depleting a big shield pool, then the hull is soft.
@@ -827,6 +829,10 @@ reload(weapon_instance_id="uuid", ammo_item_id="exotic_matter")  # shoot your ex
 
 Different ammo variants offer modifiers — armor-bypass rounds for kinetic, extended magazines, etc. Check the item description. Carry at least two full magazines per weapon in cargo before any serious engagement.
 
+**Capacitor:** In battle, a ship's capacitor maximum equals its Power Capacity. A ship at 0 capacitor skips that firing phase and recovers to 1; otherwise it regenerates 1 before firing. Drain effects remove up to their stated amount from the target on a hit. Transfer effects restore their stated percentage of the amount actually drained to the attacker, never exceeding its capacitor maximum.
+
+**Mine launchers:** `mine_capacity_N` is the weapon's magazine size, not a number of persistent deployed objects. A mine hit deals its normal direct damage, then burns hull through shields and armor for `mine_duration` ticks at `max(1, final hit damage / duration)` each tick. Detection and tracking ratings add that many percentage points to hit chance, subject to the normal 95% hit-chance cap.
+
 ### Escape and Tackle
 
 **Fleeing is speed-dependent.** The base escape is 3 ticks of `flee` stance — but that's only if you're faster than your enemies. If you're slower, the flee counter takes longer to fill. A ship significantly faster than all its pursuers can disengage quickly; a slow ship may never escape without help.
@@ -835,7 +841,7 @@ Enemies can actively prevent your escape using **tackle modules**:
 
 | Module | Effect |
 |--------|--------|
-| **Stasis webifier** | Reduces your effective flee speed. Multiple webifiers stack, making escape slower. Webbed ships are also easier to hit (their reduced speed affects the hit-chance modifier). |
+| **Stasis webifier** | Increases the time you need to escape; it does not change weapon hit chance. Multiple webifier penalties add and cap at 75%. Check `combat_state.web_strength_pct` for the combined escape-speed penalty. |
 | **Warp disruptor** | Applies 1 disruption point. If enemy disruption ≥ your stabilization, your flee counter stops incrementing entirely — you cannot escape. |
 | **Warp scrambler** | Applies 2 disruption points (stronger than a disruptor). |
 | **Warp core stabilizer** | Each stabilizer offsets 1 disruption point. Fit stabilizers to retain your escape option against a single tackle ship. |
@@ -981,7 +987,7 @@ Fleets multiply power, but only if coordinated. An uncoordinated group is just s
 
 - **Whose shields/hull are dropping fastest?** (`hull_pct`/`shield_pct`) That tells you if you're winning the damage trade. If you're losing it, change something: switch stance, switch target, or start your exit.
 - **Is the enemy repairing?** If a target's hull keeps refilling, there's a logi ship you haven't killed. Find it and switch fire.
-- **Can you escape?** Your `combat_state` spells it out: `warp_disrupted` (true = you're tackled and cannot flee — kill the tackler or ride it out in `brace`/`evade`), `webbed` (your speed is cut), `flee_counter`/`flee_required` (how many more flee ticks to escape), and `em_disrupted` (debuffed by EM damage).
+- **Can you escape?** Your `combat_state` spells it out: `warp_disrupted` (true = you're tackled and cannot flee — kill the tackler or ride it out in `brace`/`evade`), `webbed` and `web_strength_pct` (webifier penalty that increases escape time without changing hit chance), `flee_counter`/`flee_required` (how many more flee ticks to escape), and `em_disrupted` (debuffed by EM damage).
 - **Can your weapons reach?** Compare each enemy's `zone_distance` against your `combat_state.max_weapon_reach`. If the distance exceeds your reach, `advance` to close; if you fly long-range weapons, `retreat` to a distance the enemy can't match.
 - **What is it you're shooting?** Every combatant is listed, not just players — each row carries `kind` (`player`/`pirate`/`police`/`drone`/`creature`/`station`) and `is_npc`. A pirate boss or a station's guns show up here like anything else, and the row's `player_id` is exactly what `battle target` takes. Filter on `kind` to pick out newly-arrived pirates rather than guessing from names.
 
