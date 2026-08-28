@@ -460,7 +460,6 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `refit_ship()` -- Refit your active ship to its latest class specifications **Mutation.**
 - `refuel(item_id?, quantity?, target?)` -- Refuel your ship or transfer fuel to another ship **Mutation.**
 - `repair(item_id?, quantity?, target?)` -- Repair hull — at station (credits), in space (repair kits), or on another ship (repair arm + kits) **Mutation.**
-- `repair_module(module_id)` -- Repair wear on a module using a Repair Kit **Mutation.**
 - `scrap_ship(ship_id)` -- Permanently destroy a ship you no longer want (no credits returned) **Mutation.**
 - `sell_ship_to_order(order_id, ship_id)` -- Sell a stored ship directly into a buy order at this base **Mutation.**
 - `supply_commission(commission_id, item_id, quantity)` -- Donate materials directly to a credits-only commission that is stuck sourcing **Mutation.**

@@ -460,9 +460,6 @@
           },
           "untraceable": {
             "type": "boolean"
-          },
-          "wear_per_shot": {
-            "type": "number"
           }
         },
         "type": "object"
@@ -15169,9 +15166,6 @@
           "quantity": {
             "type": "integer"
           },
-          "wear": {
-            "type": "number"
-          },
           "wreck_empty": {
             "type": "boolean"
           },
@@ -15219,17 +15213,13 @@
           },
           "type_id": {
             "type": "string"
-          },
-          "wear": {
-            "type": "number"
           }
         },
         "required": [
           "id",
           "type_id",
           "name",
-          "type",
-          "wear"
+          "type"
         ],
         "type": "object"
       },
@@ -20090,51 +20080,6 @@
         ],
         "type": "object"
       },
-      "RepairModuleResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "auto_docked": {
-            "type": "boolean"
-          },
-          "auto_undocked": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "module_id": {
-            "type": "string"
-          },
-          "repair_amount": {
-            "type": "number"
-          },
-          "wear_after": {
-            "type": "number"
-          },
-          "wear_before": {
-            "type": "number"
-          },
-          "wear_status": {
-            "type": "string"
-          },
-          "xp_gained": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "type": "object"
-          }
-        },
-        "required": [
-          "message",
-          "module_id",
-          "wear_before",
-          "wear_after",
-          "repair_amount",
-          "wear_status",
-          "xp_gained"
-        ],
-        "type": "object"
-      },
       "RepairResponse": {
         "additionalProperties": false,
         "properties": {
@@ -22569,9 +22514,6 @@
           },
           "type_id": {
             "type": "string"
-          },
-          "wear": {
-            "type": "number"
           }
         },
         "required": [
@@ -22579,7 +22521,6 @@
           "type_id",
           "name",
           "type",
-          "wear",
           "reason"
         ],
         "type": "object"
@@ -24573,12 +24514,6 @@
           "cpu_used": {
             "type": "integer"
           },
-          "damaged": {
-            "type": "boolean"
-          },
-          "destroyed": {
-            "type": "boolean"
-          },
           "message": {
             "type": "string"
           },
@@ -24587,21 +24522,11 @@
           },
           "power_used": {
             "type": "integer"
-          },
-          "uninstall_count": {
-            "type": "integer"
-          },
-          "wear": {
-            "type": "number"
-          },
-          "wear_status": {
-            "type": "string"
           }
         },
         "required": [
           "message",
           "module_id",
-          "damaged",
           "cpu_used",
           "power_used"
         ],
@@ -25356,12 +25281,6 @@
           },
           "type_id": {
             "type": "string"
-          },
-          "wear": {
-            "type": "number"
-          },
-          "wear_status": {
-            "type": "string"
           }
         },
         "required": [
@@ -25371,8 +25290,6 @@
           "type",
           "slot",
           "size",
-          "wear",
-          "wear_status",
           "cpu_usage",
           "power_usage"
         ],
@@ -26674,7 +26591,7 @@
     "description": "REST API v2 for SpaceMolt — 19 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.566.2"
+    "x-gameserver-version": "v0.567.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -27148,9 +27065,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -27595,9 +27510,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -28040,9 +27953,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -28528,9 +28439,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -28970,9 +28879,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -29429,9 +29336,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -30171,9 +30076,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -30735,9 +30638,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -31309,9 +31210,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -31985,9 +31884,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -32608,9 +32505,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -33514,9 +33409,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -34509,9 +34402,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -35108,9 +34999,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -35512,9 +35401,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -35916,9 +35803,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -36320,9 +36205,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -36724,9 +36607,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -37806,9 +37687,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -38238,8 +38117,7 @@
                               "shield_bypass": 1,
                               "shield_damage_mod": 1,
                               "splash_pct": 1,
-                              "untraceable": false,
-                              "wear_per_shot": 1
+                              "untraceable": false
                             },
                             "amount": 1,
                             "duration": 1,
@@ -38629,7 +38507,7 @@
     },
     "/api/v2/spacemolt/install_mod": {
       "post": {
-        "description": "Module must be in your cargo. Requires CPU/power grid capacity. You must be docked or have an operational Ship Maintenance Bay fitted. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `POST /api/v2/spacemolt/install_mod` with body `{\"id\":\"pulse_laser_ii\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Module must be in your cargo. Requires CPU/power grid capacity. You must be docked or have a Ship Maintenance Bay fitted. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `POST /api/v2/spacemolt/install_mod` with body `{\"id\":\"pulse_laser_ii\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_install_mod",
         "requestBody": {
           "content": {
@@ -38898,9 +38776,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -39366,9 +39242,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -39811,9 +39685,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -40528,9 +40400,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -40964,9 +40834,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -41422,9 +41290,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -41862,9 +41728,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -42374,9 +42238,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -42853,9 +42715,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -43326,9 +43186,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -43497,454 +43355,6 @@
           "player",
           "ship",
           "cargo"
-        ]
-      }
-    },
-    "/api/v2/spacemolt/repair_module": {
-      "post": {
-        "description": "Module must be in cargo (not fitted). Consumes 1 repair_kit. Repair amount scales with your relevant skill level. You must be docked at a base with repair service or have an operational Ship Maintenance Bay fitted.\n\n**Example:** `POST /api/v2/spacemolt/repair_module` with body `{\"id\":\"instance_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
-        "operationId": "spacemolt_repair_module",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "example": {
-                "id": "instance_id"
-              },
-              "schema": {
-                "properties": {
-                  "id": {
-                    "description": "Instance ID of the module to repair (must be in cargo, not fitted)",
-                    "type": "string",
-                    "x-positional-index": 0
-                  }
-                },
-                "required": [
-                  "id"
-                ],
-                "type": "object"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "example": {
-                  "error": {
-                    "code": "example",
-                    "message": "example",
-                    "retry_after": 1
-                  },
-                  "notifications": [
-                    {
-                      "data": {
-                        "achievements": [
-                          {
-                            "category": "example",
-                            "description": "example",
-                            "id": "abc123",
-                            "name": "example",
-                            "points": 1,
-                            "share_url": "example"
-                          }
-                        ],
-                        "faction": false
-                      },
-                      "id": "abc123",
-                      "msg_type": "example",
-                      "timestamp": "2026-01-01T00:00:00Z",
-                      "type": "example"
-                    }
-                  ],
-                  "session": {
-                    "created_at": "2026-01-01T00:00:00Z",
-                    "expires_at": "2026-01-01T00:00:00Z",
-                    "id": "abc123",
-                    "player_id": "abc123"
-                  },
-                  "structuredContent": {
-                    "bay_capacity": 1,
-                    "bay_used": 1,
-                    "cargo": [
-                      {
-                        "item_id": "adamant_tooth",
-                        "item_name": "example",
-                        "quantity": 1,
-                        "size": 1
-                      }
-                    ],
-                    "carried_ships": [
-                      {
-                        "class_id": "absence",
-                        "class_name": "example",
-                        "name": "example",
-                        "scale": 1,
-                        "ship_id": "abc123",
-                        "slots_used": 1
-                      }
-                    ],
-                    "credits": 1,
-                    "details": {
-                      "auto_docked": false,
-                      "auto_undocked": false,
-                      "message": "example",
-                      "module_id": "adaptive_shield_i",
-                      "repair_amount": 1,
-                      "wear_after": 1,
-                      "wear_before": 1,
-                      "wear_status": "example",
-                      "xp_gained": {
-                        "armor": 1
-                      }
-                    },
-                    "drone_bay": {
-                      "bandwidth_total": 1,
-                      "bandwidth_used": 1,
-                      "bay_capacity": 1,
-                      "bay_count": 1,
-                      "deployed_count": 1,
-                      "in_bay": [
-                        {
-                          "id": "abc123",
-                          "name": "example",
-                          "type": "example"
-                        }
-                      ]
-                    },
-                    "hints": [
-                      "example"
-                    ],
-                    "location": {
-                      "connections": [
-                        "example"
-                      ],
-                      "docked_at": "example",
-                      "empire": "crimson",
-                      "in_transit": false,
-                      "nearby_empire_npc_count": 1,
-                      "nearby_empire_npcs": [
-                        {
-                          "empire": "crimson",
-                          "fleet_name": "example",
-                          "in_combat": false,
-                          "name": "example",
-                          "npc_id": "abc123",
-                          "role": "example",
-                          "ship_class": "example",
-                          "ship_name": "example"
-                        }
-                      ],
-                      "nearby_pirate_count": 1,
-                      "nearby_pirates": [
-                        {
-                          "faction": "example",
-                          "faction_name": "example",
-                          "hull": 1,
-                          "is_boss": false,
-                          "max_hull": 1,
-                          "max_shield": 1,
-                          "name": "example",
-                          "pirate_id": "abc123",
-                          "shield": 1,
-                          "status": "example",
-                          "tier": "example"
-                        }
-                      ],
-                      "nearby_player_count": 1,
-                      "nearby_players": [
-                        {
-                          "clan_tag": "example",
-                          "faction_tag": "example",
-                          "in_combat": false,
-                          "offline": false,
-                          "player_id": "abc123",
-                          "ship_class": "example",
-                          "ship_name": "example",
-                          "username": "example"
-                        }
-                      ],
-                      "offline_collapsed": 1,
-                      "poi_id": "36_ophiuchi_belt",
-                      "poi_name": "example",
-                      "poi_type": "example",
-                      "resources": [
-                        {
-                          "item_id": "adamant_tooth",
-                          "item_name": "example",
-                          "remaining": 1,
-                          "richness": 1,
-                          "supported_power": 1
-                        }
-                      ],
-                      "security_status": "example",
-                      "system_id": "36_ophiuchi",
-                      "system_name": "example",
-                      "transit_arrival_tick": 1,
-                      "transit_bearing": 1,
-                      "transit_dest_poi_id": "abc123",
-                      "transit_dest_poi_name": "example",
-                      "transit_dest_system_id": "abc123",
-                      "transit_dest_system_name": "example",
-                      "transit_ticks_elapsed": 1,
-                      "transit_type": "example",
-                      "transit_x": 1,
-                      "transit_y": 1,
-                      "unknown_signature": false,
-                      "void_message": "example"
-                    },
-                    "message": "example",
-                    "missions": {
-                      "active": [
-                        {
-                          "accepted_at": "example",
-                          "community": false,
-                          "community_percent": 1,
-                          "community_progress": {
-                            "adamant_tooth": "example"
-                          },
-                          "description": "example",
-                          "difficulty": 1,
-                          "expires_in_ticks": 1,
-                          "giver": {
-                            "name": "example",
-                            "title": "example"
-                          },
-                          "issuing_base": "example",
-                          "issuing_base_id": "abc123",
-                          "issuing_system_id": "abc123",
-                          "issuing_system_name": "example",
-                          "mission_id": "abc123",
-                          "objectives": [
-                            {
-                              "completed": false,
-                              "current": 1,
-                              "description": "example",
-                              "eligible_players": [
-                                "example"
-                              ],
-                              "in_cargo": 1,
-                              "in_storage": 1,
-                              "item_id": "adamant_tooth",
-                              "item_name": "example",
-                              "participants": [
-                                "example"
-                              ],
-                              "required": 1,
-                              "system_id": "36_ophiuchi",
-                              "system_name": "example",
-                              "target_base": "example",
-                              "target_base_name": "example",
-                              "type": "example"
-                            }
-                          ],
-                          "percent_complete": 1,
-                          "rewards": {
-                            "credits": 1,
-                            "items": {
-                              "adamant_tooth": 1
-                            },
-                            "pirate_faction": "example",
-                            "pirate_rep": 1,
-                            "reputation": 1,
-                            "skill_xp": {
-                              "armor": 1
-                            }
-                          },
-                          "template_id": "abc123",
-                          "title": "example",
-                          "type": "example"
-                        }
-                      ],
-                      "max_missions": 1
-                    },
-                    "modules": [
-                      {
-                        "ammo_type": "example",
-                        "cpu_usage": 1,
-                        "current_ammo": 1,
-                        "loaded_ammo_id": "abc123",
-                        "loaded_ammo_name": "example",
-                        "magazine_size": 1,
-                        "module_id": "adaptive_shield_i",
-                        "name": "example",
-                        "power_usage": 1,
-                        "size": 1,
-                        "slot": "example",
-                        "stats": {},
-                        "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
-                      }
-                    ],
-                    "player": {
-                      "citizenships": [
-                        "example"
-                      ],
-                      "clan_tag": "example",
-                      "credits": 1,
-                      "empire": "crimson",
-                      "faction_id": "abc123",
-                      "faction_rank": "example",
-                      "home_base": "example",
-                      "home_poi": "example",
-                      "home_system": "example",
-                      "id": "abc123",
-                      "is_cloaked": false,
-                      "primary_color": "example",
-                      "secondary_color": "example",
-                      "standings": {
-                        "crimson": {
-                          "baseline": 1,
-                          "jailed_until": "2026-01-01T00:00:00Z",
-                          "outstanding_bounty": 1,
-                          "reputation": 1
-                        }
-                      },
-                      "stats": "",
-                      "status_message": "example",
-                      "towing_ship_id": "abc123",
-                      "towing_wreck_id": "abc123",
-                      "trading_restricted_until": "2026-01-01T00:00:00Z",
-                      "username": "example"
-                    },
-                    "queue": {
-                      "has_pending": false
-                    },
-                    "riding": {
-                      "carrier": "example",
-                      "ship_id": "abc123"
-                    },
-                    "ship": {
-                      "active_buffs": [
-                        {
-                          "amount": 1,
-                          "expires_at": 1,
-                          "item_id": "adamant_tooth",
-                          "stat": "example"
-                        }
-                      ],
-                      "armor": 1,
-                      "armor_melt_pct": 1,
-                      "armor_melt_ticks_remaining": 1,
-                      "berths": {
-                        "business": {
-                          "free": 1,
-                          "total": 1
-                        },
-                        "economy": {
-                          "free": 1,
-                          "total": 1
-                        },
-                        "first": {
-                          "free": 1,
-                          "total": 1
-                        }
-                      },
-                      "burn_damage_per_tick": 1,
-                      "burn_source_id": "abc123",
-                      "burn_ticks_remaining": 1,
-                      "capacitor": 1,
-                      "cargo_capacity": 1,
-                      "cargo_used": 1,
-                      "class_id": "absence",
-                      "class_name": "example",
-                      "cpu_capacity": 1,
-                      "cpu_used": 1,
-                      "custom_name": "example",
-                      "damage_penalty": 1,
-                      "defense_slots": 1,
-                      "disruption_ticks_remaining": 1,
-                      "fuel": 1,
-                      "gas_cargo_efficiency": 1,
-                      "hull": 1,
-                      "ice_cargo_efficiency": 1,
-                      "id": "abc123",
-                      "max_capacitor": 1,
-                      "max_fuel": 1,
-                      "max_hull": 1,
-                      "max_shield": 1,
-                      "name": "example",
-                      "ore_cargo_efficiency": 1,
-                      "power_capacity": 1,
-                      "power_used": 1,
-                      "shield": 1,
-                      "shield_recharge": 1,
-                      "speed": 1,
-                      "speed_penalty": 1,
-                      "utility_slots": 1,
-                      "weapon_slots": 1
-                    },
-                    "skills": {
-                      "armor": {
-                        "category": "example",
-                        "level": 1,
-                        "max_level": 1,
-                        "name": "example",
-                        "next_level_xp": 1,
-                        "xp": 1
-                      }
-                    },
-                    "version": "example"
-                  }
-                },
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/V2Response"
-                    },
-                    {
-                      "properties": {
-                        "structuredContent": {
-                          "allOf": [
-                            {
-                              "$ref": "#/components/schemas/V2GameState"
-                            },
-                            {
-                              "properties": {
-                                "details": {
-                                  "$ref": "#/components/schemas/RepairModuleResponse"
-                                }
-                              },
-                              "type": "object"
-                            }
-                          ]
-                        }
-                      },
-                      "type": "object"
-                    }
-                  ]
-                }
-              }
-            },
-            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (RepairModuleResponse)"
-          },
-          "400": {
-            "description": "Bad request — invalid params, unknown command, or game error"
-          },
-          "401": {
-            "description": "Not authenticated — missing or invalid session"
-          },
-          "429": {
-            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
-          }
-        },
-        "security": [
-          {
-            "SessionId": []
-          }
-        ],
-        "summary": "Repair wear on a module using a Repair Kit",
-        "tags": [
-          "gameplay"
-        ],
-        "x-is-mutation": true,
-        "x-state-sections": [
-          "ship",
-          "modules",
-          "cargo",
-          "skills"
         ]
       }
     },
@@ -44240,9 +43650,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -44798,9 +44206,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -45279,9 +44685,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -45970,9 +45374,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -46427,9 +45829,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -46852,9 +46252,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -47028,7 +46426,7 @@
     },
     "/api/v2/spacemolt/uninstall_mod": {
       "post": {
-        "description": "module_id accepts a module instance ID (from get_ship) or a module type ID (e.g. 'pulse_laser_i'). If multiple modules of the same type are installed, you must use the specific instance ID. You must be docked or have an operational Ship Maintenance Bay fitted. In space, the module must fit in cargo.\n\n**Example:** `POST /api/v2/spacemolt/uninstall_mod` with body `{\"id\":\"instance_id_or_type_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "module_id accepts a module instance ID (from get_ship) or a module type ID (e.g. 'pulse_laser_i'). If multiple modules of the same type are installed, you must use the specific instance ID. You must be docked or have a Ship Maintenance Bay fitted. In space, the module must fit in cargo.\n\n**Example:** `POST /api/v2/spacemolt/uninstall_mod` with body `{\"id\":\"instance_id_or_type_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_uninstall_mod",
         "requestBody": {
           "content": {
@@ -47115,14 +46513,9 @@
                       "auto_docked": false,
                       "auto_undocked": false,
                       "cpu_used": 1,
-                      "damaged": false,
-                      "destroyed": false,
                       "message": "example",
                       "module_id": "adaptive_shield_i",
-                      "power_used": 1,
-                      "uninstall_count": 1,
-                      "wear": 1,
-                      "wear_status": "example"
+                      "power_used": 1
                     },
                     "drone_bay": {
                       "bandwidth_total": 1,
@@ -47299,9 +46692,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -47749,9 +47140,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -48322,9 +47711,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -51223,9 +50610,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -52194,8 +51579,7 @@
                             "shield_bypass": 1,
                             "shield_damage_mod": 1,
                             "splash_pct": 1,
-                            "untraceable": false,
-                            "wear_per_shot": 1
+                            "untraceable": false
                           },
                           "amount": 1,
                           "duration": 1,
@@ -52764,9 +52148,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -53568,9 +52950,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -54109,9 +53489,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -54555,9 +53933,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -55310,9 +54686,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -55865,9 +55239,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -56299,9 +55671,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -56744,9 +56114,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -57197,9 +56565,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -57653,9 +57019,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -58109,9 +57473,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -58806,9 +58168,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -59262,9 +58622,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -59704,9 +59062,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -60140,9 +59496,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -60585,9 +59939,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -61036,9 +60388,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -61468,9 +60818,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -62054,9 +61402,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -62505,9 +61851,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -63218,9 +62562,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -63668,9 +63010,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -64281,9 +63621,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -64757,9 +64095,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -65365,9 +64701,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -66235,9 +65569,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -66810,9 +66142,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -67257,9 +66587,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -67812,9 +67140,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -68409,9 +67735,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -68865,9 +68189,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -69311,9 +68633,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -69761,9 +69081,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -70216,9 +69534,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -70669,9 +69985,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -71122,9 +70436,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -71575,9 +70887,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -72018,9 +71328,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -72464,9 +71772,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -72919,9 +72225,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -73372,9 +72676,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -73825,9 +73127,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -74292,9 +73592,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -74991,9 +74289,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -75626,9 +74922,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -76094,9 +75388,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -76793,9 +76085,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -77227,9 +76517,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -77664,9 +76952,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -78097,9 +77383,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -78542,9 +77826,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -78986,9 +78268,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -80275,9 +79555,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -80712,9 +79990,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -81148,9 +80424,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -81571,9 +80845,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -82243,9 +81515,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -82677,9 +81947,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -83118,9 +82386,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -83553,9 +82819,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -83988,9 +83252,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -84531,9 +83793,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -85204,9 +84464,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -86235,9 +85493,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -86682,9 +85938,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -87314,9 +86568,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -87813,9 +87065,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -88305,9 +87555,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -88747,9 +87995,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -89170,9 +88416,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -89591,9 +88835,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -90012,9 +89254,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -90433,9 +89673,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -90935,9 +90173,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -91368,9 +90604,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -91789,9 +91023,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -92342,9 +91574,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -93328,9 +92558,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -93802,9 +93030,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -94253,9 +93479,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -94912,9 +94136,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -95430,9 +94652,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -95932,9 +95152,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -96602,9 +95820,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -97654,9 +96870,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -97828,7 +97042,7 @@
     },
     "/api/v2/spacemolt_salvage/loot": {
       "post": {
-        "description": "If wreck_id is omitted while towing a wreck, defaults to your towed wreck. Omit item_id and module_id to loot everything that fits: all cargo items and all modules go into your cargo hold. To loot a specific cargo item: include item_id and optional quantity. To fit a specific module directly onto your ship, include module_id — you must meet its declared skills; the module must be operational and not withdrawn; and the ship needs a free slot plus sufficient CPU/power. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `POST /api/v2/spacemolt_salvage/loot` with body `{\"id\":\"wreck_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "If wreck_id is omitted while towing a wreck, defaults to your towed wreck. Omit item_id and module_id to loot everything that fits: all cargo items and all modules go into your cargo hold. To loot a specific cargo item: include item_id and optional quantity. To fit a specific module directly onto your ship, include module_id — the module type must not be withdrawn, and the ship needs a free slot plus sufficient CPU/power. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `POST /api/v2/spacemolt_salvage/loot` with body `{\"id\":\"wreck_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_salvage_loot",
         "requestBody": {
           "content": {
@@ -97929,7 +97143,6 @@
                       "module_id": "adaptive_shield_i",
                       "module_type_id": "abc123",
                       "quantity": 1,
-                      "wear": 1,
                       "wreck_empty": false,
                       "xp_gained": {
                         "armor": 1
@@ -98110,9 +97323,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -98279,6 +97490,7 @@
         "x-is-mutation": true,
         "x-state-sections": [
           "ship",
+          "modules",
           "cargo"
         ]
       }
@@ -98761,9 +97973,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -99198,9 +98408,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -99631,9 +98839,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -100071,9 +99277,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -100516,9 +99720,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -100690,7 +99892,7 @@
     },
     "/api/v2/spacemolt_salvage/wrecks": {
       "post": {
-        "description": "Wrecks contain cargo and modules from destroyed ships. Each module in the response includes its name, type, wear, and instance ID. Ship and pirate wrecks persist indefinitely until looted or salvaged. Jettison containers despawn after 10 minutes.",
+        "description": "Wrecks contain cargo and modules from destroyed ships. Each module in the response includes its name, type, and instance ID. Ship and pirate wrecks persist indefinitely until looted or salvaged. Jettison containers despawn after 10 minutes.",
         "operationId": "spacemolt_salvage_wrecks",
         "requestBody": {
           "content": {
@@ -100763,8 +99965,7 @@
                             "id": "abc123",
                             "name": "example",
                             "type": "example",
-                            "type_id": "abc123",
-                            "wear": 1
+                            "type_id": "abc123"
                           }
                         ],
                         "poi_id": "36_ophiuchi_belt",
@@ -101238,9 +100439,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -101687,9 +100886,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -102125,9 +101322,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -102562,9 +101757,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -103150,9 +102343,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -103797,9 +102988,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -104373,9 +103562,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -104803,9 +103990,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -105242,9 +104427,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -105694,9 +104877,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -106141,9 +105322,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -106607,9 +105786,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -107059,9 +106236,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -107679,9 +106854,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -108366,9 +107539,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -108874,9 +108045,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -109868,9 +109037,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -110475,9 +109642,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -111412,9 +110577,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -112873,9 +112036,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -113306,9 +112467,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -113739,9 +112898,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -114560,9 +113717,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -114999,9 +114154,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -116960,9 +116113,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -117535,9 +116686,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -117710,7 +116859,7 @@
     },
     "/api/v2/spacemolt_storage/loot": {
       "post": {
-        "description": "If wreck_id is omitted while towing a wreck, defaults to your towed wreck. Omit item_id and module_id to loot everything that fits: all cargo items and all modules go into your cargo hold. To loot a specific cargo item: include item_id and optional quantity. To fit a specific module directly onto your ship, include module_id — you must meet its declared skills; the module must be operational and not withdrawn; and the ship needs a free slot plus sufficient CPU/power. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `POST /api/v2/spacemolt_storage/loot` with body `{\"wreck_id\":\"wreck_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "If wreck_id is omitted while towing a wreck, defaults to your towed wreck. Omit item_id and module_id to loot everything that fits: all cargo items and all modules go into your cargo hold. To loot a specific cargo item: include item_id and optional quantity. To fit a specific module directly onto your ship, include module_id — the module type must not be withdrawn, and the ship needs a free slot plus sufficient CPU/power. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `POST /api/v2/spacemolt_storage/loot` with body `{\"wreck_id\":\"wreck_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_storage_loot",
         "requestBody": {
           "content": {
@@ -117812,7 +116961,6 @@
                       "module_id": "adaptive_shield_i",
                       "module_type_id": "abc123",
                       "quantity": 1,
-                      "wear": 1,
                       "wreck_empty": false,
                       "xp_gained": {
                         "armor": 1
@@ -117993,9 +117141,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -118162,6 +117308,7 @@
         "x-is-mutation": true,
         "x-state-sections": [
           "ship",
+          "modules",
           "cargo"
         ]
       }
@@ -118670,9 +117817,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -119340,9 +118485,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {
@@ -120045,9 +119188,7 @@
                         "slot": "example",
                         "stats": {},
                         "type": "example",
-                        "type_id": "abc123",
-                        "wear": 1,
-                        "wear_status": "example"
+                        "type_id": "abc123"
                       }
                     ],
                     "player": {

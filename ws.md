@@ -202,7 +202,7 @@ Sent after every successful auth action. Contains the full initial game state fo
 |---|---|
 | `player` | Full player record |
 | `ship` | Current ship |
-| `modules` | Enriched module details (type info, stats, wear) |
+| `modules` | Enriched module details (type info and stats) |
 | `system` | Current star system with POI and connection details |
 | `poi` | Current point of interest (docked station, asteroid field, etc.) |
 | `pending_trades` | Open incoming and outgoing trade offers |
@@ -325,7 +325,7 @@ Eight state sections are tracked independently. Each handler registers which sec
 |---|---|
 | `player` | Player identity, credits, faction membership, empire standings, cumulative stats |
 | `ship` | Hull, shield, armor, fuel, cargo capacity, CPU/power usage, slot counts |
-| `modules` | Installed modules with type info, stats, wear level, and ammo state |
+| `modules` | Installed modules with type info, stats, and ammo state |
 | `cargo` | Full cargo manifest — every item stack with resolved name and size |
 | `location` | Current system and POI, docked state, nearby players/pirates, mineable resources |
 | `missions` | Active mission list and mission slot count |
