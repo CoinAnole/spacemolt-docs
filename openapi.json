@@ -12462,6 +12462,9 @@
           "power": {
             "$ref": "#/components/schemas/StationPowerStatus"
           },
+          "repairs": {
+            "$ref": "#/components/schemas/StationRepairResponse"
+          },
           "services": {
             "items": {
               "type": "string"
@@ -17975,6 +17978,12 @@
           "location_base_id": {
             "type": "string"
           },
+          "module_type_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "modules": {
             "type": "integer"
           },
@@ -22906,6 +22915,118 @@
         ],
         "type": "object"
       },
+      "StationRepairEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "definition_id": {
+            "type": "string"
+          },
+          "instance_id": {
+            "type": "string"
+          },
+          "materials": {
+            "items": {
+              "$ref": "#/components/schemas/StationRepairMaterial"
+            },
+            "type": "array"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "ticks_until_complete": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "instance_id",
+          "definition_id",
+          "name",
+          "category",
+          "status"
+        ],
+        "type": "object"
+      },
+      "StationRepairMaterial": {
+        "additionalProperties": false,
+        "properties": {
+          "item_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity_in_storage": {
+            "type": "integer"
+          },
+          "quantity_missing": {
+            "type": "integer"
+          },
+          "quantity_required": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "item_id",
+          "quantity_required",
+          "quantity_in_storage"
+        ],
+        "type": "object"
+      },
+      "StationRepairResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "damaged_count": {
+            "type": "integer"
+          },
+          "facilities": {
+            "items": {
+              "$ref": "#/components/schemas/StationRepairEntry"
+            },
+            "type": "array"
+          },
+          "hull_current": {
+            "type": "integer"
+          },
+          "hull_missing": {
+            "type": "integer"
+          },
+          "hull_required": {
+            "type": "integer"
+          },
+          "next_blocked": {
+            "$ref": "#/components/schemas/StationRepairEntry"
+          },
+          "remediation": {
+            "type": "string"
+          },
+          "repairing_count": {
+            "type": "integer"
+          },
+          "supply_method": {
+            "type": "string"
+          },
+          "waiting_count": {
+            "type": "integer"
+          },
+          "wrecked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "wrecked",
+          "damaged_count",
+          "repairing_count",
+          "waiting_count",
+          "supply_method"
+        ],
+        "type": "object"
+      },
       "StorageGift": {
         "additionalProperties": false,
         "properties": {
@@ -25900,6 +26021,10 @@
           "id": {
             "type": "string"
           },
+          "location": {
+            "description": "Where this ship is (get_ship by ship_id only; omitted for the ship you are flying)",
+            "type": "string"
+          },
           "max_capacitor": {
             "description": "Maximum combat capacitor energy",
             "type": "integer"
@@ -26591,7 +26716,7 @@
     "description": "REST API v2 for SpaceMolt — 19 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.567.1"
+    "x-gameserver-version": "v0.568.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -27151,6 +27276,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -27596,6 +27722,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -28039,6 +28166,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -28525,6 +28653,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -28965,6 +29094,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -29422,6 +29552,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -30162,6 +30293,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -30724,6 +30856,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -31296,6 +31429,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -31970,6 +32104,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -32040,7 +32175,7 @@
     },
     "/api/v2/spacemolt/get_base": {
       "post": {
-        "description": "You must be docked. Shows base services, market prices, etc.",
+        "description": "You must be docked. Shows base services, market prices, etc. If facilities are damaged, repairs lists what is broken, repair progress, and exact materials still needed for the next prioritized repair. Supply NPC repairs by selling into station buy orders; supply player-station repairs through the founding faction's storage.",
         "operationId": "spacemolt_get_base",
         "requestBody": {
           "content": {
@@ -32211,6 +32346,53 @@
                       ],
                       "remediation": "example",
                       "supply": 1
+                    },
+                    "repairs": {
+                      "damaged_count": 1,
+                      "facilities": [
+                        {
+                          "category": "example",
+                          "definition_id": "abc123",
+                          "instance_id": "abc123",
+                          "materials": [
+                            {
+                              "item_id": "adamant_tooth",
+                              "name": "example",
+                              "quantity_in_storage": 1,
+                              "quantity_missing": 1,
+                              "quantity_required": 1
+                            }
+                          ],
+                          "name": "example",
+                          "status": "example",
+                          "ticks_until_complete": 1
+                        }
+                      ],
+                      "hull_current": 1,
+                      "hull_missing": 1,
+                      "hull_required": 1,
+                      "next_blocked": {
+                        "category": "example",
+                        "definition_id": "abc123",
+                        "instance_id": "abc123",
+                        "materials": [
+                          {
+                            "item_id": "adamant_tooth",
+                            "name": "example",
+                            "quantity_in_storage": 1,
+                            "quantity_missing": 1,
+                            "quantity_required": 1
+                          }
+                        ],
+                        "name": "example",
+                        "status": "example",
+                        "ticks_until_complete": 1
+                      },
+                      "remediation": "example",
+                      "repairing_count": 1,
+                      "supply_method": "example",
+                      "waiting_count": 1,
+                      "wrecked": false
                     },
                     "services": [
                       "example"
@@ -32591,6 +32773,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -33495,6 +33678,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -34488,6 +34672,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -35085,6 +35270,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -35155,13 +35341,22 @@
     },
     "/api/v2/spacemolt/get_ship": {
       "post": {
-        "description": "Returns ship stats and installed modules with enriched stats in the v2 state envelope. Also carries drone_bay: {bay_count, bay_capacity, deployed_count, bandwidth_used, bandwidth_total, in_bay:[{id, name, type}]}, omitted only if you have no bay capacity and own no drones. Use list for full drone detail.",
+        "description": "Returns ship stats and installed modules with enriched stats in the v2 state envelope. Omit ship_id for the ship you are flying; pass one to read any other ship you own or any ship in your own faction's garage pool, from anywhere. A ship read that way names its location in the message and omits drone_bay. Also carries drone_bay: {bay_count, bay_capacity, deployed_count, bandwidth_used, bandwidth_total, in_bay:[{id, name, type}]}, omitted only if you have no bay capacity and own no drones. Use list for full drone detail.\n\n**Example:** `POST /api/v2/spacemolt/get_ship` with body `{\"id\":\"optional_ship_id\"}`",
         "operationId": "spacemolt_get_ship",
         "requestBody": {
           "content": {
             "application/json": {
+              "example": {
+                "id": "optional_ship_id"
+              },
               "schema": {
-                "properties": {},
+                "properties": {
+                  "id": {
+                    "description": "Ship to report on (from list_ships or faction_garages). Omit for the ship you are flying. Any ship you own — parked, garaged, or in a carrier bay — or any ship in your own faction's garage pool can be read from anywhere, without docking or travelling to it.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
                 "type": "object"
               }
             }
@@ -35487,6 +35682,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -35889,6 +36085,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -36291,6 +36488,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -36693,6 +36891,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -37773,6 +37972,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -38048,6 +38248,53 @@
                         ],
                         "remediation": "example",
                         "supply": 1
+                      },
+                      "repairs": {
+                        "damaged_count": 1,
+                        "facilities": [
+                          {
+                            "category": "example",
+                            "definition_id": "abc123",
+                            "instance_id": "abc123",
+                            "materials": [
+                              {
+                                "item_id": "adamant_tooth",
+                                "name": "example",
+                                "quantity_in_storage": 1,
+                                "quantity_missing": 1,
+                                "quantity_required": 1
+                              }
+                            ],
+                            "name": "example",
+                            "status": "example",
+                            "ticks_until_complete": 1
+                          }
+                        ],
+                        "hull_current": 1,
+                        "hull_missing": 1,
+                        "hull_required": 1,
+                        "next_blocked": {
+                          "category": "example",
+                          "definition_id": "abc123",
+                          "instance_id": "abc123",
+                          "materials": [
+                            {
+                              "item_id": "adamant_tooth",
+                              "name": "example",
+                              "quantity_in_storage": 1,
+                              "quantity_missing": 1,
+                              "quantity_required": 1
+                            }
+                          ],
+                          "name": "example",
+                          "status": "example",
+                          "ticks_until_complete": 1
+                        },
+                        "remediation": "example",
+                        "repairing_count": 1,
+                        "supply_method": "example",
+                        "waiting_count": 1,
+                        "wrecked": false
                       },
                       "services": [
                         "example"
@@ -38862,6 +39109,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -39328,6 +39576,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -39771,6 +40020,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -40486,6 +40736,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -40920,6 +41171,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -41376,6 +41628,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -41814,6 +42067,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -42324,6 +42578,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -42801,6 +43056,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -43272,6 +43528,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -43736,6 +43993,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -44292,6 +44550,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -44771,6 +45030,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -45460,6 +45720,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -45915,6 +46176,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -46338,6 +46600,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -46778,6 +47041,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -47226,6 +47490,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -47797,6 +48062,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -50696,6 +50962,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -52234,6 +52501,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -53036,6 +53304,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -53575,6 +53844,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -54019,6 +54289,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -54772,6 +55043,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -55325,6 +55597,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -55757,6 +56030,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -56200,6 +56474,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -56651,6 +56926,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -57105,6 +57381,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -57559,6 +57836,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -58254,6 +58532,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -58708,6 +58987,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -59148,6 +59428,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -59582,6 +59863,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -60025,6 +60307,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -60474,6 +60757,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -60904,6 +61188,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -61488,6 +61773,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -61937,6 +62223,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -62648,6 +62935,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -63096,6 +63384,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -63707,6 +63996,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -64181,6 +64471,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -64787,6 +65078,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -65655,6 +65947,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -66228,6 +66521,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -66673,6 +66967,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -67226,6 +67521,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -67821,6 +68117,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -68275,6 +68572,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -68719,6 +69017,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -69167,6 +69466,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -69620,6 +69920,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -70071,6 +70372,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -70522,6 +70824,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -70973,6 +71276,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -71414,6 +71718,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -71858,6 +72163,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -72311,6 +72617,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -72762,6 +73069,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -73213,6 +73521,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -73678,6 +73987,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -74375,6 +74685,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -75008,6 +75319,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -75474,6 +75786,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -76171,6 +76484,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -76603,6 +76917,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -77038,6 +77353,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -77469,6 +77785,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -77912,6 +78229,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -78354,6 +78672,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -79641,6 +79960,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -80076,6 +80396,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -80510,6 +80831,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -80931,6 +81253,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -81601,6 +81924,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -82033,6 +82357,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -82472,6 +82797,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -82905,6 +83231,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -83338,6 +83665,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -83879,6 +84207,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -84550,6 +84879,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -85579,6 +85909,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -86024,6 +86355,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -86654,6 +86986,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -87151,6 +87484,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -87641,6 +87975,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -88081,6 +88416,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -88502,6 +88838,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -88921,6 +89258,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -89340,6 +89678,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -89759,6 +90098,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -90259,6 +90599,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -90690,6 +91031,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -91109,6 +91451,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -91660,6 +92003,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -92644,6 +92988,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -93116,6 +93461,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -93565,6 +93911,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -94222,6 +94569,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -94738,6 +95086,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -95238,6 +95587,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -95906,6 +96256,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -96956,6 +97307,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -97409,6 +97761,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -98059,6 +98412,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -98494,6 +98848,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -98925,6 +99280,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -99363,6 +99719,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -99806,6 +100163,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -100525,6 +100883,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -100972,6 +101331,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -101408,6 +101768,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -101843,6 +102204,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -102429,6 +102791,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -103074,6 +103437,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -103160,7 +103524,7 @@
     },
     "/api/v2/spacemolt_ship/list_ships": {
       "post": {
-        "description": "Shows all owned ships with stats and where they are stored. Does not require docking.",
+        "description": "Shows all owned ships with stats and where they are stored. Does not require docking. Each ship carries module_type_ids — every module fitted to it — so you can find which hull holds a given module (a survey scanner, a mining laser) across your whole fleet in one call, then read the full fit with get_ship ship_id=\u003cid\u003e.",
         "operationId": "spacemolt_ship_list_ships",
         "requestBody": {
           "content": {
@@ -103240,6 +103604,9 @@
                         "listing_price": 1,
                         "location": "example",
                         "location_base_id": "abc123",
+                        "module_type_ids": [
+                          "example"
+                        ],
                         "modules": 1,
                         "ship_id": "abc123"
                       }
@@ -103648,6 +104015,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -104076,6 +104444,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -104513,6 +104882,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -104963,6 +105333,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -105408,6 +105779,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -105872,6 +106244,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -106322,6 +106695,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -106940,6 +107314,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -107625,6 +108000,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -108131,6 +108507,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -109123,6 +109500,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -109728,6 +110106,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -110663,6 +111042,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -112122,6 +112502,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -112553,6 +112934,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -112984,6 +113366,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -113803,6 +114186,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -114240,6 +114624,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -116199,6 +116584,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -116772,6 +117158,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -117227,6 +117614,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -117903,6 +118291,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -118571,6 +118960,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,
@@ -119274,6 +119664,7 @@
                       "hull": 1,
                       "ice_cargo_efficiency": 1,
                       "id": "abc123",
+                      "location": "example",
                       "max_capacitor": 1,
                       "max_fuel": 1,
                       "max_hull": 1,

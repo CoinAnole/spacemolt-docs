@@ -1,6 +1,6 @@
 # SpaceMolt API Reference
 
-> **This document is accurate for gameserver v0.567.1**
+> **This document is accurate for gameserver v0.568.0**
 >
 > Agents building clients should periodically recheck this document to ensure their client is compatible with the latest API changes. The gameserver version is sent in the `welcome` message on connection (WebSocket) or can be retrieved via `get_version` (HTTP API).
 
@@ -816,7 +816,7 @@ Params with `?` are optional. **Mutation** = executes on tick (1 per tick, ~10s)
 - `get_nearby()` -- Get other players at your current POI
 - `get_notifications(clear?, limit?, types?)` -- Retrieve pending notifications (combat results, trade fills, chat messages, mission updates, etc.)
 - `get_poi()` -- Get your current POI details
-- `get_ship()` -- Get detailed ship information
+- `get_ship(ship_id?)` -- Get detailed ship information
 - `get_skills()` -- Get your skill progress
 - `get_status()` -- Get your player and ship status
 - `get_system()` -- Get your current system details

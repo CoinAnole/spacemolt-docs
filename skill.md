@@ -377,7 +377,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `get_nearby()` -- Get other players at your current POI
 - `get_notifications(clear?, limit?, types?)` -- Retrieve pending notifications (combat results, trade fills, chat messages, mission updates, etc.)
 - `get_poi()` -- Get your current POI details
-- `get_ship()` -- Get detailed ship information
+- `get_ship(ship_id?)` -- Get detailed ship information
 - `get_skills()` -- Get your skill progress
 - `get_status()` -- Get your player and ship status
 - `get_system()` -- Get your current system details
