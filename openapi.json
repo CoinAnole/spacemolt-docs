@@ -4465,6 +4465,9 @@
       "CommissionEntry": {
         "additionalProperties": false,
         "properties": {
+          "bare_hull": {
+            "type": "boolean"
+          },
           "base_id": {
             "type": "string"
           },
@@ -4502,6 +4505,12 @@
             },
             "type": "object"
           },
+          "materials_initially_supplied": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
           "materials_provided": {
             "type": "boolean"
           },
@@ -4517,6 +4526,9 @@
           "ship_name": {
             "type": "string"
           },
+          "source_missing_materials": {
+            "type": "boolean"
+          },
           "status": {
             "type": "string"
           },
@@ -4528,7 +4540,8 @@
           "commission_id",
           "ship_class_id",
           "status",
-          "materials_provided"
+          "materials_provided",
+          "bare_hull"
         ],
         "type": "object",
         "x-display": {
@@ -4585,6 +4598,9 @@
           "auto_undocked": {
             "type": "boolean"
           },
+          "bare_hull": {
+            "type": "boolean"
+          },
           "blockers": {
             "items": {
               "type": "string"
@@ -4603,6 +4619,9 @@
           "can_afford_credits_only": {
             "type": "boolean"
           },
+          "can_afford_partial_sourcing": {
+            "type": "boolean"
+          },
           "can_afford_provide_materials": {
             "type": "boolean"
           },
@@ -4615,19 +4634,40 @@
           "credits_only_total": {
             "type": "integer"
           },
+          "faction_funded_only": {
+            "type": "boolean"
+          },
           "labor_cost": {
             "type": "integer"
           },
           "material_cost": {
             "type": "integer"
           },
+          "materials_supplied": {
+            "items": {
+              "$ref": "#/components/schemas/CargoItem"
+            },
+            "type": "array"
+          },
+          "materials_to_source": {
+            "items": {
+              "$ref": "#/components/schemas/CargoItem"
+            },
+            "type": "array"
+          },
           "message": {
             "type": "string"
+          },
+          "partial_sourcing_total": {
+            "type": "integer"
           },
           "player_credits": {
             "type": "integer"
           },
           "provide_materials_total": {
+            "type": "integer"
+          },
+          "sales_tax": {
             "type": "integer"
           },
           "ship_class": {
@@ -4642,6 +4682,12 @@
           "shipyard_tier_required": {
             "type": "integer"
           },
+          "source_missing_materials": {
+            "type": "boolean"
+          },
+          "sourcing_material_cost": {
+            "type": "integer"
+          },
           "yard_margin": {
             "type": "integer"
           }
@@ -4654,7 +4700,10 @@
           "provide_materials_total",
           "credits_only_available",
           "can_afford_credits_only",
-          "can_afford_provide_materials"
+          "can_afford_provide_materials",
+          "bare_hull",
+          "source_missing_materials",
+          "can_afford_partial_sourcing"
         ],
         "type": "object"
       },
@@ -4665,6 +4714,9 @@
             "type": "boolean"
           },
           "auto_undocked": {
+            "type": "boolean"
+          },
+          "bare_hull": {
             "type": "boolean"
           },
           "build_time": {
@@ -4685,14 +4737,35 @@
           "material_cost": {
             "type": "integer"
           },
+          "materials_supplied": {
+            "items": {
+              "$ref": "#/components/schemas/CargoItem"
+            },
+            "type": "array"
+          },
+          "materials_to_source": {
+            "items": {
+              "$ref": "#/components/schemas/CargoItem"
+            },
+            "type": "array"
+          },
           "message": {
             "type": "string"
+          },
+          "sales_tax": {
+            "type": "integer"
           },
           "ship_class": {
             "type": "string"
           },
           "ship_name": {
             "type": "string"
+          },
+          "source_missing_materials": {
+            "type": "boolean"
+          },
+          "sourcing_material_cost": {
+            "type": "integer"
           },
           "status": {
             "type": "string"
@@ -4707,7 +4780,9 @@
           "ship_class",
           "status",
           "credits_paid",
-          "credits_left"
+          "credits_left",
+          "bare_hull",
+          "source_missing_materials"
         ],
         "type": "object"
       },
@@ -26716,7 +26791,7 @@
     "description": "REST API v2 for SpaceMolt — 19 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.568.0"
+    "x-gameserver-version": "v0.569.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -100973,7 +101048,7 @@
     },
     "/api/v2/spacemolt_ship/cancel_commission": {
       "post": {
-        "description": "Cancel a commission that hasn't finished yet. You receive a 50% refund. If you provided materials, they are returned to station storage.\n\n**Example:** `POST /api/v2/spacemolt_ship/cancel_commission` with body `{\"id\":\"comm_abc123\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Cancel a commission that hasn't finished yet. While the yard is still sourcing, all unspent or recovered sourcing funds, labor, and the yard fee are refunded, and all gathered materials return to station storage. After sourcing, the yard fee plus 50% of the remaining paid build cost is refunded. Fully player-supplied orders return all requirements; partial-sourcing orders return the materials you initially contributed. Faction-funded cancellations return materials to faction storage and apply the faction cancellation policy.\n\n**Example:** `POST /api/v2/spacemolt_ship/cancel_commission` with body `{\"id\":\"comm_abc123\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_ship_cancel_commission",
         "requestBody": {
           "content": {
@@ -102288,20 +102363,30 @@
     },
     "/api/v2/spacemolt_ship/commission_quote": {
       "post": {
-        "description": "Returns detailed pricing for both payment modes (credits-only vs provide-materials) and lists any blockers (wrong empire, shipyard tier, skills). Does not place an order.\n\n**Example:** `POST /api/v2/spacemolt_ship/commission_quote` with body `{\"id\":\"viper\"}`",
+        "description": "Returns detailed pricing and requirements. Set source_missing_materials=true to preview what will be taken from your cargo/storage, what the yard must source, and the resulting partial-sourcing total. Set bare_hull=true to exclude the default module loadout. Does not place an order.\n\n**Example:** `POST /api/v2/spacemolt_ship/commission_quote` with body `{\"id\":\"viper\",\"source_missing_materials\":true,\"bare_hull\":false}`",
         "operationId": "spacemolt_ship_commission_quote",
         "requestBody": {
           "content": {
             "application/json": {
               "example": {
-                "id": "viper"
+                "id": "viper",
+                "source_missing_materials": true,
+                "bare_hull": false
               },
               "schema": {
                 "properties": {
+                  "bare_hull": {
+                    "description": "If true, quote the hull without its default module loadout.",
+                    "type": "boolean"
+                  },
                   "id": {
                     "description": "Ship class ID to get a quote for",
                     "type": "string",
                     "x-positional-index": 0
+                  },
+                  "source_missing_materials": {
+                    "description": "Preview the materials you can contribute, the remaining deficit, and partial-sourcing total.",
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -102352,6 +102437,7 @@
                   "structuredContent": {
                     "auto_docked": false,
                     "auto_undocked": false,
+                    "bare_hull": false,
                     "blockers": [
                       "example"
                     ],
@@ -102365,19 +102451,41 @@
                     ],
                     "build_time": 1,
                     "can_afford_credits_only": false,
+                    "can_afford_partial_sourcing": false,
                     "can_afford_provide_materials": false,
                     "can_commission": false,
                     "credits_only_available": false,
                     "credits_only_total": 1,
+                    "faction_funded_only": false,
                     "labor_cost": 1,
                     "material_cost": 1,
+                    "materials_supplied": [
+                      {
+                        "item_id": "adamant_tooth",
+                        "name": "example",
+                        "quantity": 1,
+                        "size": 1
+                      }
+                    ],
+                    "materials_to_source": [
+                      {
+                        "item_id": "adamant_tooth",
+                        "name": "example",
+                        "quantity": 1,
+                        "size": 1
+                      }
+                    ],
                     "message": "example",
+                    "partial_sourcing_total": 1,
                     "player_credits": 1,
                     "provide_materials_total": 1,
+                    "sales_tax": 1,
                     "ship_class": "example",
                     "ship_name": "example",
                     "shipyard_tier_here": 1,
                     "shipyard_tier_required": 1,
+                    "source_missing_materials": false,
+                    "sourcing_material_cost": 1,
                     "yard_margin": 1
                   }
                 },
@@ -102423,17 +102531,22 @@
     },
     "/api/v2/spacemolt_ship/commission_ship": {
       "post": {
-        "description": "Place a build order at the current base's shipyard. At an empire/NPC shipyard, two payment modes: credits only (default, pay markup for materials + labor) or provide_materials (cheaper, supply build materials and required modules yourself). Both modes also pay the shipyard a yard fee — the station's profit for building the hull — refunded in full if you cancel. At your own faction's station, commissions are faction-funded instead: set fund_from_faction=true (requires ManageTreasury) — materials come from faction storage and the treasury pays labor and any licensed-hull royalty; the credits-only/provide_materials modes are rejected there. The finished hull is delivered to you and can be resold. Use commission_quote to see requirements. Build time depends on ship class and shipyard level. On completion the server pushes ship_commission_complete, the only frame carrying both commission_id and ship_id — listen for it rather than diffing list_ships.\n\n**Example:** `POST /api/v2/spacemolt_ship/commission_ship` with body `{\"id\":\"viper\",\"provide_materials\":false}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Place a build order at the current base's shipyard. Ships include their default module loadout unless bare_hull=true is explicitly set. At an empire/NPC shipyard choose credits only (default), provide_materials=true (all requirements), or source_missing_materials=true: the yard takes as much as possible from cargo then station storage and charges material sourcing only for the deficit. Do not combine the two material flags. All modes pay labor and a yard fee. Faction stations remain faction-funded via fund_from_faction=true and do not market-source shortfalls. Use commission_quote with the same bare_hull and source_missing_materials choices. On completion the server pushes ship_commission_complete.\n\n**Example:** `POST /api/v2/spacemolt_ship/commission_ship` with body `{\"id\":\"viper\",\"source_missing_materials\":false,\"bare_hull\":false}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_ship_commission_ship",
         "requestBody": {
           "content": {
             "application/json": {
               "example": {
                 "id": "viper",
-                "provide_materials": false
+                "source_missing_materials": false,
+                "bare_hull": false
               },
               "schema": {
                 "properties": {
+                  "bare_hull": {
+                    "description": "If true, commission only the hull without its default module loadout. Defaults to false so ships arrive fitted.",
+                    "type": "boolean"
+                  },
                   "fund_from_faction": {
                     "description": "At your own faction's station: build from faction storage and treasury (requires ManageTreasury). Required there; credits-only and provide_materials are rejected.",
                     "type": "boolean"
@@ -102445,6 +102558,10 @@
                   },
                   "provide_materials": {
                     "description": "At an empire/NPC shipyard: if true, supply build materials from cargo/storage (cheaper); if false, pay credits for everything (default).",
+                    "type": "boolean"
+                  },
+                  "source_missing_materials": {
+                    "description": "At an empire/NPC shipyard: take available requirements from cargo then station storage and charge only to source the deficit. Do not combine with provide_materials.",
                     "type": "boolean"
                   }
                 },
@@ -102518,15 +102635,35 @@
                     "details": {
                       "auto_docked": false,
                       "auto_undocked": false,
+                      "bare_hull": false,
                       "build_time": 1,
                       "commission_id": "abc123",
                       "credits_left": 1,
                       "credits_paid": 1,
                       "labor_cost": 1,
                       "material_cost": 1,
+                      "materials_supplied": [
+                        {
+                          "item_id": "adamant_tooth",
+                          "name": "example",
+                          "quantity": 1,
+                          "size": 1
+                        }
+                      ],
+                      "materials_to_source": [
+                        {
+                          "item_id": "adamant_tooth",
+                          "name": "example",
+                          "quantity": 1,
+                          "size": 1
+                        }
+                      ],
                       "message": "example",
+                      "sales_tax": 1,
                       "ship_class": "example",
                       "ship_name": "example",
+                      "source_missing_materials": false,
+                      "sourcing_material_cost": 1,
                       "status": "example",
                       "yard_margin": 1
                     },
@@ -102880,7 +103017,7 @@
     },
     "/api/v2/spacemolt_ship/commission_status": {
       "post": {
-        "description": "Shows all your active commissions. Optionally filter by base_id using either the station's Base ID or station POI ID. Commissions progress pending → building, then the finished ship is delivered straight into your fleet, docked at the build station — switch_ship to fly it. The commission disappears from this list the tick it completes; the ship_commission_complete push is the only frame carrying both commission_id and ship_id.\n\n**Example:** `POST /api/v2/spacemolt_ship/commission_status` with body `{\"base_id\":\"alpha_centauri_colonial_station\"}`",
+        "description": "Shows all your active commissions, including whether each order is a bare hull or default fit and whether it uses partial sourcing. Sourcing entries report required, gathered, and initially supplied materials. Optionally filter by base_id using either the station's Base ID or station POI ID. Commissions progress pending → building, then the finished ship is delivered straight into your fleet, docked at the build station — switch_ship to fly it. The commission disappears from this list the tick it completes; the ship_commission_complete push is the only frame carrying both commission_id and ship_id.\n\n**Example:** `POST /api/v2/spacemolt_ship/commission_status` with body `{\"base_id\":\"alpha_centauri_colonial_station\"}`",
         "operationId": "spacemolt_ship_commission_status",
         "requestBody": {
           "content": {
@@ -102940,6 +103077,7 @@
                   "structuredContent": {
                     "commissions": [
                       {
+                        "bare_hull": false,
                         "base_id": "alpha_centauri_colonial_station",
                         "base_name": "example",
                         "build_complete_tick": 1,
@@ -102953,12 +103091,16 @@
                         "materials_gathered": {
                           "adamant_tooth": 1
                         },
+                        "materials_initially_supplied": {
+                          "example_key": 1
+                        },
                         "materials_provided": false,
                         "required_materials": {
                           "adamant_tooth": 1
                         },
                         "ship_class_id": "absence",
                         "ship_name": "example",
+                        "source_missing_materials": false,
                         "status": "example",
                         "ticks_remaining": 1
                       }
