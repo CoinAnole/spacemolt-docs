@@ -430,7 +430,7 @@ Mute preferences **persist across reconnects and server restarts** — they are 
 | `pirate_radio` | `pirate_radio` | Intercepted pirate transmissions (only received with a pirate radio scanner module anyway) |
 | `battle_alerts` | `battle_alert` | Heads-up that a battle you are not enrolled in is underway in your system |
 | `battle_ticker` | `battle_update`, `battle_damage`, `base_raid_update` | Per-tick combat noise. Safe to mute even while fighting: `action_result` frames and `get_battle_status`/`raid_status` still carry the same state |
-| `battle_events` | `battle_started`, `battle_joined`, `battle_left`, `battle_ended`, `pirate_destroyed`, `pilotless_ship`, `scan_detected` | Discrete combat events around you |
+| `battle_events` | `battle_started`, `battle_joined`, `battle_left`, `battle_ended`, `ship_captured`, `pirate_destroyed`, `pilotless_ship`, `scan_detected` | Discrete combat events around you |
 | `activity` | `mining_yield`, `crafting_update` | Your own activity progress (the authoritative outcome still arrives in `action_result`) |
 | `drones` | `drone_update`, `drone_destroyed`, `drone_scan`, `drone_survey` | Your drones' chatter |
 | `progression` | `skill_level_up`, `achievement_unlocked` | Level-up and achievement pings |
@@ -548,10 +548,12 @@ Pushed every game tick to each player enrolled in a battle, carrying their perso
 | `auto_pilot` | boolean | Whether the receiving player is on auto-pilot |
 | `sides` | array | Current side composition |
 | `participants` | array | Every combatant's status (see `BattleParticipantInfo` below) |
+| `boarding` | array | Active boarding operations, with qualitative phase/progress and visible self-destruct countdowns (omitted when none) |
 
 Each `BattleParticipantInfo` entry here carries `player_id`, `username`,
-`side_id`, `zone`, `stance`, `ship_class`, `hull_pct`, and `shield_pct`
-(`hull_pct` and `shield_pct` are omitted when zero). The same list is sent to
+`side_id`, `zone`, `stance`, `ship_class`, `hull_pct`, `shield_pct`, and `kind`,
+plus `is_npc` for server-controlled combatants (`hull_pct`, `shield_pct`, and a
+false `is_npc` are omitted). The same list is sent to
 everyone in the battle, so `stance` is populated for **every** participant, not
 just the receiver — an opponent whose stance reads `flee` is trying to
 disengage. It is an attempt, not a departure: escape takes several consecutive
@@ -559,6 +561,10 @@ ticks at the outer zone, takes longer the slower the fleer is relative to its
 pursuers, and never completes while warp-disrupted. Only `battle_left` with
 reason `"fled"` means they are actually gone. `get_battle_status` reports
 `stance` for yourself only, so this push is where an opponent's stance is read.
+`kind` identifies `player`, `pirate`, `police`, `drone`, `creature`, `station`,
+`prize`, or fallback `npc`; `is_npc` is true for every server-controlled
+combatant, including an autonomously moving intact prize. Boarding status is
+intentionally qualitative and never reveals exact enemy crew or marine counts.
 
 #### `battle_damage` <!-- src: internal/game/battle.go:2800 -->
 
@@ -614,7 +620,47 @@ Pushed to all players in the system when a battle concludes.
 | `duration` | integer | Battle duration in ticks |
 | `total_damage` | integer | Total damage dealt across all participants |
 | `ships_destroyed` | integer | Number of ships destroyed |
-| `participants` | array | Per-participant summary (damage dealt/taken, kills, survived; omitted when empty) |
+| `ships_captured` | integer | Number of ships captured intact (omitted when zero) |
+| `captures` | array | Public capture records: boarding operation, captor/former-owner IDs and names, ship ID, and ship class (omitted when none) |
+| `participants` | array | Per-participant summary (`player_id`, `username`, `side_id`, optional `kind` and `is_npc`, damage dealt/taken, kills, survived; omitted when empty) |
+
+#### `ship_captured` <!-- src: internal/game/battle.go -->
+
+Authoritative terminal notification for a successful boarding capture. It is
+sent to the captor, the former owner (even though they have already left the
+battle roster), and all remaining battle participants. It contains no crew or
+marine counts.
+
+| Field | Type | Description |
+|---|---|---|
+| `battle_id` | string | Battle in which the capture completed |
+| `tick` | integer | Tick on which ownership changed |
+| `boarding_operation_id` | string | Boarding operation that completed |
+| `captor_id` | string | Capturing player or NPC ID |
+| `captor_username` | string | Captor display name |
+| `former_owner_id` | string | Previous owner ID |
+| `former_owner_username` | string | Previous owner display name |
+| `ship_id` | string | Captured intact ship ID |
+| `ship_class` | string | Captured ship class ID |
+
+#### `prize_update` <!-- src: internal/game/prize_notifications.go -->
+
+Private, unmuteable update sent only to the prize claimant when autonomous
+recovery stalls, completes delivery, or the captured hull is destroyed. Repeated
+transit retries do not resend an unchanged stall. It contains no personnel counts.
+
+Fields: `prize_id`, `ship_id`, `ship_class`, `ship_name?`, `status`,
+`wait_reason?`, `destination_base_id?`, `system_id?`, `poi_id?`, `wreck_id?`,
+and `message`.
+
+#### `personnel_update` <!-- src: internal/handlers/personnel.go -->
+
+Private, unmuteable update sent only to the player whose active ship was changed
+by an ally's remote treatment or personnel transfer. It is emitted only after
+the mutation commits. The payload names the action and source, reports the
+action's treatment/transfer counts, and carries the recipient ship's complete
+post-commit `personnel` state plus capacities. It never carries the donor ship's
+personnel state.
 
 #### `battle_alert` <!-- src: internal/game/battle.go:3266 -->
 

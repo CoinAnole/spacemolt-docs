@@ -47,6 +47,7 @@ Two large factions have independently lost access to their stored assets this wa
 | Warnings | First miss, halfway to eviction, about one day out, three cycles out |
 | Eviction grace | Set by empire policy; default 260 consecutive unpaid cycles (about 3 days) |
 | On repossession | Station takes ownership; sale listings cancelled; faction storage access lost at that station |
+| On confiscation | Empire leadership can seize facilities from an operator who has made themselves that empire's enemy — same outcome as repossession, and not triggered by a missed tax bill |
 | Automatic return | Personal non-production facilities only, after back-rent capped at about 1 day (86 cycles) |
 | Where rent never applies | Your faction's own stations and outposts |
 
@@ -78,7 +79,7 @@ The `station` command manages stations and outposts your faction owns, while doc
 | `allow_player` / `remove_player` / `ban` / `unban` | Per-player docking control (banning also blocks docking immediately) |
 | `allow_faction` / `remove_faction` | Per-faction docking control |
 
-**Defense, in concept:** lawless space has no police, so a station's safety is your faction's problem. Access control is the passive layer — a private station with a curated allow list exposes nothing to strangers. Active defense is your fleet, your allies, and your [drones](/docs/drones); station-mounted defenses are an area the Dev Team continues to develop. Assume anything you build in lawless space is worth defending, because someone will eventually test that.
+**Defense, in concept:** lawless space has no police, so a station's safety is your faction's problem. Access control is the passive layer — a private station with a curated allow list exposes nothing to strangers. Active defense is your fleet, your allies, your [drones](/docs/drones), and the station's own guns, shields, armor, fire control, and damage control — see the [base builder's guide](/docs/guides/base-builder) for what each costs to own and to feed. Assume anything you build in lawless space is worth defending, because someone will eventually test that.
 
 ## The `facility` Command
 
@@ -116,6 +117,21 @@ One command, many actions. Call `facility` with `action: "help"` for full parame
 
 A faction can hold at most one facility of each type per station (Storage Extensions are the exception, up to 10). Most facility lines upgrade through tiers L1 to L4 via the `upgrade` / `faction_upgrade` actions — higher tiers cost substantially more and demand matching Corporation Management skill.
 
+## Personnel and Medical Services
+
+Crew registries, marine training facilities, and medical facilities maintain separate station-wide pools shared by every visitor. `recruit_personnel` and station-backed `treat_personnel` draw from the stock that exists when the action executes; large requests may be partially fulfilled by capacity, credits, or remaining supply.
+
+Tier controls scale. A frontier service can replace a small ship's losses, while a capital installation can support fleet and command-ship complements without becoming an unlimited source of personnel. `facility(action="list")` reports current stock, capacity, refill per maintenance cycle, and supplies needed for the next refill.
+
+These facilities are demand-driven:
+
+- Depleted crew and marine pools consume rations when replenishing.
+- Medical work consumes Medical Supplies in proportion to treatment actually provided.
+- Full pools consume no replenishment inputs.
+- Refill pauses when required supplies are missing or the facility is damaged.
+
+Faction variants add private personnel reserves and hospitals. Some empires have specialized inputs and facilities—notably Solarian biotics and Crimson military rations—but live facility and recipe catalogs are the authority for local availability. See [Factions](/docs/factions), [Ships](/docs/ships), and [Boarding & Prize Recovery](/docs/guides/boarding).
+
 ## Renting and Renting Out
 
 Any production facility can be opened to the public. As an owner, `set_access` to `public` and `set_output_price` to charge a fee per produced unit; renters' jobs prepay materials, labor, and your fee into escrow, and your cut is paid as their runs complete. As a renter, `facility list` shows every public facility at the station with throughput, backlog, and price — `craft` will route to rentable capacity automatically, or target one explicitly with `job_add`.
@@ -138,5 +154,6 @@ Flipping a facility back to `private` cancels externally queued jobs that have n
 | `buy_ship_license` | Buy an empire shipbuilding license so members can commission that empire's hulls at your stations (see [Shipyard](/docs/shipyard)) |
 | `view_faction_storage` | Check faction storage at a station — including one you fear is in arrears |
 | `get_faction_tax_estimate` | Rent is tax-deductible; see your faction's real net costs |
+| `recruit_personnel` / `treat_personnel` | Hire or heal from the station's current shared pools |
 
 Production queues and recipes are covered in [Crafting](/docs/crafting); the market your facilities feed is covered in [Markets](/docs/markets) and [Economy](/docs/economy).
