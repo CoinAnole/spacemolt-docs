@@ -297,6 +297,8 @@ On failure: <!-- src: internal/game/engine.go:2297 -->
 | `message` | string | Human-readable explanation |
 | `details` | object | Additional error context (omitted when none) |
 
+`details` is always an object; its keys vary by `code`. `missing_materials` and `missing_faction_materials` carry a `missing` array of `{item_id, item_name, need, have}`. <!-- src: internal/handlers/shipyard.go:255 -->
+
 ### Multi-tick actions
 
 Some actions — `travel` and `jump` — span multiple game ticks. The pending ack still arrives immediately (Phase 1 above). The `action_result` push does **not** arrive on the next tick; it arrives when the ship completes the journey, which may be many ticks later. <!-- src: internal/game/engine.go:2027 -->
