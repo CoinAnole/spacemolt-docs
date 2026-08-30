@@ -542,7 +542,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `faction_propose_peace(target_faction_id, terms?)` -- Propose peace to a faction you're at war with **Mutation.**
 - `faction_query_intel(limit?, offset?, poi_type?, resource_type?, source_faction_id?, system_id?, system_name?)` -- Query your faction's intel database, or an allied faction's
 - `faction_query_trade_intel(base_id?, item_id?, limit?, offset?, source_faction_id?, station_name?)` -- Search your faction's market price database, or an allied faction's
-- `faction_remove_ally(target_faction_id)` -- Dissolve an alliance with another faction **Mutation.**
+- `faction_remove_ally(target_faction_id)` -- Dissolve an alliance or clear pending alliance proposals with another faction **Mutation.**
 - `faction_remove_enemy(target_faction_id)` -- Return an enemy faction to neutral standing **Mutation.**
 - `faction_rooms()` -- List rooms in your faction's common space at the current station
 - `faction_scan_poi(poi_id)` -- Run a long-range sensor scan of a POI from your faction's sensor facility **Mutation.**
@@ -859,8 +859,6 @@ reload(weapon_instance_id="uuid", ammo_item_id="exotic_matter")  # shoot your ex
 ```
 
 Different ammo variants offer modifiers — armor-bypass rounds for kinetic, extended magazines, etc. Check the item description. Carry at least two full magazines per weapon in cargo before any serious engagement.
-
-**Capacitor:** In battle, a ship's capacitor maximum equals its Power Capacity. A ship at 0 capacitor skips that firing phase and recovers to 1; otherwise it regenerates 1 before firing. Drain effects remove up to their stated amount from the target on a hit. Transfer effects restore their stated percentage of the amount actually drained to the attacker, never exceeding its capacitor maximum.
 
 **Mine launchers:** `mine_capacity_N` is the weapon's magazine size, not a number of persistent deployed objects. A mine hit deals its normal direct damage, then burns hull through shields and armor for `mine_duration` ticks at `max(1, final hit damage / duration)` each tick. Detection and tracking ratings add that many percentage points to hit chance, subject to the normal 95% hit-chance cap.
 

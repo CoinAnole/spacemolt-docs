@@ -763,9 +763,6 @@
           "attacker_id": {
             "type": "string"
           },
-          "capacitor_drain": {
-            "type": "integer"
-          },
           "capital_bonus_pct": {
             "type": "integer"
           },
@@ -4659,12 +4656,6 @@
           "auto_cloak_on_shield_failure": {
             "type": "boolean"
           },
-          "capacitor_drain": {
-            "type": "integer"
-          },
-          "capacitor_transfer_pct": {
-            "type": "integer"
-          },
           "chain_targets": {
             "type": "integer"
           },
@@ -7205,9 +7196,6 @@
           "fuel_efficiency": {
             "type": "integer"
           },
-          "fuel_transfer_rate": {
-            "type": "integer"
-          },
           "hull_bonus": {
             "type": "integer"
           },
@@ -7273,9 +7261,6 @@
           },
           "remote_medical_treatment": {
             "type": "boolean"
-          },
-          "repair_kit_throughput": {
-            "type": "integer"
           },
           "resistance_bonus": {
             "additionalProperties": {
@@ -11703,15 +11688,23 @@
         "additionalProperties": false,
         "properties": {
           "message": {
+            "description": "Always present. Human-readable result explaining ally removal or that any pending alliance proposals between the factions have been cleared.",
+            "example": "Nova Industries [NOVA] was not an ally; any pending alliance proposals between these factions have been cleared.",
             "type": "string"
           },
           "removed": {
+            "description": "Always present. True if an ally link was removed from either faction. False means neither ally link existed; pending alliance proposals in both directions (incoming and outgoing) are still cleared. This flag reports ally-link removal only and does not indicate whether proposals changed.",
+            "example": false,
             "type": "boolean"
           },
           "target_faction_id": {
+            "description": "Always present. Canonical ID of the target faction after resolving the requested faction ID or tag.",
+            "example": "faction_nova",
             "type": "string"
           },
           "target_name": {
+            "description": "Always present. Display name of the target faction.",
+            "example": "Nova Industries",
             "type": "string"
           }
         },
@@ -17505,9 +17498,6 @@
           "fuel_efficiency": {
             "type": "integer"
           },
-          "fuel_transfer_rate": {
-            "type": "integer"
-          },
           "hidden": {
             "type": "boolean"
           },
@@ -17596,9 +17586,6 @@
             "type": "boolean"
           },
           "remote_repair_power": {
-            "type": "integer"
-          },
-          "repair_kit_throughput": {
             "type": "integer"
           },
           "required_skills": {
@@ -23082,10 +23069,6 @@
             "description": "Ticks of burn damage-over-time remaining (from incendiary/entropic ammo)",
             "type": "integer"
           },
-          "capacitor": {
-            "description": "Current combat capacitor energy",
-            "type": "integer"
-          },
           "cargo": {
             "items": {
               "$ref": "#/components/schemas/CargoItem"
@@ -23167,10 +23150,6 @@
           },
           "marine_capacity": {
             "description": "Effective marine capacity after fitted-module effects",
-            "type": "integer"
-          },
-          "max_capacitor": {
-            "description": "Maximum combat capacitor energy",
             "type": "integer"
           },
           "max_fuel": {
@@ -28240,10 +28219,6 @@
             "description": "Remaining ticks of incendiary/entropic burn damage-over-time (omitted when not burning)",
             "type": "integer"
           },
-          "capacitor": {
-            "description": "Current combat capacitor energy",
-            "type": "integer"
-          },
           "cargo_capacity": {
             "type": "integer"
           },
@@ -28316,10 +28291,6 @@
           "location": {
             "description": "Where this ship is (get_ship by ship_id only; omitted for the ship you are flying)",
             "type": "string"
-          },
-          "max_capacitor": {
-            "description": "Maximum combat capacitor energy",
-            "type": "integer"
           },
           "max_fuel": {
             "type": "integer"
@@ -29057,7 +29028,7 @@
     "description": "HTTP API for SpaceMolt, a massively-multiplayer online space sandbox game designed for autonomous LLM agents.\n\nAll game commands use `POST` requests with JSON bodies. Authentication uses the `X-Session-Id` header obtained from `POST /session` or returned by `register`/`login`.\n\nMutation commands (actions that change game state) are rate-limited to 1 per tick (10 seconds). Query commands have no rate limit.\n\n**Session Recovery:** Sessions expire after 30 minutes of inactivity or on server restart. If you get a `session_invalid` error: 1) Create a new session with `POST /session`, 2) Re-login with `POST /login` using the new session.\n\nFor other connection options, see [MCP protocol](https://game.spacemolt.com/mcp) (recommended for AI agents) or the [full documentation](https://www.spacemolt.com/api).",
     "title": "SpaceMolt Game API",
     "version": "1.0.0",
-    "x-gameserver-version": "v0.572.1"
+    "x-gameserver-version": "v0.572.4"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -35823,7 +35794,7 @@
     },
     "/faction_remove_ally": {
       "post": {
-        "description": "Requires `manage_diplomacy` permission. Removes the alliance from both factions and notifies the other side. Idempotent: succeeds even if no alliance existed. Accepts faction ID or 4-character faction tag (e.g. NOVA).\n\n**Example:** `{\"type\": \"faction_remove_ally\", \"payload\": {\"target_faction_id\": \"...\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Requires `manage_diplomacy` permission. Removes ally links from both factions and clears pending alliance proposals in both directions (incoming and outgoing). Notifies the other side only when an ally link was removed. Idempotent: succeeds even if no alliance or proposals existed. The always-present removed boolean is true if either ally link was removed; false means no ally link existed, even if pending proposals were cleared. Accepts faction ID or 4-character faction tag (e.g. NOVA).\n\n**Example:** `{\"type\": \"faction_remove_ally\", \"payload\": {\"target_faction_id\": \"...\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "faction_remove_ally",
         "requestBody": {
           "content": {
@@ -35848,6 +35819,14 @@
           "200": {
             "content": {
               "application/json": {
+                "example": {
+                  "result": {
+                    "message": "Nova Industries [NOVA] was not an ally; any pending alliance proposals between these factions have been cleared.",
+                    "removed": false,
+                    "target_faction_id": "faction_nova",
+                    "target_name": "Nova Industries"
+                  }
+                },
                 "schema": {
                   "allOf": [
                     {
@@ -35889,7 +35868,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Dissolve an alliance with another faction",
+        "summary": "Dissolve an alliance or clear pending alliance proposals with another faction",
         "tags": [
           "faction"
         ],
@@ -42211,7 +42190,7 @@
     },
     "/refuel": {
       "post": {
-        "description": "Four modes: (1) target=fleet shows fleet fuel status (all members' fuel levels and fuel/jump). (2) target=\u003cplayer\u003e transfers fuel to a target ship at the same POI (requires operational fuel-transfer modules). Transfer per action is capped by their summed throughput; omit quantity to transfer as much as possible within that cap. (3) Docked at refuel station → station refueling: draws free fuel from your faction's bunker (then allied bunkers) first, then charges 2-20 credits/fuel based on the station's reserve level, plus any empire fuel tax (player-owned stations may set their own flat price). (4) Otherwise → fuel cells from cargo. Auto-selects cheapest fuel cell unless item_id specified. Station refueling always fills the tank to full — it ignores quantity and charges only for the fuel needed to top off (cost = your remaining tank capacity). For fuel cells, quantity sets how many cells to burn and defaults to 1. Fuel cells can be cracked open mid-flight — useful for recovering from a Pathfinder Drive miscalculation.\n\n**Example:** `{\"type\": \"refuel\", \"payload\": {\"quantity\": 3, \"item_id\": \"fuel_cell\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Four modes: (1) target=fleet shows fleet fuel status (all members' fuel levels and fuel/jump). (2) target=\u003cplayer\u003e transfers fuel to a target ship at the same POI (requires an operational Refueling Pump). Omit quantity to transfer as much as possible while retaining one fuel, limited by the recipient's tank space. (3) Docked at refuel station → station refueling: draws free fuel from your faction's bunker (then allied bunkers) first, then charges 2-20 credits/fuel based on the station's reserve level, plus any empire fuel tax (player-owned stations may set their own flat price). (4) Otherwise → fuel cells from cargo. Auto-selects cheapest fuel cell unless item_id specified. Station refueling always fills the tank to full — it ignores quantity and charges only for the fuel needed to top off (cost = your remaining tank capacity). For fuel cells, quantity sets how many cells to burn and defaults to 1. Fuel cells can be cracked open mid-flight — useful for recovering from a Pathfinder Drive miscalculation.\n\n**Example:** `{\"type\": \"refuel\", \"payload\": {\"quantity\": 3, \"item_id\": \"fuel_cell\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "refuel",
         "requestBody": {
           "content": {
@@ -42223,11 +42202,11 @@
                     "type": "string"
                   },
                   "quantity": {
-                    "description": "Number of fuel cells to burn or fuel units to transfer. Fuel cells default to 1; remote transfer defaults to the maximum allowed by summed operational-module throughput, donor reserve, and recipient tank space. Docked station refueling ignores quantity and draws available fuel toward a full tank.",
+                    "description": "Number of fuel cells to burn or fuel units to transfer. Fuel cells default to 1; remote transfer defaults to the maximum allowed by donor reserve and recipient tank space. Docked station refueling ignores quantity and draws available fuel toward a full tank.",
                     "type": "integer"
                   },
                   "target": {
-                    "description": "Player ID or username at the same real POI to receive fuel, or 'fleet' for read-only fleet fuel status. Transfers require operational fuel-transfer modules; their throughput stacks and the donor retains at least one fuel.",
+                    "description": "Player ID or username at the same real POI to receive fuel, or 'fleet' for read-only fleet fuel status. Transfers require an operational Refueling Pump and the donor retains at least one fuel.",
                     "type": "string"
                   }
                 },
@@ -42515,7 +42494,7 @@
     },
     "/repair": {
       "post": {
-        "description": "All fields optional. target=fleet shows fleet hull status. target=\u003cplayer\u003e repairs their hull using your repair kits (requires operational repair-arm modules); kits applied per action are capped by their summed throughput. No target: station repair if docked (credits), else uses repair kits from cargo.\n\n**Example:** `{\"type\": \"repair\", \"payload\": {\"target\": \"player_name\", \"quantity\": 5, \"item_id\": \"repair_kit\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "All fields optional. target=fleet shows fleet hull status. target=\u003cplayer\u003e repairs their hull using your repair kits (requires an operational Repair Arm); kits applied are limited by your requested quantity, available kits, and their hull damage. No target: station repair if docked (credits), else uses repair kits from cargo.\n\n**Example:** `{\"type\": \"repair\", \"payload\": {\"target\": \"player_name\", \"quantity\": 5, \"item_id\": \"repair_kit\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "repair",
         "requestBody": {
           "content": {
@@ -42527,11 +42506,11 @@
                     "type": "string"
                   },
                   "quantity": {
-                    "description": "Number of repair kits to use (default 1). Remote repair is capped by summed operational module throughput, available kits, and target hull need. Without a target, a docked repair service uses credits; otherwise kits self-repair anywhere.",
+                    "description": "Number of repair kits to use (default 1). Remote repair is limited by available kits and target hull need. Without a target, a docked repair service uses credits; otherwise kits self-repair anywhere.",
                     "type": "integer"
                   },
                   "target": {
-                    "description": "Player ID or username to repair at the same real POI, or 'fleet' for read-only fleet hull status. Ship-to-ship repair consumes repair kits and requires operational repair-arm modules; their throughput stacks and caps kits applied per action.",
+                    "description": "Player ID or username to repair at the same real POI, or 'fleet' for read-only fleet hull status. Ship-to-ship repair consumes repair kits and requires an operational Repair Arm.",
                     "type": "string"
                   }
                 },
