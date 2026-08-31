@@ -7763,6 +7763,10 @@
           "dining_points": {
             "type": "integer"
           },
+          "dismantling": {
+            "description": "True while dismantling is in progress; omitted means false. No rent is billed while dismantling and the facility is removed when dismantling completes.",
+            "type": "boolean"
+          },
           "facility_id": {
             "type": "string"
           },
@@ -7836,6 +7840,7 @@
             "type": "integer"
           },
           "rent_per_cycle": {
+            "description": "Stored rent rate in credits per facility cycle (100 ticks). Visible only for your or your faction's facilities; omitted means zero or not disclosed. No rent is billed while damaged or under_construction or dismantling. The stored rate applies after repair or construction subject to repricing. Legacy inactive facilities remain billable.",
             "type": "integer"
           },
           "repair_complete_tick": {
@@ -7983,6 +7988,7 @@
             "type": "string"
           },
           "rent_per_cycle": {
+            "description": "Stored rent rate in credits per facility cycle (100 ticks). Rent is billed only when status is active; paused while damaged or repairing or under_construction or dismantling. The stored rate applies after repair or construction subject to repricing. Zero means no recurring rent; existing missed_rent_cycles remain owed while paused.",
             "type": "integer"
           },
           "rental_fee_per_run": {
@@ -7992,12 +7998,13 @@
             "type": "integer"
           },
           "status": {
-            "description": "Only active facilities produce or provide their service; damaged ones need facility action repair; repairing ones are already paid for and come back at repair_complete_tick.",
+            "description": "Only active facilities produce or provide their service; damaged ones need facility action repair; repairing ones are already paid for and come back at repair_complete_tick. Dismantling facilities are offline and will be removed. Rent is paused for every status except active.",
             "enum": [
               "under_construction",
               "damaged",
               "repairing",
-              "active"
+              "active",
+              "dismantling"
             ],
             "type": "string"
           },
@@ -8066,6 +8073,7 @@
             "type": "string"
           },
           "arrears_owed": {
+            "description": "Credits owed across all facilities: sum rent_per_cycle multiplied by missed_rent_cycles including paused facilities. Pausing billing does not erase existing arrears. Omitted means zero.",
             "type": "integer"
           },
           "facilities": {
@@ -8087,6 +8095,7 @@
             "type": "string"
           },
           "total_rent_per_cycle": {
+            "description": "Current faction rent in credits per facility cycle (100 ticks): sum rent_per_cycle for facilities where damaged and under_construction and dismantling are all false. Missing pause flags mean false. Zero means no current recurring rent; excludes existing arrears. Legacy inactive facilities remain billable.",
             "type": "integer"
           }
         },
@@ -8281,31 +8290,90 @@
             "type": "string"
           },
           "base_id": {
+            "description": "Canonical ID of the station containing every listed facility and both per-station rent summaries.",
+            "example": "grand_exchange_station",
             "type": "string"
           },
           "construction": {
             "$ref": "#/components/schemas/StationConstructionResponse"
           },
           "faction_facilities": {
+            "description": "Your faction's facilities at this base including paused facilities. Per-facility rent_per_cycle is the stored rate; faction_rent totals only currently billable facilities. Empty means your faction owns none here.",
+            "example": [
+              {
+                "facility_id": "faction_lockbox",
+                "type": "faction_lockbox",
+                "name": "Faction Lockbox",
+                "description": "",
+                "category": "faction",
+                "level": 1,
+                "damaged": true,
+                "faction_service": "faction_storage",
+                "faction_id": "faction",
+                "rent_per_cycle": 100,
+                "missed_rent_cycles": 1
+              }
+            ],
             "items": {
               "$ref": "#/components/schemas/FacilityEntry"
             },
             "type": "array"
           },
           "faction_rent": {
-            "$ref": "#/components/schemas/FacilityRentSummary"
+            "$ref": "#/components/schemas/FacilityRentSummary",
+            "description": "Current recurring rent and existing arrears for faction_facilities. Omitted when your faction owns no facilities here; present with zero recurring rent when all its facilities have paused billing.",
+            "example": {
+              "facilities": 1,
+              "total_rent_per_cycle": 0,
+              "est_rent_per_day": 0,
+              "arrears_owed": 100,
+              "note": "Rent is paused while damaged. Stored rates apply after repair; existing arrears remain owed."
+            }
           },
           "life_support": {
             "$ref": "#/components/schemas/StationLifeSupportStatus"
           },
           "player_facilities": {
+            "description": "Your facilities at this base including damaged and constructing and dismantling facilities. Per-facility rent_per_cycle is the stored rate; player_rent totals only currently billable facilities. Empty means you own none here.",
+            "example": [
+              {
+                "facility_id": "personal_bunk",
+                "type": "crew_bunk",
+                "name": "Crew Bunk",
+                "description": "",
+                "category": "personal",
+                "level": 1,
+                "owner_id": "player",
+                "rent_per_cycle": 100
+              },
+              {
+                "facility_id": "personal_ledger",
+                "type": "ledger_desk",
+                "name": "Ledger Desk",
+                "description": "",
+                "category": "personal",
+                "level": 1,
+                "damaged": true,
+                "owner_id": "player",
+                "rent_per_cycle": 100,
+                "missed_rent_cycles": 2
+              }
+            ],
             "items": {
               "$ref": "#/components/schemas/FacilityEntry"
             },
             "type": "array"
           },
           "player_rent": {
-            "$ref": "#/components/schemas/FacilityRentSummary"
+            "$ref": "#/components/schemas/FacilityRentSummary",
+            "description": "Current recurring rent and existing arrears for player_facilities. Omitted when you own no facilities here; present with zero recurring rent when all your facilities have paused billing.",
+            "example": {
+              "facilities": 2,
+              "total_rent_per_cycle": 100,
+              "est_rent_per_day": 8600,
+              "arrears_owed": 200,
+              "note": "Rent is paused while damaged. Stored rates apply after repair; existing arrears remain owed."
+            }
           },
           "power": {
             "$ref": "#/components/schemas/StationPowerStatus"
@@ -8671,12 +8739,15 @@
         "additionalProperties": false,
         "properties": {
           "arrears_owed": {
+            "description": "Credits owed across all facilities: sum rent_per_cycle multiplied by missed_rent_cycles including paused facilities. Pausing billing does not erase existing arrears. Omitted means zero.",
             "type": "integer"
           },
           "est_rent_per_day": {
+            "description": "Approximate credits per day at the default 10-second tick: total_rent_per_cycle multiplied by 86 cycles. Zero means no current recurring rent; excludes arrears and future rate changes.",
             "type": "integer"
           },
           "facilities": {
+            "description": "Number of owned facilities in this summary including facilities whose billing is paused.",
             "type": "integer"
           },
           "grace_cycles": {
@@ -8686,6 +8757,7 @@
             "type": "string"
           },
           "total_rent_per_cycle": {
+            "description": "Current rent in credits per facility cycle (100 ticks): sum rent_per_cycle for facilities where damaged and under_construction and dismantling are all false. Missing pause flags mean false. Zero means no current recurring rent; excludes existing arrears. Legacy inactive facilities remain billable.",
             "type": "integer"
           }
         },
@@ -8882,9 +8954,11 @@
             "type": "string"
           },
           "rent_per_cycle": {
+            "description": "Stored rent rate in credits per facility cycle (100 ticks). Rent is paused when status is damaged or under_construction or dismantling. The stored rate applies after repair or construction subject to repricing. Zero means no recurring rent; existing missed_rent_cycles remain owed while paused.",
             "type": "integer"
           },
           "status": {
+            "description": "Facility status: enabled or legacy disabled facilities are billable; damaged or under_construction or dismantling facilities have paused rent. Dismantling facilities will be removed.",
             "type": "string"
           },
           "ticks_until_complete": {
@@ -10754,6 +10828,10 @@
           "damaged": {
             "type": "boolean"
           },
+          "dismantling": {
+            "description": "True while dismantling is in progress; omitted means false. No rent is billed while dismantling and the facility is removed when dismantling completes.",
+            "type": "boolean"
+          },
           "facility_id": {
             "type": "string"
           },
@@ -10770,6 +10848,7 @@
             "type": "boolean"
           },
           "rent_per_cycle": {
+            "description": "Stored rent rate in credits per facility cycle (100 ticks). No rent is billed while damaged or under_construction or dismantling. The stored rate applies after repair or construction subject to repricing. Zero means no recurring rent. Legacy inactive facilities remain billable.",
             "type": "integer"
           },
           "rental_fee_per_run": {
@@ -18739,6 +18818,10 @@
           "damaged": {
             "type": "boolean"
           },
+          "dismantling": {
+            "description": "True while dismantling is in progress; omitted means false. No rent is billed while dismantling and the facility is removed when dismantling completes.",
+            "type": "boolean"
+          },
           "facility_id": {
             "type": "string"
           },
@@ -18755,6 +18838,7 @@
             "type": "boolean"
           },
           "rent_per_cycle": {
+            "description": "Stored rent rate in credits per facility cycle (100 ticks). No rent is billed while damaged or under_construction or dismantling. The stored rate applies after repair or construction subject to repricing. Zero means no recurring rent. Legacy inactive facilities remain billable.",
             "type": "integer"
           },
           "rental_fee_per_run": {
@@ -24352,6 +24436,12 @@
           "hull_required": {
             "type": "integer"
           },
+          "materials": {
+            "items": {
+              "$ref": "#/components/schemas/StationRepairMaterial"
+            },
+            "type": "array"
+          },
           "next_blocked": {
             "$ref": "#/components/schemas/StationRepairEntry"
           },
@@ -28274,7 +28364,7 @@
     "description": "REST API v2 for SpaceMolt — 19 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.572.4"
+    "x-gameserver-version": "v0.573.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -34307,7 +34397,7 @@
     },
     "/api/v2/spacemolt/get_base": {
       "post": {
-        "description": "You must be docked. Shows base services, market prices, etc. If facilities are damaged, repairs lists what is broken, repair progress, and exact materials still needed for the next prioritized repair. Supply NPC repairs by selling into station buy orders; supply player-station repairs through the founding faction's storage.",
+        "description": "You must be docked. Shows base services, market prices, etc. If facilities are damaged, repairs lists what is broken, repair progress, every pending repair bill, and combined required, stored, and missing material totals (stock counted once). Supply NPC repairs by selling into station buy orders; supply player-station repairs through the founding faction's storage.",
         "operationId": "spacemolt_get_base",
         "requestBody": {
           "content": {
@@ -34504,6 +34594,15 @@
                       "hull_current": 1,
                       "hull_missing": 1,
                       "hull_required": 1,
+                      "materials": [
+                        {
+                          "item_id": "adamant_tooth",
+                          "name": "example",
+                          "quantity_in_storage": 1,
+                          "quantity_missing": 1,
+                          "quantity_required": 1
+                        }
+                      ],
                       "next_blocked": {
                         "category": "example",
                         "definition_id": "abc123",
@@ -40951,6 +41050,15 @@
                         "hull_current": 1,
                         "hull_missing": 1,
                         "hull_required": 1,
+                        "materials": [
+                          {
+                            "item_id": "adamant_tooth",
+                            "name": "example",
+                            "quantity_in_storage": 1,
+                            "quantity_missing": 1,
+                            "quantity_required": 1
+                          }
+                        ],
                         "next_blocked": {
                           "category": "example",
                           "definition_id": "abc123",
@@ -62990,7 +63098,7 @@
     },
     "/api/v2/spacemolt_facility/build": {
       "post": {
-        "description": "Constructs a production facility (personal ownership) at your current station, docked. `facility_type` selects what to build; costs credits, and the facility bills rent every cycle from then on even when idle — only selling it stops the rent. Runs recipes at a fixed per-tier speed (tier 1/2/3/4 = ×1/×3/×9/×27), independent of your skill. Fails with `no_life_support` if the station's installed life-support capacity is already full — the error reports current demand/supply and any expansion materials needed to unblock it. Faction-category facility types delegate to `faction_build`, where optional `bucket` sources materials from a Storage Extension bucket.\n\n**Example:** `POST /api/v2/spacemolt_facility/build` with body `{\"bucket\":\"example\",\"facility_type\":\"example\",\"package_ids\":[\"example\"]}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Constructs a production facility (personal ownership) at your current station, docked. `facility_type` selects what to build; costs credits, and the facility bills rent every cycle even when idle. Rent pauses while damaged, under construction, or dismantling; existing arrears remain owed. Selling transfers future rent to the buyer. Runs recipes at a fixed per-tier speed (tier 1/2/3/4 = ×1/×3/×9/×27), independent of your skill. Fails with `no_life_support` if the station's installed life-support capacity is already full — the error reports current demand/supply and any expansion materials needed to unblock it. Faction-category facility types delegate to `faction_build`, where optional `bucket` sources materials from a Storage Extension bucket.\n\n**Example:** `POST /api/v2/spacemolt_facility/build` with body `{\"bucket\":\"example\",\"facility_type\":\"example\",\"package_ids\":[\"example\"]}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_facility_build",
         "requestBody": {
           "content": {
@@ -65511,7 +65619,7 @@
     },
     "/api/v2/spacemolt_facility/dismantle": {
       "post": {
-        "description": "Tears down an owned production facility, packaging 100% of the cumulative build and upgrade materials across its full upgrade chain into ordinary storage packages after the cumulative build time elapses. `facility_id` is required. The facility goes offline immediately and is removed once packaging completes; credits are not refunded. Personal Quarters and Faction Storage cannot be dismantled, and damaged/repairing facilities must be repaired first.\n\n**Example:** `POST /api/v2/spacemolt_facility/dismantle` with body `{\"facility_id\":\"abyss_solidification_engine\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Tears down an owned production or personal facility, packaging 100% of the cumulative build and upgrade materials across its full upgrade chain into ordinary storage packages after the cumulative build time elapses. `facility_id` is required. The facility goes offline immediately and is removed once packaging completes; credits are not refunded. Personal Quarters and Faction Storage require their owner's other facilities that depend on them at this station to be removed first, including ones still dismantling. Remaining faction items and packages stay available to view and withdraw with the usual permissions, but new deposits stop when storage dismantling starts unless your faction owns the station (which grants storage independently). Outpost built-in storage and fuel require `dismantle_outpost`. Damaged facilities can be dismantled without repairing them first; this cancels any in-progress repair without refunding repair costs already spent.\n\n**Example:** `POST /api/v2/spacemolt_facility/dismantle` with body `{\"facility_id\":\"abyss_solidification_engine\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_facility_dismantle",
         "requestBody": {
           "content": {
@@ -67149,7 +67257,7 @@
     },
     "/api/v2/spacemolt_facility/faction_dismantle": {
       "post": {
-        "description": "Tears down a faction-owned facility, packaging 100% of its cumulative build and upgrade materials into ordinary packages in faction storage after the cumulative build time. `facility_id` is required and requires manage_facilities. Faction Storage itself cannot be dismantled; a Storage Extension bucket must be emptied first.\n\n**Example:** `POST /api/v2/spacemolt_facility/faction_dismantle` with body `{\"facility_id\":\"abyss_solidification_engine\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Tears down a faction-owned facility, packaging 100% of its cumulative build and upgrade materials into ordinary packages in faction storage after the cumulative build time. `facility_id` is required and requires manage_facilities. Faction Storage requires your faction's other facilities here to be removed first, including ones still dismantling; a Storage Extension bucket must be emptied first. Remaining faction items and packages stay available to view and withdraw with the usual permissions, but new deposits stop when storage dismantling starts unless your faction owns the station (which grants storage independently). Outpost built-in storage and fuel require `dismantle_outpost`. Damaged facilities can be dismantled without repairing them first; this cancels any in-progress repair without refunding repair costs already spent.\n\n**Example:** `POST /api/v2/spacemolt_facility/faction_dismantle` with body `{\"facility_id\":\"abyss_solidification_engine\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_facility_faction_dismantle",
         "requestBody": {
           "content": {
@@ -67843,6 +67951,7 @@
                         "base_name": "example",
                         "custom_name": "example",
                         "damaged": false,
+                        "dismantling": false,
                         "facility_id": "abyss_solidification_engine",
                         "labor_per_run": 1,
                         "missed_rent_cycles": 1,
@@ -70856,7 +70965,7 @@
                   },
                   "structuredContent": {
                     "action": "list",
-                    "base_id": "alpha_centauri_colonial_station",
+                    "base_id": "grand_exchange_station",
                     "construction": {
                       "pending": [
                         {
@@ -70901,72 +71010,25 @@
                     },
                     "faction_facilities": [
                       {
-                        "bonus_type": "example",
-                        "bonus_value": 1,
-                        "capacity": 1,
-                        "category": "example",
-                        "custom_name": "example",
-                        "damaged": false,
-                        "description": "example",
-                        "dining_points": 1,
-                        "facility_id": "abyss_solidification_engine",
-                        "faction_crew_capacity": 1,
-                        "faction_id": "abc123",
-                        "faction_marine_capacity": 1,
-                        "faction_medical_capacity": 1,
-                        "faction_medical_refill_per_cycle": 1,
-                        "faction_medical_supply_item": "example",
-                        "faction_service": "example",
-                        "is_recycler": false,
-                        "labor_per_cycle": 1,
-                        "leisure_points": 1,
+                        "facility_id": "faction_lockbox",
+                        "type": "faction_lockbox",
+                        "name": "Faction Lockbox",
+                        "description": "",
+                        "category": "faction",
                         "level": 1,
-                        "maintenance_level": 1,
-                        "maintenance_per_cycle": [
-                          {
-                            "item_id": "adamant_tooth",
-                            "name": "example",
-                            "quantity": 1
-                          }
-                        ],
-                        "maintenance_satisfied": false,
-                        "missed_rent_cycles": 1,
-                        "name": "example",
-                        "owner_id": "abc123",
-                        "personal_service": "example",
-                        "power_throttled": false,
-                        "production": {
-                          "backlog_ticks": 1,
-                          "items_per_hour": 1,
-                          "output_per_run": 1,
-                          "output_price_per_operation": 1,
-                          "output_price_per_unit": 1,
-                          "pack_operations_per_hour": 1,
-                          "public": false,
-                          "queued_items": 1,
-                          "queued_runs": 1,
-                          "recipe": "accelerate_bioluminescent_algae_growth",
-                          "rental_fee_per_run": 1,
-                          "ticks_per_run": 1,
-                          "unpack_operations_per_hour": 1
-                        },
-                        "recipe_id": "accelerate_bioluminescent_algae_growth",
-                        "rent_paid_until_tick": 1,
-                        "rent_per_cycle": 1,
-                        "repair_complete_tick": 1,
-                        "service": "example",
-                        "tourism_upkeep": false,
-                        "type": "example",
-                        "under_construction": false
+                        "damaged": true,
+                        "faction_service": "faction_storage",
+                        "faction_id": "faction",
+                        "rent_per_cycle": 100,
+                        "missed_rent_cycles": 1
                       }
                     ],
                     "faction_rent": {
-                      "arrears_owed": 1,
-                      "est_rent_per_day": 1,
                       "facilities": 1,
-                      "grace_cycles": 1,
-                      "note": "example",
-                      "total_rent_per_cycle": 1
+                      "total_rent_per_cycle": 0,
+                      "est_rent_per_day": 0,
+                      "arrears_owed": 100,
+                      "note": "Rent is paused while damaged. Stored rates apply after repair; existing arrears remain owed."
                     },
                     "life_support": {
                       "demand": 1,
@@ -70991,72 +71053,34 @@
                     },
                     "player_facilities": [
                       {
-                        "bonus_type": "example",
-                        "bonus_value": 1,
-                        "capacity": 1,
-                        "category": "example",
-                        "custom_name": "example",
-                        "damaged": false,
-                        "description": "example",
-                        "dining_points": 1,
-                        "facility_id": "abyss_solidification_engine",
-                        "faction_crew_capacity": 1,
-                        "faction_id": "abc123",
-                        "faction_marine_capacity": 1,
-                        "faction_medical_capacity": 1,
-                        "faction_medical_refill_per_cycle": 1,
-                        "faction_medical_supply_item": "example",
-                        "faction_service": "example",
-                        "is_recycler": false,
-                        "labor_per_cycle": 1,
-                        "leisure_points": 1,
+                        "facility_id": "personal_bunk",
+                        "type": "crew_bunk",
+                        "name": "Crew Bunk",
+                        "description": "",
+                        "category": "personal",
                         "level": 1,
-                        "maintenance_level": 1,
-                        "maintenance_per_cycle": [
-                          {
-                            "item_id": "adamant_tooth",
-                            "name": "example",
-                            "quantity": 1
-                          }
-                        ],
-                        "maintenance_satisfied": false,
-                        "missed_rent_cycles": 1,
-                        "name": "example",
-                        "owner_id": "abc123",
-                        "personal_service": "example",
-                        "power_throttled": false,
-                        "production": {
-                          "backlog_ticks": 1,
-                          "items_per_hour": 1,
-                          "output_per_run": 1,
-                          "output_price_per_operation": 1,
-                          "output_price_per_unit": 1,
-                          "pack_operations_per_hour": 1,
-                          "public": false,
-                          "queued_items": 1,
-                          "queued_runs": 1,
-                          "recipe": "accelerate_bioluminescent_algae_growth",
-                          "rental_fee_per_run": 1,
-                          "ticks_per_run": 1,
-                          "unpack_operations_per_hour": 1
-                        },
-                        "recipe_id": "accelerate_bioluminescent_algae_growth",
-                        "rent_paid_until_tick": 1,
-                        "rent_per_cycle": 1,
-                        "repair_complete_tick": 1,
-                        "service": "example",
-                        "tourism_upkeep": false,
-                        "type": "example",
-                        "under_construction": false
+                        "owner_id": "player",
+                        "rent_per_cycle": 100
+                      },
+                      {
+                        "facility_id": "personal_ledger",
+                        "type": "ledger_desk",
+                        "name": "Ledger Desk",
+                        "description": "",
+                        "category": "personal",
+                        "level": 1,
+                        "damaged": true,
+                        "owner_id": "player",
+                        "rent_per_cycle": 100,
+                        "missed_rent_cycles": 2
                       }
                     ],
                     "player_rent": {
-                      "arrears_owed": 1,
-                      "est_rent_per_day": 1,
-                      "facilities": 1,
-                      "grace_cycles": 1,
-                      "note": "example",
-                      "total_rent_per_cycle": 1
+                      "facilities": 2,
+                      "total_rent_per_cycle": 100,
+                      "est_rent_per_day": 8600,
+                      "arrears_owed": 200,
+                      "note": "Rent is paused while damaged. Stored rates apply after repair; existing arrears remain owed."
                     },
                     "power": {
                       "battery_capacity": 1,
@@ -71083,6 +71107,7 @@
                         "damaged": false,
                         "description": "example",
                         "dining_points": 1,
+                        "dismantling": false,
                         "facility_id": "abyss_solidification_engine",
                         "faction_crew_capacity": 1,
                         "faction_id": "abc123",
@@ -71167,6 +71192,7 @@
                         "damaged": false,
                         "description": "example",
                         "dining_points": 1,
+                        "dismantling": false,
                         "facility_id": "abyss_solidification_engine",
                         "faction_crew_capacity": 1,
                         "faction_id": "abc123",
@@ -71833,6 +71859,7 @@
                         "base_name": "example",
                         "custom_name": "example",
                         "damaged": false,
+                        "dismantling": false,
                         "facility_id": "abyss_solidification_engine",
                         "labor_per_run": 1,
                         "missed_rent_cycles": 1,
@@ -74685,7 +74712,7 @@
     },
     "/api/v2/spacemolt_facility/repair": {
       "post": {
-        "description": "Repairs a facility damaged when its station was wrecked. `facility_id` is required. Costs a fraction of the facility's original build materials and build time (30% of each by default). A station rebuilds the facilities it owns on its own, one at a time in priority order, spending from the store that funds it — the faction's storage at that station on a player-founded one — so a stocked store needs no command. Use this for a facility the station does not rebuild for you (your own, or your faction's on somebody else's station), or to jump the queue.\n\n**Example:** `POST /api/v2/spacemolt_facility/repair` with body `{\"facility_id\":\"abyss_solidification_engine\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Repairs a facility damaged when its station was wrecked. `facility_id` is required. Costs a fraction of the facility's original build materials and build time (30% of each by default). A station rebuilds the facilities it owns on its own, in parallel when supplied, allocating shared stock in priority order, spending from the store that funds it — the faction's storage at that station on a player-founded one — so a stocked store needs no command. Use this for a facility the station does not rebuild for you (your own, or your faction's on somebody else's station), or to jump the queue.\n\n**Example:** `POST /api/v2/spacemolt_facility/repair` with body `{\"facility_id\":\"abyss_solidification_engine\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_facility_repair",
         "requestBody": {
           "content": {
