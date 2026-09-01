@@ -319,9 +319,9 @@ Server-initiated push frames (chat messages, scan events, tick updates, etc.) ca
 
 Every `action_result` for a v2 mutation carries a **state delta** as its `result` field. A delta is a partial `V2GameState` object: it includes only the state sections that changed on the tick the action executed. Absent sections mean unchanged — the client keeps its prior local state for any section not present. A present section replaces the client's prior copy wholesale; for the collection sections this includes emptying — a delta carrying `"cargo": []` or `"modules": []` means that collection is now empty, so clear your cached entries for it. <!-- src: internal/handlers/delta_wrapper.go:95-133, internal/handlers/v2state.go:21-31 -->
 
-### The eight sections
+### The nine sections
 
-Eight state sections are tracked independently. Each handler registers which sections it may touch via a `StateSections` bitmask; the engine snapshots those sections before and after the mutation, then emits only what changed: <!-- src: internal/handlers/delta_wrapper.go:19-27 -->
+Nine state sections are tracked independently. Each handler registers which sections it may touch via a `StateSections` bitmask; the engine snapshots those sections before and after the mutation, then emits only what changed: <!-- src: internal/handlers/delta_wrapper.go:19-27 -->
 
 | JSON field | Contents |
 |---|---|
@@ -333,8 +333,9 @@ Eight state sections are tracked independently. Each handler registers which sec
 | `missions` | Active mission list and mission slot count |
 | `queue` | Whether a pending action is queued (`has_pending`) |
 | `skills` | All skill progress entries — level, XP, and next-level XP threshold |
+| `prize_recoveries` | Active intact-ship recovery operations you claimed, including prizes in transit or stalled outside your current POI |
 
-**Struct sections** (`player`, `ship`, `skills`) appear only when their content actually changed (deep equality check). The remaining sections (`modules`, `cargo`, `location`, `missions`, `queue`) skip the change check and appear whenever the mutation is registered as touching them — deep-comparing them every tick is too expensive. <!-- src: internal/handlers/delta_wrapper.go:98-133 -->
+**Struct sections** (`player`, `ship`, `skills`) appear only when their content actually changed (deep equality check). The remaining sections (`modules`, `cargo`, `location`, `missions`, `queue`, `prize_recoveries`) skip the change check and appear whenever the mutation is registered as touching them — deep-comparing them every tick is too expensive. <!-- src: internal/handlers/delta_wrapper.go:98-133 -->
 
 ### Convenience fields
 
@@ -797,6 +798,18 @@ Pushed to a drone owner when their scout drone completes a system survey.
 
 Payload not yet typed — see `internal/game/engine_drones.go:960`.
 
+#### `drone_adrift` <!-- src: internal/game/engine_drones.go:184 -->
+
+Pushed to a drone owner when their drone runs out of fuel in transit and goes adrift. The drone stops where it is and stays recoverable at the reported location.
+
+| Field | Type | Description |
+|---|---|---|
+| `drone_id` | string | Drone identifier |
+| `owner_id` | string | Owner player ID |
+| `drone_type` | string | Drone type string |
+| `system_id` | string | System the drone went adrift in |
+| `poi_id` | string | POI the drone went adrift at |
+
 ### 6.7 Facilities & bases
 
 #### `facility_rent_warning` <!-- src: internal/game/station_economy.go:3572 -->
@@ -931,6 +944,77 @@ Broadcast to every connected player ahead of a deploy restart, giving clients ti
 | `message` | string | Human-readable warning text |
 | `seconds_until_restart` | integer | Seconds from this frame until the server restarts |
 | `target_version` | string | Version being deployed (omitted if not specified) |
+
+### 6.10 Faction diplomacy
+
+Pushed to the diplomats or members of an affected faction when another faction's diplomatic action changes their standing. All six carry a ready-to-display `message`.
+
+#### `faction_alliance_proposal` <!-- src: internal/handlers/faction.go:1010 -->
+
+Pushed to your faction's diplomats when another faction proposes an alliance. Ratify with `faction_accept_ally`.
+
+| Field | Type | Description |
+|---|---|---|
+| `from_faction_id` | string | Proposing faction ID |
+| `from_faction_name` | string | Proposing faction name |
+| `from_faction_tag` | string | Proposing faction tag |
+| `message` | string | Human-readable summary |
+
+#### `faction_alliance_formed` <!-- src: internal/handlers/faction.go:1071 -->
+
+Pushed to the proposing faction's members when their alliance proposal is accepted.
+
+| Field | Type | Description |
+|---|---|---|
+| `with_faction_id` | string | Faction now allied with |
+| `with_faction_name` | string | Their faction name |
+| `with_faction_tag` | string | Their faction tag |
+| `message` | string | Human-readable summary |
+
+#### `faction_alliance_broken` <!-- src: internal/handlers/faction.go:1227 -->
+
+Pushed to the other party's members when one faction dissolves the alliance.
+
+| Field | Type | Description |
+|---|---|---|
+| `by_faction_id` | string | Faction that broke the alliance |
+| `by_faction_name` | string | Their faction name |
+| `by_faction_tag` | string | Their faction tag |
+| `message` | string | Human-readable summary |
+
+#### `faction_war_declared` <!-- src: internal/handlers/faction.go:1347 -->
+
+Pushed when war is declared involving your faction.
+
+| Field | Type | Description |
+|---|---|---|
+| `aggressor_faction_id` | string | Faction declaring war |
+| `aggressor_faction_name` | string | Aggressor faction name |
+| `defender_faction_id` | string | Faction war was declared on |
+| `defender_faction_name` | string | Defender faction name |
+| `reason` | string | Stated reason (omitted when none was given) |
+| `message` | string | Human-readable summary |
+
+#### `faction_peace_proposal` <!-- src: internal/handlers/faction.go:1407 -->
+
+Pushed to your faction's diplomats when another faction proposes peace. Accept with `faction_accept_peace`.
+
+| Field | Type | Description |
+|---|---|---|
+| `from_faction_id` | string | Proposing faction ID |
+| `from_faction_name` | string | Proposing faction name |
+| `terms` | string | Proposed terms (omitted when none were given) |
+| `message` | string | Human-readable summary |
+
+#### `faction_peace_accepted` <!-- src: internal/handlers/faction.go:1470 -->
+
+Pushed to the proposing faction's members when the other faction accepts their peace proposal. The war is over.
+
+| Field | Type | Description |
+|---|---|---|
+| `faction_id` | string | Faction that accepted the proposal |
+| `faction_name` | string | Their faction name |
+| `message` | string | Human-readable summary |
 
 ## 7. Errors
 

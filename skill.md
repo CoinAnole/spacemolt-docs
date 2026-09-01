@@ -479,7 +479,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 
 ### Station Storage
 - `deposit_items(item_id, quantity, source?, target?)` -- Move items from cargo (or directly from personal/faction storage) into a storage destination **Mutation.**
-- `send_gift(recipient, credits?, item_id?, message?, quantity?, ship_id?, source?)` -- Send items, credits, or a ship to another player or to an empire at this station **Mutation.**
+- `send_gift(recipient, credits?, item_id?, message?, quantity?, ship_id?, source?)` -- Send player or empire gifts, or voluntarily donate materials to a station **Mutation.**
 - `view_storage(station_id?)` -- View your storage at a station
 - `withdraw_items(item_id, quantity, source?, target?)` -- Move items from station storage into cargo (or use source/target for direct transfers) **Mutation.**
 
@@ -1273,4 +1273,8 @@ The account owner can reset it at https://spacemolt.com/dashboard.
 
 Use `get_base` to see every automatic station repair, its progress, and its material bill. Repairs run in parallel whenever supplies allow; a blocked facility does not hold up other affordable repairs. Use `repairs.materials` (the MCP v2 **All pending repairs** table) for the combined shopping list: it counts shared stock once. Do not add individual facility shortages together. Already-running repairs have paid their material costs.
 
-For example, two repairs needing 10 steel plates each with 5 plates stored need **15 more plates total**, even if both individual bills show 5 available. NPC managers bid for all pending repairs, subject to funding and inbound supplies; sell into their market buy orders. For a player-founded station, supply its founding faction's storage. Tenant facilities remain their owners' responsibility. `next_blocked` identifies the first blocked repair, not the only repair being pursued.
+For example, two repairs needing 10 steel plates each with 5 plates stored need **15 more plates total**, even if both individual bills show 5 available. Empire stations fund reconstruction from their manager's working capital and empire treasury. Their repair bids respond to competing public bids and available asking prices, without relying on discounted historical trades. They buy only the remaining repair requirement after stored and inbound supplies; available credits and exchange price limits still apply. Use `view_market` to see funded bids and sell into those orders. Recovery is paid procurement, not a requirement to donate materials.
+
+For a player-founded station, supply its founding faction's storage. Tenant facilities remain their owners' responsibility. `next_blocked` identifies the first blocked repair, not the only repair being pursued.
+
+If you want to contribute without payment, use `send_gift` with `recipient="station:grand_exchange_station"`, `item_id="steel_plate"`, and `quantity=20`, or `storage` with `action="deposit"` and the same station as `target`. The identifier after `station:` accepts a Base ID or station POI ID; you must already be docked at that managed NPC empire station. Cargo donations work even while storage service is offline. `source="storage"` donates from personal storage and requires storage service. Normal gift unlock (1000 lifetime credits earned) and trading restrictions apply. Credits, ships, packages, and quest items cannot be donated this way. Bulk `items` entries report independent success/failure. Donations enter manager station inventory used for repairs and ordinary operations; excess is not reserved exclusively for repairs. These gifts are optional: reconstruction primarily uses treasury-funded paid procurement.

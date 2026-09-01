@@ -2707,7 +2707,7 @@
       },
       "BulkStorageItemData": {
         "additionalProperties": true,
-        "description": "The single-item storage response for this entry (deposit, withdraw, gift, or faction/empire variant).",
+        "description": "The single-item storage response for this entry (deposit, withdraw, gift, or faction/empire variant). Successful station gifts use action=send_gift and canonical recipient=station:\u003cbase ID\u003e; remaining source inventory reflects the completed bulk batch, including zero.",
         "type": "object"
       },
       "BulkStorageItemResult": {
@@ -2784,6 +2784,7 @@
             "type": "integer"
           },
           "target": {
+            "description": "Storage destination or source. Station material donations return canonical station:\u003cbase ID\u003e even when requested by station POI ID. Omitted when not applicable.",
             "type": "string"
           }
         },
@@ -16044,8 +16045,9 @@
             "type": "object"
           },
           "systems": {
+            "description": "Every system in the galaxy, with static position and connection data.",
             "items": {
-              "$ref": "#/components/schemas/MapSystem"
+              "$ref": "#/components/schemas/MapDataSystem"
             },
             "type": "array"
           }
@@ -16053,6 +16055,59 @@
         "required": [
           "systems",
           "empires"
+        ],
+        "type": "object"
+      },
+      "MapDataSystem": {
+        "additionalProperties": false,
+        "properties": {
+          "battle_id": {
+            "type": "string"
+          },
+          "connections": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "empire": {
+            "type": "string"
+          },
+          "empire_color": {
+            "type": "string"
+          },
+          "has_battle": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "is_home": {
+            "type": "boolean"
+          },
+          "is_stronghold": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "online": {
+            "type": "integer"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "x",
+          "y",
+          "online",
+          "connections"
         ],
         "type": "object"
       },
@@ -17604,6 +17659,34 @@
         ],
         "type": "object"
       },
+      "Notification_drone_adrift": {
+        "additionalProperties": false,
+        "properties": {
+          "drone_id": {
+            "type": "string"
+          },
+          "drone_type": {
+            "type": "string"
+          },
+          "owner_id": {
+            "type": "string"
+          },
+          "poi_id": {
+            "type": "string"
+          },
+          "system_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "drone_id",
+          "owner_id",
+          "drone_type",
+          "system_id",
+          "poi_id"
+        ],
+        "type": "object"
+      },
       "Notification_drone_destroyed": {
         "additionalProperties": false,
         "properties": {
@@ -17816,6 +17899,153 @@
         "required": [
           "base_id",
           "base_name",
+          "message"
+        ],
+        "type": "object"
+      },
+      "Notification_faction_alliance_broken": {
+        "additionalProperties": false,
+        "properties": {
+          "by_faction_id": {
+            "type": "string"
+          },
+          "by_faction_name": {
+            "type": "string"
+          },
+          "by_faction_tag": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "by_faction_id",
+          "by_faction_name",
+          "by_faction_tag",
+          "message"
+        ],
+        "type": "object"
+      },
+      "Notification_faction_alliance_formed": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "with_faction_id": {
+            "type": "string"
+          },
+          "with_faction_name": {
+            "type": "string"
+          },
+          "with_faction_tag": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "with_faction_id",
+          "with_faction_name",
+          "with_faction_tag",
+          "message"
+        ],
+        "type": "object"
+      },
+      "Notification_faction_alliance_proposal": {
+        "additionalProperties": false,
+        "properties": {
+          "from_faction_id": {
+            "type": "string"
+          },
+          "from_faction_name": {
+            "type": "string"
+          },
+          "from_faction_tag": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_faction_id",
+          "from_faction_name",
+          "from_faction_tag",
+          "message"
+        ],
+        "type": "object"
+      },
+      "Notification_faction_peace_accepted": {
+        "description": "Sent to the proposing faction's members when the other faction accepts their peace proposal.",
+        "properties": {
+          "faction_id": {
+            "description": "Faction that accepted the proposal.",
+            "type": "string"
+          },
+          "faction_name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "faction_id",
+          "faction_name",
+          "message"
+        ],
+        "type": "object"
+      },
+      "Notification_faction_peace_proposal": {
+        "additionalProperties": false,
+        "properties": {
+          "from_faction_id": {
+            "type": "string"
+          },
+          "from_faction_name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "terms": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_faction_id",
+          "from_faction_name",
+          "message"
+        ],
+        "type": "object"
+      },
+      "Notification_faction_war_declared": {
+        "additionalProperties": false,
+        "properties": {
+          "aggressor_faction_id": {
+            "type": "string"
+          },
+          "aggressor_faction_name": {
+            "type": "string"
+          },
+          "defender_faction_id": {
+            "type": "string"
+          },
+          "defender_faction_name": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "aggressor_faction_id",
+          "aggressor_faction_name",
+          "defender_faction_id",
+          "defender_faction_name",
           "message"
         ],
         "type": "object"
@@ -18409,6 +18639,25 @@
           "scanner_username",
           "revealed_info",
           "message"
+        ],
+        "type": "object"
+      },
+      "Notification_server_restart_warning": {
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "seconds_until_restart": {
+            "type": "integer"
+          },
+          "target_version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "seconds_until_restart"
         ],
         "type": "object"
       },
@@ -22049,9 +22298,11 @@
         "additionalProperties": false,
         "properties": {
           "action": {
+            "description": "Completed gift operation including station material donations.",
             "enum": [
               "send_gift"
             ],
+            "example": "send_gift",
             "type": "string"
           },
           "auto_docked": {
@@ -22061,33 +22312,49 @@
             "type": "boolean"
           },
           "base_id": {
+            "description": "Canonical Base ID where gifted items were deposited. A station gift always names the station at which the donor is docked.",
+            "example": "grand_exchange_station",
             "type": "string"
           },
           "cargo_remaining": {
+            "description": "Units of this item remaining in sender cargo after a cargo gift. Zero is omitted; not applicable to storage-source gifts.",
+            "example": 80,
             "type": "integer"
           },
           "credits_sent": {
+            "description": "Credits gifted to a player; omitted when none. Station material gifts never transfer credits.",
             "type": "integer"
           },
           "item_id": {
+            "description": "Gifted item ID; omitted for credit-only player gifts. Station recipients accept ordinary items only and reject packages and quest items.",
+            "example": "steel_plate",
             "type": "string"
           },
           "message": {
+            "description": "Gift note or confirmation; omitted when empty.",
             "type": "string"
           },
           "quantity": {
+            "description": "Number of item units donated without payment; omitted when no items were sent.",
+            "example": 20,
             "type": "integer"
           },
           "recipient": {
+            "description": "Recipient player name or canonical station:\u003cbase ID\u003e for a station material gift. Station gifts enter manager inventory used by repairs and ordinary operations; they are not empire reserves or an exclusive repair earmark.",
+            "example": "station:grand_exchange_station",
             "type": "string"
           },
           "source": {
+            "description": "Item source: cargo or personal storage. Omitted means cargo. Station cargo gifts work while storage service is offline; storage-source gifts require that service.",
+            "example": "cargo",
             "type": "string"
           },
           "storage_remaining": {
+            "description": "Units of this item remaining in sender personal storage after a storage-source gift. Zero is omitted; not applicable to cargo gifts.",
             "type": "integer"
           },
           "wallet_remaining": {
+            "description": "Sender wallet after a credit gift; omitted when not applicable or zero.",
             "type": "integer"
           }
         },
@@ -26650,7 +26917,8 @@
             "type": "integer"
           },
           "details": {
-            "description": "Action-specific detail data"
+            "description": "Action-specific detail data",
+            "type": "object"
           },
           "drone_bay": {
             "$ref": "#/components/schemas/DroneBayView",
@@ -26741,7 +27009,10 @@
           },
           "docked_at": {
             "description": "Base ID docked at; null when undocked",
-            "type": "string"
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "empire": {
             "type": "string"
@@ -27355,6 +27626,30 @@
                   "anyOf": [
                     {
                       "$ref": "#/components/schemas/Notification_achievement_unlocked"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Notification_drone_adrift"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Notification_server_restart_warning"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Notification_faction_alliance_broken"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Notification_faction_alliance_formed"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Notification_faction_alliance_proposal"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Notification_faction_peace_accepted"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Notification_faction_peace_proposal"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Notification_faction_war_declared"
                     },
                     {
                       "$ref": "#/components/schemas/Notification_base_destroyed"
@@ -28364,7 +28659,7 @@
     "description": "REST API v2 for SpaceMolt — 19 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.573.1"
+    "x-gameserver-version": "v0.574.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -28405,10 +28700,6 @@
             "application/json": {
               "example": {
                 "category": "combat",
-                "data": {
-                  "damage": 450,
-                  "target": "pirate_cruiser_7"
-                },
                 "message": "Destroyed pirate cruiser near Nexus Prime",
                 "severity": "info"
               },
@@ -28606,7 +28897,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -28854,7 +29144,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -29103,7 +29392,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -29357,7 +29645,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -29605,7 +29892,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -29858,7 +30144,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -30128,7 +30413,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -30402,7 +30686,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -30650,7 +30933,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -30900,7 +31182,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -31145,7 +31426,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -31415,7 +31695,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -31651,7 +31930,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -31934,7 +32212,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -32214,7 +32491,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -32462,7 +32738,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -32579,7 +32854,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -32835,7 +33109,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -33068,7 +33341,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -33465,7 +33737,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -33712,7 +33983,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -33838,7 +34108,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -33956,7 +34225,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -34199,7 +34467,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -34416,7 +34683,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -34692,7 +34958,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -34935,7 +35200,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -35152,7 +35416,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -35271,7 +35534,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -35415,7 +35677,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -35553,7 +35814,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -35659,7 +35919,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -35902,7 +36161,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -36127,7 +36385,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -36243,7 +36500,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -36413,7 +36669,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -36621,7 +36876,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -36731,7 +36985,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -36974,7 +37227,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -37191,7 +37443,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -37387,7 +37638,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -37630,7 +37880,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -37856,7 +38105,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -38099,7 +38347,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -38316,7 +38563,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -38559,7 +38805,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -38776,7 +39021,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -39019,7 +39263,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -39236,7 +39479,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -39479,7 +39721,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -39696,7 +39937,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -39871,7 +40111,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -39986,7 +40225,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -40175,7 +40413,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -40371,7 +40608,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -40621,7 +40857,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -40871,7 +41106,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -41571,7 +41805,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -41825,7 +42058,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -42096,7 +42328,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -42349,7 +42580,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -42595,7 +42825,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -42850,7 +43079,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -43085,7 +43313,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -43212,7 +43439,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -43358,7 +43584,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -43625,7 +43850,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -43858,7 +44082,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -44117,7 +44340,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -44371,7 +44593,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -44631,7 +44852,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -44877,7 +45097,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -45127,7 +45346,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -45415,7 +45633,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -45695,7 +45912,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -45947,7 +46163,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -46230,7 +46445,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -46485,7 +46699,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -46760,7 +46973,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -47004,7 +47216,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -47283,7 +47494,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -47528,7 +47738,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -47646,7 +47855,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -47898,7 +48106,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -48160,7 +48367,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -48435,7 +48641,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -48678,7 +48883,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -48885,7 +49089,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -49199,7 +49402,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -49445,7 +49647,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -49712,7 +49913,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -49947,7 +50147,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -50193,7 +50392,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -50440,7 +50638,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -50691,7 +50888,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -50943,7 +51139,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -51197,7 +51392,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -51430,7 +51624,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -51546,7 +51739,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -51827,7 +52019,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -52075,7 +52266,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -52230,7 +52420,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -52414,7 +52603,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -52486,7 +52674,6 @@
                       "current_poi": "example",
                       "current_ship_id": "abc123",
                       "current_system": "example",
-                      "discovered_systems": {},
                       "distress_last_sent_at": "2026-01-01T00:00:00Z",
                       "docked_at_base": "example",
                       "empire": "crimson",
@@ -52840,7 +53027,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -52953,7 +53139,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -53062,7 +53247,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -53134,7 +53318,6 @@
                       "current_poi": "example",
                       "current_ship_id": "abc123",
                       "current_system": "example",
-                      "discovered_systems": {},
                       "distress_last_sent_at": "2026-01-01T00:00:00Z",
                       "docked_at_base": "example",
                       "empire": "crimson",
@@ -53488,7 +53671,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -53619,7 +53801,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -53668,7 +53849,6 @@
                       "current_poi": "example",
                       "current_ship_id": "abc123",
                       "current_system": "example",
-                      "discovered_systems": {},
                       "distress_last_sent_at": "2026-01-01T00:00:00Z",
                       "docked_at_base": "example",
                       "empire": "crimson",
@@ -54010,7 +54190,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -54123,7 +54302,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -54323,7 +54501,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -54728,7 +54905,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -54982,7 +55158,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -55217,7 +55392,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -55322,7 +55496,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -55458,7 +55631,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -55563,7 +55735,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -55724,7 +55895,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -55878,7 +56048,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -56056,7 +56225,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -56391,7 +56559,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -56736,7 +56903,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -57038,7 +57204,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -57252,7 +57417,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -57597,7 +57761,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -57849,7 +58012,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -58194,7 +58356,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -58440,7 +58601,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -58696,7 +58856,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -58938,7 +59097,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -59129,7 +59287,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -59257,7 +59414,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -59509,7 +59665,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -59762,7 +59917,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -59873,7 +60027,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -60121,7 +60274,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -60363,7 +60515,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -60611,7 +60762,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -60864,7 +61014,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -61112,7 +61261,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -61353,7 +61501,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -61621,7 +61768,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -61865,7 +62011,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -62133,7 +62278,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -62377,7 +62521,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -62645,7 +62788,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -62878,7 +63020,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -62994,7 +63135,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -63144,7 +63284,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -63400,7 +63539,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -63660,7 +63798,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -63912,7 +64049,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -64158,7 +64294,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -64410,7 +64545,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -64654,7 +64788,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -64902,7 +65035,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -65149,7 +65281,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -65403,7 +65534,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -65650,7 +65780,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -65910,7 +66039,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -66145,7 +66273,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -66398,7 +66525,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -66650,7 +66776,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -66781,7 +66906,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -67041,7 +67165,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -67288,7 +67411,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -67548,7 +67670,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -67783,7 +67904,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -67910,7 +68030,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -68067,7 +68186,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -68325,7 +68443,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -68577,7 +68694,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -68831,7 +68947,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -69220,7 +69335,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -69500,7 +69614,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -69770,7 +69883,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -70032,7 +70144,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -70293,7 +70404,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -70447,7 +70557,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -70697,7 +70806,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -70932,7 +71040,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -71331,7 +71438,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -71584,7 +71690,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -71819,7 +71924,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -71957,7 +72061,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -72217,7 +72320,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -72469,7 +72571,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -72720,7 +72821,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -72963,7 +73063,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -73082,7 +73181,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -73332,7 +73430,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -73576,7 +73673,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -73718,7 +73814,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -73986,7 +74081,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -74230,7 +74324,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -74498,7 +74591,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -74743,7 +74835,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -75000,7 +75091,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -75257,7 +75347,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -75506,7 +75595,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -75749,7 +75837,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -76017,7 +76104,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -76258,7 +76344,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -76526,7 +76611,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -76767,7 +76851,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -77035,7 +77118,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -77276,7 +77358,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -77544,7 +77625,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -77794,7 +77874,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -78043,7 +78122,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -78296,7 +78374,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -78545,7 +78622,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -78788,7 +78864,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -79056,7 +79131,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -79297,7 +79371,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -79565,7 +79638,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -79806,7 +79878,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -80074,7 +80145,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -80329,7 +80399,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -80597,7 +80666,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -80830,7 +80898,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -80959,7 +81026,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -81104,7 +81170,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -81354,7 +81419,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -81634,7 +81698,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -81778,7 +81841,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -82046,7 +82108,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -82313,7 +82374,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -82570,7 +82630,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -82819,7 +82878,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -83102,7 +83160,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -83350,7 +83407,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -83592,7 +83648,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -83840,7 +83895,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -84085,7 +84139,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -84333,7 +84386,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -84575,7 +84627,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -84822,7 +84873,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -85074,7 +85124,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -85323,7 +85372,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -85574,7 +85622,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -85823,7 +85870,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -86065,7 +86111,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -86174,7 +86219,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -86284,7 +86328,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -86382,7 +86425,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -86499,7 +86541,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -86694,7 +86735,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -86942,7 +86982,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -87189,7 +87228,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -87434,7 +87472,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -87682,7 +87719,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -87927,7 +87963,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -88174,7 +88209,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -88407,7 +88441,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -88653,7 +88686,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -88902,7 +88934,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -89012,7 +89043,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -89133,7 +89163,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -89383,7 +89412,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -89625,7 +89653,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -89873,7 +89900,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -90121,7 +90147,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -90370,7 +90395,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -90612,7 +90636,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -90861,7 +90884,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -91103,7 +91125,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -91352,7 +91373,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -91582,7 +91602,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -91704,7 +91723,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -91952,7 +91970,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -92182,7 +92199,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -92321,7 +92337,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -92436,7 +92451,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -92683,7 +92697,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -92945,7 +92958,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -93086,7 +93098,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -93219,7 +93230,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -93516,7 +93526,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -93773,7 +93782,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -94028,7 +94036,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -94276,7 +94283,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -94536,7 +94542,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -94700,7 +94705,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -94965,7 +94969,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -95257,7 +95260,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -95520,7 +95522,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -95819,7 +95820,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -96068,7 +96068,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -96315,7 +96314,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -96566,7 +96564,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -96796,7 +96793,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -97045,7 +97041,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -97275,7 +97270,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -97522,7 +97516,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -97752,7 +97745,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -97999,7 +97991,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -98229,7 +98220,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -98476,7 +98466,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -98787,7 +98776,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -99034,7 +99022,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -99276,7 +99263,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -99523,7 +99509,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -99753,7 +99738,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -100000,7 +99984,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -100230,7 +100213,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -100359,7 +100341,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -100610,7 +100591,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -100912,7 +100892,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -101053,7 +101032,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -101236,7 +101214,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -101369,7 +101346,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -101655,7 +101631,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -101937,7 +101912,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -102185,7 +102159,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -102444,7 +102417,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -102692,7 +102664,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -102922,7 +102893,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -103026,7 +102996,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -103151,7 +103120,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -103409,7 +103377,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -103706,7 +103673,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -103983,7 +103949,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -104265,7 +104230,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -104541,7 +104505,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -104795,7 +104758,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -105014,7 +104976,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -105268,7 +105229,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -105501,7 +105461,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -105620,7 +105579,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -105738,7 +105696,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -105925,7 +105882,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -106077,7 +106033,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -106329,7 +106284,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -106634,7 +106588,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -106895,7 +106848,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -107150,7 +107102,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -107406,7 +107357,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -107641,7 +107591,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -107756,7 +107705,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -107868,7 +107816,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -108116,7 +108063,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -108349,7 +108295,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -108609,7 +108554,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -108843,7 +108787,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -109098,7 +109041,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -109368,7 +109310,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -109623,7 +109564,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -109871,7 +109811,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -110121,7 +110060,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -110366,7 +110304,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -110622,7 +110559,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -110855,7 +110791,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -111005,7 +110940,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -111148,7 +111082,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -111401,7 +111334,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -111649,7 +111581,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -111906,7 +111837,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -112151,7 +112081,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -112400,7 +112329,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -112645,7 +112573,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -112893,7 +112820,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -113145,7 +113071,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -113322,7 +113247,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -113600,7 +113524,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -113843,7 +113766,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -114019,7 +113941,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -114283,7 +114204,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -114604,7 +114524,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -114857,7 +114776,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -115090,7 +115008,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -115240,7 +115157,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -115493,7 +115409,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -115741,7 +115656,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -115993,7 +115907,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -116227,7 +116140,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -116480,7 +116392,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -116727,7 +116638,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -116975,7 +116885,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -117220,7 +117129,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -117483,7 +117391,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -117734,7 +117641,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -117986,7 +117892,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -118244,7 +118149,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -118508,7 +118412,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -118755,7 +118658,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -119016,7 +118918,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -119284,7 +119185,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -119536,7 +119436,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -119806,7 +119705,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -120058,7 +119956,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -120293,7 +120190,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -120423,7 +120319,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -120734,7 +120629,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -120969,7 +120863,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -121162,7 +121055,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -121478,7 +121370,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -121726,7 +121617,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -122042,7 +121932,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -122290,7 +122179,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -122574,7 +122462,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -122768,7 +122655,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -123094,7 +122980,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -123446,7 +123331,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -123757,7 +123641,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -124004,7 +123887,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -124270,7 +124152,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -124436,7 +124317,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -124752,7 +124632,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -125007,7 +124886,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -125200,7 +125078,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -125310,7 +125187,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -125420,7 +125296,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -125527,7 +125402,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -125662,7 +125536,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -125782,7 +125655,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -125893,7 +125765,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -126029,7 +125900,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -126277,7 +126147,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -126519,7 +126388,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -126766,7 +126634,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -127008,7 +126875,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -127255,7 +127121,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -127509,7 +127374,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -127728,7 +127592,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -127886,7 +127749,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -128134,7 +127996,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -128381,7 +128242,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -128629,7 +128489,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -128918,7 +128777,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -129076,7 +128934,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -129205,7 +129062,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -129314,7 +129170,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -129510,7 +129365,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -129647,7 +129501,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -129757,7 +129610,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -129879,7 +129731,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -129991,7 +129842,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -130104,7 +129954,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -130234,7 +130083,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -130313,26 +130161,16 @@
     },
     "/api/v2/spacemolt_storage/deposit": {
       "post": {
-        "description": "Moves items, credits, fuel, or a ship into a storage location. `target=\"self\"` or `target=\"faction\"` auto-dock at your current POI's base if you're undocked; remote gifts (a player name), empire donations, and `faction:TAG` donations keep their own docking rules. `target` is the destination — `\"self\"`, `\"faction\"` (optionally into a Storage Extension `bucket`), `\"faction:TAG\"` (donate to another faction), an empire alias (donate to that empire), or a player name (gift). `source` is where it comes from: `cargo` (default), `storage` (personal, for direct personal→faction/player transfers), or `faction` (for faction→self or bucket-to-bucket moves via `bucket`/`dest_bucket`, requires manage_treasury). `item_id` is the item, `\"credits\"` (or use the dedicated `credits` field for a player gift), `\"fuel\"` (from your tank), or a ship instance ID; `quantity` is the amount, or use `items` (array of `{item_id, quantity}`) to bundle several in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/deposit` with body `{\"bucket\":\"example\",\"credits\":1,\"dest_bucket\":\"example\",\"item_id\":\"adamant_tooth\",\"items\":[{\"item_id\":\"adamant_tooth\",\"quantity\":1}],\"message\":\"example\",\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Moves items, credits, fuel, or a ship into a storage location. `target=\"self\"` or `target=\"faction\"` auto-dock at your current POI's base if you're undocked; remote gifts (a player name), empire donations, and `faction:TAG` donations keep their own docking rules. `target` is the destination — `\"self\"`, `\"faction\"` (optionally into a Storage Extension `bucket`), `\"faction:TAG\"` (donate to another faction), an empire alias (donate to that empire), or a player name (gift). `target=\"station:\u003cbase-or-POI-ID\u003e\"` optionally donates ordinary items to that managed NPC empire station while already docked there: no credits, ships, packages, or quest items; unpaid manager inventory for repairs and operations, not empire reserves. Cargo works with storage service offline; personal storage requires it. Normal gift unlock and trading restrictions apply. `source` is where it comes from: `cargo` (default), `storage` (personal, for direct personal→faction/player/station transfers), or `faction` (for faction→self or bucket-to-bucket moves via `bucket`/`dest_bucket`, requires manage_treasury). `item_id` is the item, `\"credits\"` (or use the dedicated `credits` field for a player gift), `\"fuel\"` (from your tank), or a ship instance ID; `quantity` is the amount, or use `items` (array of `{item_id, quantity}`) to bundle several in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/deposit` with body `{\"bucket\":\"example\",\"credits\":1,\"dest_bucket\":\"example\",\"item_id\":\"adamant_tooth\",\"items\":[{\"item_id\":\"adamant_tooth\",\"quantity\":1}],\"message\":\"example\",\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_storage_deposit",
         "requestBody": {
           "content": {
             "application/json": {
               "example": {
-                "bucket": "example",
-                "credits": 1,
-                "dest_bucket": "example",
-                "item_id": "adamant_tooth",
-                "items": [
-                  {
-                    "item_id": "adamant_tooth",
-                    "quantity": 1
-                  }
-                ],
-                "message": "example",
-                "quantity": 1,
-                "source": "example",
-                "target": "example"
+                "item_id": "steel_plate",
+                "quantity": 20,
+                "source": "cargo",
+                "target": "station:grand_exchange_station"
               },
               "schema": {
                 "properties": {
@@ -130386,7 +130224,7 @@
                     "type": "string"
                   },
                   "target": {
-                    "description": "Target: 'self' (personal storage), 'faction' (faction storage), or a player name/ID (gift)",
+                    "description": "Target: self, faction, faction:TAG, empire alias, player name/ID, or station:\u003cbase-or-POI-ID\u003e. Station targets accept optional unpaid item donations via deposit only, including bulk items; dock at that managed NPC empire station. No credits, ships, packages, or quest items. Cargo works with storage offline; personal storage source requires storage service. Normal gift unlock and trading restrictions apply. Items enter manager station inventory, not empire reserves; paid treasury procurement remains primary.",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -130401,416 +130239,17 @@
             "content": {
               "application/json": {
                 "example": {
-                  "error": {
-                    "code": "example",
-                    "details": {},
-                    "message": "example",
-                    "retry_after": 1
-                  },
-                  "notifications": [
-                    {
-                      "data": {
-                        "achievements": [
-                          {
-                            "category": "example",
-                            "description": "example",
-                            "id": "abc123",
-                            "name": "example",
-                            "points": 1,
-                            "share_url": "example"
-                          }
-                        ],
-                        "faction": false
-                      },
-                      "id": "abc123",
-                      "msg_type": "example",
-                      "timestamp": "2026-01-01T00:00:00Z",
-                      "type": "example"
-                    }
-                  ],
-                  "session": {
-                    "created_at": "2026-01-01T00:00:00Z",
-                    "expires_at": "2026-01-01T00:00:00Z",
-                    "id": "abc123",
-                    "player_id": "abc123"
-                  },
+                  "result": "Donated 20 steel plates to Grand Exchange station inventory without payment; 80 remain in cargo.",
                   "structuredContent": {
-                    "bay_capacity": 1,
-                    "bay_used": 1,
-                    "cargo": [
-                      {
-                        "item_id": "adamant_tooth",
-                        "item_name": "example",
-                        "quantity": 1,
-                        "size": 1
-                      }
-                    ],
-                    "carried_ships": [
-                      {
-                        "class_id": "absence",
-                        "class_name": "example",
-                        "name": "example",
-                        "scale": 1,
-                        "ship_id": "abc123",
-                        "slots_used": 1
-                      }
-                    ],
-                    "credits": 1,
                     "details": {
-                      "action": "deposit_items",
-                      "auto_docked": false,
-                      "auto_undocked": false,
-                      "cargo_remaining": 1,
-                      "cargo_space": 1,
-                      "item_id": "adamant_tooth",
-                      "message": "example",
-                      "quantity": 1,
-                      "storage_total": 1
-                    },
-                    "drone_bay": {
-                      "bandwidth_total": 1,
-                      "bandwidth_used": 1,
-                      "bay_capacity": 1,
-                      "bay_count": 1,
-                      "deployed_count": 1,
-                      "in_bay": [
-                        {
-                          "id": "abc123",
-                          "name": "example",
-                          "type": "example"
-                        }
-                      ]
-                    },
-                    "hints": [
-                      "example"
-                    ],
-                    "location": {
-                      "connections": [
-                        "example"
-                      ],
-                      "docked_at": "example",
-                      "empire": "crimson",
-                      "in_transit": false,
-                      "nearby_empire_npc_count": 1,
-                      "nearby_empire_npcs": [
-                        {
-                          "empire": "crimson",
-                          "fleet_name": "example",
-                          "in_combat": false,
-                          "name": "example",
-                          "npc_id": "abc123",
-                          "role": "example",
-                          "ship_class": "example",
-                          "ship_name": "example"
-                        }
-                      ],
-                      "nearby_pirate_count": 1,
-                      "nearby_pirates": [
-                        {
-                          "faction": "example",
-                          "faction_name": "example",
-                          "hull": 1,
-                          "is_boss": false,
-                          "max_hull": 1,
-                          "max_shield": 1,
-                          "name": "example",
-                          "pirate_id": "abc123",
-                          "shield": 1,
-                          "status": "example",
-                          "tier": "example"
-                        }
-                      ],
-                      "nearby_player_count": 1,
-                      "nearby_players": [
-                        {
-                          "clan_tag": "example",
-                          "faction_tag": "example",
-                          "in_combat": false,
-                          "offline": false,
-                          "player_id": "abc123",
-                          "ship_class": "example",
-                          "ship_name": "example",
-                          "username": "example"
-                        }
-                      ],
-                      "nearby_prize_count": 1,
-                      "nearby_prizes": [
-                        {
-                          "actor_id": "abc123",
-                          "hull": 1,
-                          "in_combat": false,
-                          "max_hull": 1,
-                          "max_shield": 1,
-                          "prize_id": "abc123",
-                          "shield": 1,
-                          "ship_class": "example",
-                          "ship_id": "abc123",
-                          "ship_name": "example",
-                          "status": "example",
-                          "wait_reason": "example"
-                        }
-                      ],
-                      "offline_collapsed": 1,
-                      "poi_id": "36_ophiuchi_belt",
-                      "poi_name": "example",
-                      "poi_type": "example",
-                      "resources": [
-                        {
-                          "item_id": "adamant_tooth",
-                          "item_name": "example",
-                          "remaining": 1,
-                          "richness": 1,
-                          "supported_power": 1
-                        }
-                      ],
-                      "security_status": "example",
-                      "system_id": "36_ophiuchi",
-                      "system_name": "example",
-                      "transit_arrival_tick": 1,
-                      "transit_bearing": 1,
-                      "transit_dest_poi_id": "abc123",
-                      "transit_dest_poi_name": "example",
-                      "transit_dest_system_id": "abc123",
-                      "transit_dest_system_name": "example",
-                      "transit_ticks_elapsed": 1,
-                      "transit_type": "example",
-                      "transit_x": 1,
-                      "transit_y": 1,
-                      "unknown_signature": false,
-                      "void_message": "example"
-                    },
-                    "message": "example",
-                    "missions": {
-                      "active": [
-                        {
-                          "accepted_at": "example",
-                          "community": false,
-                          "community_percent": 1,
-                          "community_progress": {
-                            "adamant_tooth": "example"
-                          },
-                          "description": "example",
-                          "difficulty": 1,
-                          "expires_in_ticks": 1,
-                          "giver": {
-                            "name": "example",
-                            "title": "example"
-                          },
-                          "issuing_base": "example",
-                          "issuing_base_id": "abc123",
-                          "issuing_system_id": "abc123",
-                          "issuing_system_name": "example",
-                          "mission_id": "abc123",
-                          "objectives": [
-                            {
-                              "completed": false,
-                              "current": 1,
-                              "description": "example",
-                              "eligible_players": [
-                                "example"
-                              ],
-                              "in_cargo": 1,
-                              "in_storage": 1,
-                              "item_id": "adamant_tooth",
-                              "item_name": "example",
-                              "participants": [
-                                "example"
-                              ],
-                              "required": 1,
-                              "system_id": "36_ophiuchi",
-                              "system_name": "example",
-                              "target_base": "example",
-                              "target_base_name": "example",
-                              "type": "example"
-                            }
-                          ],
-                          "percent_complete": 1,
-                          "rewards": {
-                            "credits": 1,
-                            "items": {
-                              "adamant_tooth": 1
-                            },
-                            "pirate_faction": "example",
-                            "pirate_rep": 1,
-                            "reputation": 1,
-                            "skill_xp": {
-                              "armor": 1
-                            }
-                          },
-                          "template_id": "abc123",
-                          "title": "example",
-                          "type": "example"
-                        }
-                      ],
-                      "max_missions": 1
-                    },
-                    "modules": [
-                      {
-                        "ammo_type": "example",
-                        "cpu_usage": 1,
-                        "current_ammo": 1,
-                        "loaded_ammo_id": "abc123",
-                        "loaded_ammo_name": "example",
-                        "magazine_size": 1,
-                        "module_id": "adaptive_shield_i",
-                        "name": "example",
-                        "power_usage": 1,
-                        "size": 1,
-                        "slot": "example",
-                        "stats": {},
-                        "type": "example",
-                        "type_id": "abc123"
-                      }
-                    ],
-                    "player": {
-                      "citizenships": [
-                        "example"
-                      ],
-                      "clan_tag": "example",
-                      "credits": 1,
-                      "empire": "crimson",
-                      "faction_id": "abc123",
-                      "faction_rank": "example",
-                      "home_base": "example",
-                      "home_poi": "example",
-                      "home_system": "example",
-                      "id": "abc123",
-                      "is_cloaked": false,
-                      "primary_color": "example",
-                      "secondary_color": "example",
-                      "standings": {
-                        "crimson": {
-                          "baseline": 1,
-                          "jailed_until": "2026-01-01T00:00:00Z",
-                          "outstanding_bounty": 1,
-                          "reputation": 1
-                        }
-                      },
-                      "stats": "",
-                      "status_message": "example",
-                      "towing_ship_id": "abc123",
-                      "towing_wreck_id": "abc123",
-                      "trading_restricted_until": "2026-01-01T00:00:00Z",
-                      "username": "example"
-                    },
-                    "prize_recoveries": [
-                      {
-                        "actor_id": "abc123",
-                        "crew_disposition": "example",
-                        "destination_base_id": "abc123",
-                        "fuel": 1,
-                        "hull": 1,
-                        "max_fuel": 1,
-                        "max_hull": 1,
-                        "poi_id": "36_ophiuchi_belt",
-                        "prize_crew_fit": 1,
-                        "prize_id": "abc123",
-                        "return_crew_faction_id": "abc123",
-                        "ship_class": "example",
-                        "ship_id": "abc123",
-                        "ship_name": "example",
-                        "status": "example",
-                        "system_id": "36_ophiuchi",
-                        "transit_arrival_tick": 1,
-                        "transit_from_poi_id": "abc123",
-                        "transit_from_system_id": "abc123",
-                        "transit_kind": "example",
-                        "transit_to_poi_id": "abc123",
-                        "transit_to_system_id": "abc123",
-                        "wait_reason": "example"
-                      }
-                    ],
-                    "queue": {
-                      "has_pending": false
-                    },
-                    "riding": {
-                      "carrier": "example",
-                      "ship_id": "abc123"
-                    },
-                    "ship": {
-                      "active_buffs": [
-                        {
-                          "amount": 1,
-                          "expires_at": 1,
-                          "item_id": "adamant_tooth",
-                          "stat": "example"
-                        }
-                      ],
-                      "armor": 1,
-                      "armor_melt_pct": 1,
-                      "armor_melt_ticks_remaining": 1,
-                      "berths": {
-                        "business": {
-                          "free": 1,
-                          "total": 1
-                        },
-                        "economy": {
-                          "free": 1,
-                          "total": 1
-                        },
-                        "first": {
-                          "free": 1,
-                          "total": 1
-                        }
-                      },
-                      "burn_damage_per_tick": 1,
-                      "burn_source_id": "abc123",
-                      "burn_ticks_remaining": 1,
-                      "cargo_capacity": 1,
-                      "cargo_used": 1,
-                      "class_id": "absence",
-                      "class_name": "example",
-                      "cpu_capacity": 1,
-                      "cpu_used": 1,
-                      "crew_efficiency": 1,
-                      "custom_name": "example",
-                      "damage_penalty": 1,
-                      "defense_slots": 1,
-                      "disruption_ticks_remaining": 1,
-                      "effective_crew_capacity": 1,
-                      "effective_marine_capacity": 1,
-                      "fuel": 1,
-                      "gas_cargo_efficiency": 1,
-                      "hull": 1,
-                      "ice_cargo_efficiency": 1,
-                      "id": "abc123",
-                      "incapacitated": false,
-                      "location": "example",
-                      "max_fuel": 1,
-                      "max_hull": 1,
-                      "max_shield": 1,
-                      "minimum_crew": 1,
-                      "name": "example",
-                      "operational_speed": 1,
-                      "ore_cargo_efficiency": 1,
-                      "personnel": {
-                        "fit_crew": 1,
-                        "fit_marines": 1,
-                        "injured_crew": 1,
-                        "injured_marines": 1
-                      },
-                      "personnel_recovery_tick": 1,
-                      "personnel_recovery_ticks_remaining": 1,
-                      "power_capacity": 1,
-                      "power_used": 1,
-                      "shield": 1,
-                      "shield_recharge": 1,
-                      "speed": 1,
-                      "speed_penalty": 1,
-                      "utility_slots": 1,
-                      "weapon_slots": 1
-                    },
-                    "skills": {
-                      "armor": {
-                        "category": "example",
-                        "level": 1,
-                        "max_level": 1,
-                        "name": "example",
-                        "next_level_xp": 1,
-                        "xp": 1
-                      }
-                    },
-                    "version": "example"
+                      "action": "send_gift",
+                      "recipient": "station:grand_exchange_station",
+                      "base_id": "grand_exchange_station",
+                      "source": "cargo",
+                      "item_id": "steel_plate",
+                      "quantity": 20,
+                      "cargo_remaining": 80
+                    }
                   }
                 },
                 "schema": {
@@ -131035,7 +130474,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -131288,7 +130726,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -131545,7 +130982,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -131801,7 +131237,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -132033,7 +131468,7 @@
                     "type": "string"
                   },
                   "target": {
-                    "description": "Target: 'self' (personal storage), 'faction' (faction storage), or a player name/ID (gift)",
+                    "description": "Target: self, faction, faction:TAG, empire alias, player name/ID, or station:\u003cbase-or-POI-ID\u003e. Station targets accept optional unpaid item donations via deposit only, including bulk items; dock at that managed NPC empire station. No credits, ships, packages, or quest items. Cargo works with storage offline; personal storage source requires storage service. Normal gift unlock and trading restrictions apply. Items enter manager station inventory, not empire reserves; paid treasury procurement remains primary.",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -132050,7 +131485,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -132265,7 +131699,7 @@
                     "type": "string"
                   },
                   "target": {
-                    "description": "Target: 'self' (personal storage), 'faction' (faction storage), or a player name/ID (gift)",
+                    "description": "Target: self, faction, faction:TAG, empire alias, player name/ID, or station:\u003cbase-or-POI-ID\u003e. Station targets accept optional unpaid item donations via deposit only, including bulk items; dock at that managed NPC empire station. No credits, ships, packages, or quest items. Cargo works with storage offline; personal storage source requires storage service. Normal gift unlock and trading restrictions apply. Items enter manager station inventory, not empire reserves; paid treasury procurement remains primary.",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -132282,7 +131716,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -132536,7 +131969,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -132791,7 +132223,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -133015,7 +132446,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -133263,7 +132693,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
@@ -133509,7 +132938,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -133617,7 +133045,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -133779,7 +133206,6 @@
                 "example": {
                   "error": {
                     "code": "example",
-                    "details": {},
                     "message": "example",
                     "retry_after": 1
                   },
@@ -134026,7 +133452,6 @@
                         "power_usage": 1,
                         "size": 1,
                         "slot": "example",
-                        "stats": {},
                         "type": "example",
                         "type_id": "abc123"
                       }
