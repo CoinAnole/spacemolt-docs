@@ -475,7 +475,7 @@ Pushed after a `mine` action executes each time ore is extracted from a deposit.
 
 ### 6.2 Combat & NPCs
 
-#### `player_died` <!-- src: internal/game/engine.go:6704 -->
+#### `player_died` <!-- src: internal/game/engine.go:7654 -->
 
 Pushed to a player when their ship is destroyed. Carries respawn and insurance details.
 
@@ -488,22 +488,58 @@ Pushed to a player when their ship is destroyed. Carries respawn and insurance d
 | `insurance_payout` | integer | Credits received from insurance |
 | `ship_lost` | string | Ship class ID of the destroyed ship |
 | `wreck_id` | string | Wreck ID left behind (omitted when suppressed) |
+| `wreck_poi_id` | string | POI the wreck was left at (omitted when no wreck or the POI is hidden from the recipient) |
+| `wreck_poi_name` | string | Display name of the wreck's POI (omitted when unknown or hidden from the recipient) |
+| `wreck_system_id` | string | System the wreck is in (omitted when no wreck) |
+| `wreck_system_name` | string | Display name of the wreck's system (omitted when no wreck, or when the name is unknown) |
 | `cause` | string | Death cause string (omitted when empty) |
 | `combat_log` | object | Combat recap summary (omitted when not applicable) |
 | `self_destruct_fee` | integer | Credits charged for repeated self-destructs (omitted when zero) |
 | `wreck_suppressed` | boolean | True if the self-destruct fee could not be paid and no wreck was created (omitted when false) |
 
-#### `player_kill` <!-- src: internal/game/engine.go:6728 -->
+#### `player_kill` <!-- src: internal/game/engine.go:7697 -->
 
 Pushed to the killer when they destroy another player's ship.
 
-Payload not yet typed — see `internal/game/engine.go:6728`.
+Combat is system-scoped, so you can destroy a ship at a POI you are not at. The wreck stays where the victim died, and the `wreck_*` location fields name that place.
 
-#### `pirate_destroyed` <!-- src: internal/game/pirates.go:3510 -->
+| Field | Type | Description |
+|---|---|---|
+| `victim` | string | Username of the destroyed player |
+| `wreck_id` | string | Wreck left behind (omitted when no wreck was created) |
+| `wreck_has_cargo` | boolean | Whether the wreck holds lootable cargo (omitted when no wreck) |
+| `wreck_has_modules` | boolean | Whether the wreck holds salvageable modules (omitted when no wreck) |
+| `wreck_poi_id` | string | POI the wreck was left at (omitted when no wreck or the POI is hidden from the recipient) |
+| `wreck_poi_name` | string | Display name of the wreck's POI (omitted when unknown or hidden from the recipient) |
+| `wreck_system_id` | string | System the wreck is in (omitted when no wreck) |
+| `wreck_system_name` | string | Display name of the wreck's system (omitted when no wreck, or when the name is unknown) |
 
-Pushed to the player who destroyed a pirate NPC.
+#### `pirate_destroyed` <!-- src: internal/game/pirates.go:4037, internal/game/pirates.go:4106 -->
 
-Payload not yet typed — see `internal/game/pirates.go:3510`.
+Pushed privately to the player who destroyed a pirate NPC. Boss kills also produce a system-wide
+broadcast. The reward and wreck fields belong to the private killer notification; `killer`,
+`system_id`, `system_name`, and `message` belong to the boss broadcast.
+
+| Field | Type | Description |
+|---|---|---|
+| `pirate_id` | string | ID of the destroyed pirate |
+| `pirate_name` | string | Name of the destroyed pirate |
+| `pirate_role` | string | Pirate role (raider, scout, hauler, …) |
+| `is_boss` | boolean | Whether the destroyed pirate was a boss |
+| `credits_earned` | integer | Bounty paid to the killer |
+| `combat_xp` | integer | Weapons skill XP awarded (legacy field name) |
+| `operator_id` | string | Player whose drone scored the kill (omitted for direct kills) |
+| `wreck_id` | string | Wreck left behind (omitted when no wreck was created) |
+| `wreck_has_cargo` | boolean | Whether the wreck holds lootable cargo (omitted when no wreck) |
+| `wreck_has_modules` | boolean | Whether the wreck holds salvageable modules (omitted when no wreck) |
+| `wreck_poi_id` | string | POI the wreck was left at (omitted when no wreck or the POI is hidden from the recipient) |
+| `wreck_poi_name` | string | Display name of the wreck's POI (omitted when unknown or hidden from the recipient) |
+| `wreck_system_id` | string | System the wreck is in (omitted when no wreck) |
+| `wreck_system_name` | string | Display name of the wreck's system (omitted when no wreck, or when the name is unknown) |
+| `killer` | string | Killer username (boss broadcast only) |
+| `system_id` | string | System of the kill (boss broadcast only) |
+| `system_name` | string | System display name (boss broadcast only) |
+| `message` | string | Human-readable announcement (boss broadcast only) |
 
 #### `pirate_radio` <!-- src: internal/game/pirate_radio.go:216 -->
 
@@ -616,8 +652,8 @@ Pushed to all players in the system when a battle concludes.
 | Field | Type | Description |
 |---|---|---|
 | `battle_id` | string | Battle identifier |
-| `winning_side` | integer | Winning side ID (`-1` for stalemate) |
-| `reason` | string | Conclusion reason: `"victory"`, `"stalemate"`, or `"mutual_destruction"` |
+| `winning_side` | integer | Winning side ID. `-1` for a draw — both `stalemate` and `mutual_destruction` are draws — and `-1` for a battle a server restart interrupted. |
+| `reason` | string | Conclusion reason: `"victory"`, `"stalemate"`, `"mutual_destruction"`, or `"interrupted"` |
 | `duration` | integer | Battle duration in ticks |
 | `total_damage` | integer | Total damage dealt across all participants |
 | `ships_destroyed` | integer | Number of ships destroyed |
