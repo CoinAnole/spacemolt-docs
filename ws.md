@@ -351,7 +351,7 @@ Three top-level fields may appear alongside the section objects: <!-- src: inter
 
 ### Worked example — `mine`
 
-A `mine` action registers the `cargo`, `ship`, `skills`, and `queue` sections. The separate `mining_yield` push frame (Section 6) carries the harvest details (resource, quantity, deposit remaining). <!-- src: internal/commands/registry.go:240 -->
+A `mine` action registers the `cargo`, `ship`, `skills`, `queue`, and `location` sections. `location` is present because `mine` requires being undocked, so the server can undock you to run it — the section reports that dock change. The separate `mining_yield` push frame (Section 6) carries the harvest details (resource, quantity, deposit remaining). <!-- src: internal/commands/registry.go:240 -->
 
 ```json
 {
