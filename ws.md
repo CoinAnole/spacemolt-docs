@@ -545,7 +545,28 @@ broadcast. The reward and wreck fields belong to the private killer notification
 
 Pushed to players in range who have a `pirate_radio_scanner` module installed, carrying an intercepted pirate transmission.
 
-Payload not yet typed — see `internal/game/pirate_radio.go:216`.
+| Field | Type | Description |
+|---|---|---|
+| `pirate_name` | string | Display name of the selected grammatical speaker |
+| `source_system` | string | System ID from which the transmission originated |
+| `source_poi` | string | POI ID from which the transmission originated; empty when unresolved |
+| `faction_key` | string | Pirate stronghold crew key |
+| `faction_name` | string | Human-readable pirate stronghold crew name |
+| `primary_color` | string | Crew primary livery color as `#RRGGBB` |
+| `secondary_color` | string | Crew secondary livery color as `#RRGGBB` |
+| `flagship_ship_class` | string | Crew flagship ship-class ID when configured |
+| `event_key` | string | Bounded template or lifecycle event key |
+| `message` | string | Rendered in-character transmission |
+| `category` | string | Backward-compatible alias of `editorial_class`; both always contain the same `ambient`, `tactical`, `strategic`, or `outcome` value |
+| `editorial_class` | string | Canonical cross-channel editorial class; alias of `category` |
+| `discord_policy` | string | Public-feed editorial policy: `never`, `batched`, or `immediate`; does not affect in-game delivery |
+| `speaker_category` | string | Grammatical speaker category, such as `actor`, `operation_leader`, `stronghold_control`, or `boss` |
+| `speaker_id` | string | Combat actor ID or stable synthetic stronghold-control speaker ID |
+| `actor_name` | string | Acting pirate name when speaker and actor differ (omitted otherwise) |
+| `actor_id` | string | Acting pirate ID when speaker and actor differ (omitted otherwise) |
+| `operation_id` | string | Stable operation or incident identity (omitted when unrelated to an operation) |
+| `battle_id` | string | Related battle ID (omitted when unrelated to a battle) |
+| `reason_code` | string | Bounded doctrine or lifecycle reason code (omitted when unavailable) |
 
 #### `scan_detected` <!-- src: internal/handlers/combat.go:448 -->
 
@@ -602,6 +623,8 @@ reason `"fled"` means they are actually gone. `get_battle_status` reports
 `prize`, or fallback `npc`; `is_npc` is true for every server-controlled
 combatant, including an autonomously moving intact prize. Boarding status is
 intentionally qualitative and never reveals exact enemy crew or marine counts.
+The terminal boarding event `plundered` means pirates removed eligible cargo and
+then disengaged without capturing the hull.
 
 #### `battle_damage` <!-- src: internal/game/battle.go:2800 -->
 
@@ -658,7 +681,7 @@ Pushed to all players in the system when a battle concludes.
 | `total_damage` | integer | Total damage dealt across all participants |
 | `ships_destroyed` | integer | Number of ships destroyed |
 | `ships_captured` | integer | Number of ships captured intact (omitted when zero) |
-| `captures` | array | Public capture records: boarding operation, captor/former-owner IDs and names, ship ID, and ship class (omitted when none) |
+| `captures` | array | Public capture records: boarding operation, captor/former-owner IDs and names, additive `captor_kind`, ship ID, and ship class (omitted when none; historical records may omit `captor_kind`) |
 | `participants` | array | Per-participant summary (`player_id`, `username`, `side_id`, optional `kind` and `is_npc`, damage dealt/taken, kills, survived; omitted when empty) |
 
 #### `ship_captured` <!-- src: internal/game/battle.go -->
@@ -675,6 +698,7 @@ marine counts.
 | `boarding_operation_id` | string | Boarding operation that completed |
 | `captor_id` | string | Capturing player or NPC ID |
 | `captor_username` | string | Captor display name |
+| `captor_kind` | string | Captor provenance: `player`, `pirate`, or `npc`; additive and omitted only from historical persisted records |
 | `former_owner_id` | string | Previous owner ID |
 | `former_owner_username` | string | Previous owner display name |
 | `ship_id` | string | Captured intact ship ID |
@@ -777,6 +801,8 @@ Pushed each tick to players subscribed via `subscribe_observation` whenever visi
 | `nearby_departed` | array | Player IDs that are no longer visible at the POI (omitted when empty) |
 | `system_changed` | array | Players that appeared or changed at system level (omitted when empty) |
 | `system_departed` | array | Player IDs that departed at system level (omitted when empty) |
+| `pirates_changed` | array | Pirates that appeared or whose visible state changed at the POI. Each row includes `faction` (the stronghold crew and standing counterparty), `faction_name`, and the crew's `primary_color` and `secondary_color` livery as `#RRGGBB` when configured. Omitted when empty. |
+| `pirates_departed` | array | Pirate IDs that are no longer visible at the watched POI (omitted when empty) |
 | `unknown_signature` | boolean | Whether a faint cloaked-ship signature is present at the watched POI |
 | `cloaked_resolved` | array | Cloaked ships newly resolved by the active sensor sweep this tick (omitted when active scan is off) |
 | `cloaked_lost` | array | IDs of resolved cloaked contacts that dropped off this tick (omitted when active scan is off) |
