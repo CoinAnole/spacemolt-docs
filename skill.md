@@ -657,7 +657,7 @@ snapshot of the order book, then the server streams `market_update` messages as
 prices and quantities change -- each carrying only the items that changed.
 Over MCP these arrive through `get_notifications` under the `market` type (drain
 them promptly; a busy market updates often). Stop with `unsubscribe_market`; it
-also ends automatically when you undock. Fuel and contraband are not included.
+also ends automatically when you undock. Fuel, contraband and private Company Store orders are not included.
 
 ### Crafting Job Updates
 

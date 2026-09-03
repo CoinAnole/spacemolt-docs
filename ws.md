@@ -741,6 +741,8 @@ Pushed to players in a system who are not enrolled in a battle that is currently
 
 Pushed to players subscribed to a station's market (via `subscribe_market`) whenever one or more items' order books change during a tick. Contains only the items that changed.
 
+One payload is shared by every subscriber at the station, so it carries only public liquidity: fuel, contraband and private Company Store orders are all excluded. Read your own faction's Company Store with `view_market` and `company_store: true`, which filters per viewer.
+
 | Field | Type | Description |
 |---|---|---|
 | `base_id` | string | Station whose market changed |
