@@ -425,6 +425,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `view_orders(item_id?, order_type?, page?, page_size?, scope?, search?, sort_by?, station_id?)` -- View your own orders at a station
 
 ### Combat
+- `arena(action, max_side_size?, player_id?)` -- Consequence-free combat at an arena POI: challenge a pilot, fight on the normal battle engine, leave with ship and crew intact **Mutation.**
 - `attack(target_id)` -- Attack another player, pirate, empire NPC, creature, station, or intact prize **Mutation.**
 - `battle(action, marines?, side_id?, stance?, target_id?)` -- Manage your battle — maneuver, target enemies, adopt combat stances, or self-destruct
 - `claim_prize(destination_base_id, prize_id, crew_disposition?)` -- Assign prize crew and begin recovery of an intact captured ship **Mutation.**
