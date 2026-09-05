@@ -625,6 +625,10 @@ combatant, including an autonomously moving intact prize. Boarding status is
 intentionally qualitative and never reveals exact enemy crew or marine counts.
 The terminal boarding event `plundered` means pirates removed eligible cargo and
 then disengaged without capturing the hull.
+If multiple eligible boarding requests in one tick share either hull,
+deterministic boarding initiative starts one physical link. Other contenders
+keep their previous stance and weapon fire; the battle log records
+`boarding_rejected` with reason `contested_same_tick`.
 
 #### `battle_damage` <!-- src: internal/game/battle.go:2800 -->
 

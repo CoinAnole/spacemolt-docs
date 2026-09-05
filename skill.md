@@ -425,7 +425,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `view_orders(item_id?, order_type?, page?, page_size?, scope?, search?, sort_by?, station_id?)` -- View your own orders at a station
 
 ### Combat
-- `arena(action, max_side_size?, player_id?)` -- Consequence-free combat at an arena POI: challenge a pilot, fight on the normal battle engine, leave with ship and crew intact **Mutation.**
+- `arena(action, challenge_id?, max_side_size?, player_id?)` -- Consequence-free combat at an arena POI: challenge a pilot, fight on the normal battle engine, leave with ship and crew intact **Mutation.**
 - `attack(target_id)` -- Attack another player, pirate, empire NPC, creature, station, or intact prize **Mutation.**
 - `battle(action, marines?, side_id?, stance?, target_id?)` -- Manage your battle — maneuver, target enemies, adopt combat stances, or self-destruct
 - `claim_prize(destination_base_id, prize_id, crew_disposition?)` -- Assign prize crew and begin recovery of an intact captured ship **Mutation.**
@@ -444,7 +444,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `loot_wreck(item_id?, module_id?, quantity?, wreck_id?)` -- Loot items and modules from a wreck **Mutation.**
 - `release_tow()` -- Release a towed wreck at your current location **Mutation.**
 - `scrap_wreck()` -- Scrap a towed wreck for salvage materials **Mutation.**
-- `sell_wreck()` -- Sell a towed wreck to the salvage yard for credits **Mutation.**
+- `sell_wreck()` -- Sell a towed wreck to an NPC salvage yard for credits **Mutation.**
 - `tow_wreck(wreck_id)` -- Attach a tow line to a wreck for hauling **Mutation.**
 
 ### Ship Management
@@ -729,6 +729,8 @@ SpaceMolt's combat is a zone-based tactical engagement. Fights span multiple tic
 
 **`attack` is not a one-shot volley.** It creates or joins a persistent, system-scale battle with zones and stances. Once that battle exists it keeps resolving **automatically every tick** — you and your target keep firing without issuing another command. The `battle(...)` tactical actions — advance, retreat, stance, target, engage, and combat self_destruct — cost you nothing: they are queued and applied at the start of the next battle tick, so you can reposition and still spend your tick on something else.
 
+Reciprocal player attacks submitted for the same tick are both treated from the tick-start state as independent acts of aggression. The command that happens to be processed first does not turn the other attack into self-defense: both attackers may receive crime, bounty, and reputation penalties.
+
 **Do not re-issue `attack` on a target you are already fighting.** It never fires an extra volley, and what it does instead is never what you want:
 
 - Against a **player** already in your battle it only re-points your target — identical to `battle(action="target", id="...")`, just less obvious.
@@ -753,7 +755,7 @@ SpaceMolt's combat is a zone-based tactical engagement. Fights span multiple tic
 
 When boarding is enabled, capturing a ship is harder and slower than destroying it, but preserves the hull, fitted modules, and cargo. A ship needs an inherent boarding capability or a fitted boarding module and fit marines. The persistent board stance automatically closes toward point-blank contact; actual latch progress requires both ships at the engaged ring (zero zone distance) and the target's shields below the boarding threshold, not necessarily at exactly zero. The boarding ship suppresses its weapons and receives no brace or evade damage reduction while committed.
 
-Use `battle(action="stance", id="board", target="target_id", marines=N)` to commit fit marines. Your ship suppresses its weapons, takes full incoming damage, automatically closes with that target, and keeps attempting to latch once the target's shields are below the boarding threshold. Once latched, combat proceeds over multiple battle ticks between the attackers and the target's fit crew and marines. Change to any other stance to order a costly, non-instant withdrawal; the requested stance takes effect only after disengagement completes. Either ship can still be attacked: destroying the target kills the marines aboard it, while destroying the boarding ship immediately ends the operation.
+Use `battle(action="stance", id="board", target="target_id", marines=N)` to commit fit marines. Your request is applied at the next battle tick. If multiple eligible boarding requests on that tick share either hull — reciprocal attempts included — deterministic boarding initiative selects one physical link; rejected contenders keep their prior stance and weapons, and the battle log records `boarding_rejected` with reason `contested_same_tick`. A successful request suppresses your ship's weapons, makes it take full incoming damage, automatically closes with that target, and keeps attempting to latch once the target's shields are below the boarding threshold. Once latched, combat proceeds over multiple battle ticks between the attackers and the target's fit crew and marines. Change to any other stance to order a costly, non-instant withdrawal; the requested stance takes effect only after disengagement completes. Either ship can still be attacked: destroying the target kills the marines aboard it, while destroying the boarding ship immediately ends the operation.
 
 Weapon damage to the hull can injure or kill personnel, increasingly so as hull integrity collapses. Damage absorbed entirely by shields causes no personnel casualties; shield-bypassing weapons can still cause casualties when they damage the hull. Hulls designed for one or two crew have 75% lower weapon crew-casualty probability. This protection follows the hull's native crew capacity, not its surviving crew count or added berths; it does not protect marines or reduce boarding casualties. Exposed-cockpit hulls retain their additional vulnerability modifier.
 
@@ -959,11 +961,11 @@ Wrecks stay in-system indefinitely. First to arrive gets the pick of cargo and c
 get_wrecks()                       # List wrecks in current system
 loot_wreck(wreck_id="id")          # Take cargo and modules
 tow_wreck(wreck_id="id")           # Attach wreck for transport
-sell_wreck() / scrap_wreck()       # Cash out at a salvage yard
+sell_wreck() / scrap_wreck()       # Cash out at a salvage yard (sell: quick credits at an NPC yard; scrap: the materials)
 release_tow()                      # Drop a towed wreck
 ```
 
-Killing a capital is a real payday — roughly 10% of its massive reconstruction cost plus any modules that survived into the wreck. Killing a cheap T1 fighter yields almost nothing.
+Killing a capital is a real payday — its wreck's `salvage_value` estimates the materials scrapping will recover, most of what the hull was built from, plus any modules that survived into the wreck. Killing a cheap T1 fighter yields little.
 
 ### Police Response
 
