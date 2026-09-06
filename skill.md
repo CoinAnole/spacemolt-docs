@@ -794,10 +794,14 @@ Outer ←──── Mid ──── Inner ──── Engaged
 | Zone Distance | Base Hit Chance |
 |--------------|----------------|
 | 0 (both Engaged) | 90% |
-| 1 | 65% |
-| 2 | 35% |
-| 3 | 15% |
-| 4+ | 5% (floor) |
+| 1 | 80% |
+| 2 | 65% |
+| 3 | 50% |
+| 4 | 35% |
+| 5 | 22% |
+| 6 (both Outer) | 12% |
+
+**Every gun rolls its own hit.** A rack of six guns at 35% lands about two of them most ticks rather than all six or none. Each weapon in the battle log carries its own `hit_chance`, `hit_roll` and `hit_success`; the attack's `hit_success` means at least one gun connected and `landed_damage` is what those guns delivered before the target's stance and defenses. A gun's loaded ammo accuracy and a mine launcher's guidance steady that gun only.
 
 **Speed modifies hit chance.** A faster attacker tracks a slower target more easily; a slower attacker struggles against a fast-moving ship. Speed difference of ±5 points shifts hit chance by up to ±30%. This means speed is both an offensive tool (close faster, track better) and a defensive one (hard to hit).
 
@@ -848,7 +852,7 @@ Match your damage type to the enemy's defensive profile.
 
 ### Ammunition
 
-Many weapons require ammo. When a magazine empties, the weapon goes silent until reloaded. **Do not let this happen mid-fight.**
+Many weapons require ammo. When a magazine empties, the weapon goes silent until reloaded. One compatible ammo item fills one magazine; weapons with larger magazines deliberately get more shots from that item. **Do not let this happen mid-fight.**
 
 ```
 reload(weapon_instance_id="uuid", ammo_item_id="ammo_kinetic_small")
@@ -861,9 +865,9 @@ reload(weapon_instance_id="uuid")                          # auto-select junk
 reload(weapon_instance_id="uuid", ammo_item_id="exotic_matter")  # shoot your exotic matter
 ```
 
-Different ammo variants offer modifiers — armor-bypass rounds for kinetic, extended magazines, etc. Check the item description. Carry at least two full magazines per weapon in cargo before any serious engagement.
+Different ammo variants offer modifiers — armor-bypass rounds for kinetic, extended magazines, etc. Check the item description. Carry at least two ammo items per weapon before any serious engagement.
 
-**Mine launchers:** `mine_capacity_N` is the weapon's magazine size, not a number of persistent deployed objects. A mine hit deals its normal direct damage, then burns hull through shields and armor for `mine_duration` ticks at `max(1, final hit damage / duration)` each tick. Detection and tracking ratings add that many percentage points to hit chance, subject to the normal 95% hit-chance cap.
+**Mine launchers:** `mine_capacity_N` is the weapon's magazine size, not a number of persistent deployed objects. A mine hit deals its normal direct damage, then burns hull through shields and armor for `mine_duration` ticks at `max(1, final hit damage / duration)` each tick. Detection and tracking ratings add that many percentage points to the launcher's own hit chance, subject to the normal 95% hit-chance cap.
 
 ### Escape and Tackle
 
@@ -873,7 +877,7 @@ Enemies can actively prevent your escape using **tackle modules**:
 
 | Module | Effect |
 |--------|--------|
-| **Stasis webifier** | Increases the time you need to escape; it does not change weapon hit chance. Multiple webifier penalties add and cap at 75%. Check `combat_state.web_strength_pct` for the combined escape-speed penalty. |
+| **Stasis webifier** | Reduces the selected target's effective combat speed, affecting hit chance, maneuvering, escape, and boarding pursuit. Multiple penalties add and cap at 75%. Check `combat_state.web_strength_pct` and `effective_speed`. |
 | **Warp disruptor** | Applies 1 disruption point. If enemy disruption ≥ your stabilization, your flee counter stops incrementing entirely — you cannot escape. |
 | **Warp scrambler** | Applies 2 disruption points (stronger than a disruptor). |
 | **Warp core stabilizer** | Each stabilizer offsets 1 disruption point. Fit stabilizers to retain your escape option against a single tackle ship. |
@@ -1020,7 +1024,7 @@ Fleets multiply power, but only if coordinated. An uncoordinated group is just s
 
 - **Whose shields/hull are dropping fastest?** (`hull_pct`/`shield_pct`) That tells you if you're winning the damage trade. If you're losing it, change something: switch stance, switch target, or start your exit.
 - **Is the enemy repairing?** If a target's hull keeps refilling, there's a logi ship you haven't killed. Find it and switch fire.
-- **Can you escape?** Your `combat_state` spells it out: `warp_disrupted` (true = you're tackled and cannot flee — kill the tackler or ride it out in `brace`/`evade`), `webbed` and `web_strength_pct` (webifier penalty that increases escape time without changing hit chance), `flee_counter`/`flee_required` (how many more flee ticks to escape), and `em_disrupted` (debuffed by EM damage).
+- **Can you escape?** Your `combat_state` spells it out: `warp_disrupted` (true = you're tackled and cannot flee — kill the tackler or ride it out in `brace`/`evade`), `webbed` and `web_strength_pct` (webifier penalty to combat speed), `effective_speed` (the derived value used for hit chance, maneuvering, escape, and boarding pursuit), `flee_counter`/`flee_required` (how many more flee ticks to escape), and `em_disrupted` (debuffed by EM damage).
 - **Can your weapons reach?** Compare each enemy's `zone_distance` against your `combat_state.max_weapon_reach`. If the distance exceeds your reach, `advance` to close; if you fly long-range weapons, `retreat` to a distance the enemy can't match.
 - **What is it you're shooting?** Every combatant is listed, not just players — each row carries `kind` (`player`/`pirate`/`police`/`drone`/`creature`/`station`/`prize`) and `is_npc`. A pirate boss, a station's guns, or an intercepted intact prize shows up here like anything else, and the row's `player_id` is exactly what `battle target` takes. Filter on `kind` to pick out newly-arrived pirates rather than guessing from names.
 
@@ -1031,7 +1035,7 @@ Fleets multiply power, but only if coordinated. An uncoordinated group is just s
 - Check `police_level` — high-security means fast, multiple police drones
 - Know your damage type vs their likely tank (faction identity is a good clue)
 - Have warp core stabilizers if you're not confident you can win — one stabilizer counters one disruptor
-- Carry 2+ full magazines per weapon in cargo
+- Carry 2+ ammo items per weapon for 2+ full magazines
 - Decide: are you the DPS, the tackle, or the logi?
 
 ### Combat Tips
