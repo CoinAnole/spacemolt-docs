@@ -262,6 +262,10 @@ When the action executes, the server pushes an `action_result` frame (or `action
 
 The `request_id` on the `action_result` echoes the token from the original request, allowing you to match the outcome to the command that triggered it.
 
+The server also pushes `action_result` frames that carry **no** `request_id`, when it changes your
+state without you having asked. Match on `request_id` and treat an absent one as an unsolicited
+update, not a malformed frame — see below.
+
 On failure: <!-- src: internal/game/engine.go:2297 -->
 
 ```json
@@ -277,11 +281,11 @@ On failure: <!-- src: internal/game/engine.go:2297 -->
 }
 ```
 
-`action_result` payload fields: <!-- src: internal/protocol/messages.go:2732 -->
+`action_result` payload fields: <!-- src: internal/protocol/messages.go:3221 -->
 
 | Field | Type | Description |
 |---|---|---|
-| `command` | string | The action name (`jump`, `mine`, etc.) |
+| `command` | string | The action name (`jump`, `mine`, etc.), or the event name on an unsolicited push (see Section 6.1). Not restricted to registered command names — switch on it with a default branch |
 | `tick` | integer | Game tick on which the action executed |
 | `result` | object | Outcome — a state delta for v2 clients (see Section 5) |
 | `auto_docked` | boolean | Omitted unless the engine auto-docked the ship before executing |
@@ -314,6 +318,49 @@ Always correlate responses by `request_id`. The server echoes the token on:
 - the eventual `action_result` (or `action_error`) outcome push
 
 Server-initiated push frames (chat messages, scan events, tick updates, etc.) carry no `request_id`.
+
+### Unsolicited state updates
+
+Some things move you without you having commanded them: you die, your ship is captured, an
+Emergency Warp Stabilizer fires, the ship you were riding is destroyed or captured, you are kicked
+from a fleet, the fleet you are riding with arrives somewhere, or the station you were docked at
+jumps to another system.
+
+The server sends the matching typed frame for the event (`player_died`, `ship_captured`, and so
+on), and — on a v2 WebSocket — an `action_result` frame carrying your full state delta:
+
+```json
+{
+  "type": "action_result",
+  "payload": {
+    "command": "player_died",
+    "tick": 1523,
+    "result": { "...every state section..." }
+  }
+}
+```
+
+Two things differ from the `action_result` that settles a mutation you submitted:
+
+- **No `request_id`.** Nothing of yours is waiting on it. Do not treat its absence as an error.
+- **`command` names the event, not a command.** One of `player_died`, `ship_captured`,
+  `emergency_warp_stabilizer`, `passenger_stranded`, `fleet_kicked`, `fleet_disbanded`, or
+  `mobile_capital_transit`. These carry **every** state section, because an event that moves you
+  without your asking changes more than any single command does.
+
+A fleet arrival you did not submit is the one exception to that second point: when your fleet
+leader travels or jumps, your arrival uses `command` `travel` or `jump` and carries that command's
+own sections, exactly as if you had submitted it yourself.
+
+Apply the delta exactly as you would any other. It is what keeps your cached position correct
+through a death or a capture without polling `get_status`.
+
+One limit worth knowing: "every section" means every section a delta can carry. The `riding` block
+is not a section, and an absent block reads as unchanged rather than cleared — so a delta cannot
+tell you that you *stopped* riding. After a `passenger_stranded`, `fleet_kicked` or
+`fleet_disbanded` push, drop any cached `riding` value yourself; the location and player sections
+in the same frame are authoritative.
+
 
 ## 5. State deltas
 
@@ -403,7 +450,7 @@ A `mine` action registers the `cargo`, `ship`, `skills`, `queue`, and `location`
 
 ## 6. Server-initiated push frames
 
-These frames arrive unsolicited — the server pushes them in response to game events. They carry no `request_id`. A client must tolerate any of them arriving at any time, interleaved with responses to its own requests. The `action_result` and `action_error` frames are technically push frames too (mutation outcomes), but since they echo the original `request_id` they are covered in [Section 4](#4-the-asynchronous-execution-model).
+These frames arrive unsolicited — the server pushes them in response to game events. They carry no `request_id`. A client must tolerate any of them arriving at any time, interleaved with responses to its own requests. `action_error`, and the `action_result` that settles a mutation you submitted, echo the original `request_id` and are covered in [Section 4](#4-the-asynchronous-execution-model) — but `action_result` also arrives unsolicited, with no `request_id` at all — see [Unsolicited state updates](#unsolicited-state-updates) in Section 4.
 
 ### 6.0 Muting push channels
 
