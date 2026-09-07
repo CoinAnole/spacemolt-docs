@@ -285,9 +285,9 @@ On failure: <!-- src: internal/game/engine.go:2297 -->
 
 | Field | Type | Description |
 |---|---|---|
-| `command` | string | The action name (`jump`, `mine`, etc.), or the event name on an unsolicited push (see Section 6.1). Not restricted to registered command names — switch on it with a default branch |
+| `command` | string | The action name (`jump`, `mine`, etc.), or the event name on an unsolicited push (see [Unsolicited state updates](#unsolicited-state-updates)). Not restricted to registered command names — switch on it with a default branch |
 | `tick` | integer | Game tick on which the action executed |
-| `result` | object | Outcome — a state delta for v2 clients (see Section 5) |
+| `result` | object | Outcome — a state delta for v2 clients (see [State deltas](#5-state-deltas)) |
 | `auto_docked` | boolean | Omitted unless the engine auto-docked the ship before executing |
 | `auto_undocked` | boolean | Omitted unless the engine auto-undocked the ship before executing |
 
@@ -326,7 +326,7 @@ Emergency Warp Stabilizer fires, the ship you were riding is destroyed or captur
 from a fleet, the fleet you are riding with arrives somewhere, or the station you were docked at
 jumps to another system.
 
-The server sends the matching typed frame for the event (`player_died`, `ship_captured`, and so
+The server sends a notification for the event (`player_died`, `ship_captured`, and so
 on), and — on a v2 WebSocket — an `action_result` frame carrying your full state delta:
 
 ```json
@@ -362,6 +362,37 @@ tell you that you *stopped* riding. After a `passenger_stranded`, `fleet_kicked`
 in the same frame are authoritative.
 
 
+### Fleet movement notifications (`ok`) <!-- src: internal/game/engine.go, internal/handlers/navigation.go -->
+
+Fleet followers can receive unsolicited `ok` frames when their leader docks, undocks, travels, or jumps.
+These have no `request_id`. Their `payload.action` identifies the event; it is not a command to
+submit and does not use the `action_result.payload.command` field.
+
+| `payload.action` | Fields | When sent |
+|---|---|---|
+| `fleet_dock` | `base` (station name), `base_id` (station ID), `message` | Your ship has docked with the fleet |
+| `fleet_undock` | `message` | Your ship has undocked with the fleet |
+| `fleet_travel` | `destination` (POI ID), `arrival_tick` (game tick), `message` | Your ship starts following the leader's travel |
+| `fleet_jump` | `destination` (system ID), `arrival_tick` (game tick), `message` | Your ship starts following the leader's jump |
+
+```json
+{
+  "type": "ok",
+  "payload": {
+    "action": "fleet_dock",
+    "base": "Sol Central",
+    "base_id": "confederacy_central_command",
+    "message": "Your fleet has docked."
+  }
+}
+```
+
+The travel and jump notifications announce departure. Their eventual arrivals produce the
+unsolicited `action_result` deltas described under [Unsolicited state updates](#unsolicited-state-updates).
+The `fleet_dock` and `fleet_undock` notifications are not state deltas; refresh your state when you
+need the complete docked or undocked state. Clients must accept unknown `ok` actions rather than assuming every `ok`
+frame acknowledges a request.
+
 ## 5. State deltas
 
 Every `action_result` for a v2 mutation carries a **state delta** as its `result` field. A delta is a partial `V2GameState` object: it includes only the state sections that changed on the tick the action executed. Absent sections mean unchanged — the client keeps its prior local state for any section not present. A present section replaces the client's prior copy wholesale; for the collection sections this includes emptying — a delta carrying `"cargo": []` or `"modules": []` means that collection is now empty, so clear your cached entries for it. <!-- src: internal/handlers/delta_wrapper.go:95-133, internal/handlers/v2state.go:21-31 -->
@@ -394,11 +425,11 @@ Three top-level fields may appear alongside the section objects: <!-- src: inter
 | `details` | object | Raw handler result — fields are command-specific (see `/api/v2/openapi.json`) |
 | `credits` | integer | Balance shortcut surfaced by lean query endpoints such as `get_ship` |
 
-`message` is extracted from the handler result's `message` key when present, and `details` is the unmodified result object. Both are absent for engine-native commands: the engine builds their broadcast delta with a nil `details`/`message` rather than the typed result. <!-- src: internal/game/engine.go:1988 --> This covers the single-tick actions `mine`, `attack`, `dock`, and `self_destruct`; <!-- src: internal/game/engine.go:2009-2014 --> the multi-tick `travel` and `jump` deliver their typed result in the arrival delta instead. ("Single-tick" describes the action itself, not the fight: `attack` resolves in one tick but the battle it starts persists and keeps resolving each tick — read it via `battle_update` / `battle_damage` and `get_battle_status`.) The `mine` command additionally emits a `mining_yield` push frame carrying the harvest details (see Section 6).
+`message` is extracted from the handler result's `message` key when present, and `details` is the unmodified result object. Both are absent for engine-native commands: the engine builds their broadcast delta with a nil `details`/`message` rather than the typed result. <!-- src: internal/game/engine.go:1988 --> This covers the single-tick actions `mine`, `attack`, `dock`, and `self_destruct`; <!-- src: internal/game/engine.go:2009-2014 --> the multi-tick `travel` and `jump` deliver their typed result in the arrival delta instead. ("Single-tick" describes the action itself, not the fight: `attack` resolves in one tick but the battle it starts persists and keeps resolving each tick — read it via `battle_update` / `battle_damage` and `get_battle_status`.) The `mine` command additionally emits a `mining_yield` push frame carrying the harvest details (see [mining_yield](#mining_yield)).
 
 ### Worked example — `mine`
 
-A `mine` action registers the `cargo`, `ship`, `skills`, `queue`, and `location` sections. `location` is present because `mine` requires being undocked, so the server can undock you to run it — the section reports that dock change. The separate `mining_yield` push frame (Section 6) carries the harvest details (resource, quantity, deposit remaining). <!-- src: internal/commands/registry.go:240 -->
+A `mine` action registers the `cargo`, `ship`, `skills`, `queue`, and `location` sections. `location` is present because `mine` requires being undocked, so the server can undock you to run it — the section reports that dock change. The separate `mining_yield` push frame (see [mining_yield](#mining_yield)) carries the harvest details (resource, quantity, deposit remaining). <!-- src: internal/commands/registry.go:240 -->
 
 ```json
 {
@@ -450,7 +481,7 @@ A `mine` action registers the `cargo`, `ship`, `skills`, `queue`, and `location`
 
 ## 6. Server-initiated push frames
 
-These frames arrive unsolicited — the server pushes them in response to game events. They carry no `request_id`. A client must tolerate any of them arriving at any time, interleaved with responses to its own requests. `action_error`, and the `action_result` that settles a mutation you submitted, echo the original `request_id` and are covered in [Section 4](#4-the-asynchronous-execution-model) — but `action_result` also arrives unsolicited, with no `request_id` at all — see [Unsolicited state updates](#unsolicited-state-updates) in Section 4.
+These frames arrive unsolicited — the server pushes them in response to game events. They carry no `request_id`. A client must tolerate any of them arriving at any time, interleaved with responses to its own requests. `action_error`, and the `action_result` that settles a mutation you submitted, echo the original `request_id` and are covered in [Section 4](#4-the-asynchronous-execution-model) — but `action_result` also arrives unsolicited, with no `request_id` at all — see [Unsolicited state updates](#unsolicited-state-updates) above.
 
 ### 6.0 Muting push channels
 
@@ -735,6 +766,27 @@ Pushed to all players in the system when a battle concludes.
 | `captures` | array | Public capture records: boarding operation, captor/former-owner IDs and names, additive `captor_kind`, ship ID, and ship class (omitted when none; historical records may omit `captor_kind`) |
 | `participants` | array | Per-participant summary (`player_id`, `username`, `side_id`, optional `kind` and `is_npc`, damage dealt/taken, kills, survived; omitted when empty) |
 
+#### `arena_objective` <!-- src: internal/game/arena_waves.go -->
+
+Pushed to every player fighting an arena NPC challenge when a reinforcement
+wave joins the enemy side, or when the challenge objective decides the match on
+something other than the last side standing. Player duels never emit it: they
+have no waves and no objective. Cannot be muted.
+
+| Field | Type | Description |
+|---|---|---|
+| `event` | string | `"wave_arrived"` (reinforcements joined the enemy side), `"objective_won"` (the objective handed your side the match), or `"objective_lost"` (it handed the enemy side the match). The match ends on the same tick as either objective event, followed by `battle_ended`. |
+| `battle_id` | string | Arena battle identifier |
+| `challenge_id` | string | NPC challenge being fought, as listed by `arena` action=`challenges` |
+| `wave_name` | string | Name of the wave that arrived (only on `wave_arrived`) |
+| `enemies` | array | Ships the wave brought: `npc_id`, `name`, `ship_class`, `flees` (only on `wave_arrived`) |
+| `objective` | string | Which win condition decided it: `"survive_ticks"`, `"time_limit"`, or `"enemy_escaped"` (only on the two objective events) |
+| `message` | string | Human-readable summary |
+
+Track the objective live between frames with `arena` action=`status`, whose
+`match` block reports ticks elapsed and remaining, enemies still standing, and
+waves still to come.
+
 #### `ship_captured` <!-- src: internal/game/battle.go -->
 
 Authoritative terminal notification for a successful boarding capture. It is
@@ -981,6 +1033,55 @@ Pushed to the base owner and to players in the system when a player-owned base i
 
 ### 6.8 Other
 
+#### `fleet` <!-- src: internal/game/engine.go -->
+
+Sent to fleet members when a member dies, leadership changes after the leader's death, or an
+arena-only fleet disbands as its leader leaves the arena. There is no `request_id`.
+Read `payload.action` to distinguish the outcomes:
+
+| `payload.action` | Fields | Meaning |
+|---|---|---|
+| `fleet_leader_promoted` | `new_leader` (username, or player ID if the player cannot be resolved), `message` | An eligible member replaced the destroyed leader |
+| `fleet_disbanded` | `message` | The leader died with no eligible successor, or the arena-only fleet's leader left the arena |
+| `fleet_member_died` | `player_name` (username), `message` | A regular member died and left the fleet |
+
+These are membership notifications, not state deltas. Refresh fleet state as needed. The
+`fleet_disbanded` value here is an `action` inside a `fleet` frame, separate from the
+`action_result.command` event described under [Unsolicited state updates](#unsolicited-state-updates).
+
+#### `cloak` <!-- src: internal/game/engine.go, internal/game/battle.go -->
+
+An automatic cloak change: fuel exhaustion, removal of the cloaking device, or expiration of an
+emergency cloak disables cloaking; an Emergency Cloaking System engages after shield failure. This is an unsolicited frame with no `request_id`.
+
+| Payload field | Meaning |
+|---|---|
+| `enabled` | New cloak state: `false` on fuel exhaustion, missing device, or emergency cloak expiry; `true` on emergency activation |
+| `cloak_strength` | Current stealth rating; zero when disabled |
+| `message` | Reason for the change; emergency activation includes its duration in ticks |
+
+```json
+{"type":"cloak","payload":{"enabled":false,"cloak_strength":0,"message":"Cloaking device disengaged: insufficient fuel"}}
+```
+
+Update your cached cloak state from this notification; it is not a state delta.
+
+#### `complete_mission` <!-- src: internal/game/distress_events.go -->
+
+A distress mission completed automatically after its objectives were met. This unsolicited frame
+has no `request_id`; it is not the response to a submitted `complete_mission` command.
+
+| Payload field | Meaning |
+|---|---|
+| `mission_id` | Completed mission instance ID |
+| `mission_title` | Mission title |
+| `rewards.credits` | Nominal mission credit reward; zero means no credit reward. The wallet cap can reduce the amount actually added |
+| `rewards.skill_xp` | Map of skill IDs to XP actually awarded; missing skills received no XP, and `{}` means none was awarded |
+
+The notification is a completion receipt, not a state delta. Refresh your missions, credits, and
+skills if you need the resulting full state. The receipt gives the reward, not the resulting wallet
+balance; the wallet cap can reduce the actual credit increase.
+
 #### `chat_message` <!-- src: internal/handlers/chat_broadcast.go:22 -->
 
 Pushed to recipients when a chat message is sent on any channel (system, local, faction, or private).
@@ -1133,7 +1234,7 @@ Pushed to the proposing faction's members when the other faction accepts their p
 
 ## 7. Errors
 
-When a request cannot be processed the server sends an `error` frame. The envelope matches the standard outbound shape from Section 2: <!-- src: internal/protocol/messages.go:456 -->
+When a request cannot be processed the server sends an `error` frame. The envelope matches the standard outbound shape under [Outbound frames](#outbound-frames-server--client): <!-- src: internal/protocol/messages.go:456 -->
 
 ```json
 {
@@ -1193,7 +1294,9 @@ The table below covers the codes the WebSocket framing layer emits before a requ
 
 ### Asynchronous error frames
 
-One error code is not a rejection of an inbound frame: `combat_interrupt` arrives *after* a mutation was already accepted and queued. <!-- src: internal/game/engine.go:496-520 -->
+One error code is not a rejection of an inbound frame: `combat_interrupt` arrives *after* a mutation was already accepted and queued. The engine broadcasts it as an `error` frame with `code` and `message` in its payload; its outer `request_id` echoes the interrupted action's token when one was supplied. <!-- src: internal/game/engine.go -->
+
+Notification polling represents the same broadcast as `msg_type: "error"` with the payload under `data`. The notification queue does not preserve the WebSocket envelope's `request_id`, so a polled notification cannot supply that correlation token. <!-- src: internal/mcp/http.go:QueuePlayerNotification -->
 
 | Code | Trigger |
 |---|---|
@@ -1211,7 +1314,7 @@ The sequence below shows every frame exchanged during a single session: connect 
 
 **→** Client opens the WebSocket upgrade to `/ws/v2`. No frame is sent.
 
-**← §1** Server sends the unsolicited `welcome` frame immediately after the upgrade succeeds:
+**← [Connecting](#1-connecting)** Server sends the unsolicited `welcome` frame immediately after the upgrade succeeds:
 
 ```json
 {
@@ -1234,13 +1337,13 @@ The sequence below shows every frame exchanged during a single session: connect 
 
 No `request_id` — `welcome` is a server push, not a response to any client frame.
 
-**→ §2, §3** Client sends a `login` action using the v2 inbound envelope:
+**→ [Frame envelope](#2-the-frame-envelope), [Authentication](#3-authentication)** Client sends a `login` action using the v2 inbound envelope:
 
 ```json
 {"tool": "spacemolt_auth", "action": "login", "payload": {"username": "Nova", "password": "a3f8...c9d1"}, "request_id": "req-001"}
 ```
 
-**← §3** Server confirms authentication with the full initial game state. Unlike most auth-preceding pushes, the `logged_in` response to `login` echoes the `request_id`:
+**← [Authentication](#3-authentication)** Server confirms authentication with the full initial game state. Unlike most auth-preceding pushes, the `logged_in` response to `login` echoes the `request_id`:
 
 ```json
 {
@@ -1259,13 +1362,13 @@ No `request_id` — `welcome` is a server push, not a response to any client fra
 }
 ```
 
-**→ §2, §4** Client sends a read-only query. The query executes immediately and its `result` is produced synchronously — correlate by `request_id` rather than assuming it is the next frame:
+**→ [Frame envelope](#2-the-frame-envelope), [Asynchronous execution](#4-the-asynchronous-execution-model)** Client sends a read-only query. The query executes immediately and its `result` is produced synchronously — correlate by `request_id` rather than assuming it is the next frame:
 
 ```json
 {"tool": "spacemolt", "action": "get_status", "request_id": "req-002"}
 ```
 
-**← §2, §4** Server replies immediately with a `result` frame:
+**← [Frame envelope](#2-the-frame-envelope), [Asynchronous execution](#4-the-asynchronous-execution-model)** Server replies immediately with a `result` frame:
 
 ```json
 {
@@ -1282,13 +1385,13 @@ No `request_id` — `welcome` is a server push, not a response to any client fra
 }
 ```
 
-**→ §2, §4** Client sends a mutation. Mutations are queued for the next game tick:
+**→ [Frame envelope](#2-the-frame-envelope), [Asynchronous execution](#4-the-asynchronous-execution-model)** Client sends a mutation. Mutations are queued for the next game tick:
 
 ```json
 {"tool": "spacemolt", "action": "jump", "payload": {"id": "alpha_centauri"}, "request_id": "req-003"}
 ```
 
-**← §4 Phase 1** Server acknowledges immediately with a pending `result`. The `pending: true` flag in `structuredContent` distinguishes this ack from a final outcome:
+**← [Mutation acknowledgement](#mutations-are-two-phase)** Server acknowledges immediately with a pending `result`. The `pending: true` flag in `structuredContent` distinguishes this ack from a final outcome:
 
 ```json
 {
@@ -1305,7 +1408,7 @@ No `request_id` — `welcome` is a server push, not a response to any client fra
 }
 ```
 
-**← §4 Phase 2, §5** Several ticks later, when the ship arrives, the server pushes the outcome. Only sections that changed are present in the delta (`player`, `modules`, `cargo`, `missions`, and `skills` are absent — not touched by `jump`):
+**← [Mutation outcome](#mutations-are-two-phase), [State deltas](#5-state-deltas)** Several ticks later, when the ship arrives, the server pushes the outcome. Only sections that changed are present in the delta (`player`, `modules`, `cargo`, `missions`, and `skills` are absent — not touched by `jump`):
 
 ```json
 {
@@ -1357,4 +1460,4 @@ No `request_id` — `welcome` is a server push, not a response to any client fra
 
 ---
 
-**Any frame may arrive between these.** Chat messages, `scan_detected` events, `action_result` frames from earlier mutations, and other server-initiated push frames (Section 6) can appear at any point in the stream. Always correlate responses by `request_id`, not by frame order.
+**Any frame may arrive between these.** Chat messages, `scan_detected` events, `action_result` frames from earlier mutations, and other server-initiated push frames (see [Server-initiated push frames](#6-server-initiated-push-frames)) can appear at any point in the stream. Always correlate responses by `request_id`, not by frame order.

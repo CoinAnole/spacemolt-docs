@@ -673,7 +673,7 @@
             "type": "string"
           },
           "enemies": {
-            "description": "The enemy ships spawned for the fight, one entry per line of the definition.",
+            "description": "The enemy ships spawned when the fight starts, one entry per line of the definition. Reinforcement waves are listed separately in waves.",
             "items": {
               "$ref": "#/components/schemas/ArenaEnemyInfo"
             },
@@ -686,6 +686,10 @@
           "name": {
             "description": "Display name of the challenge.",
             "type": "string"
+          },
+          "objective": {
+            "$ref": "#/components/schemas/ArenaObjective",
+            "description": "How the fight is won beyond knocking out every enemy. Every zero or omitted field is off, so an all-zero objective means the last side standing wins."
           },
           "poi_id": {
             "description": "Arena POI the fight is held at. You must be undocked there to start it.",
@@ -714,6 +718,13 @@
             "description": "Position within the series, from 1. Higher stages are harder.",
             "type": "integer"
           },
+          "waves": {
+            "description": "Reinforcements that join the enemy side mid-match, in arrival order. Empty when the opening enemies are the whole fight.",
+            "items": {
+              "$ref": "#/components/schemas/ArenaWaveInfo"
+            },
+            "type": "array"
+          },
           "wins": {
             "description": "Times you have won this challenge. 0 until your first win.",
             "type": "integer"
@@ -732,6 +743,8 @@
           "locked",
           "rules",
           "enemies",
+          "objective",
+          "waves",
           "wins"
         ],
         "type": "object"
@@ -876,6 +889,10 @@
             "description": "How many ships of this line the challenge spawns. Always at least 1.",
             "type": "integer"
           },
+          "flees": {
+            "description": "True when this line runs for the ring beacons instead of fighting. It takes the flee stance from its first tick, and a challenge whose objective sets no_enemy_escape is lost the moment one gets away — stop it with damage or warp tackle.",
+            "type": "boolean"
+          },
           "is_boss": {
             "description": "True for the named headline enemy of the fight. Your ship opens targeting the boss when there is one.",
             "type": "boolean"
@@ -898,7 +915,8 @@
           "ship_class",
           "ship_class_name",
           "count",
-          "is_boss"
+          "is_boss",
+          "flees"
         ],
         "type": "object"
       },
@@ -921,7 +939,7 @@
             "type": "string"
           },
           "enemies": {
-            "description": "The enemy lines of the challenge, as listed by arena action=challenges.",
+            "description": "The enemy lines the challenge opens with, as listed by arena action=challenges. Reinforcement waves are not spawned yet and are listed in waves.",
             "items": {
               "$ref": "#/components/schemas/ArenaEnemyInfo"
             },
@@ -939,10 +957,21 @@
             "description": "Display name of the challenge.",
             "type": "string"
           },
+          "objective": {
+            "$ref": "#/components/schemas/ArenaObjective",
+            "description": "How this fight is won beyond knocking out every enemy. Every zero or omitted field is off. Track it live with arena action=status."
+          },
           "participants": {
             "description": "Every combatant in the match at the moment it started, your side and the enemies. Enemy entries carry the spawned NPC's id as player_id.",
             "items": {
               "$ref": "#/components/schemas/ArenaParticipantInfo"
+            },
+            "type": "array"
+          },
+          "waves": {
+            "description": "Reinforcements that will join the enemy side later in this match, in arrival order. Empty when the opening enemies are the whole fight.",
+            "items": {
+              "$ref": "#/components/schemas/ArenaWaveInfo"
             },
             "type": "array"
           },
@@ -960,7 +989,51 @@
           "enemy_side",
           "participants",
           "enemies",
+          "objective",
+          "waves",
           "message"
+        ],
+        "type": "object"
+      },
+      "ArenaMatchInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "challenge_id": {
+            "description": "ID of the NPC challenge being fought.",
+            "type": "string"
+          },
+          "elapsed_ticks": {
+            "description": "Ticks since the match started. 0 on the tick it began.",
+            "type": "integer"
+          },
+          "enemies_remaining": {
+            "description": "Challenge enemies still in the fight. Reinforcement waves that have not arrived yet are not counted.",
+            "type": "integer"
+          },
+          "name": {
+            "description": "Display name of the challenge.",
+            "type": "string"
+          },
+          "objective": {
+            "$ref": "#/components/schemas/ArenaObjective",
+            "description": "The challenge's win condition, as listed by arena action=challenges. Every zero or omitted field is off."
+          },
+          "ticks_remaining": {
+            "description": "Ticks left before the objective's survive_ticks or time_limit_ticks deadline resolves the match. Omitted when the challenge sets neither; 0 means the deadline falls this tick.",
+            "type": "integer"
+          },
+          "waves_remaining": {
+            "description": "Reinforcement waves that have not arrived yet. The match cannot end while one is still due and your side is still standing.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "challenge_id",
+          "name",
+          "objective",
+          "elapsed_ticks",
+          "enemies_remaining",
+          "waves_remaining"
         ],
         "type": "object"
       },
@@ -970,6 +1043,10 @@
           "battle_id": {
             "description": "ID of the arena match the enemy is fighting in. Enemies exist only for the length of their match.",
             "type": "string"
+          },
+          "flees": {
+            "description": "True when the enemy is running for the ring beacons instead of fighting. Its challenge is lost the moment it gets away.",
+            "type": "boolean"
           },
           "hull": {
             "description": "Current hull points.",
@@ -1026,6 +1103,7 @@
           "primary_color",
           "secondary_color",
           "is_boss",
+          "flees",
           "ship_class",
           "ship_class_name",
           "hull",
@@ -1033,6 +1111,52 @@
           "shield",
           "max_shield",
           "battle_id"
+        ],
+        "type": "object"
+      },
+      "ArenaObjective": {
+        "additionalProperties": false,
+        "properties": {
+          "no_enemy_escape": {
+            "description": "True when an enemy that escapes the ring loses you the match. Challenges that set it spawn at least one enemy that runs from the first tick (flees on its enemy line); stop it with damage or warp tackle. Omitted = an enemy that breaks contact is simply out of the fight.",
+            "type": "boolean"
+          },
+          "survive_ticks": {
+            "description": "Ticks your side must last to win, counted from the first tick of the match. The match ends the moment you reach it and any enemy still standing is called off. Omitted or 0 = you win by knocking out every enemy instead.",
+            "type": "integer"
+          },
+          "time_limit_ticks": {
+            "description": "Ticks you have to knock out every enemy. The match is lost the moment you reach it with one still standing. Omitted or 0 = no time limit.",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "ArenaObjectiveEnemy": {
+        "additionalProperties": false,
+        "properties": {
+          "flees": {
+            "description": "True when this enemy runs for the ring beacons instead of fighting. Letting one escape loses a challenge whose objective sets no_enemy_escape.",
+            "type": "boolean"
+          },
+          "name": {
+            "description": "Display name of the enemy. Copies of a multi-ship line are numbered (Ring Cleaver 1, Ring Cleaver 2).",
+            "type": "string"
+          },
+          "npc_id": {
+            "description": "Combat ID of the enemy: the player_id it carries in battle payloads and the id to pass to the battle command as a target.",
+            "type": "string"
+          },
+          "ship_class": {
+            "description": "Ship class ID of the enemy hull.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "npc_id",
+          "name",
+          "ship_class",
+          "flees"
         ],
         "type": "object"
       },
@@ -1343,6 +1467,10 @@
             "$ref": "#/components/schemas/ArenaChallengeInfo",
             "description": "A challenge waiting for your answer. Omitted when none is pending."
           },
+          "match": {
+            "$ref": "#/components/schemas/ArenaMatchInfo",
+            "description": "Live objective state of the NPC challenge you are fighting. Omitted when you are not in a challenge match — a player duel has no objective."
+          },
           "outgoing": {
             "$ref": "#/components/schemas/ArenaChallengeInfo",
             "description": "A challenge you issued that is still unanswered. Omitted when none is pending."
@@ -1367,6 +1495,35 @@
           "arena_knockouts",
           "xp_used_today",
           "xp_cap_per_skill"
+        ],
+        "type": "object"
+      },
+      "ArenaWaveInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "after_ticks": {
+            "description": "Ticks into the match before the wave can arrive. Omitted or 0 = no time trigger.",
+            "type": "integer"
+          },
+          "enemies": {
+            "description": "The enemy ships the wave brings, one entry per line of the definition.",
+            "items": {
+              "$ref": "#/components/schemas/ArenaEnemyInfo"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "Display name of the wave, announced in the arena_objective push frame when it arrives.",
+            "type": "string"
+          },
+          "when_enemies_remaining": {
+            "description": "Enemies that must be left standing before the wave can arrive. Omitted = no count trigger; 0 = only once you have cleared the ring.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "enemies"
         ],
         "type": "object"
       },
@@ -17179,13 +17336,14 @@
         "additionalProperties": false,
         "properties": {
           "data": {
-            "description": "Frame payload. The shape is selected by msg_type: read the Notification_\u003cmsg_type\u003e schema under components.schemas. The notifications array on every v2 response carries the same payloads as an explicit anyOf."
+            "$ref": "#/components/schemas/NotificationPayload",
+            "description": "Frame payload selected by msg_type: see Notification_\u003cmsg_type\u003e. The same NotificationPayload union is used by polling and inline delivery; null means no payload."
           },
           "id": {
             "type": "string"
           },
           "msg_type": {
-            "description": "Specific frame subtype. Switch on this to pick the matching Notification_\u003cmsg_type\u003e payload schema. Routing to the coarse type field: chat_message -\u003e chat. player_died / player_kill / scan_detected / pilotless_ship / drone_update / drone_destroyed / battle_started / battle_update / battle_joined / battle_left / battle_ended / battle_alert / ship_captured / prize_update -\u003e combat. trade_offer_received / trade_complete / trade_declined / trade_cancelled -\u003e trade. market_update -\u003e market. crafting_update -\u003e crafting. observation_update -\u003e observation. personnel_update -\u003e system. Frames not named here also route to system - that includes battle_damage / drone_scan / drone_survey / drone_adrift / action_result / action_error / server_restart_warning. A types=combat filter does not carry them.",
+            "description": "Specific frame subtype. Switch on this to pick the matching Notification_\u003cmsg_type\u003e payload schema. Routing to the coarse type field: chat_message -\u003e chat. player_died / player_kill / scan_detected / pilotless_ship / drone_update / drone_destroyed / battle_started / battle_update / battle_joined / battle_left / battle_ended / battle_alert / ship_captured / prize_update -\u003e combat. trade_offer_received / trade_complete / trade_declined / trade_cancelled -\u003e trade. market_update -\u003e market. crafting_update -\u003e crafting. observation_update -\u003e observation. personnel_update -\u003e system. Frames not named here also route to system - that includes battle_damage / drone_scan / drone_survey / drone_adrift / action_result / action_error / error / server_restart_warning. A types=combat filter does not carry them.",
             "type": "string"
           },
           "timestamp": {
@@ -17718,6 +17876,27 @@
           "quantity",
           "remaining",
           "remaining_display"
+        ],
+        "type": "object"
+      },
+      "MissionAutoCompleteRewards": {
+        "additionalProperties": false,
+        "properties": {
+          "credits": {
+            "description": "Nominal mission credit reward. Zero means no credit reward. The wallet cap can reduce the credits actually added; this field is not the resulting balance.",
+            "type": "integer"
+          },
+          "skill_xp": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "description": "Skill XP actually awarded keyed by skill ID. Always present; an empty object means no XP was awarded. Missing skill keys mean zero XP.",
+            "type": "object"
+          }
+        },
+        "required": [
+          "credits",
+          "skill_xp"
         ],
         "type": "object"
       },
@@ -18407,6 +18586,182 @@
         ],
         "type": "object"
       },
+      "NotificationPayload": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/Notification_achievement_unlocked"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_action_error"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_action_result"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_arena_challenge"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_arena_objective"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_base_destroyed"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_base_raid_update"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_battle_alert"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_battle_damage"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_battle_ended"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_battle_joined"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_battle_left"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_battle_started"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_battle_update"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_chat_message"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_cloak"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_complete_mission"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_crafting_update"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_drone_adrift"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_drone_destroyed"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_drone_scan"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_drone_survey"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_drone_update"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_error"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_facility_reclaimed"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_facility_rent_warning"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_faction_alliance_broken"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_faction_alliance_formed"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_faction_alliance_proposal"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_faction_peace_accepted"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_faction_peace_proposal"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_faction_war_declared"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_fleet"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_market_update"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_mining_yield"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_observation_update"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_ok"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_personnel_update"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_pilotless_ship"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_pirate_destroyed"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_pirate_radio"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_player_died"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_player_kill"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_prize_update"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_ranch_poached"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_reconnected"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_scan_detected"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_server_restart_warning"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_ship_captured"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_ship_commission_complete"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_skill_level_up"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_station_repaired"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_trade_cancelled"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_trade_complete"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_trade_declined"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_trade_offer_received"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Frame payload shared by polling and inline notifications. Select Notification_\u003cmsg_type\u003e using the envelope msg_type; payload shapes can overlap so this is an anyOf union. Null means the frame supplied no payload."
+      },
       "NotificationSettingsResponse": {
         "additionalProperties": false,
         "properties": {
@@ -18521,7 +18876,7 @@
             "type": "boolean"
           },
           "command": {
-            "description": "Name of the command that ran. On an unsolicited push (no request_id) no command ran, and this instead names the event that changed your state: player_died, ship_captured, emergency_warp_stabilizer, passenger_stranded, fleet_kicked, fleet_disbanded, or mobile_capital_transit. Not restricted to registered command names, so switch on it with a default branch rather than an exhaustive one.",
+            "description": "Name of the command that ran. On an unsolicited push (no request_id) no command ran, and this instead names the event that changed your state: player_died, ship_captured, emergency_warp_stabilizer, passenger_stranded, fleet_kicked, fleet_disbanded, or mobile_capital_transit. Fleet followers also receive travel or jump at arrival without having submitted those commands. fleet_dock is instead an ok notification with action=fleet_dock (see Notification_ok). Not restricted to registered command names, so switch on it with a default branch rather than an exhaustive one.",
             "type": "string"
           },
           "result": {
@@ -18599,6 +18954,59 @@
           "poi_id",
           "max_side_size",
           "expires_tick"
+        ],
+        "type": "object"
+      },
+      "Notification_arena_objective": {
+        "additionalProperties": false,
+        "properties": {
+          "battle_id": {
+            "description": "ID of the arena battle.",
+            "type": "string"
+          },
+          "challenge_id": {
+            "description": "ID of the NPC challenge being fought, as listed by arena action=challenges.",
+            "type": "string"
+          },
+          "enemies": {
+            "description": "The enemy ships the wave brought. Present only when event is wave_arrived.",
+            "items": {
+              "$ref": "#/components/schemas/ArenaObjectiveEnemy"
+            },
+            "type": "array"
+          },
+          "event": {
+            "description": "What happened: wave_arrived (reinforcements joined the enemy side), objective_won (the objective handed your side the match), objective_lost (the objective handed the enemy side the match). The match itself ends on the same tick as objective_won or objective_lost, followed by battle_ended.",
+            "enum": [
+              "wave_arrived",
+              "objective_won",
+              "objective_lost"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "description": "Human-readable summary of the event.",
+            "type": "string"
+          },
+          "objective": {
+            "description": "Which objective decided the match: survive_ticks (your side lasted the required ticks), time_limit (an enemy was still standing at the deadline), enemy_escaped (an enemy cleared the ring). Present only when event is objective_won or objective_lost.",
+            "enum": [
+              "survive_ticks",
+              "time_limit",
+              "enemy_escaped"
+            ],
+            "type": "string"
+          },
+          "wave_name": {
+            "description": "Name of the wave that arrived. Present only when event is wave_arrived.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event",
+          "battle_id",
+          "challenge_id",
+          "message"
         ],
         "type": "object"
       },
@@ -19008,6 +19416,60 @@
         },
         "type": "object"
       },
+      "Notification_cloak": {
+        "additionalProperties": false,
+        "description": "Automatic cloak state change: fuel exhaustion, a missing cloaking device, or emergency cloak expiry disables the cloak; an emergency cloak can enable it after shield failure. Carried as msg_type=cloak without a client request.",
+        "properties": {
+          "auto_docked": {
+            "type": "boolean"
+          },
+          "auto_undocked": {
+            "type": "boolean"
+          },
+          "cloak_strength": {
+            "description": "Current cloak strength; zero when disabled.",
+            "type": "integer"
+          },
+          "enabled": {
+            "description": "Whether the player is cloaked after this event.",
+            "type": "boolean"
+          },
+          "message": {
+            "description": "Human-readable explanation of the automatic cloak change.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "enabled",
+          "cloak_strength",
+          "message"
+        ],
+        "type": "object"
+      },
+      "Notification_complete_mission": {
+        "additionalProperties": false,
+        "description": "Distress mission auto-completion pushed as msg_type=complete_mission without a client command. This is not the response shape of a manually submitted complete_mission action.",
+        "properties": {
+          "mission_id": {
+            "description": "ID of the completed mission instance.",
+            "type": "string"
+          },
+          "mission_title": {
+            "description": "Display title of the completed mission.",
+            "type": "string"
+          },
+          "rewards": {
+            "$ref": "#/components/schemas/MissionAutoCompleteRewards",
+            "description": "Nominal credit reward and skill XP actually awarded for completion."
+          }
+        },
+        "required": [
+          "mission_id",
+          "mission_title",
+          "rewards"
+        ],
+        "type": "object"
+      },
       "Notification_crafting_update": {
         "additionalProperties": false,
         "properties": {
@@ -19196,6 +19658,26 @@
           "target_id",
           "damage",
           "damage_type"
+        ],
+        "type": "object"
+      },
+      "Notification_error": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "details": true,
+          "message": {
+            "type": "string"
+          },
+          "pending_command": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
         ],
         "type": "object"
       },
@@ -19418,6 +19900,37 @@
         ],
         "type": "object"
       },
+      "Notification_fleet": {
+        "description": "Fleet lifecycle notification, including death, succession, and arena disbanding. action is fleet_leader_promoted, fleet_disbanded, or fleet_member_died. Delivered without an originating request_id to affected fleet members.",
+        "example": {
+          "action": "fleet_member_died",
+          "message": "FleetPilot was destroyed and has left the fleet.",
+          "player_name": "FleetPilot"
+        },
+        "properties": {
+          "action": {
+            "description": "Fleet event: fleet_leader_promoted, fleet_disbanded, or fleet_member_died. Tolerate future event names.",
+            "type": "string"
+          },
+          "message": {
+            "description": "Human-readable event explanation.",
+            "type": "string"
+          },
+          "new_leader": {
+            "description": "Promoted leader username, falling back to player ID if unresolved; only present for fleet_leader_promoted.",
+            "type": "string"
+          },
+          "player_name": {
+            "description": "Destroyed member username; only present for fleet_member_died.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "message"
+        ],
+        "type": "object"
+      },
       "Notification_market_update": {
         "additionalProperties": false,
         "properties": {
@@ -19608,6 +20121,47 @@
           "tick",
           "unknown_signature"
         ],
+        "type": "object"
+      },
+      "Notification_ok": {
+        "description": "Fleet movement ok notifications identify their event in action. Other ok payloads may omit action. Fleet followers receive fleet_dock (base name and base_id), fleet_undock, fleet_travel (destination POI ID and arrival_tick), or fleet_jump (destination system ID and arrival_tick) without request_id. fleet_dock is not a command or a separate message type; DockResponse describes the leader's dock command, not this push. Other actions and command-specific fields may occur. Inspect action and tolerate unknown actions. Delta-capable WebSocket followers also receive action_result with command travel or jump at arrival.",
+        "example": {
+          "action": "fleet_dock",
+          "base": "Sol Central",
+          "base_id": "confederacy_central_command",
+          "message": "Your fleet has docked."
+        },
+        "properties": {
+          "action": {
+            "description": "Event or completed command name. For coordinated docking this is fleet_dock.",
+            "type": "string"
+          },
+          "arrival_tick": {
+            "description": "Scheduled arrival game tick for fleet_travel or fleet_jump; omitted for fleet_dock and fleet_undock.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "base": {
+            "description": "Station display name string for fleet_dock. Other OK responses may carry a base object or null.",
+            "type": [
+              "string",
+              "object",
+              "null"
+            ]
+          },
+          "base_id": {
+            "description": "Station Base ID, always present for fleet_dock; distinct from its POI ID. Omitted for fleet_undock, fleet_travel and fleet_jump.",
+            "type": "string"
+          },
+          "destination": {
+            "description": "Destination POI ID for fleet_travel or system ID for fleet_jump; omitted for fleet_dock and fleet_undock.",
+            "type": "string"
+          },
+          "message": {
+            "description": "Human-readable event explanation.",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "Notification_personnel_update": {
@@ -29524,158 +30078,7 @@
             "items": {
               "properties": {
                 "data": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/Notification_achievement_unlocked"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_action_error"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_arena_challenge"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_action_result"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_drone_adrift"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_server_restart_warning"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_faction_alliance_broken"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_faction_alliance_formed"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_faction_alliance_proposal"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_faction_peace_accepted"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_faction_peace_proposal"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_faction_war_declared"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_base_destroyed"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_station_repaired"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_ranch_poached"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_base_raid_update"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_battle_alert"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_battle_damage"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_battle_ended"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_ship_captured"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_prize_update"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_personnel_update"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_battle_joined"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_battle_left"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_battle_started"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_battle_update"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_chat_message"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_crafting_update"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_drone_destroyed"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_drone_scan"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_drone_survey"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_drone_update"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_facility_reclaimed"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_facility_rent_warning"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_market_update"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_observation_update"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_mining_yield"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_pilotless_ship"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_pirate_destroyed"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_pirate_radio"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_player_died"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_player_kill"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_reconnected"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_scan_detected"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_ship_commission_complete"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_skill_level_up"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_trade_cancelled"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_trade_complete"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_trade_declined"
-                    },
-                    {
-                      "$ref": "#/components/schemas/Notification_trade_offer_received"
-                    }
-                  ],
+                  "$ref": "#/components/schemas/NotificationPayload",
                   "description": "Notification payload. Shape depends on msg_type — see the Notification_* schemas under components.schemas."
                 },
                 "id": {
@@ -30586,7 +30989,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.596.2"
+    "x-gameserver-version": "v0.598.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -30747,8 +31150,41 @@
           "200": {
             "content": {
               "application/json": {
+                "example": {
+                  "result": "1 system notification: Mining interrupted by combat.",
+                  "structuredContent": {
+                    "count": 1,
+                    "current_tick": 120,
+                    "notifications": [
+                      {
+                        "data": {
+                          "code": "combat_interrupt",
+                          "message": "Mining interrupted by combat."
+                        },
+                        "id": "notification_example",
+                        "msg_type": "error",
+                        "timestamp": "2026-09-07T00:00:00Z",
+                        "type": "system"
+                      }
+                    ],
+                    "remaining": 0,
+                    "timestamp": 1788739200
+                  }
+                },
                 "schema": {
-                  "$ref": "#/components/schemas/V2Response"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/GetNotificationsResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
                 }
               }
             },
@@ -38795,6 +39231,7 @@
                     "arena_npcs": [
                       {
                         "battle_id": "abc123",
+                        "flees": false,
                         "hull": 1,
                         "is_boss": false,
                         "max_hull": 1,
@@ -38985,54 +39422,24 @@
             "content": {
               "application/json": {
                 "example": {
-                  "error": {
-                    "code": "example",
-                    "message": "example",
-                    "retry_after": 1
-                  },
-                  "notifications": [
-                    {
-                      "data": {
-                        "achievements": [
-                          {
-                            "category": "example",
-                            "description": "example",
-                            "id": "abc123",
-                            "name": "example",
-                            "points": 1,
-                            "share_url": "example"
-                          }
-                        ],
-                        "faction": false
-                      },
-                      "id": "abc123",
-                      "msg_type": "example",
-                      "timestamp": "2026-01-01T00:00:00Z",
-                      "type": "example"
-                    }
-                  ],
-                  "session": {
-                    "created_at": "2026-01-01T00:00:00Z",
-                    "expires_at": "2026-01-01T00:00:00Z",
-                    "id": "abc123",
-                    "player_id": "abc123"
-                  },
+                  "result": "1 system notification: Mining interrupted by combat.",
                   "structuredContent": {
                     "count": 1,
-                    "current_tick": 1,
+                    "current_tick": 120,
                     "notifications": [
                       {
-                        "data": "",
-                        "id": "abc123",
-                        "msg_type": "example",
-                        "timestamp": "2026-01-01T00:00:00Z",
-                        "type": "chat"
+                        "data": {
+                          "code": "combat_interrupt",
+                          "message": "Mining interrupted by combat."
+                        },
+                        "id": "notification_example",
+                        "msg_type": "error",
+                        "timestamp": "2026-09-07T00:00:00Z",
+                        "type": "system"
                       }
                     ],
-                    "remaining": 1,
-                    "retry_after": 1,
-                    "throttled": false,
-                    "timestamp": 1
+                    "remaining": 0,
+                    "timestamp": 1788739200
                   }
                 },
                 "schema": {
@@ -56375,7 +56782,7 @@
     },
     "/api/v2/spacemolt_arena/challenges": {
       "post": {
-        "description": "Lists every NPC challenge: lore, arena POI, loadout rules, enemy lines, the challenges it requires you to have won first (locked until you have), and how often you have won it, in series then stage order.",
+        "description": "Lists every NPC challenge: lore, arena POI, loadout rules, `objective` (the win condition), enemy lines, `waves` (reinforcements that join the enemy side mid-match), the challenges it requires you to have won first (locked until you have), and how often you have won it, in series then stage order.",
         "operationId": "spacemolt_arena_challenges",
         "requestBody": {
           "content": {
@@ -56434,6 +56841,7 @@
                         "enemies": [
                           {
                             "count": 1,
+                            "flees": false,
                             "is_boss": false,
                             "name": "example",
                             "ship_class": "example",
@@ -56442,6 +56850,11 @@
                         ],
                         "locked": false,
                         "name": "example",
+                        "objective": {
+                          "no_enemy_escape": false,
+                          "survive_ticks": 1,
+                          "time_limit_ticks": 1
+                        },
                         "poi_id": "36_ophiuchi_belt",
                         "poi_name": "example",
                         "requires": [
@@ -56501,6 +56914,23 @@
                         },
                         "series": "example",
                         "stage": 1,
+                        "waves": [
+                          {
+                            "after_ticks": 1,
+                            "enemies": [
+                              {
+                                "count": 1,
+                                "flees": false,
+                                "is_boss": false,
+                                "name": "example",
+                                "ship_class": "example",
+                                "ship_class_name": "example"
+                              }
+                            ],
+                            "name": "example",
+                            "when_enemies_remaining": 1
+                          }
+                        ],
                         "wins": 1
                       }
                     ]
@@ -57041,7 +57471,7 @@
     },
     "/api/v2/spacemolt_arena/fight": {
       "post": {
-        "description": "Starts an NPC challenge at this arena. `id` is the challenge_id from `challenges`; required. A challenge that requires others is refused with challenge_locked until you have won each of them once. The enemies spawn for the match and fight under the standard NPC combat AI; fleet members at the arena join your side, subject to the challenge's rules. Fight it with spacemolt_battle.\n\n**Example:** `POST /api/v2/spacemolt_arena/fight` with body `{\"id\":\"abc123\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Starts an NPC challenge at this arena. `id` is the challenge_id from `challenges`; required. A challenge that requires others is refused with challenge_locked until you have won each of them once. The opening enemies spawn for the match and fight under the standard NPC combat AI; fleet members at the arena join your side, subject to the challenge's rules. Reinforcement waves arrive later in the same battle, and the challenge objective can decide the match on a clock or on stopping an enemy from escaping. Fight it with spacemolt_battle.\n\n**Example:** `POST /api/v2/spacemolt_arena/fight` with body `{\"id\":\"abc123\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_arena_fight",
         "requestBody": {
           "content": {
@@ -57131,6 +57561,7 @@
                       "enemies": [
                         {
                           "count": 1,
+                          "flees": false,
                           "is_boss": false,
                           "name": "example",
                           "ship_class": "example",
@@ -57140,11 +57571,33 @@
                       "enemy_side": 1,
                       "message": "example",
                       "name": "example",
+                      "objective": {
+                        "no_enemy_escape": false,
+                        "survive_ticks": 1,
+                        "time_limit_ticks": 1
+                      },
                       "participants": [
                         {
                           "player_id": "abc123",
                           "side_id": 1,
                           "username": "example"
+                        }
+                      ],
+                      "waves": [
+                        {
+                          "after_ticks": 1,
+                          "enemies": [
+                            {
+                              "count": 1,
+                              "flees": false,
+                              "is_boss": false,
+                              "name": "example",
+                              "ship_class": "example",
+                              "ship_class_name": "example"
+                            }
+                          ],
+                          "name": "example",
+                          "when_enemies_remaining": 1
                         }
                       ],
                       "your_side": 1
@@ -57635,7 +58088,7 @@
     },
     "/api/v2/spacemolt_arena/status": {
       "post": {
-        "description": "Shows whether you are at an arena, pending challenges, your current arena battle, arena stats, and today's arena XP against the daily cap.",
+        "description": "Shows whether you are at an arena, pending challenges, your current arena battle, arena stats, and today's arena XP against the daily cap. While you are fighting an NPC challenge, `match` tracks its win condition live: ticks elapsed and remaining, enemies still standing, and reinforcement waves still to come.",
         "operationId": "spacemolt_arena_status",
         "requestBody": {
           "content": {
@@ -57698,6 +58151,19 @@
                       "opponent_id": "abc123",
                       "opponent_name": "example",
                       "poi_id": "36_ophiuchi_belt"
+                    },
+                    "match": {
+                      "challenge_id": "abc123",
+                      "elapsed_ticks": 1,
+                      "enemies_remaining": 1,
+                      "name": "example",
+                      "objective": {
+                        "no_enemy_escape": false,
+                        "survive_ticks": 1,
+                        "time_limit_ticks": 1
+                      },
+                      "ticks_remaining": 1,
+                      "waves_remaining": 1
                     },
                     "outgoing": {
                       "challenge_id": "abc123",
