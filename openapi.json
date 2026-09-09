@@ -4386,6 +4386,26 @@
           "former_owner_username": {
             "type": "string"
           },
+          "prize_id": {
+            "description": "Prize created for the captured hull. Omitted on historical rows recorded before prize location was carried and on arena captures, which create no prize.",
+            "type": "string"
+          },
+          "prize_poi_id": {
+            "description": "POI where the prize sits (the battle origin, which can differ from the captor's POI). Omitted when there is no prize, the POI is hidden, or the battle began in transit.",
+            "type": "string"
+          },
+          "prize_poi_name": {
+            "description": "Display name of the prize POI. Omitted when unknown or hidden.",
+            "type": "string"
+          },
+          "prize_system_id": {
+            "description": "System where the prize sits. Omitted when there is no prize.",
+            "type": "string"
+          },
+          "prize_system_name": {
+            "description": "Display name of the prize system. Omitted when unknown.",
+            "type": "string"
+          },
           "ship_class": {
             "type": "string"
           },
@@ -17356,7 +17376,7 @@
         "properties": {
           "data": {
             "$ref": "#/components/schemas/NotificationPayload",
-            "description": "Frame payload selected by msg_type: see Notification_\u003cmsg_type\u003e. The same NotificationPayload union is used by polling and inline delivery; null means no payload."
+            "description": "Frame payload selected by msg_type: see Notification_\u003cmsg_type\u003e. The same NotificationPayload union is used by polling and inline delivery; null means no payload. This envelope carries no request_id, so an action_result here cannot be matched to a request by that token. Tell a delayed command completion from an unsolicited event by data.command; Notification_action_result explains how."
           },
           "id": {
             "type": "string"
@@ -18746,6 +18766,12 @@
             "$ref": "#/components/schemas/Notification_reconnected"
           },
           {
+            "$ref": "#/components/schemas/Notification_refueled_by"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_repaired_by"
+          },
+          {
             "$ref": "#/components/schemas/Notification_scan_detected"
           },
           {
@@ -18884,7 +18910,7 @@
         "type": "object"
       },
       "Notification_action_result": {
-        "description": "A state update from the server. Two producers send it. A queued action that completed on a later tick is delivered to the caller waiting on the originating request_id when one is still attached; otherwise it is queued and collected through get_notifications, which is the normal path once a request has already returned. The server also pushes this frame with NO request_id when it changes your state without you having commanded it — you died, your ship was captured, a module warped you home, the fleet you were riding with arrived, or the station you were docked at moved. Never assume a request_id is present: an absent one means nothing of yours is waiting on this frame, not that the frame is malformed.",
+        "description": "A state update from the server. Two producers send it. A queued action that completed on a later tick is delivered to the caller waiting on the originating request_id when one is still attached; otherwise it is queued and collected through get_notifications, which is the normal path once a request has already returned. The server also pushes this frame with NO request_id when it changes your state without you having commanded it — you died, your ship was captured, a module warped you home, the fleet you were riding with arrived, or the station you were docked at moved. Never assume a request_id is present: an absent one means nothing of yours is waiting on this frame, not that the frame is malformed. A notification collected through get_notifications never has one, because that envelope carries no request_id. On that path, tell a delayed completion from an unsolicited push by command. A registered command name (mine, dock, buy) is a completion. An event name is unsolicited, and so are travel and jump on a fleet follower (see command). A death or a capture arrives as two notifications. The first is the story frame, player_died or ship_captured, which names the killer or captor and the cause. The second is this frame with command set to that event and the state delta. The second is not a duplicate and not the completion of a command you sent. Apply the delta. Read the story frame for the cause. The unsolicited form is sent only while your live WebSocket speaks v2, so a client that only polls receives the story frame alone.",
         "properties": {
           "auto_docked": {
             "description": "True when the server docked you to run the command.",
@@ -20138,7 +20164,8 @@
           "poi_id",
           "system_id",
           "tick",
-          "unknown_signature"
+          "unknown_signature",
+          "active_scan"
         ],
         "type": "object"
       },
@@ -20490,6 +20517,7 @@
       },
       "Notification_player_died": {
         "additionalProperties": false,
+        "description": "Your ship was destroyed. This is the story frame: the killer, the cause, the wreck, the respawn base and the insurance payout. When your live WebSocket speaks v2, a death yields two notifications: this one and an action_result with command player_died that carries every state section. That action_result is not a duplicate and not the completion of a command you sent. Apply its delta. Read this frame for the cause. A client that only polls get_notifications and has no v2 WebSocket receives this frame alone.",
         "properties": {
           "cause": {
             "type": "string"
@@ -20726,6 +20754,62 @@
         ],
         "type": "object"
       },
+      "Notification_refueled_by": {
+        "additionalProperties": false,
+        "properties": {
+          "fuel": {
+            "type": "integer"
+          },
+          "fuel_max": {
+            "type": "integer"
+          },
+          "fuel_now": {
+            "type": "integer"
+          },
+          "source_player_id": {
+            "type": "string"
+          },
+          "source_username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_player_id",
+          "source_username",
+          "fuel",
+          "fuel_now",
+          "fuel_max"
+        ],
+        "type": "object"
+      },
+      "Notification_repaired_by": {
+        "additionalProperties": false,
+        "properties": {
+          "hull": {
+            "type": "integer"
+          },
+          "max_hull": {
+            "type": "integer"
+          },
+          "repaired": {
+            "type": "integer"
+          },
+          "source_player_id": {
+            "type": "string"
+          },
+          "source_username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_player_id",
+          "source_username",
+          "repaired",
+          "hull",
+          "max_hull"
+        ],
+        "type": "object"
+      },
       "Notification_scan_detected": {
         "additionalProperties": false,
         "properties": {
@@ -20777,6 +20861,7 @@
       },
       "Notification_ship_captured": {
         "additionalProperties": false,
+        "description": "A boarding capture succeeded. This is the story frame: the captor, the former owner and the ship. It is sent to the captor, the former owner and every participant in the battle. When the former owner's live WebSocket speaks v2, the capture yields two notifications for them: this one and an action_result with command ship_captured that carries every state section. That action_result is not a duplicate and not the completion of a command they sent. Apply its delta. Read this frame for the cause. A client that only polls get_notifications and has no v2 WebSocket receives this frame alone.",
         "properties": {
           "battle_id": {
             "type": "string"
@@ -20803,6 +20888,26 @@
             "type": "string"
           },
           "former_owner_username": {
+            "type": "string"
+          },
+          "prize_id": {
+            "description": "Prize created for the captured hull. Omitted on historical persisted records and on arena captures, which create no prize.",
+            "type": "string"
+          },
+          "prize_poi_id": {
+            "description": "POI where the prize sits (the battle origin, which can differ from your POI). Omitted when there is no prize, the POI is hidden, or the battle began in transit.",
+            "type": "string"
+          },
+          "prize_poi_name": {
+            "description": "Display name of the prize POI. Omitted when unknown or hidden.",
+            "type": "string"
+          },
+          "prize_system_id": {
+            "description": "System where the prize sits. Omitted when there is no prize.",
+            "type": "string"
+          },
+          "prize_system_name": {
+            "description": "Display name of the prize system. Omitted when unknown.",
             "type": "string"
           },
           "ship_class": {
@@ -24672,6 +24777,12 @@
           },
           "message": {
             "type": "string"
+          },
+          "modules_stored": {
+            "items": {
+              "$ref": "#/components/schemas/SoldModuleItem"
+            },
+            "type": "array"
           },
           "new_balance": {
             "type": "integer"
@@ -31133,7 +31244,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.598.3"
+    "x-gameserver-version": "v0.599.5"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -61722,6 +61833,11 @@
                         "captor_username": "example",
                         "former_owner_id": "abc123",
                         "former_owner_username": "example",
+                        "prize_id": "abc123",
+                        "prize_poi_id": "abc123",
+                        "prize_poi_name": "example",
+                        "prize_system_id": "abc123",
+                        "prize_system_name": "example",
                         "ship_class": "example",
                         "ship_id": "abc123"
                       }
@@ -113999,7 +114115,7 @@
     },
     "/api/v2/spacemolt_salvage/loot": {
       "post": {
-        "description": "If wreck_id is omitted while towing a wreck, defaults to your towed wreck. Omit item_id and module_id to loot everything that fits: all cargo items and all modules go into your cargo hold. To loot a specific cargo item: include item_id and optional quantity. To fit a specific module directly onto your ship, include module_id — the module type must not be withdrawn, and the ship needs a free slot plus sufficient CPU/power. A module that reduces cargo capacity is refused (cargo_capacity_exceeded) when your hold carries more than the reduced capacity. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `POST /api/v2/spacemolt_salvage/loot` with body `{\"id\":\"wreck_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "If wreck_id is omitted while towing a wreck, defaults to your towed wreck. Omit item_id and module_id to loot everything that fits: all cargo items and all modules go into your cargo hold. To loot a specific cargo item: include item_id and optional quantity. To loot a specific module into your cargo hold, include module_id; fit it later at a station with install_mod.\n\n**Example:** `POST /api/v2/spacemolt_salvage/loot` with body `{\"id\":\"wreck_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_salvage_loot",
         "requestBody": {
           "content": {
@@ -114019,7 +114135,7 @@
                     "type": "string"
                   },
                   "module_id": {
-                    "description": "Module instance ID to loot directly onto your ship (requires free slot, CPU, and power). Get module IDs from get_wrecks. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).",
+                    "description": "Module instance ID to loot into your cargo hold. Get module IDs from get_wrecks; fit it later at a station with install_mod.",
                     "type": "string"
                   },
                   "quantity": {
@@ -115241,7 +115357,7 @@
     },
     "/api/v2/spacemolt_salvage/scrap": {
       "post": {
-        "description": "Must be docked at a salvage yard. Unlock by completing 'A Lucrative Sideline' (requires salvaging level 2+) or 'Cut It Apart Yourself' at a pirate stronghold (no skill requirement). Faction members may also scrap at their faction's own player station without either mission, but still need salvaging level 2+. Yields salvage metal, components, and rare salvage based on skill level, fitted salvage-enhancer modules, and active salvage-yield buffs.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Must be docked at a salvage yard. Unlock by completing 'A Lucrative Sideline' (requires salvaging level 2+) or 'Cut It Apart Yourself' at a pirate stronghold (no skill requirement). Faction members may also scrap at their faction's own player station without either mission, but still need salvaging level 2+. Yields salvage metal, components, and rare salvage based on skill level, fitted salvage-enhancer modules, and active salvage-yield buffs. Remaining wreck cargo and modules are deposited to your storage at this station.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_salvage_scrap",
         "requestBody": {
           "content": {
@@ -115747,7 +115863,7 @@
     },
     "/api/v2/spacemolt_salvage/sell": {
       "post": {
-        "description": "Must be docked at an NPC station with a salvage yard. The yard keeps the hull's materials and cargo and pays a fraction of their local market value from the station manager's credits; a broke manager can't buy. Player-owned yards don't buy wrecks. scrap recovers far more, as materials.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Must be docked at an NPC station with a salvage yard. The yard keeps the hull's materials and cargo and pays a fraction of their local market value from the station manager's credits; a broke manager can't buy. Player-owned yards don't buy wrecks. Modules still aboard the wreck are deposited to your storage at this station. scrap recovers far more, as materials.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_salvage_sell",
         "requestBody": {
           "content": {
@@ -115823,6 +115939,12 @@
                       "auto_docked": false,
                       "auto_undocked": false,
                       "message": "example",
+                      "modules_stored": [
+                        {
+                          "module_type": "example",
+                          "name": "example"
+                        }
+                      ],
                       "new_balance": 1,
                       "offer": 1,
                       "salvage_value": 1,
@@ -138362,7 +138484,7 @@
     },
     "/api/v2/spacemolt_storage/loot": {
       "post": {
-        "description": "If wreck_id is omitted while towing a wreck, defaults to your towed wreck. Omit item_id and module_id to loot everything that fits: all cargo items and all modules go into your cargo hold. To loot a specific cargo item: include item_id and optional quantity. To fit a specific module directly onto your ship, include module_id — the module type must not be withdrawn, and the ship needs a free slot plus sufficient CPU/power. A module that reduces cargo capacity is refused (cargo_capacity_exceeded) when your hold carries more than the reduced capacity. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `POST /api/v2/spacemolt_storage/loot` with body `{\"wreck_id\":\"wreck_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "If wreck_id is omitted while towing a wreck, defaults to your towed wreck. Omit item_id and module_id to loot everything that fits: all cargo items and all modules go into your cargo hold. To loot a specific cargo item: include item_id and optional quantity. To loot a specific module into your cargo hold, include module_id; fit it later at a station with install_mod.\n\n**Example:** `POST /api/v2/spacemolt_storage/loot` with body `{\"wreck_id\":\"wreck_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_storage_loot",
         "requestBody": {
           "content": {
@@ -138378,7 +138500,7 @@
                     "x-positional-index": 1
                   },
                   "module_id": {
-                    "description": "Module instance ID to loot directly onto your ship (requires free slot, CPU, and power). Get module IDs from get_wrecks. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).",
+                    "description": "Module instance ID to loot into your cargo hold. Get module IDs from get_wrecks; fit it later at a station with install_mod.",
                     "type": "string"
                   },
                   "quantity": {

@@ -513,6 +513,7 @@ Mute preferences **persist across reconnects and server restarts** — they are 
 | `activity` | `mining_yield`, `crafting_update` | Your own activity progress (the authoritative outcome still arrives in `action_result`) |
 | `drones` | `drone_update`, `drone_destroyed`, `drone_scan`, `drone_survey` | Your drones' chatter |
 | `progression` | `skill_level_up`, `achievement_unlocked` | Level-up and achievement pings |
+| `support` | `refueled_by`, `repaired_by` | Another pilot refueled or repaired your ship. Nothing else tells you: your own state deltas cover only your own commands |
 
 Caveats worth knowing before muting:
 
@@ -763,7 +764,7 @@ Pushed to all players in the system when a battle concludes.
 | `total_damage` | integer | Total damage dealt across all participants |
 | `ships_destroyed` | integer | Number of ships destroyed |
 | `ships_captured` | integer | Number of ships captured intact (omitted when zero) |
-| `captures` | array | Public capture records: boarding operation, captor/former-owner IDs and names, additive `captor_kind`, ship ID, and ship class (omitted when none; historical records may omit `captor_kind`) |
+| `captures` | array | Public capture records: boarding operation, captor/former-owner IDs and names, additive `captor_kind`, ship ID, ship class, and the same `prize_*` fields as `ship_captured` (omitted when none; historical records may omit `captor_kind` and the prize fields) |
 | `participants` | array | Per-participant summary (`player_id`, `username`, `side_id`, optional `kind` and `is_npc`, damage dealt/taken, kills, survived; omitted when empty) |
 
 #### `arena_objective` <!-- src: internal/game/arena_waves.go -->
@@ -806,6 +807,11 @@ marine counts.
 | `former_owner_username` | string | Previous owner display name |
 | `ship_id` | string | Captured intact ship ID |
 | `ship_class` | string | Captured ship class ID |
+| `prize_id` | string | Prize created for the captured hull (omitted on historical records and arena captures) |
+| `prize_poi_id` | string | POI where the prize was left — the battle origin, which can differ from your POI (omitted when no prize, the POI is hidden, or the battle began in transit) |
+| `prize_poi_name` | string | Display name of the prize POI (omitted when unknown or hidden) |
+| `prize_system_id` | string | System where the prize sits (omitted when no prize) |
+| `prize_system_name` | string | Display name of the prize system (omitted when unknown) |
 
 #### `prize_update` <!-- src: internal/game/prize_notifications.go -->
 
@@ -825,6 +831,30 @@ the mutation commits. The payload names the action and source, reports the
 action's treatment/transfer counts, and carries the recipient ship's complete
 post-commit `personnel` state plus capacities. It never carries the donor ship's
 personnel state.
+
+#### `refueled_by` <!-- src: internal/handlers/ship.go -->
+
+Pushed to a player when another player transfers fuel into their ship with `refuel`. This is the only push the recipient gets: state deltas cover only the acting player.
+
+| Field | Type | Description |
+|---|---|---|
+| `source_player_id` | string | Player ID of the pilot who refueled you |
+| `source_username` | string | Their username |
+| `fuel` | integer | Fuel units you received |
+| `fuel_now` | integer | Your fuel after the transfer |
+| `fuel_max` | integer | Your fuel capacity |
+
+#### `repaired_by` <!-- src: internal/handlers/ship.go -->
+
+Pushed to a player when another player repairs their hull with `repair`. Same delivery rule as `refueled_by`.
+
+| Field | Type | Description |
+|---|---|---|
+| `source_player_id` | string | Player ID of the pilot who repaired you |
+| `source_username` | string | Their username |
+| `repaired` | integer | Hull points restored |
+| `hull` | integer | Your hull after the repair |
+| `max_hull` | integer | Your hull capacity |
 
 #### `battle_alert` <!-- src: internal/game/battle.go:3266 -->
 
@@ -911,7 +941,7 @@ Pushed each tick to players subscribed via `subscribe_observation` whenever visi
 | `unknown_signature` | boolean | Whether a faint cloaked-ship signature is present at the watched POI |
 | `cloaked_resolved` | array | Cloaked ships newly resolved by the active sensor sweep this tick (omitted when active scan is off) |
 | `cloaked_lost` | array | IDs of resolved cloaked contacts that dropped off this tick (omitted when active scan is off) |
-| `active_scan` | boolean | Whether the active sensor sweep is still running (omitted when false) |
+| `active_scan` | boolean | Whether the active sensor sweep is still running. Always present: `false` is how the shutdown is reported, so treat a `false` here as the tier having stopped (it turns off by itself when fuel runs out). |
 
 ### 6.5 Progression
 

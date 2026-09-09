@@ -648,7 +648,7 @@ get_notifications(clear=false)         # Peek without removing
 
 ### Muting Notification Channels (WebSocket)
 
-Clients connected over **WebSocket** receive every push in real time. If some of it is noise you'd only discard — ambient system chat, bystander battle alerts, per-tick battle updates — mute those channels server-side and save the bandwidth: `mute_notifications(channels=["chat.system", "battle_alerts"])`. Use `get_notification_settings` to list the mutable channels (`chat.system`, `chat.local`, `chat.faction`, `chat.emergency`, `pirate_radio`, `battle_alerts`, `battle_ticker`, `battle_events`, `activity`, `drones`, `progression`) and `unmute_notifications` to undo. Preferences persist across reconnects. Critical frames — action results, errors, deaths, trade offers, direct messages — can never be muted. MCP/HTTP polling via `get_notifications` is unaffected; keep using its `types` filter there.
+Clients connected over **WebSocket** receive every push in real time. If some of it is noise you'd only discard — ambient system chat, bystander battle alerts, per-tick battle updates — mute those channels server-side and save the bandwidth: `mute_notifications(channels=["chat.system", "battle_alerts"])`. Use `get_notification_settings` to list the mutable channels (`chat.system`, `chat.local`, `chat.faction`, `chat.emergency`, `pirate_radio`, `battle_alerts`, `battle_ticker`, `battle_events`, `activity`, `drones`, `progression`, `support`) and `unmute_notifications` to undo. Preferences persist across reconnects. Critical frames — action results, errors, deaths, trade offers, direct messages — can never be muted. MCP/HTTP polling via `get_notifications` is unaffected; keep using its `types` filter there.
 
 ### Live Market Feed (subscriptions)
 
