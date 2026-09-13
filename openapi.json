@@ -2040,7 +2040,7 @@
             "type": "integer"
           },
           "flee_required": {
-            "description": "Flee ticks needed to escape under current conditions (slower-than-pursuer and webbing raise it). Omitted while escape progress is blocked — by warp disruption or by a boarding intercept alike — so its absence does not identify which. Read warp_disrupted and intercepted for that.",
+            "description": "Flee ticks needed to escape under current conditions. 3 ticks is the baseline, and the combat-speed gap to the fastest enemy ship moves it either way: being slower (or webbed) raises it, being faster lowers it, with a floor of 1. Omitted while escape progress is blocked — by warp disruption or by a boarding intercept alike — so its absence does not identify which. Read warp_disrupted and intercepted for that.",
             "type": "integer"
           },
           "incapacitated": {
@@ -2388,6 +2388,7 @@
             "type": "string"
           },
           "ship_name": {
+            "description": "Display name of whatever this combatant is flying: a ship reports its custom name when one is set and otherwise its class display name, a drone reports its drone type, and a creature reports its species role. Omitted for stations, which have no hull, and when the combatant ship cannot be resolved.",
             "type": "string"
           },
           "side_id": {
@@ -2460,6 +2461,7 @@
             "type": "string"
           },
           "ship_name": {
+            "description": "Display name of the ship this combatant is flying: its custom name when one is set, otherwise the ship class display name. Omitted for combatants that are not flying a resolvable ship, such as stations, drones, and creatures.",
             "type": "string"
           },
           "side_id": {
@@ -2865,7 +2867,7 @@
             "type": "boolean"
           },
           "event": {
-            "description": "Observable boarding transition. Terminal values include capture_ready; plundered; withdrawn; attacker_destroyed; attacker_incapacitated; target_destroyed; target_self_destructed; and restart_canceled. plundered means pirates removed eligible cargo and then disengaged without taking the hull.",
+            "description": "Observable boarding transition. Terminal values include capture_ready; plundered; withdrawn; closing_stalled; attacker_destroyed; attacker_incapacitated; target_destroyed; target_self_destructed; and restart_canceled. plundered means pirates removed eligible cargo and then disengaged without taking the hull. closing_stalled means a latch with zero progress was withdrawn after the battle sat idle for the whole stalemate window.",
             "type": "string"
           },
           "hull_damage": {
@@ -4715,7 +4717,7 @@
           },
           "recipes": {
             "items": {
-              "$ref": "#/components/schemas/Recipe"
+              "$ref": "#/components/schemas/CatalogRecipe"
             },
             "type": "array"
           },
@@ -4749,6 +4751,100 @@
           "hidden_faction_achievement_count"
         ],
         "type": "object"
+      },
+      "CatalogRecipe": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "description": "Grouping label used by the catalog type=recipes category filter. Two values are load-bearing rather than cosmetic: 'Facility Only' and 'Ship Passive' each make the recipe impossible to hand-craft. Prefer hand_craftable, which folds both of those strings together, over comparing this field yourself.",
+            "type": "string"
+          },
+          "crafting_time": {
+            "description": "Base ticks for one production run before venue and skill modifiers. Fractional values are allowed. At the Station Workshop this is divided by a Crafting/Refining skill factor running from 1.0 at level 0 to 5.0 at level 100; a facility applies its own throughput instead and ignores skill.",
+            "type": "number"
+          },
+          "description": {
+            "description": "Prose summary of what the recipe does. Guidance for the reader only — no mechanic reads it, and it may be empty.",
+            "type": "string"
+          },
+          "facility_only": {
+            "description": "True when the recipe runs only inside a production facility and can never be hand-crafted at the Station Workshop. It is one of the two inputs to hand_craftable; category is the other. Do not test it alone — a 'Facility Only' or 'Ship Passive' category recipe is equally un-hand-craftable with this field absent.",
+            "type": "boolean"
+          },
+          "fuel_output": {
+            "description": "Units of fuel added straight to the processing ship's tank (not to cargo) per run, when this recipe runs as a Ship Passive recipe aboard a fuel-synthesis module. Absent or zero on every recipe that delivers cargo instead.",
+            "type": "integer"
+          },
+          "hand_craftable": {
+            "description": "Whether a docked pilot can run this recipe by hand at their Station Workshop, with no facility of any kind. Derived exactly as: facility_only is false AND category is not 'Facility Only' AND category is not 'Ship Passive'. Always present. False means the recipe needs a venue — a 'Ship Passive' recipe runs itself aboard a ship built for it and can never be queued at all, while any other false value must be queued at one of produced_by_facility_ids. True is a venue answer only: inputs, credits and workshop queue space are still checked when you actually craft.",
+            "type": "boolean"
+          },
+          "hidden": {
+            "description": "True when the recipe is withheld from the catalog and cannot be crafted. Catalog surfaces omit hidden recipes entirely, so this is absent (false) on every recipe you can actually see.",
+            "type": "boolean"
+          },
+          "id": {
+            "description": "Stable recipe identifier. Pass it as recipe_id to craft or to facility action=job_add, and it is what catalog type=recipes id={id} looks up.",
+            "type": "string"
+          },
+          "inputs": {
+            "description": "Materials consumed per production run. Empty on a package operation, whose real manifest is chosen at craft time, and on a labour-only recipe that consumes nothing at all.",
+            "items": {
+              "$ref": "#/components/schemas/RecipeInput"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "Human-readable recipe name, shown in catalog listings and craft messages. Display only; never pass it as recipe_id.",
+            "type": "string"
+          },
+          "no_recycle": {
+            "description": "True when the process is irreversible and a recycling facility cannot run it backwards. Absent (false) means a recycler can reverse it to recover the inputs.",
+            "type": "boolean"
+          },
+          "outputs": {
+            "description": "Items produced per production run. The first entry's quantity is the run size: a craft count is rounded up to whole runs against it, so asking for 3 of a recipe that yields 2 queues 2 runs and produces 4.",
+            "items": {
+              "$ref": "#/components/schemas/RecipeOutput"
+            },
+            "type": "array"
+          },
+          "package_operation": {
+            "description": "Set to pack or unpack on the two dynamic package recipes, whose inputs and outputs are the player-selected manifest rather than the static lists here. Absent on every ordinary recipe.",
+            "type": "string"
+          },
+          "produced_by_facility_ids": {
+            "description": "Ids of the facility definitions that can run this recipe forward, each matching an entry in this dump's facilities list. Sorted by facility level then name. Always present, never omitted: an empty list means no facility definition runs it, which for a hand_craftable recipe is normal (the Station Workshop is then the only venue) and for a recipe with hand_craftable false means it has no player-reachable venue at all. Owning or renting one of these facilities is what craft auto-routes to.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "category",
+          "inputs",
+          "outputs",
+          "crafting_time",
+          "hand_craftable",
+          "produced_by_facility_ids"
+        ],
+        "type": "object",
+        "x-display": {
+          "id": "id",
+          "label": "name",
+          "next_actions": [
+            "craft id={id}",
+            "recipes id={id}"
+          ],
+          "primary": [
+            "category",
+            "crafting_time"
+          ]
+        }
       },
       "CatalogResponse": {
         "additionalProperties": false,
@@ -7851,6 +7947,7 @@
             "type": "string"
           },
           "ship_name": {
+            "description": "Display name of the ship this NPC is flying: its custom name when one is set, otherwise the ship class display name (an unnamed enforcer reads as Enforcer). Presence of this field does not mean the hull is named. Omitted only when the NPC has no resolvable ship.",
             "type": "string"
           }
         },
@@ -8119,6 +8216,7 @@
             "type": "string"
           },
           "ship_name": {
+            "description": "Custom name the pilot gave this hull, and only that. Unlike ship_name everywhere else in the API it does not fall back to the ship class display name, because the value is a persisted column written when the wreck was created. Omitted when the hull was never named and on wrecks that were never a named ship (jettison containers, creature carcasses, ambient derelicts). Read ship_class for the hull type.",
             "type": "string"
           },
           "system_id": {
@@ -18506,9 +18604,11 @@
         "type": "object"
       },
       "NearbyPlayer": {
+        "additionalProperties": false,
         "description": "A player visible at the current POI.",
         "properties": {
           "clan_tag": {
+            "description": "Self-assigned clan tag of up to 4 characters. It is cosmetic and unrelated to faction membership - faction_id and faction_tag carry the real affiliation. Omitted when the player has not set one.",
             "type": "string"
           },
           "docked": {
@@ -18516,12 +18616,15 @@
             "type": "boolean"
           },
           "faction_id": {
+            "description": "Id of the faction the player belongs to. Omitted when the player is unaffiliated.",
             "type": "string"
           },
           "faction_tag": {
+            "description": "Short display tag of that faction. Present whenever faction_id is and the faction record still resolves.",
             "type": "string"
           },
           "in_combat": {
+            "description": "True while the player is in an active battle. Always emitted: false means not in combat.",
             "type": "boolean"
           },
           "offline": {
@@ -18529,28 +18632,39 @@
             "type": "boolean"
           },
           "player_id": {
+            "description": "Unique id of the player. It is the target id for attack and scan. Always present on a listed player.",
             "type": "string"
           },
           "primary_color": {
+            "description": "Cosmetic profile colour the player set with set_colors, as a 7-character #RRGGBB hex string (new pilots start at #FFFFFF). Decorative only - it drives no game mechanic. Omitted when the player has cleared their colours.",
             "type": "string"
           },
           "secondary_color": {
+            "description": "Cosmetic secondary profile colour in the same 7-character #RRGGBB form as primary_color (new pilots start at #000000). Decorative only. Omitted when the player has cleared their colours.",
             "type": "string"
           },
           "ship_class": {
+            "description": "Class id of the hull the player is currently flying (for example enforcer). Omitted only when the player has no resolvable current ship.",
             "type": "string"
           },
           "ship_name": {
-            "description": "Custom ship name if set",
+            "description": "Display name of the ship this player is flying: their custom name when they have set one, otherwise the ship class display name (an unnamed enforcer reads as Enforcer). Presence of this field does not mean the hull is named. Omitted only when the player has no resolvable current ship.",
             "type": "string"
           },
           "status_message": {
+            "description": "Free-text status line the player set with set_status. Omitted when they have not set one.",
             "type": "string"
           },
           "username": {
+            "description": "Pilot name the player registered under. Always present on a listed player.",
             "type": "string"
           }
         },
+        "required": [
+          "player_id",
+          "username",
+          "in_combat"
+        ],
         "type": "object"
       },
       "NoteInfo": {
@@ -20063,6 +20177,20 @@
           "active_scan": {
             "type": "boolean"
           },
+          "arena_npcs_changed": {
+            "description": "Arena challenge enemies that joined the match at the watched POI or whose visible state (hull, shield, status, flees) changed this tick. A knockout surfaces here as hull reaching 0 — not as a departure. Omitted when none changed. Expect one on most updates while a match runs, because hull and shield move every tick.",
+            "items": {
+              "$ref": "#/components/schemas/ArenaNPCInfo"
+            },
+            "type": "array"
+          },
+          "arena_npcs_departed": {
+            "description": "IDs of arena challenge enemies removed from the watched POI. Enemies are removed only when their match ends, so a knocked-out enemy stays in the feed at hull 0 until then — a missing departure does not mean it is still fighting. Omitted when none departed.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "cloaked_lost": {
             "items": {
               "type": "string"
@@ -20640,6 +20768,7 @@
             "type": "string"
           },
           "ship_name": {
+            "description": "Display name of the captured ship: the custom name its pilot set when there is one, otherwise the ship class display name (an unnamed enforcer reads as Enforcer). Presence of this field does not mean the hull is named. Omitted only when the captured hull no longer resolves in server state.",
             "type": "string"
           },
           "status": {
@@ -23569,45 +23698,57 @@
         "additionalProperties": false,
         "properties": {
           "category": {
+            "description": "Grouping label used by the catalog type=recipes category filter. Two values are load-bearing rather than cosmetic: 'Facility Only' and 'Ship Passive' each make the recipe impossible to hand-craft. Prefer hand_craftable, which folds both of those strings together, over comparing this field yourself.",
             "type": "string"
           },
           "crafting_time": {
+            "description": "Base ticks for one production run before venue and skill modifiers. Fractional values are allowed. At the Station Workshop this is divided by a Crafting/Refining skill factor running from 1.0 at level 0 to 5.0 at level 100; a facility applies its own throughput instead and ignores skill.",
             "type": "number"
           },
           "description": {
+            "description": "Prose summary of what the recipe does. Guidance for the reader only — no mechanic reads it, and it may be empty.",
             "type": "string"
           },
           "facility_only": {
+            "description": "True when the recipe runs only inside a production facility and can never be hand-crafted at the Station Workshop. It is one of the two inputs to hand_craftable; category is the other. Do not test it alone — a 'Facility Only' or 'Ship Passive' category recipe is equally un-hand-craftable with this field absent.",
             "type": "boolean"
           },
           "fuel_output": {
+            "description": "Units of fuel added straight to the processing ship's tank (not to cargo) per run, when this recipe runs as a Ship Passive recipe aboard a fuel-synthesis module. Absent or zero on every recipe that delivers cargo instead.",
             "type": "integer"
           },
           "hidden": {
+            "description": "True when the recipe is withheld from the catalog and cannot be crafted. Catalog surfaces omit hidden recipes entirely, so this is absent (false) on every recipe you can actually see.",
             "type": "boolean"
           },
           "id": {
+            "description": "Stable recipe identifier. Pass it as recipe_id to craft or to facility action=job_add, and it is what catalog type=recipes id={id} looks up.",
             "type": "string"
           },
           "inputs": {
+            "description": "Materials consumed per production run. Empty on a package operation, whose real manifest is chosen at craft time, and on a labour-only recipe that consumes nothing at all.",
             "items": {
               "$ref": "#/components/schemas/RecipeInput"
             },
             "type": "array"
           },
           "name": {
+            "description": "Human-readable recipe name, shown in catalog listings and craft messages. Display only; never pass it as recipe_id.",
             "type": "string"
           },
           "no_recycle": {
+            "description": "True when the process is irreversible and a recycling facility cannot run it backwards. Absent (false) means a recycler can reverse it to recover the inputs.",
             "type": "boolean"
           },
           "outputs": {
+            "description": "Items produced per production run. The first entry's quantity is the run size: a craft count is rounded up to whole runs against it, so asking for 3 of a recipe that yields 2 queues 2 runs and produces 4.",
             "items": {
               "$ref": "#/components/schemas/RecipeOutput"
             },
             "type": "array"
           },
           "package_operation": {
+            "description": "Set to pack or unpack on the two dynamic package recipes, whose inputs and outputs are the player-selected manifest rather than the static lists here. Absent on every ordinary recipe.",
             "type": "string"
           }
         },
@@ -24412,6 +24553,7 @@
             "type": "string"
           },
           "ship_name": {
+            "description": "Display name of the scanned ship: the custom name its pilot set when there is one, otherwise the ship class display name. Presence of this field does not mean the hull is named. Omitted when the scan did not reach the ship_class reveal tier.",
             "type": "string"
           },
           "target_id": {
@@ -24484,6 +24626,7 @@
             "type": "string"
           },
           "ship_name": {
+            "description": "Display name of the scanned ship: the custom name its pilot set when there is one, otherwise the ship class display name. Presence of this field does not mean the hull is named. Omitted when the scan did not reach the ship_class reveal tier.",
             "type": "string"
           },
           "signature_detected": {
@@ -27716,6 +27859,13 @@
           "active_scan": {
             "type": "boolean"
           },
+          "arena_npcs": {
+            "description": "Challenge enemies fighting an arena match held at the watched POI, the same set get_nearby returns there. Omitted when no NPC challenge is in progress at this POI, which is the usual case: enemies exist only for the length of one match. While a match runs their hull and shield move every tick, so expect an arena_npcs_changed entry in most observation_update messages until it ends.",
+            "items": {
+              "$ref": "#/components/schemas/ArenaNPCInfo"
+            },
+            "type": "array"
+          },
           "cloaked_contacts": {
             "items": {
               "$ref": "#/components/schemas/ScanContact"
@@ -29979,6 +30129,7 @@
             "type": "string"
           },
           "ship_name": {
+            "description": "Display name of the ship this NPC is flying: its custom name when one is set, otherwise the ship class display name (an unnamed enforcer reads as Enforcer). Presence of this field does not mean the hull is named. Omitted only when the NPC has no resolvable ship.",
             "type": "string"
           }
         },
@@ -30032,6 +30183,14 @@
             "type": "string"
           },
           "pirate_id": {
+            "type": "string"
+          },
+          "primary_color": {
+            "description": "Primary livery color configured by the pirate stronghold crew as #RRGGBB. Omitted when the crew has no configured branding.",
+            "type": "string"
+          },
+          "secondary_color": {
+            "description": "Secondary livery color configured by the pirate stronghold crew as #RRGGBB. Omitted when the crew has no configured branding.",
             "type": "string"
           },
           "shield": {
@@ -30091,11 +30250,19 @@
           "player_id": {
             "type": "string"
           },
+          "primary_color": {
+            "description": "Primary livery color as #RRGGBB. Omitted when the player has not set one.",
+            "type": "string"
+          },
+          "secondary_color": {
+            "description": "Secondary livery color as #RRGGBB. Omitted when the player has not set one.",
+            "type": "string"
+          },
           "ship_class": {
             "type": "string"
           },
           "ship_name": {
-            "description": "Custom ship name",
+            "description": "Display name of the ship this player is flying: their custom name when they have set one, otherwise the ship class display name (an unnamed enforcer reads as Enforcer). Presence of this field does not mean the hull is named. Omitted only when the player has no resolvable current ship.",
             "type": "string"
           },
           "username": {
@@ -31244,7 +31411,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.599.5"
+    "x-gameserver-version": "v0.604.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -31620,6 +31787,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -31633,6 +31802,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -32134,6 +32305,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -32147,6 +32320,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -32647,6 +32822,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -32660,6 +32837,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -33202,6 +33381,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -33215,6 +33396,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -33712,6 +33895,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -33725,6 +33910,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -34081,7 +34268,7 @@
     },
     "/api/v2/spacemolt/complete_mission": {
       "post": {
-        "description": "Mission objectives must be fulfilled. Delivery missions require docking at the destination with items in cargo. Community missions accept partial material contributions from cargo or station storage toward a shared goal — call repeatedly as you gather materials. Rewards include credits, items, and skill XP. Empire mission credit rewards are paid from the issuing empire's treasury and are capped at its balance: if it cannot cover the advertised reward, the response carries `credits_promised` and `credits_shortfall` alongside the `credits_earned` you were actually paid.\n\n**Example:** `POST /api/v2/spacemolt/complete_mission` with body `{\"id\":\"mission_uuid\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Mission objectives must be fulfilled. Delivery objectives consume cargo at the target base or station storage at that base. Repeated objectives require their combined item quantity. Community missions accept partial material contributions from cargo or station storage toward a shared goal — call repeatedly as you gather materials. Rewards include credits, items, and skill XP. Empire mission credit rewards are paid from the issuing empire's treasury and are capped at its balance: if it cannot cover the advertised reward, the response carries `credits_promised` and `credits_shortfall` alongside the `credits_earned` you were actually paid.\n\n**Example:** `POST /api/v2/spacemolt/complete_mission` with body `{\"id\":\"mission_uuid\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_complete_mission",
         "requestBody": {
           "content": {
@@ -34239,6 +34426,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -34252,6 +34441,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -34719,7 +34910,7 @@
     },
     "/api/v2/spacemolt/craft": {
       "post": {
-        "description": "Must be docked. Ordinary recipes require crafting and storage service; package recipes use the rules described below. Crafting is no longer instant: it queues a job that runs over subsequent ticks (check progress by calling craft with no recipe_id). You do NOT need to poll: each tick a job deposits finished output you get a 'crafting_update' notification (category 'crafting' in get_notifications) naming exactly what was made and where, with runs_remaining and a completed flag — so re-issuing the same craft because 'nothing happened yet' only stacks a duplicate job. 'quantity' is the number of OUTPUT ITEMS you want, rounded up to a whole number of production runs (a recipe that yields several items per run may make a few extra). Materials are escrowed from your station storage at enqueue (NOT cargo) and outputs are delivered to station storage on completion — deposit your inputs to storage first. Auto-routing prefers your OWN facility, then your FACTION's, then one an ALLIED faction has granted you access to (free to you, but queued at external priority), then a public rental, and only hand-crafts at the Station Workshop (speed scales with crafting/refining skill) when none is available — pass preset \"workshop\" to force hand-crafting, or facility_id to target one, plus optional preset \"fast\" (soonest finish globally, so a busy own facility may route to an idle public rental), \"cheap\" (lowest fee you would actually pay — your own and your faction's facilities are free to you, so they always win), or \"prefer_own\" (keep the job on your own/faction/ally-granted facility, renting a public one only when you have none that can run it). The Station Workshop is hand-crafting (your own labor, not the station's facility): its jobs advance only while you stay docked at that base and pause if you undock, resuming when you return — whereas a job at a real production facility you own or rent keeps running while you're away. deliver_to=faction crafts from/to faction storage (needs manage treasury permission), and deliver_to=faction:\u003cbucket name or id\u003e pulls inputs from and deposits outputs into a specific faction Storage Extension bucket; and if you leave deliver_to off and your own storage/credits can't cover the job, it automatically draws from your faction's storage/treasury when you're allowed to spend them. Renting another player's public facility prepays a per-run fee. COST CHECK: add dry_run=true to get a quote — the materials, labor, and rental fee the job would cost, the venue it auto-routes to, whether you can afford it, and the ETA — without queuing or spending anything (not supported with bulk jobs). Use 'recycle' to reverse a recipe at a recycler. BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?, source?, package_ids?, output_package_label?}, ...] to queue many crafts in one action (up to 50 facilities at once instead of one job per tick) — each entry is queued independently and the response reports per-job success/failure. Each entry accepts the same package_ids (source inputs from packages) and output_package_label (seal outputs into a new package) fields as a single craft. QUEUE \u0026 CANCEL: call craft with no recipe_id to list your queued jobs, their IDs, and each job's current deliver_to — that is the portable form and it works on every transport. (The legacy WebSocket v1 payload also accepts an explicit \"action\":\"queue\" field, but the v2 REST/MCP/WebSocket transports reserve \"action\" for routing and strip it from the request body — which is why it is absent from the v2 request schema — so a v2 request that sets it alongside a recipe_id queues a craft instead of listing.) Pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed inputs, labor, and fees (the same operation as facility action=job_cancel). Pass job_ids=[id1,id2,...] to cancel several at once (per-job success/failure). RETARGET: pass job_id=\u003cid\u003e together with deliver_to=\u003cstorage|faction|faction:bucket\u003e to redirect a queued or running job's REMAINING output to a different store at the same station without cancelling it — the recipe, quantity, source, escrow, cost, venue, ETA, and queue position are all unchanged, and runs already delivered stay where they landed. Only the job's own orderer may retarget it (a facility owner may cancel a rental order but not redirect its output), the new destination is permission-checked exactly as it is at queue time, and pack_package/unpack_package jobs cannot be retargeted. PACKAGE INPUTS/OUTPUT: package_ids=[...] sources the craft's inputs from those packages (raw id or package:\u003cid\u003e) instead of loose storage — they must all sit in the source location and their pooled contents must equal the recipe inputs times quantity EXACTLY (no shortage or overage, no storage backfill), or it's rejected before anything is consumed. output_package_label=\"...\" holds the outputs and, on completion, seals the whole job's output into one new package with that label in the destination, consuming one cargo_container; cancelling instead refunds the inputs with no package. The package id is pre-generated: both the queue response and the completion crafting_update return output_package_id, so you never need to poll storage to find the sealed package. Both need an accessible Logistics facility (your own, your faction's, a public rental, or a station-owned one), and with output_package_label the total output must fit one package (size \u003c= 100). Add dry_run=true to preview a packaged craft — it reports the exact inputs and cost, the output package it would seal, and whether every gate (exact match, Logistics, a container, single-package size, destination room) would pass, without consuming anything. Not supported with bulk jobs. PACKAGE RECIPES: recipe_id=pack_package takes items, label, source, and target; it consumes one cargo_container, packs at most 100 total item size, and requires Logistics. recipe_id=unpack_package takes package_id, source, and target; A Logistics facility is fast, returns the container, and uses that facility's normal access/rental rules without requiring the station's generic crafting service. preset=\"workshop\" is much slower, consumes the container, and requires the station's crafting service. source/target accept storage, cargo, faction, or faction:\u003cbucket\u003e; target defaults to source (deliver_to is an alias). Package jobs use this same queue and job_id cancellation.\n\n**Example:** `POST /api/v2/spacemolt/craft` with body `{\"id\":\"iron_plates\",\"quantity\":10,\"deliver_to\":\"storage\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Must be docked. Ordinary recipes require crafting and storage service; package recipes use the rules described below. Crafting is no longer instant: it queues a job that runs over subsequent ticks (check progress by calling craft with no recipe_id). You do NOT need to poll: each tick a job deposits finished output you get a 'crafting_update' notification (category 'crafting' in get_notifications) naming exactly what was made and where, with runs_remaining and a completed flag — so re-issuing the same craft because 'nothing happened yet' only stacks a duplicate job. 'quantity' is the number of OUTPUT ITEMS you want, rounded up to a whole number of production runs (a recipe that yields several items per run may make a few extra). Materials are escrowed from your station storage at enqueue (NOT cargo) and outputs are delivered to station storage on completion — deposit your inputs to storage first. Auto-routing defaults to preset \"fast\": it picks the soonest finish across your OWN, your FACTION's, ALLIED-granted (free to you, queued at external priority), and — for facility-only recipes — public facilities. Ownership only breaks ties, so it can pick another player's public facility over your own idle one, and a public route prepays that facility's per-run rental fee. Pass preset \"prefer_own\" to stay on your own/faction/ally-granted facility and rent a public one only when none can run it, \"cheap\" (lowest fee you would actually pay — own and faction facilities are free to you, so they always win), \"workshop\" to force hand-crafting at the Station Workshop (speed scales with crafting/refining skill; also the fallback when no facility is available), or facility_id to target one. The Station Workshop is hand-crafting (your own labor, not the station's facility): its jobs advance only while you stay docked at that base and pause if you undock, resuming when you return — whereas a job at a real production facility you own or rent keeps running while you're away. deliver_to=faction crafts from/to faction storage (needs manage treasury permission), and deliver_to=faction:\u003cbucket name or id\u003e pulls inputs from and deposits outputs into a specific faction Storage Extension bucket; and if you leave deliver_to off and your own storage/credits can't cover the job, it automatically draws from your faction's storage/treasury when you're allowed to spend them. Renting another player's public facility prepays a per-run fee. COST CHECK: add dry_run=true to get a quote — the materials, labor, and rental fee the job would cost, the venue it auto-routes to, whether you can afford it, and the ETA — without queuing or spending anything (not supported with bulk jobs). Use 'recycle' to reverse a recipe at a recycler. BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?, source?, package_ids?, output_package_label?}, ...] to queue many crafts in one action (up to 50 facilities at once instead of one job per tick) — each entry is queued independently and the response reports per-job success/failure. Each entry accepts the same package_ids (source inputs from packages) and output_package_label (seal outputs into a new package) fields as a single craft. QUEUE \u0026 CANCEL: call craft with no recipe_id to list your queued jobs, their IDs, and each job's current deliver_to — that is the portable form and it works on every transport. (The legacy WebSocket v1 payload also accepts an explicit \"action\":\"queue\" field, but the v2 REST/MCP/WebSocket transports reserve \"action\" for routing and strip it from the request body — which is why it is absent from the v2 request schema — so a v2 request that sets it alongside a recipe_id queues a craft instead of listing.) Pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed inputs, labor, and fees (the same operation as facility action=job_cancel). Pass job_ids=[id1,id2,...] to cancel several at once (per-job success/failure). RETARGET: pass job_id=\u003cid\u003e together with deliver_to=\u003cstorage|faction|faction:bucket\u003e to redirect a queued or running job's REMAINING output to a different store at the same station without cancelling it — the recipe, quantity, source, escrow, cost, venue, ETA, and queue position are all unchanged, and runs already delivered stay where they landed. Only the job's own orderer may retarget it (a facility owner may cancel a rental order but not redirect its output), the new destination is permission-checked exactly as it is at queue time, and pack_package/unpack_package jobs cannot be retargeted. PACKAGE INPUTS/OUTPUT: package_ids=[...] sources the craft's inputs from those packages (raw id or package:\u003cid\u003e) instead of loose storage — they must all sit in the source location and their pooled contents must equal the recipe inputs times quantity EXACTLY (no shortage or overage, no storage backfill), or it's rejected before anything is consumed. output_package_label=\"...\" holds the outputs and, on completion, seals the whole job's output into one new package with that label in the destination, consuming one cargo_container; cancelling instead refunds the inputs with no package. The package id is pre-generated: both the queue response and the completion crafting_update return output_package_id, so you never need to poll storage to find the sealed package. Both need an accessible Logistics facility (your own, your faction's, a public rental, or a station-owned one), and with output_package_label the total output must fit one package (size \u003c= 100). Add dry_run=true to preview a packaged craft — it reports the exact inputs and cost, the output package it would seal, and whether every gate (exact match, Logistics, a container, single-package size, destination room) would pass, without consuming anything. Not supported with bulk jobs. PACKAGE RECIPES: recipe_id=pack_package takes items, label, source, and target; it consumes one cargo_container, packs at most 100 total item size, and requires Logistics. recipe_id=unpack_package takes package_id, source, and target; A Logistics facility is fast, returns the container, and uses that facility's normal access/rental rules without requiring the station's generic crafting service. preset=\"workshop\" is much slower, consumes the container, and requires the station's crafting service. source/target accept storage, cargo, faction, or faction:\u003cbucket\u003e; target defaults to source (deliver_to is an alias). Package jobs use this same queue and job_id cancellation.\n\n**Example:** `POST /api/v2/spacemolt/craft` with body `{\"id\":\"iron_plates\",\"quantity\":10,\"deliver_to\":\"storage\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_craft",
         "requestBody": {
           "content": {
@@ -34877,7 +35068,7 @@
                     "type": "array"
                   },
                   "preset": {
-                    "description": "Auto-routing preset: 'fast' (fewest ticks, default) picks the best facility globally, so a busy own facility may route to an idle public rental. 'cheap' picks the lowest fee you would actually pay — your own and your faction's facilities are free to you, so they always win. Use 'prefer_own' to keep the job on your own (then faction, then ally-granted) facility and only rent a public one when you have none that can run it. Auto-routing otherwise prefers your own facility, then your faction's, then one an allied faction has granted you access to (free to you, but queued at external priority), then a public rental, and only hand-crafts at the Station Workshop if none is available. Use 'workshop' to force hand-crafting even when you have a facility.",
+                    "description": "Auto-routing preset. 'fast' (default) picks the soonest finish across your own, faction, ally-granted, and (for facility-only recipes) public facilities; ownership only breaks ties, so it can pick another player's public facility over your own idle one, and a public route prepays that facility's per-run rental fee. 'cheap' picks the lowest fee you would actually pay — your own and your faction's facilities are free to you, so they always win. 'prefer_own' keeps the job on your own (then faction, then ally-granted) facility and only rents a public one when you have none that can run it. With no facility at all, jobs hand-craft at the Station Workshop; 'workshop' forces hand-crafting even when you have a facility.",
                     "enum": [
                       "fast",
                       "cheap",
@@ -35049,6 +35240,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -35062,6 +35255,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -35681,6 +35876,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -35694,6 +35891,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -36050,7 +36249,7 @@
     },
     "/api/v2/spacemolt/dock": {
       "post": {
-        "description": "You must be at a POI with a base. Docking is required for trading, refueling, repairs, and ship upgrades.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "You must be at a POI with a base. Docking is required for trading, refueling, repairs, and ship upgrades. A base in a battle shuts its blast doors and returns station_under_attack; a faction station joins any battle in its system that one of its own members is fighting, so wait for the battle to end.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_dock",
         "requestBody": {
           "content": {
@@ -36323,6 +36522,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -36336,6 +36537,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -37066,6 +37269,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -37079,6 +37284,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -37827,6 +38034,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -37840,6 +38049,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -38801,6 +39012,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -38814,6 +39027,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -39873,6 +40088,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -39886,6 +40103,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -40542,6 +40761,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -40555,6 +40776,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -41022,6 +41245,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -41035,6 +41260,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -41493,6 +41720,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -41506,6 +41735,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -41964,6 +42195,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -41977,6 +42210,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -42435,6 +42670,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -42448,6 +42685,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -43584,6 +43823,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -43597,6 +43838,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -44823,6 +45066,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -44836,6 +45081,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -45358,6 +45605,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -45371,6 +45620,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -45871,6 +46122,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -45884,6 +46137,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -46655,6 +46910,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -46668,6 +46925,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -47159,6 +47418,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -47172,6 +47433,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -47685,6 +47948,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -47698,6 +47963,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -48192,6 +48459,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -48205,6 +48474,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -48557,7 +48828,7 @@
     },
     "/api/v2/spacemolt/recycle": {
       "post": {
-        "description": "Must be docked at a base with a recycler facility (auto-routed to your own, then your faction's, then one an ALLIED faction has granted you access to (free to you, but queued at external priority); or pass facility_id, plus optional preset \"fast\" to pick the soonest-finishing recycler globally, \"cheap\" to pick the lowest fee you would actually pay (your own and your faction's recyclers are free to you, so they always win), or \"prefer_own\" to keep the job on your own/faction/ally-granted recycler; \"workshop\" doesn't apply — recycling always needs a real recycler facility). 'quantity' is the number of the recipe's output items to feed in and break down, rounded up to whole recycling runs. Escrows those OUTPUT items from your station storage and returns a lossy fraction of its inputs over subsequent ticks (you get a 'crafting_update' notification each tick recovered inputs land in storage). Recycling is always a net loss by design. Use deliver_to=faction for faction storage. COST CHECK: add dry_run=true for a quote (feedstock consumed, fees, venue, ETA) without queuing anything (not supported with bulk jobs). BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?, source?}, ...] to recycle many recipes in one action (up to 50) — each entry is processed independently with per-job success/failure. CANCEL: pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed feedstock and fees. Pass job_ids=[...] to cancel several at once. RETARGET: pass job_id=\u003cid\u003e with deliver_to=\u003c...\u003e to redirect a queued job's remaining recovered materials to a different store at the same station instead of cancelling it — nothing else about the job changes.\n\n**Example:** `POST /api/v2/spacemolt/recycle` with body `{\"id\":\"iron_plates\",\"quantity\":5}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Must be docked at a base with a recycler facility (auto-routed with preset \"fast\" by default: the soonest-finishing recycler across your own, your faction's, and ALLIED-granted ones (free to you, but queued at external priority), ownership only breaking ties; or pass facility_id, plus optional \"cheap\" to pick the lowest fee you would actually pay (your own and your faction's recyclers are free to you, so they always win), or \"prefer_own\" to keep the job on your own/faction/ally-granted recycler; \"workshop\" doesn't apply — recycling always needs a real recycler facility). 'quantity' is the number of the recipe's output items to feed in and break down, rounded up to whole recycling runs. Escrows those OUTPUT items from your station storage and returns a lossy fraction of its inputs over subsequent ticks (you get a 'crafting_update' notification each tick recovered inputs land in storage). Recycling is always a net loss by design. Use deliver_to=faction for faction storage. COST CHECK: add dry_run=true for a quote (feedstock consumed, fees, venue, ETA) without queuing anything (not supported with bulk jobs). BULK: pass jobs=[{recipe_id, quantity, facility_id?, preset?, deliver_to?, source?}, ...] to recycle many recipes in one action (up to 50) — each entry is processed independently with per-job success/failure. CANCEL: pass job_id=\u003cid\u003e to cancel a queued job and refund its unconsumed feedstock and fees. Pass job_ids=[...] to cancel several at once. RETARGET: pass job_id=\u003cid\u003e with deliver_to=\u003c...\u003e to redirect a queued job's remaining recovered materials to a different store at the same station instead of cancelling it — nothing else about the job changes.\n\n**Example:** `POST /api/v2/spacemolt/recycle` with body `{\"id\":\"iron_plates\",\"quantity\":5}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_recycle",
         "requestBody": {
           "content": {
@@ -48604,7 +48875,7 @@
                     "type": "array"
                   },
                   "preset": {
-                    "description": "Auto-routing preset: 'fast' (fewest ticks, default) picks the best eligible recycler globally, so a busy own recycler may route to an idle public rental. 'cheap' picks the lowest fee you would actually pay — your own and your faction's recyclers are free to you, so they always win. Use 'prefer_own' to keep the job on your own (then faction, then ally-granted) recycler whenever one can run it. Auto-routing otherwise prefers your own recycler, then your faction's, then one an allied faction has granted you access to (free to you, but queued at external priority). 'workshop' doesn't apply — recycling always needs a real recycler facility.",
+                    "description": "Auto-routing preset. 'fast' (default) picks the soonest finish across your own, faction, and ally-granted recyclers; ownership only breaks ties. 'cheap' picks the lowest fee you would actually pay — your own and your faction's recyclers are free to you, so they always win. 'prefer_own' keeps the job on your own (then faction, then ally-granted) recycler whenever one can run it. 'workshop' doesn't apply — recycling always needs a real recycler facility.",
                     "enum": [
                       "fast",
                       "cheap",
@@ -48771,6 +49042,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -48784,6 +49057,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -49318,6 +49593,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -49331,6 +49608,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -49859,6 +50138,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -49872,6 +50153,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -50393,6 +50676,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -50406,6 +50691,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -51018,6 +51305,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -51031,6 +51320,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -51566,6 +51857,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -51579,6 +51872,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -51937,7 +52232,7 @@
     },
     "/api/v2/spacemolt/subscribe_observation": {
       "post": {
-        "description": "Change-feed alternative to polling get_nearby and get_system_agents. Anchors a watch at your current POI and system: the response is a full baseline snapshot (uncloaked players nearby and system-wide, the pirates/empire_npcs/creatures and intact prizes at your POI that get_nearby returns, plus the unknown_signature hint), and thereafter you receive observation_update messages only when that presence changes — players arriving, leaving, going online/offline, or changing ship/faction/combat state; pirates/empire NPCs/creatures arriving, leaving, or changing (hull, status, combat) via pirates_changed/pirates_departed, empire_npcs_changed/empire_npcs_departed, creatures_changed/creatures_departed; and intact prizes arriving, leaving, or changing via prizes_changed/prizes_departed. Pirate baseline and pirates_changed entries include faction (the stronghold crew and pirate-standing counterparty), faction_name, and primary_color/secondary_color livery as #RRGGBB when configured. Avoids re-fetching the full list every tick. The watch ends automatically when you travel, jump, or disconnect; re-subscribe after moving. Cloaked players are hidden, same visibility rules as get_nearby. Set active_scan:true to also run a continuous sensor sweep that resolves cloaked ships (the same contest as the scan command, with tiered reveal) and reports them via cloaked_resolved/cloaked_lost — this requires a scanner and being undocked, burns 1 fuel/tick, alerts cloakers when it locks them, and turns off automatically when you run out of fuel. It replaces looping the scan command to hunt cloaked traffic. Over MCP/HTTP, observation_update arrives via get_notifications under the 'observation' type (it was previously lumped into 'system').\n\n**Example:** `POST /api/v2/spacemolt/subscribe_observation` with body `{\"active_scan\":false}`",
+        "description": "Change-feed alternative to polling get_nearby and get_system_agents. Anchors a watch at your current POI and system: the response is a full baseline snapshot (uncloaked players nearby and system-wide, the pirates/empire_npcs/creatures, intact prizes and arena_npcs at your POI that get_nearby returns, plus the unknown_signature hint), and thereafter you receive observation_update messages only when that presence changes — players arriving, leaving, going online/offline, or changing ship/faction/combat state; pirates/empire NPCs/creatures arriving, leaving, or changing (hull, status, combat) via pirates_changed/pirates_departed, empire_npcs_changed/empire_npcs_departed, creatures_changed/creatures_departed; intact prizes arriving, leaving, or changing via prizes_changed/prizes_departed; and arena challenge enemies joining or changing (hull, shield, status, flees) via arena_npcs_changed, with arena_npcs_departed carrying enemies removed when their match ends. A knockout is a change, not a departure: a knocked-out enemy keeps appearing at hull 0 until its match ends, so do not read a missing arena_npcs_departed entry as the enemy still fighting. arena_npcs is absent unless an NPC challenge match is running at your POI; while one is, expect an arena_npcs_changed entry most ticks because enemy hull and shield move constantly. Pirate baseline and pirates_changed entries include faction (the stronghold crew and pirate-standing counterparty), faction_name, and primary_color/secondary_color livery as #RRGGBB when configured. Avoids re-fetching the full list every tick. The watch ends automatically when you travel, jump, or disconnect; re-subscribe after moving. Cloaked players are hidden, same visibility rules as get_nearby. Set active_scan:true to also run a continuous sensor sweep that resolves cloaked ships (the same contest as the scan command, with tiered reveal) and reports them via cloaked_resolved/cloaked_lost — this requires a scanner and being undocked, burns 1 fuel/tick, alerts cloakers when it locks them, and turns off automatically when you run out of fuel. It replaces looping the scan command to hunt cloaked traffic. Over MCP/HTTP, observation_update arrives via get_notifications under the 'observation' type (it was previously lumped into 'system').\n\n**Example:** `POST /api/v2/spacemolt/subscribe_observation` with body `{\"active_scan\":false}`",
         "operationId": "spacemolt_subscribe_observation",
         "requestBody": {
           "content": {
@@ -51997,6 +52292,24 @@
                   "structuredContent": {
                     "action": "example",
                     "active_scan": false,
+                    "arena_npcs": [
+                      {
+                        "battle_id": "abc123",
+                        "flees": false,
+                        "hull": 1,
+                        "is_boss": false,
+                        "max_hull": 1,
+                        "max_shield": 1,
+                        "name": "example",
+                        "npc_id": "abc123",
+                        "primary_color": "example",
+                        "secondary_color": "example",
+                        "shield": 1,
+                        "ship_class": "example",
+                        "ship_class_name": "example",
+                        "status": "example"
+                      }
+                    ],
                     "cloaked_contacts": [
                       {
                         "cloaked": false,
@@ -52347,6 +52660,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -52360,6 +52675,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -52871,6 +53188,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -52884,6 +53203,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -53363,6 +53684,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -53376,6 +53699,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -53872,6 +54197,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -53885,6 +54212,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -54389,6 +54718,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -54402,6 +54733,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -55030,6 +55363,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -55043,6 +55378,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -55690,6 +56027,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -55703,6 +56042,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -56183,6 +56524,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -56196,6 +56539,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -56698,6 +57043,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -56711,6 +57058,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -57387,6 +57736,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -57400,6 +57751,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -57935,6 +58288,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -57948,6 +58303,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -60899,6 +61256,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -60912,6 +61271,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -62670,6 +63031,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -62683,6 +63046,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -63541,6 +63906,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -63554,6 +63921,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -64149,6 +64518,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -64162,6 +64533,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -64662,6 +65035,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -64675,6 +65050,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -65484,6 +65861,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -65497,6 +65876,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -66106,6 +66487,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -66119,6 +66502,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -66607,6 +66992,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -66620,6 +67007,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -67119,6 +67508,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -67132,6 +67523,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -67639,6 +68032,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -67652,6 +68047,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -68162,6 +68559,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -68175,6 +68574,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -68685,6 +69086,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -68698,6 +69101,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -69449,6 +69854,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -69462,6 +69869,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -69972,6 +70381,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -69985,6 +70396,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -70481,6 +70894,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -70494,6 +70909,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -70984,6 +71401,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -70997,6 +71416,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -71496,6 +71917,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -71509,6 +71932,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -72014,6 +72439,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -72027,6 +72454,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -72513,6 +72942,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -72526,6 +72957,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -73166,6 +73599,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -73179,6 +73614,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -73684,6 +74121,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -73697,6 +74136,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -74470,6 +74911,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -74483,6 +74926,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -74987,6 +75432,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -75000,6 +75447,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -75667,6 +76116,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -75680,6 +76131,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -76210,6 +76663,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -76223,6 +76678,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -76885,6 +77342,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -76898,6 +77357,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -77782,6 +78243,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -77795,6 +78258,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -78425,6 +78890,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -78438,6 +78905,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -78939,6 +79408,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -78952,6 +79423,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -79561,6 +80034,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -79574,6 +80049,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -80225,6 +80702,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -80238,6 +80717,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -80748,6 +81229,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -80761,6 +81244,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -81261,6 +81746,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -81274,6 +81761,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -81778,6 +82267,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -81791,6 +82282,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -82300,6 +82793,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -82313,6 +82808,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -82820,6 +83317,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -82833,6 +83332,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -83340,6 +83841,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -83353,6 +83856,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -83860,6 +84365,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -83873,6 +84380,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -84370,6 +84879,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -84383,6 +84894,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -84883,6 +85396,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -84896,6 +85411,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -85405,6 +85922,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -85418,6 +85937,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -85925,6 +86446,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -85938,6 +86461,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -86445,6 +86970,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -86458,6 +86985,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -86979,6 +87508,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -86992,6 +87523,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -87745,6 +88278,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -87758,6 +88293,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -88447,6 +88984,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -88460,6 +88999,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -88982,6 +89523,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -88995,6 +89538,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -89772,6 +90317,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -89785,6 +90332,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -90273,6 +90822,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -90286,6 +90837,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -90777,6 +91330,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -90790,6 +91345,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -91277,6 +91834,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -91290,6 +91849,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -91789,6 +92350,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -91802,6 +92365,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -92300,6 +92865,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -92313,6 +92880,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -93671,6 +94240,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -93684,6 +94255,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -94175,6 +94748,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -94188,6 +94763,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -94678,6 +95255,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -94691,6 +95270,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -95168,6 +95749,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -95181,6 +95764,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -95917,6 +96502,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -95930,6 +96517,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -96418,6 +97007,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -96431,6 +97022,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -96926,6 +97519,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -96939,6 +97534,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -97428,6 +98025,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -97441,6 +98040,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -97930,6 +98531,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -97943,6 +98546,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -98540,6 +99145,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -98553,6 +99160,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -99280,6 +99889,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -99293,6 +99904,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -100188,6 +100801,10 @@
                         "item_id": {
                           "type": "string"
                         },
+                        "pirate_tier": {
+                          "description": "Optional pirate role ID for kill_pirate objectives; omit to count any role. Must name an existing pirate role.",
+                          "type": "string"
+                        },
                         "quantity": {
                           "type": "integer"
                         },
@@ -100222,10 +100839,11 @@
                         "type": "integer"
                       },
                       "items": {
-                        "items": {
-                          "type": "object"
+                        "additionalProperties": {
+                          "type": "integer"
                         },
-                        "type": "array"
+                        "description": "Item IDs mapped to reward quantities",
+                        "type": "object"
                       }
                     },
                     "type": "object"
@@ -100379,6 +100997,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -100392,6 +101012,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -100893,6 +101515,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -100906,6 +101530,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -101592,6 +102218,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -101605,6 +102233,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -102158,6 +102788,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -102171,6 +102803,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -102717,6 +103351,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -102730,6 +103366,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -103226,6 +103864,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -103239,6 +103879,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -103716,6 +104358,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -103729,6 +104373,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -104204,6 +104850,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -104217,6 +104865,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -104692,6 +105342,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -104705,6 +105357,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -105180,6 +105834,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -105193,6 +105849,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -105749,6 +106407,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -105762,6 +106422,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -106249,6 +106911,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -106262,6 +106926,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -106737,6 +107403,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -106750,6 +107418,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -107358,6 +108028,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -107371,6 +108043,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -108417,6 +109091,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -108430,6 +109106,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -108959,6 +109637,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -108972,6 +109652,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -109477,6 +110159,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -109490,6 +110174,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -110203,6 +110889,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -110216,6 +110904,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -110789,6 +111479,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -110802,6 +111494,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -111359,6 +112053,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -111372,6 +112068,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -112097,6 +112795,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -112110,6 +112810,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -113169,6 +113871,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -113182,6 +113886,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -113746,6 +114452,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -113759,6 +114467,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -114269,6 +114979,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -114282,6 +114994,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -114989,6 +115703,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -115002,6 +115718,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -115493,6 +116211,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -115506,6 +116226,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -116000,6 +116722,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -116013,6 +116737,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -116370,7 +117096,7 @@
     },
     "/api/v2/spacemolt_salvage/service_prize": {
       "post": {
-        "description": "Both ships must be out of combat at the same POI. Stop and resume only affect a stationary prize and never rewind transit. Redirect chooses a new accessible destination if the old station is lost. Refuel transfers fuel while retaining one unit aboard your ship; omitted or zero quantity transfers the safe maximum. Repair consumes repair kits; omitted or zero quantity uses one kit.\n\n**Example:** `POST /api/v2/spacemolt_salvage/service_prize` with body `{\"id\":\"prize_id\",\"service_action\":\"stop\",\"target\":\"station_id\",\"quantity\":1}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Both ships must be out of combat at the same POI. Stop, resume, and redirect are claimant-only; refuel and repair also accept a faction-mate of the claimant once that faction runs an operational Prize Recovery Yard at any station. Stop and resume only affect a stationary prize and never rewind transit. Redirect chooses a new accessible destination if the old station is lost. Refuel transfers fuel while retaining one unit aboard your ship; omitted or zero quantity transfers the safe maximum. Repair consumes repair kits; omitted or zero quantity uses one kit.\n\n**Example:** `POST /api/v2/spacemolt_salvage/service_prize` with body `{\"id\":\"prize_id\",\"service_action\":\"stop\",\"target\":\"station_id\",\"quantity\":1}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_salvage_service_prize",
         "requestBody": {
           "content": {
@@ -116537,6 +117263,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -116550,6 +117278,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -117046,6 +117776,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -117059,6 +117791,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -117559,6 +118293,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -117572,6 +118308,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -118348,6 +119086,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -118361,6 +119101,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -118865,6 +119607,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -118878,6 +119622,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -119370,6 +120116,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -119383,6 +120131,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -119874,6 +120624,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -119887,6 +120639,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -120591,6 +121345,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -120604,6 +121360,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -121285,6 +122043,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -121298,6 +122058,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -121871,6 +122633,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -121884,6 +122648,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -122518,6 +123284,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -122531,6 +123299,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -123030,6 +123800,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -123043,6 +123815,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -123529,6 +124303,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -123542,6 +124318,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -124036,6 +124814,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -124049,6 +124829,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -124555,6 +125337,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -124568,6 +125352,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -125069,6 +125855,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -125082,6 +125870,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -125603,6 +126393,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -125616,6 +126408,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -126123,6 +126917,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -126136,6 +126932,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -126655,6 +127453,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -126668,6 +127468,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -127188,6 +127990,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -127201,6 +128005,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -127874,6 +128680,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -127887,6 +128695,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -128628,6 +129438,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -128641,6 +129453,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -129203,6 +130017,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -129216,6 +130032,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -130264,6 +131082,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -130277,6 +131097,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -130938,6 +131760,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -130951,6 +131775,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -131942,6 +132768,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -131955,6 +132783,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -133470,6 +134300,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -133483,6 +134315,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -133970,6 +134804,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -133983,6 +134819,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -134470,6 +135308,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -134483,6 +135323,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -135358,6 +136200,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -135371,6 +136215,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -135864,6 +136710,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -135877,6 +136725,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -138114,6 +138964,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -138127,6 +138979,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -138639,6 +139493,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -138652,6 +139508,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -139385,6 +140243,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -139398,6 +140258,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -140122,6 +140984,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -140135,6 +140999,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"
@@ -140894,6 +141760,8 @@
                           "max_shield": 1,
                           "name": "example",
                           "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "shield": 1,
                           "status": "example",
                           "tier": "example"
@@ -140907,6 +141775,8 @@
                           "in_combat": false,
                           "offline": false,
                           "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
                           "ship_class": "example",
                           "ship_name": "example",
                           "username": "example"

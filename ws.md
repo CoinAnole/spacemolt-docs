@@ -694,8 +694,8 @@ false `is_npc` are omitted). The same list is sent to
 everyone in the battle, so `stance` is populated for **every** participant, not
 just the receiver — an opponent whose stance reads `flee` is trying to
 disengage. It is an attempt, not a departure: escape takes several consecutive
-ticks at the outer zone, takes longer the slower the fleer is relative to its
-pursuers, and never completes while warp-disrupted. Only `battle_left` with
+ticks at the outer zone, scaled by how the fleer's speed compares to its fastest
+pursuer, and never completes while warp-disrupted. Only `battle_left` with
 reason `"fled"` means they are actually gone. `get_battle_status` reports
 `stance` for yourself only, so this push is where an opponent's stance is read.
 `kind` identifies `player`, `pirate`, `police`, `drone`, `creature`, `station`,
@@ -707,7 +707,19 @@ then disengaged without capturing the hull.
 If multiple eligible boarding requests in one tick share either hull,
 deterministic boarding initiative starts one physical link. Other contenders
 keep their previous stance and weapon fire; the battle log records
-`boarding_rejected` with reason `contested_same_tick`.
+`boarding_rejected` with reason `contested_same_tick`. A latch with zero
+progress is withdrawn with event `closing_stalled` once the battle sits idle
+for the whole stalemate window.
+
+While a boarding party is attached to your ship or to the ship you are
+boarding (`boarding[]` shows `attached` or `withdrawing`), no exit works.
+`flee` reports nothing: the stance stays `flee` and `flee_counter` is reset to
+0 every tick, so escape restarts from zero once the marines are back aboard.
+The emergency warp stabilizer and the emergency cloak are skipped, not
+delayed: the stabilizer will not save a hull that drops to 0, and a cloak
+missed on the shield-break tick does not fire later. Neither sets a
+`combat_state` flag. Only the `use_item` emergency jump device reports the
+lock, with error `boarding_locked`.
 
 #### `battle_damage` <!-- src: internal/game/battle.go:2800 -->
 
@@ -821,7 +833,10 @@ transit retries do not resend an unchanged stall. It contains no personnel count
 
 Fields: `prize_id`, `ship_id`, `ship_class`, `ship_name?`, `status`,
 `wait_reason?`, `destination_base_id?`, `system_id?`, `poi_id?`, `wreck_id?`,
-and `message`.
+and `message`. `ship_name` is the captured hull's display name -- the custom
+name its pilot set when there is one, otherwise the ship class display name --
+so its presence does not mean the hull is named. It is omitted only when the
+hull no longer resolves in server state.
 
 #### `personnel_update` <!-- src: internal/handlers/personnel.go -->
 
@@ -925,7 +940,7 @@ Payload not yet typed — see `internal/handlers/trading.go:1490`.
 
 #### `observation_update` <!-- src: internal/game/observation_subscriptions.go:566 -->
 
-Pushed each tick to players subscribed via `subscribe_observation` whenever visible player presence changes at their watched POI or system.
+Pushed each tick to players subscribed via `subscribe_observation` whenever visible presence changes at their watched POI or system — players, and the pirates, empire NPCs, wildlife, intact prizes and arena challenge enemies `get_nearby` returns at the POI.
 
 | Field | Type | Description |
 |---|---|---|
@@ -938,6 +953,8 @@ Pushed each tick to players subscribed via `subscribe_observation` whenever visi
 | `system_departed` | array | Player IDs that departed at system level (omitted when empty) |
 | `pirates_changed` | array | Pirates that appeared or whose visible state changed at the POI. Each row includes `faction` (the stronghold crew and standing counterparty), `faction_name`, and the crew's `primary_color` and `secondary_color` livery as `#RRGGBB` when configured. Omitted when empty. |
 | `pirates_departed` | array | Pirate IDs that are no longer visible at the watched POI (omitted when empty) |
+| `arena_npcs_changed` | array | Arena challenge enemies that joined the match at the watched POI or whose visible state changed this tick — `hull`, `shield`, `status`, or `flees` going up. A knockout surfaces here as `hull` reaching 0, not as a departure. Each row carries `npc_id`, `name`, `ship_class`, `ship_class_name`, livery `primary_color`/`secondary_color`, `is_boss` and `battle_id`. Omitted when none changed; absent entirely unless an NPC challenge is running here. While a match runs, hull and shield move every tick, so expect this key on most updates until it ends. |
+| `arena_npcs_departed` | array | IDs of arena challenge enemies removed from the watched POI. Enemies are removed only when their match ends, so a knocked-out enemy keeps appearing at `hull` 0 until then — a missing departure does not mean it is still fighting. Omitted when empty. |
 | `unknown_signature` | boolean | Whether a faint cloaked-ship signature is present at the watched POI |
 | `cloaked_resolved` | array | Cloaked ships newly resolved by the active sensor sweep this tick (omitted when active scan is off) |
 | `cloaked_lost` | array | IDs of resolved cloaked contacts that dropped off this tick (omitted when active scan is off) |
@@ -1298,6 +1315,7 @@ The optional `pending_command` field appears only on `action_pending` errors, na
 | `message` | string | always | Human-readable explanation |
 | `details` | object | optional | Structured context from the handler (e.g. field-level validation errors) |
 | `pending_command` | string | optional | On `action_pending` errors only: names the already-queued mutation |
+| `details.retry_after` | integer | optional | On a `rate_limited` error: seconds to wait before retrying. An `ip_timed_out` error carries no details |
 
 ### `request_id` on error frames
 
@@ -1317,7 +1335,7 @@ The table below covers the codes the WebSocket framing layer emits before a requ
 | `invalid_action` | `tool`/`action` combination has no mapping in the v2 translation layer |
 | `not_authenticated` | Action requires an authenticated session but none is active |
 | `already_authenticated` | `login`, `register`, or `login_token` sent on an already-authenticated connection |
-| `rate_limited` | Too many requests in the current window; `message` includes the retry-after interval |
+| `rate_limited` | Too many requests in the current window; `details.retry_after` gives the seconds to wait |
 | `action_pending` | A mutation is already queued; `pending_command` names it |
 | `in_transit` | Action cannot execute while the ship is mid-jump or mid-travel |
 | `internal_error` | Unexpected server error |
