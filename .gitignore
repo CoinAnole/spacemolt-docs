@@ -2,3 +2,6 @@
 # conditional (If-None-Match) fetches of large static assets.
 # These are regenerated locally and should not be committed.
 .*.etag
+
+# Local Grok Build session/skill files
+.grok/
