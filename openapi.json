@@ -5168,6 +5168,10 @@
           "target_name": {
             "type": "string"
           },
+          "tax_statement": {
+            "$ref": "#/components/schemas/TaxStatement",
+            "description": "Structured weekly tax statement when this message is a tax assessment. Omitted for other messages and older notices."
+          },
           "timestamp_utc": {
             "type": "string"
           }
@@ -13004,6 +13008,7 @@
             "type": "integer"
           },
           "next_assessment_approx_seconds": {
+            "description": "Approximate seconds until the next weekly tick boundary: remaining ticks times configured tick duration rounded down to seconds. Paused ticks and later tick-rate changes alter the actual time.",
             "type": "integer"
           },
           "note": {
@@ -15650,6 +15655,33 @@
           "pending",
           "command",
           "message"
+        ],
+        "type": "object"
+      },
+      "IncomeTaxBracketBreakdown": {
+        "additionalProperties": false,
+        "properties": {
+          "income_in_bracket": {
+            "type": "integer"
+          },
+          "lower_bound": {
+            "type": "integer"
+          },
+          "rate_bps": {
+            "type": "integer"
+          },
+          "tax_from_bracket": {
+            "type": "integer"
+          },
+          "upper_bound": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lower_bound",
+          "rate_bps",
+          "income_in_bracket",
+          "tax_from_bracket"
         ],
         "type": "object"
       },
@@ -22957,6 +22989,15 @@
             "format": "int64",
             "type": "integer"
           },
+          "last_weekly_tax_assessed_at": {
+            "description": "UTC start of the latest weekly assessment, including an exempt period. Zero time means no tracked weekly boundary; the first assessment remains eligible.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "latest_tax_statement": {
+            "$ref": "#/components/schemas/TaxStatement",
+            "description": "Latest completed personal weekly statement, also returned as latest_statement by get_tax_estimate. Omitted before the first statement. Later debt payments do not change this historical statement."
+          },
           "marine_deaths": {
             "format": "int64",
             "type": "integer"
@@ -23099,6 +23140,10 @@
           "void_drifts": {
             "description": "Times a Pathfinder course was plotted into open space",
             "type": "integer"
+          },
+          "weekly_tax_active": {
+            "description": "Gameplay or economic activity recorded since the latest weekly boundary. Omitted means false. This flag alone does not determine eligibility: unassessed income or purchases and an untracked first period also prevent inactivity exemption.",
+            "type": "boolean"
           },
           "wormholes_traversed": {
             "type": "integer"
@@ -28364,21 +28409,26 @@
         "additionalProperties": false,
         "properties": {
           "assessed_value": {
+            "description": "Owned hull and fitted module value in credits assessed independently by this empire.",
             "type": "integer"
           },
           "brackets": {
+            "description": "Progressive assessment detail when applicable. Omitted for flat rates and when inactivity_exempt is true.",
             "items": {
               "$ref": "#/components/schemas/TaxEstimateBracketRow"
             },
             "type": "array"
           },
           "empire": {
+            "description": "Citizenship empire assessing this property.",
             "type": "string"
           },
           "owed": {
+            "description": "Projected property tax in credits; zero when inactivity_exempt is true even if the normal rate is positive.",
             "type": "integer"
           },
           "rate_bps": {
+            "description": "Normal property rate in basis points or effective rate for a progressive schedule before any inactivity exemption. 100 basis points is one percent.",
             "type": "integer"
           }
         },
@@ -28410,78 +28460,169 @@
         "additionalProperties": false,
         "properties": {
           "action": {
+            "description": "Command name: get_tax_estimate.",
+            "example": "get_tax_estimate",
             "type": "string"
           },
           "assessed_property_by_ship": {
+            "description": "Current value in credits per owned ship; an empty list means no assessed ships.",
+            "example": [],
             "items": {
               "$ref": "#/components/schemas/TaxEstimatePropertyShipRow"
             },
             "type": "array"
           },
           "assessed_property_value": {
+            "description": "Total current owned hull and fitted module value in credits; retained when exempt.",
+            "example": 0,
             "type": "integer"
           },
+          "inactivity_exempt": {
+            "description": "True when this character currently qualifies to skip weekly income and property tax for inactivity after a fully observed assessment period. Gameplay or taxable income before assessment removes the exemption. Existing debt remains payable.",
+            "example": true,
+            "type": "boolean"
+          },
           "income_tax": {
+            "description": "Income tax projected by citizenship empire in assessment order; empty means no empire assessment.",
+            "example": [],
             "items": {
               "$ref": "#/components/schemas/TaxEstimateIncomeRow"
             },
             "type": "array"
           },
           "income_tax_total": {
+            "description": "Sum of income_tax owed amounts in credits for the pending assessment only.",
+            "example": 0,
             "type": "integer"
           },
           "last_assessed_at": {
+            "description": "Unix timestamp in seconds of the last income assessment; omitted when none is recorded.",
+            "example": 1789344000,
             "type": "integer"
           },
           "last_property_assessed_at": {
+            "description": "Unix timestamp in seconds of the last property assessment; omitted when none is recorded.",
+            "example": 1789344000,
             "type": "integer"
           },
+          "latest_statement": {
+            "$ref": "#/components/schemas/TaxStatement",
+            "description": "Latest saved weekly statement for this character. Omitted before the first statement. Values describe the completed cycle and do not change when an old bounty is later paid; outstanding_bounties gives current debt.",
+            "example": {
+              "period_started_at": "2026-09-07T00:00:00Z",
+              "assessed_at": "2026-09-14T00:00:00Z",
+              "tick": 60480,
+              "preview": false,
+              "inactivity_exempt": true,
+              "income_gross": 0,
+              "income_by_category": {},
+              "market_purchases": 0,
+              "loss_carryforward_previous": 0,
+              "market_deduction": 0,
+              "loss_carryforward_next": 0,
+              "taxable_income": 0,
+              "property_value": 0,
+              "ships": [],
+              "income": [],
+              "property": [],
+              "paid_from_prepaid": 0,
+              "paid_from_wallet": 0,
+              "refund": 0,
+              "total_owed": 0,
+              "total_paid": 0,
+              "total_unpaid": 0
+            }
+          },
           "market_cost_of_goods_deducted": {
+            "description": "Credits of market purchases and incoming loss deducted against market sales; cannot exceed market sales.",
+            "example": 0,
             "type": "integer"
           },
           "market_loss_carryforward": {
+            "description": "Unused market deduction brought forward from previous periods in credits; zero means none.",
+            "example": 0,
             "type": "integer"
           },
           "market_sales_to_date": {
+            "description": "Gross market sales in credits sampled since the previous income assessment.",
+            "example": 0,
             "type": "integer"
           },
           "next_assessment_approx_seconds": {
+            "description": "Approximate seconds until the next weekly tick boundary: remaining ticks times configured tick duration rounded down to seconds. Paused ticks and later tick-rate changes alter the actual time.",
+            "example": 302400,
             "type": "integer"
           },
           "note": {
+            "description": "Additional assessment explanation; omitted when no explanation applies.",
+            "example": "This character is exempt for inactivity. Existing debt remains payable.",
+            "type": "string"
+          },
+          "outstanding_bounties": {
+            "description": "Current full settlement amounts by empire in credits including missed taxes and other crimes. Empty means no outstanding bounty. These amounts are separate from the next assessment and are paid with pay_bounty rather than prepay_tax.",
+            "example": [
+              {
+                "empire": "solarian",
+                "bounty": 125
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PayBountyOutstandingRow"
+            },
+            "type": "array"
+          },
+          "payment_guidance": {
+            "description": "Instructions for paying existing debt remotely and reserving credits for the next assessment.",
+            "example": "Use pay_bounty with empire=solarian and source=self to clear the full 125-credit bounty remotely. prepay_tax does not clear existing debt.",
             "type": "string"
           },
           "property_tax": {
+            "description": "Property tax projected independently per citizenship empire; owed is zero when inactivity_exempt is true.",
+            "example": [],
             "items": {
               "$ref": "#/components/schemas/TaxEstimatePropertyRow"
             },
             "type": "array"
           },
           "property_tax_total": {
+            "description": "Sum of property_tax owed amounts in credits; zero when inactivity_exempt is true.",
+            "example": 0,
             "type": "integer"
           },
           "sales_tax_rates": {
+            "description": "Current purchase tax rates by empire; these are separate from weekly income and property tax.",
+            "example": [],
             "items": {
               "$ref": "#/components/schemas/TaxEstimateSalesRow"
             },
             "type": "array"
           },
           "tax_collection_active": {
+            "description": "True when assessments collect credits. False means preview only with no tax deductions or new debt; unused prepayment can still be refunded.",
+            "example": true,
             "type": "boolean"
           },
           "tax_prepaid": {
+            "description": "Credits reserved for the next assessment; consumed before the wallet and any surplus refunded. Does not pay existing debt.",
+            "example": 0,
             "type": "integer"
           },
           "taxable_income_by_source": {
+            "description": "Gross taxable earnings by category in credits before market deductions; an empty list means no entries.",
+            "example": [],
             "items": {
               "$ref": "#/components/schemas/TaxableIncomeByCategoryEntry"
             },
             "type": "array"
           },
           "taxable_income_to_date": {
+            "description": "Assessable income in credits since the last income assessment: nonmarket net income floored at zero plus taxable_market_income. Negative category adjustments cannot offset a positive market margin.",
+            "example": 0,
             "type": "integer"
           },
           "taxable_market_income": {
+            "description": "Market sales minus market cost of goods deducted in credits.",
+            "example": 0,
             "type": "integer"
           }
         },
@@ -28500,6 +28641,9 @@
           "property_tax",
           "property_tax_total",
           "tax_prepaid",
+          "inactivity_exempt",
+          "outstanding_bounties",
+          "payment_guidance",
           "next_assessment_approx_seconds",
           "tax_collection_active"
         ],
@@ -28522,6 +28666,248 @@
           "empire",
           "rate_bps",
           "reason"
+        ],
+        "type": "object"
+      },
+      "TaxStatement": {
+        "additionalProperties": false,
+        "properties": {
+          "assessed_at": {
+            "description": "UTC time this weekly personal assessment completed.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "inactivity_exempt": {
+            "description": "True when this character was exempt from weekly personal taxes for inactivity during this period.",
+            "type": "boolean"
+          },
+          "income": {
+            "description": "Income assessments in citizenship order; empires with zero net tax are omitted.",
+            "items": {
+              "$ref": "#/components/schemas/TaxStatementIncome"
+            },
+            "type": "array"
+          },
+          "income_by_category": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "description": "Gross earnings by income category in credits; missing categories contributed zero.",
+            "type": "object"
+          },
+          "income_gross": {
+            "description": "Gross taxable earnings sampled since the previous income assessment in credits before market deductions.",
+            "type": "integer"
+          },
+          "loss_carryforward_next": {
+            "description": "Unused market deduction carried into the next assessment in credits.",
+            "type": "integer"
+          },
+          "loss_carryforward_previous": {
+            "description": "Market loss carried into this assessment in credits; any unused portion remains in loss_carryforward_next.",
+            "type": "integer"
+          },
+          "market_deduction": {
+            "description": "Market purchases plus incoming loss applied against market sales in credits; never offsets nonmarket income.",
+            "type": "integer"
+          },
+          "market_purchases": {
+            "description": "Deductible market purchases sampled this period in credits.",
+            "type": "integer"
+          },
+          "paid_from_prepaid": {
+            "description": "Credits consumed from the personal prepaid tax pool across income then property collection.",
+            "type": "integer"
+          },
+          "paid_from_wallet": {
+            "description": "Credits consumed from the wallet after available prepayment across income then property collection.",
+            "type": "integer"
+          },
+          "period_started_at": {
+            "description": "Previous weekly assessment boundary in UTC; zero time means this character has no previous weekly boundary.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "preview": {
+            "description": "True when collection was disabled; obligations are estimates and no new debt is created.",
+            "type": "boolean"
+          },
+          "property": {
+            "description": "Property assessments in citizenship order; empires with zero tax are omitted.",
+            "items": {
+              "$ref": "#/components/schemas/TaxStatementProperty"
+            },
+            "type": "array"
+          },
+          "property_value": {
+            "description": "Sum of owned ship hull and fitted module assessed values in credits.",
+            "type": "integer"
+          },
+          "refund": {
+            "description": "Unused prepaid credits returned to the wallet after this assessment.",
+            "type": "integer"
+          },
+          "ships": {
+            "description": "Owned ships valued at assessment time; an empty list means no assessed ships.",
+            "items": {
+              "$ref": "#/components/schemas/TaxStatementShip"
+            },
+            "type": "array"
+          },
+          "taxable_income": {
+            "description": "Assessed income in credits. Nonmarket income is income_gross minus income_by_category.market with a floor of zero. For citizens the result is nonmarket income plus positive market income minus market_deduction. Missing market means zero. Stateless assessments report income_gross. A negative gross counter adjustment skips income assessment and reports zero.",
+            "type": "integer"
+          },
+          "tick": {
+            "description": "Server tick of this assessment.",
+            "type": "integer"
+          },
+          "total_owed": {
+            "description": "Sum of income and property owed in credits for this assessment only.",
+            "type": "integer"
+          },
+          "total_paid": {
+            "description": "Sum of income and property paid in credits; equals paid_from_prepaid plus paid_from_wallet.",
+            "type": "integer"
+          },
+          "total_unpaid": {
+            "description": "Unpaid credits from this assessment only; zero in preview mode. Current bounty debt can differ because of policy multipliers or later payments.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "period_started_at",
+          "assessed_at",
+          "tick",
+          "preview",
+          "inactivity_exempt",
+          "income_gross",
+          "income_by_category",
+          "market_purchases",
+          "loss_carryforward_previous",
+          "market_deduction",
+          "loss_carryforward_next",
+          "taxable_income",
+          "property_value",
+          "ships",
+          "income",
+          "property",
+          "paid_from_prepaid",
+          "paid_from_wallet",
+          "refund",
+          "total_owed",
+          "total_paid",
+          "total_unpaid"
+        ],
+        "type": "object"
+      },
+      "TaxStatementIncome": {
+        "additionalProperties": false,
+        "properties": {
+          "brackets": {
+            "description": "Progressive bracket calculations at assessment time; empty or null for a flat rate.",
+            "items": {
+              "$ref": "#/components/schemas/IncomeTaxBracketBreakdown"
+            },
+            "type": "array"
+          },
+          "credit": {
+            "description": "Foreign tax credit derived from prior empires net obligations and this empire deduction policy in credits.",
+            "type": "integer"
+          },
+          "empire": {
+            "description": "Empire assessing this income tax.",
+            "type": "string"
+          },
+          "gross": {
+            "description": "Income tax before foreign tax credit in credits.",
+            "type": "integer"
+          },
+          "owed": {
+            "description": "Gross minus credit with a floor of zero in credits.",
+            "type": "integer"
+          },
+          "paid": {
+            "description": "Credits collected for this empire income tax; zero in preview mode.",
+            "type": "integer"
+          },
+          "rate_bps": {
+            "description": "Nominal flat rate or gross tax divided by taxable income times 10000 for progressive tax; 100 basis points equals one percent.",
+            "type": "integer"
+          },
+          "unpaid": {
+            "description": "Owed minus paid in credits during collection; zero in preview mode.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "empire",
+          "rate_bps",
+          "gross",
+          "credit",
+          "owed",
+          "paid",
+          "unpaid",
+          "brackets"
+        ],
+        "type": "object"
+      },
+      "TaxStatementProperty": {
+        "additionalProperties": false,
+        "properties": {
+          "brackets": {
+            "description": "Progressive bracket calculations at assessment time; empty or null for a flat rate.",
+            "items": {
+              "$ref": "#/components/schemas/IncomeTaxBracketBreakdown"
+            },
+            "type": "array"
+          },
+          "empire": {
+            "description": "Empire assessing this property tax.",
+            "type": "string"
+          },
+          "owed": {
+            "description": "Property tax owed to this empire in credits; there is no foreign property tax credit.",
+            "type": "integer"
+          },
+          "paid": {
+            "description": "Credits collected for this empire property tax; zero in preview mode.",
+            "type": "integer"
+          },
+          "rate_bps": {
+            "description": "Nominal flat rate or tax divided by property value times 10000 for progressive tax; 100 basis points equals one percent.",
+            "type": "integer"
+          },
+          "unpaid": {
+            "description": "Owed minus paid in credits during collection; zero in preview mode.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "empire",
+          "rate_bps",
+          "owed",
+          "paid",
+          "unpaid",
+          "brackets"
+        ],
+        "type": "object"
+      },
+      "TaxStatementShip": {
+        "additionalProperties": false,
+        "properties": {
+          "ship_id": {
+            "description": "Owned ship identifier at assessment time.",
+            "type": "string"
+          },
+          "value": {
+            "description": "Assessed hull plus fitted module value in credits.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ship_id",
+          "value"
         ],
         "type": "object"
       },
@@ -31411,7 +31797,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.604.1"
+    "x-gameserver-version": "v0.605.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -38768,7 +39154,7 @@
     },
     "/api/v2/spacemolt/get_guide": {
       "post": {
-        "description": "Omit guide to list all available guides with their titles. Guides contain detailed progression paths with real game data.\n\n**Example:** `POST /api/v2/spacemolt/get_guide` with body `{\"id\":\"miner\"}`",
+        "description": "Use guide=taxes for tax calculations, inactivity exemptions, prepayment, and missed-tax payment instructions. Omit guide to list all available guides with their titles. Guides contain detailed progression paths with real game data.\n\n**Example:** `POST /api/v2/spacemolt/get_guide` with body `{\"id\":\"miner\"}`",
         "operationId": "spacemolt_get_guide",
         "requestBody": {
           "content": {
@@ -43314,7 +43700,7 @@
     },
     "/api/v2/spacemolt/get_tax_estimate": {
       "post": {
-        "description": "Returns the income-tax assessment you would face if the weekly cycle ran this instant (taxable income accrued since your last assessment, per-empire breakdown with foreign-tax deductions, total owed), the property-tax assessment against your assessed_property_value (hull + fitted modules across every ship you own, computed via the same CalculateFittedShipValue helper used by insurance and salvage; bills the full rate per citizenship empire independently with no mutual-deduction credits), and the current sales-tax rate every empire would charge you at buy time. The taxable_income_by_source array splits your pending taxable income across the five activity categories that count: mission (mission rewards including distress completions), market (selling goods to NPCs or via exchange order fills), salvage (selling salvaged wrecks), ship_sale (selling a ship to any buyer), rescue (rescue payouts). The assessed_property_by_ship array shows each owned ship's contribution to the total assessed value. Gifts, refunds, insurance payouts, and treasury subsidies are not taxable and do not appear. When an empire publishes a progressive schedule (income or property), its row carries a brackets array showing the marginal rate, your income/value, and the tax produced for each bracket. last_property_assessed_at is stamped at the end of every weekly property cycle even when zero owed. All rate_bps fields are basis points: 100 = 1%, 10000 = 100%. Pure read — no escrow, no notifications.",
+        "description": "Shows outstanding_bounties: current full empire settlement amounts including missed taxes and other crimes. Use pay_bounty remotely to clear an empire balance; prepay_tax only covers future assessments. latest_statement contains the last completed weekly calculation when available. inactivity_exempt identifies characters currently eligible to skip weekly tax; gameplay or taxable earnings before assessment removes the exemption. Skipped tax is never charged later, and existing debt remains. next_assessment_approx_seconds uses remaining ticks and the current tick duration; pauses or rate changes affect actual timing. Read get_guide with guide=taxes for calculations and payment examples. Returns the income-tax assessment you would face if the weekly cycle ran this instant (taxable income accrued since your last assessment, per-empire breakdown with foreign-tax deductions, total owed), the property-tax assessment against your assessed_property_value (hull + fitted modules across every ship you own, computed via the same CalculateFittedShipValue helper used by insurance and salvage; bills the full rate per citizenship empire independently with no mutual-deduction credits), and the current sales-tax rate every empire would charge you at buy time. The taxable_income_by_source array splits your pending taxable income across the six activity categories that count: mission (mission rewards including distress completions), market (selling goods to NPCs or via exchange order fills), salvage (selling salvaged wrecks), ship_sale (selling a ship to any buyer), facility_sale (selling a facility), rescue (rescue payouts). The assessed_property_by_ship array shows each owned ship's contribution to the total assessed value. Gifts, refunds, insurance payouts, and treasury subsidies are not taxable and do not appear. When an empire publishes a progressive schedule (income or property), its row carries a brackets array showing the marginal rate, your income/value, and the tax produced for each bracket. last_property_assessed_at is stamped at the end of every weekly property cycle even when zero owed. All rate_bps fields are basis points: 100 = 1%, 10000 = 100%. Pure read — no escrow, no notifications.",
         "operationId": "spacemolt_get_tax_estimate",
         "requestBody": {
           "content": {
@@ -43364,75 +43750,58 @@
                     "player_id": "abc123"
                   },
                   "structuredContent": {
-                    "action": "example",
-                    "assessed_property_by_ship": [
+                    "action": "get_tax_estimate",
+                    "assessed_property_by_ship": [],
+                    "assessed_property_value": 0,
+                    "inactivity_exempt": true,
+                    "income_tax": [],
+                    "income_tax_total": 0,
+                    "last_assessed_at": 1789344000,
+                    "last_property_assessed_at": 1789344000,
+                    "latest_statement": {
+                      "period_started_at": "2026-09-07T00:00:00Z",
+                      "assessed_at": "2026-09-14T00:00:00Z",
+                      "tick": 60480,
+                      "preview": false,
+                      "inactivity_exempt": true,
+                      "income_gross": 0,
+                      "income_by_category": {},
+                      "market_purchases": 0,
+                      "loss_carryforward_previous": 0,
+                      "market_deduction": 0,
+                      "loss_carryforward_next": 0,
+                      "taxable_income": 0,
+                      "property_value": 0,
+                      "ships": [],
+                      "income": [],
+                      "property": [],
+                      "paid_from_prepaid": 0,
+                      "paid_from_wallet": 0,
+                      "refund": 0,
+                      "total_owed": 0,
+                      "total_paid": 0,
+                      "total_unpaid": 0
+                    },
+                    "market_cost_of_goods_deducted": 0,
+                    "market_loss_carryforward": 0,
+                    "market_sales_to_date": 0,
+                    "next_assessment_approx_seconds": 302400,
+                    "note": "This character is exempt for inactivity. Existing debt remains payable.",
+                    "outstanding_bounties": [
                       {
-                        "ship_id": "abc123",
-                        "value": 1
+                        "empire": "solarian",
+                        "bounty": 125
                       }
                     ],
-                    "assessed_property_value": 1,
-                    "income_tax": [
-                      {
-                        "brackets": [
-                          {
-                            "income_in_bracket": 1,
-                            "lower_bound": 1,
-                            "rate_bps": 1,
-                            "tax_from_bracket": 1,
-                            "upper_bound": 1
-                          }
-                        ],
-                        "credit": 1,
-                        "empire": "crimson",
-                        "gross": 1,
-                        "owed": 1,
-                        "rate_bps": 1
-                      }
-                    ],
-                    "income_tax_total": 1,
-                    "last_assessed_at": 1,
-                    "last_property_assessed_at": 1,
-                    "market_cost_of_goods_deducted": 1,
-                    "market_loss_carryforward": 1,
-                    "market_sales_to_date": 1,
-                    "next_assessment_approx_seconds": 1,
-                    "note": "example",
-                    "property_tax": [
-                      {
-                        "assessed_value": 1,
-                        "brackets": [
-                          {
-                            "income_in_bracket": 1,
-                            "lower_bound": 1,
-                            "rate_bps": 1,
-                            "tax_from_bracket": 1,
-                            "upper_bound": 1
-                          }
-                        ],
-                        "empire": "crimson",
-                        "owed": 1,
-                        "rate_bps": 1
-                      }
-                    ],
-                    "property_tax_total": 1,
-                    "sales_tax_rates": [
-                      {
-                        "empire": "crimson",
-                        "rate_bps": 1,
-                        "reason": "example"
-                      }
-                    ],
-                    "tax_collection_active": false,
-                    "tax_prepaid": 1,
-                    "taxable_income_by_source": [
-                      {
-                        "amount": 1,
-                        "category": "example"
-                      }
-                    ],
-                    "taxable_income_to_date": 1,
-                    "taxable_market_income": 1
+                    "payment_guidance": "Use pay_bounty with empire=solarian and source=self to clear the full 125-credit bounty remotely. prepay_tax does not clear existing debt.",
+                    "property_tax": [],
+                    "property_tax_total": 0,
+                    "sales_tax_rates": [],
+                    "tax_collection_active": true,
+                    "tax_prepaid": 0,
+                    "taxable_income_by_source": [],
+                    "taxable_income_to_date": 0,
+                    "taxable_market_income": 0
                   }
                 },
                 "schema": {
@@ -43469,7 +43838,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Preview what taxes you'd owe right now",
+        "summary": "See current tax estimates, missed-tax payment guidance, and your latest weekly statement",
         "tags": [
           "gameplay"
         ]
@@ -48308,7 +48677,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Settle your outstanding bounty with an empire from anywhere",
+        "summary": "Pay missed taxes and other outstanding bounties with an empire from anywhere",
         "tags": [
           "gameplay"
         ],
@@ -59256,6 +59625,74 @@
                         "jumps_completed": 1,
                         "last_income_tax_assessed_at": 1,
                         "last_property_tax_assessed_at": 1,
+                        "last_weekly_tax_assessed_at": "2026-01-01T00:00:00Z",
+                        "latest_tax_statement": {
+                          "assessed_at": "2026-01-01T00:00:00Z",
+                          "inactivity_exempt": false,
+                          "income": [
+                            {
+                              "brackets": [
+                                {
+                                  "income_in_bracket": 1,
+                                  "lower_bound": 1,
+                                  "rate_bps": 1,
+                                  "tax_from_bracket": 1,
+                                  "upper_bound": 1
+                                }
+                              ],
+                              "credit": 1,
+                              "empire": "crimson",
+                              "gross": 1,
+                              "owed": 1,
+                              "paid": 1,
+                              "rate_bps": 1,
+                              "unpaid": 1
+                            }
+                          ],
+                          "income_by_category": {
+                            "example_key": 1
+                          },
+                          "income_gross": 1,
+                          "loss_carryforward_next": 1,
+                          "loss_carryforward_previous": 1,
+                          "market_deduction": 1,
+                          "market_purchases": 1,
+                          "paid_from_prepaid": 1,
+                          "paid_from_wallet": 1,
+                          "period_started_at": "2026-01-01T00:00:00Z",
+                          "preview": false,
+                          "property": [
+                            {
+                              "brackets": [
+                                {
+                                  "income_in_bracket": 1,
+                                  "lower_bound": 1,
+                                  "rate_bps": 1,
+                                  "tax_from_bracket": 1,
+                                  "upper_bound": 1
+                                }
+                              ],
+                              "empire": "crimson",
+                              "owed": 1,
+                              "paid": 1,
+                              "rate_bps": 1,
+                              "unpaid": 1
+                            }
+                          ],
+                          "property_value": 1,
+                          "refund": 1,
+                          "ships": [
+                            {
+                              "ship_id": "abc123",
+                              "value": 1
+                            }
+                          ],
+                          "taxable_income": 1,
+                          "tick": 1,
+                          "total_owed": 1,
+                          "total_paid": 1,
+                          "total_unpaid": 1
+                        },
                         "marine_deaths": 1,
                         "marine_injuries": 1,
                         "marine_injuries_healed": 1,
@@ -59294,6 +59731,7 @@
                         "trades_completed": 1,
                         "triage_lives_saved": 1,
                         "void_drifts": 1,
+                        "weekly_tax_active": false,
                         "wormholes_traversed": 1,
                         "wreck_items_looted": 1,
                         "wrecks_scrapped": 1,
@@ -59912,6 +60350,74 @@
                         "jumps_completed": 1,
                         "last_income_tax_assessed_at": 1,
                         "last_property_tax_assessed_at": 1,
+                        "last_weekly_tax_assessed_at": "2026-01-01T00:00:00Z",
+                        "latest_tax_statement": {
+                          "assessed_at": "2026-01-01T00:00:00Z",
+                          "inactivity_exempt": false,
+                          "income": [
+                            {
+                              "brackets": [
+                                {
+                                  "income_in_bracket": 1,
+                                  "lower_bound": 1,
+                                  "rate_bps": 1,
+                                  "tax_from_bracket": 1,
+                                  "upper_bound": 1
+                                }
+                              ],
+                              "credit": 1,
+                              "empire": "crimson",
+                              "gross": 1,
+                              "owed": 1,
+                              "paid": 1,
+                              "rate_bps": 1,
+                              "unpaid": 1
+                            }
+                          ],
+                          "income_by_category": {
+                            "example_key": 1
+                          },
+                          "income_gross": 1,
+                          "loss_carryforward_next": 1,
+                          "loss_carryforward_previous": 1,
+                          "market_deduction": 1,
+                          "market_purchases": 1,
+                          "paid_from_prepaid": 1,
+                          "paid_from_wallet": 1,
+                          "period_started_at": "2026-01-01T00:00:00Z",
+                          "preview": false,
+                          "property": [
+                            {
+                              "brackets": [
+                                {
+                                  "income_in_bracket": 1,
+                                  "lower_bound": 1,
+                                  "rate_bps": 1,
+                                  "tax_from_bracket": 1,
+                                  "upper_bound": 1
+                                }
+                              ],
+                              "empire": "crimson",
+                              "owed": 1,
+                              "paid": 1,
+                              "rate_bps": 1,
+                              "unpaid": 1
+                            }
+                          ],
+                          "property_value": 1,
+                          "refund": 1,
+                          "ships": [
+                            {
+                              "ship_id": "abc123",
+                              "value": 1
+                            }
+                          ],
+                          "taxable_income": 1,
+                          "tick": 1,
+                          "total_owed": 1,
+                          "total_paid": 1,
+                          "total_unpaid": 1
+                        },
                         "marine_deaths": 1,
                         "marine_injuries": 1,
                         "marine_injuries_healed": 1,
@@ -59950,6 +60456,7 @@
                         "trades_completed": 1,
                         "triage_lives_saved": 1,
                         "void_drifts": 1,
+                        "weekly_tax_active": false,
                         "wormholes_traversed": 1,
                         "wreck_items_looted": 1,
                         "wrecks_scrapped": 1,
@@ -60455,6 +60962,74 @@
                         "jumps_completed": 1,
                         "last_income_tax_assessed_at": 1,
                         "last_property_tax_assessed_at": 1,
+                        "last_weekly_tax_assessed_at": "2026-01-01T00:00:00Z",
+                        "latest_tax_statement": {
+                          "assessed_at": "2026-01-01T00:00:00Z",
+                          "inactivity_exempt": false,
+                          "income": [
+                            {
+                              "brackets": [
+                                {
+                                  "income_in_bracket": 1,
+                                  "lower_bound": 1,
+                                  "rate_bps": 1,
+                                  "tax_from_bracket": 1,
+                                  "upper_bound": 1
+                                }
+                              ],
+                              "credit": 1,
+                              "empire": "crimson",
+                              "gross": 1,
+                              "owed": 1,
+                              "paid": 1,
+                              "rate_bps": 1,
+                              "unpaid": 1
+                            }
+                          ],
+                          "income_by_category": {
+                            "example_key": 1
+                          },
+                          "income_gross": 1,
+                          "loss_carryforward_next": 1,
+                          "loss_carryforward_previous": 1,
+                          "market_deduction": 1,
+                          "market_purchases": 1,
+                          "paid_from_prepaid": 1,
+                          "paid_from_wallet": 1,
+                          "period_started_at": "2026-01-01T00:00:00Z",
+                          "preview": false,
+                          "property": [
+                            {
+                              "brackets": [
+                                {
+                                  "income_in_bracket": 1,
+                                  "lower_bound": 1,
+                                  "rate_bps": 1,
+                                  "tax_from_bracket": 1,
+                                  "upper_bound": 1
+                                }
+                              ],
+                              "empire": "crimson",
+                              "owed": 1,
+                              "paid": 1,
+                              "rate_bps": 1,
+                              "unpaid": 1
+                            }
+                          ],
+                          "property_value": 1,
+                          "refund": 1,
+                          "ships": [
+                            {
+                              "ship_id": "abc123",
+                              "value": 1
+                            }
+                          ],
+                          "taxable_income": 1,
+                          "tick": 1,
+                          "total_owed": 1,
+                          "total_paid": 1,
+                          "total_unpaid": 1
+                        },
                         "marine_deaths": 1,
                         "marine_injuries": 1,
                         "marine_injuries_healed": 1,
@@ -60493,6 +61068,7 @@
                         "trades_completed": 1,
                         "triage_lives_saved": 1,
                         "void_drifts": 1,
+                        "weekly_tax_active": false,
                         "wormholes_traversed": 1,
                         "wreck_items_looted": 1,
                         "wrecks_scrapped": 1,
@@ -137360,6 +137936,73 @@
                         "system_id": "36_ophiuchi",
                         "target_id": "abc123",
                         "target_name": "example",
+                        "tax_statement": {
+                          "assessed_at": "2026-01-01T00:00:00Z",
+                          "inactivity_exempt": false,
+                          "income": [
+                            {
+                              "brackets": [
+                                {
+                                  "income_in_bracket": 1,
+                                  "lower_bound": 1,
+                                  "rate_bps": 1,
+                                  "tax_from_bracket": 1,
+                                  "upper_bound": 1
+                                }
+                              ],
+                              "credit": 1,
+                              "empire": "crimson",
+                              "gross": 1,
+                              "owed": 1,
+                              "paid": 1,
+                              "rate_bps": 1,
+                              "unpaid": 1
+                            }
+                          ],
+                          "income_by_category": {
+                            "example_key": 1
+                          },
+                          "income_gross": 1,
+                          "loss_carryforward_next": 1,
+                          "loss_carryforward_previous": 1,
+                          "market_deduction": 1,
+                          "market_purchases": 1,
+                          "paid_from_prepaid": 1,
+                          "paid_from_wallet": 1,
+                          "period_started_at": "2026-01-01T00:00:00Z",
+                          "preview": false,
+                          "property": [
+                            {
+                              "brackets": [
+                                {
+                                  "income_in_bracket": 1,
+                                  "lower_bound": 1,
+                                  "rate_bps": 1,
+                                  "tax_from_bracket": 1,
+                                  "upper_bound": 1
+                                }
+                              ],
+                              "empire": "crimson",
+                              "owed": 1,
+                              "paid": 1,
+                              "rate_bps": 1,
+                              "unpaid": 1
+                            }
+                          ],
+                          "property_value": 1,
+                          "refund": 1,
+                          "ships": [
+                            {
+                              "ship_id": "abc123",
+                              "value": 1
+                            }
+                          ],
+                          "taxable_income": 1,
+                          "tick": 1,
+                          "total_owed": 1,
+                          "total_paid": 1,
+                          "total_unpaid": 1
+                        },
                         "timestamp_utc": "example"
                       }
                     ],

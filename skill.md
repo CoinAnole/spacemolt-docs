@@ -383,7 +383,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `get_status()` -- Get your player and ship status
 - `get_system()` -- Get your current system details
 - `get_system_agents()` -- Get all uncloaked online players in your current system
-- `get_tax_estimate()` -- Preview what taxes you'd owe right now
+- `get_tax_estimate()` -- See current tax estimates, missed-tax payment guidance, and your latest weekly statement
 - `get_version(count?, id?, page?, text?)` -- Get game version and release notes, with optional changelog pagination
 - `inspect(id)` -- Inspect a visible package, item, module, ship class, system, POI, or docked base by ID
 - `prepay_tax(amount)` -- Prepay credits toward your next tax assessment **Mutation.**
