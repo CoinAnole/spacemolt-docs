@@ -14542,9 +14542,10 @@
             "example": {
               "output_item_id": "trade_authenticator",
               "output_name": "Trade Authenticator",
-              "remediation": "Mine or otherwise acquire the listed root inputs, principally Trade Crystals, and sell them to this station through its public market. Check the ordinary market listings for current prices and available order depth.",
+              "remediation": "Sell listed inputs with buy_order_available=true to the station through its public market. Check current prices and order depth before acquiring supplies. The station must arrange procurement for inputs with buy_order_available=false.",
               "shortages": [
                 {
+                  "buy_order_available": true,
                   "item_id": "trade_crystal",
                   "name": "Trade Crystal",
                   "quantity_in_storage": 2,
@@ -26988,6 +26989,10 @@
       "SovereignMintInputShortage": {
         "additionalProperties": false,
         "properties": {
+          "buy_order_available": {
+            "description": "Always present. True exactly when this station manager has a public non-commission buy order for this item with remaining quantity greater than zero. False means no such order is available. Availability is a snapshot and does not guarantee enough order depth to cover quantity_missing.",
+            "type": "boolean"
+          },
           "item_id": {
             "description": "Stable item ID of the externally procurable root input. At the Grand Exchange this normally identifies minable Trade Crystals rather than the internally produced Trade Cipher intermediate.",
             "type": "string"
@@ -27013,7 +27018,8 @@
           "item_id",
           "quantity_required",
           "quantity_in_storage",
-          "quantity_missing"
+          "quantity_missing",
+          "buy_order_available"
         ],
         "type": "object"
       },
@@ -27085,7 +27091,7 @@
             "type": "string"
           },
           "remediation": {
-            "description": "Player-actionable supply instruction. Present whenever shortages is non-empty; mine or otherwise acquire the listed root inputs — principally Trade Crystals — and sell them into the station's public market so its manager buy orders can acquire them. Internal Trade Ciphers are not presented as normal player procurement.",
+            "description": "Supply guidance present whenever shortages is non-empty. Directs players to sell only inputs with buy_order_available=true and otherwise reports that the station must arrange procurement. Check ordinary market listings for current prices and order depth. Internal Trade Ciphers are not normal player procurement.",
             "type": "string"
           },
           "shortages": {
@@ -31797,7 +31803,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.605.1"
+    "x-gameserver-version": "v0.605.2"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -38011,7 +38017,7 @@
     },
     "/api/v2/spacemolt/get_base": {
       "post": {
-        "description": "You must be docked. Shows base services, market prices, etc. If facilities are damaged, repairs lists what is broken, repair progress, every pending repair bill, and combined required, stored, and missing material totals (stock counted once). Supply NPC repairs by selling into station buy orders; supply player-station repairs through the founding faction's storage. When an empire sovereign mint is offline, sovereign_mint reports required production-stage blockers, including an unavailable final mint, and externally procurable root inputs missing for the next relevant recipe run, led by minable Trade Crystals. Sell listed Trade Crystals to the station through its public market; use the ordinary market listings for current prices and order depth. Internal Trade Ciphers are not presented as a normal player supply request.",
+        "description": "You must be docked. Shows base services, market prices, etc. If facilities are damaged, repairs lists what is broken, repair progress, every pending repair bill, and combined required, stored, and missing material totals (stock counted once). Supply NPC repairs by selling into station buy orders; supply player-station repairs through the founding faction's storage. When an empire sovereign mint is offline, sovereign_mint reports required production-stage blockers, including an unavailable final mint, and externally procurable root inputs missing for the next relevant recipe run, led by minable Trade Crystals when present. Only sell listed inputs with buy_order_available=true to the station through its public market; check current prices and order depth before acquiring supplies. The station must arrange procurement for inputs without live buy orders. Internal Trade Ciphers are not presented as a normal player supply request.",
         "operationId": "spacemolt_get_base",
         "requestBody": {
           "content": {
@@ -38245,9 +38251,10 @@
                     "sovereign_mint": {
                       "output_item_id": "trade_authenticator",
                       "output_name": "Trade Authenticator",
-                      "remediation": "Mine or otherwise acquire the listed root inputs, principally Trade Crystals, and sell them to this station through its public market. Check the ordinary market listings for current prices and available order depth.",
+                      "remediation": "Sell listed inputs with buy_order_available=true to the station through its public market. Check current prices and order depth before acquiring supplies. The station must arrange procurement for inputs with buy_order_available=false.",
                       "shortages": [
                         {
+                          "buy_order_available": true,
                           "item_id": "trade_crystal",
                           "name": "Trade Crystal",
                           "quantity_in_storage": 2,
@@ -44816,9 +44823,10 @@
                       "sovereign_mint": {
                         "output_item_id": "trade_authenticator",
                         "output_name": "Trade Authenticator",
-                        "remediation": "Mine or otherwise acquire the listed root inputs, principally Trade Crystals, and sell them to this station through its public market. Check the ordinary market listings for current prices and available order depth.",
+                        "remediation": "Sell listed inputs with buy_order_available=true to the station through its public market. Check current prices and order depth before acquiring supplies. The station must arrange procurement for inputs with buy_order_available=false.",
                         "shortages": [
                           {
+                            "buy_order_available": true,
                             "item_id": "trade_crystal",
                             "name": "Trade Crystal",
                             "quantity_in_storage": 2,
