@@ -1315,7 +1315,7 @@ The optional `pending_command` field appears only on `action_pending` errors, na
 | `message` | string | always | Human-readable explanation |
 | `details` | object | optional | Structured context from the handler (e.g. field-level validation errors) |
 | `pending_command` | string | optional | On `action_pending` errors only: names the already-queued mutation |
-| `details.retry_after` | integer | optional | On a `rate_limited` error: seconds to wait before retrying. An `ip_timed_out` error carries no details |
+| `details.retry_after` | integer | optional | On a `rate_limited` or `ip_timed_out` error: seconds to wait before retrying. Both also carry `details.limit` (the bucket, `ip_timeout` for an IP block) and `details.scope` |
 
 ### `request_id` on error frames
 
