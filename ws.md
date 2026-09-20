@@ -517,7 +517,7 @@ Mute preferences **persist across reconnects and server restarts** — they are 
 
 Caveats worth knowing before muting:
 
-- `chat.emergency` — muting hides the distress ping only; any distress **mission is still assigned** to you.
+- `chat.emergency` — muting hides the distress ping, and with it the `mission_id` you need to claim the rescue. Nothing is assigned to you either way.
 - `battle_events` includes `scan_detected`, so muting it hides "you are being scanned" warnings.
 - `battle_ticker` includes `base_raid_update`, so a base owner muting it loses live raid progress (the terminal `base_destroyed` frame still arrives — it is never mutable).
 
@@ -1136,8 +1136,11 @@ Pushed to recipients when a chat message is sent on any channel (system, local, 
 | Field | Type | Description |
 |---|---|---|
 | `id` | string | Message ID |
-| `channel` | string | Channel: `global`, `system`, `local`, `faction`, `private`, `admin` |
+| `channel` | string | Channel: `global`, `system`, `local`, `faction`, `private`, `admin`, `emergency` |
 | `sender_id` | string | Sender player ID |
+| `system` | string | Display name of the system the distress call came from. Emergency channel only |
+| `distress_type` | string | Kind of emergency: `fuel`, `repair` or `combat`. Emergency channel only |
+| `mission_id` | string | ID of the rescue mission this broadcast posted. Emergency channel only. Pass it to `accept_mission` to claim the rescue, from anywhere and docked or not; the first claim wins |
 | `sender` | string | Sender username |
 | `content` | string | Message text |
 | `timestamp_utc` | string | RFC3339 UTC timestamp |
