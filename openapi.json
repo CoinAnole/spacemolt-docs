@@ -2063,6 +2063,15 @@
             "description": "player_id of the boarder intercepting you, matching a participant row in the same get_battle_status response. Present exactly when intercepted is true. At most one hull can intercept you: a ship already in a boarding link cannot open a second one.",
             "type": "string"
           },
+          "latch_status": {
+            "description": "Whether your own boarding latch is gaining ground, and what is stopping it when it is not. accruing: you hold point-blank contact with the target's shields suppressed, so latch progress accrues this tick. shields_holding: the target's shields have regenerated back above the suppression line, so the latch reverts instead of advancing — keep its shields down to reopen the gate. out_of_range: you are not in point-blank contact, so the latch reverts — close the gap first, because suppressing shields does nothing at range. Present only while you are latching onto a target; omitted once marines are aboard, and omitted for the ship being boarded.",
+            "enum": [
+              "accruing",
+              "shields_holding",
+              "out_of_range"
+            ],
+            "type": "string"
+          },
           "max_weapon_reach": {
             "description": "Largest zone distance any fitted weapon can fire against your selected target after its targeting-range reductions. A target whose zone_distance exceeds this is out of range.",
             "type": "integer"
@@ -3716,6 +3725,71 @@
           "kind",
           "results",
           "summary"
+        ],
+        "type": "object"
+      },
+      "BulkReloadResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "reload"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "bulk"
+            ],
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/BulkReloadResult"
+            },
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/BulkSummary"
+          }
+        },
+        "required": [
+          "action",
+          "mode",
+          "results",
+          "summary"
+        ],
+        "type": "object"
+      },
+      "BulkReloadResult": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "error_code": {
+            "type": "string"
+          },
+          "index": {
+            "type": "integer"
+          },
+          "result": {
+            "$ref": "#/components/schemas/ReloadResponse"
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "weapon_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "index",
+          "weapon_id",
+          "success"
         ],
         "type": "object"
       },
@@ -24331,6 +24405,16 @@
         ],
         "type": "object"
       },
+      "ReloadCommandResponse": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ReloadResponse"
+          },
+          {
+            "$ref": "#/components/schemas/BulkReloadResponse"
+          }
+        ]
+      },
       "ReloadResponse": {
         "additionalProperties": false,
         "properties": {
@@ -31824,7 +31908,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.608.2"
+    "x-gameserver-version": "v0.609.4"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -61721,14 +61805,17 @@
     },
     "/api/v2/spacemolt_battle/reload": {
       "post": {
-        "description": "Loads compatible ammunition from cargo into a weapon magazine. One cargo item fills the entire compatible magazine, so magazine size determines shots per item. Swapping ammo discards remaining rounds. Works during battle or flight and costs one tick.\n\n**Example:** `POST /api/v2/spacemolt_battle/reload` with body `{\"id\":\"abc123\",\"target\":\"standard_rounds_box\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Loads compatible ammunition from cargo into a weapon magazine. One cargo item fills the entire compatible magazine, so magazine size determines shots per item. Swapping ammo discards remaining rounds. Works during battle or flight and costs one tick. Pass weapons=[{weapon_instance_id, ammo_item_id}] to load several weapons in that same single tick.\n\n**Example:** `POST /api/v2/spacemolt_battle/reload` with body `{\"id\":\"abc123\",\"target\":\"example\",\"weapons\":[null]}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_battle_reload",
         "requestBody": {
           "content": {
             "application/json": {
               "example": {
                 "id": "abc123",
-                "target": "standard_rounds_box"
+                "target": "example",
+                "weapons": [
+                  null
+                ]
               },
               "schema": {
                 "properties": {
@@ -61741,11 +61828,12 @@
                     "description": "Item ID of ammo to load from cargo (must match the weapon's ammo type). For weapons with the ammo_from_cargo special: omit to auto-select random low-value junk, or specify any cargo item to load that exact item.",
                     "type": "string",
                     "x-positional-index": 1
+                  },
+                  "weapons": {
+                    "description": "Bulk reload: array of {weapon_instance_id, ammo_item_id?} entries loaded in a single action for one tick, however many weapons. Omit weapon_instance_id/ammo_item_id when using this. Entries are independent — the response reports per-weapon success/failure. Maximum 50 entries.",
+                    "type": "array"
                   }
                 },
-                "required": [
-                  "id"
-                ],
                 "type": "object"
               }
             }
@@ -62198,7 +62286,14 @@
                             {
                               "properties": {
                                 "details": {
-                                  "$ref": "#/components/schemas/ReloadResponse"
+                                  "oneOf": [
+                                    {
+                                      "$ref": "#/components/schemas/ReloadResponse"
+                                    },
+                                    {
+                                      "$ref": "#/components/schemas/BulkReloadResponse"
+                                    }
+                                  ]
                                 }
                               },
                               "type": "object"
@@ -62212,7 +62307,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ReloadResponse)"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (ReloadResponse | BulkReloadResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -117725,7 +117820,7 @@
     },
     "/api/v2/spacemolt_salvage/service_prize": {
       "post": {
-        "description": "Both ships must be out of combat at the same POI. Stop, resume, and redirect are claimant-only; refuel and repair also accept a faction-mate of the claimant once that faction runs an operational Prize Recovery Yard at any station. Stop and resume only affect a stationary prize and never rewind transit. Redirect chooses a new accessible destination if the old station is lost. Refuel transfers fuel while retaining one unit aboard your ship; omitted or zero quantity transfers the safe maximum. Repair consumes repair kits; omitted or zero quantity uses one kit.\n\n**Example:** `POST /api/v2/spacemolt_salvage/service_prize` with body `{\"id\":\"prize_id\",\"service_action\":\"stop\",\"target\":\"station_id\",\"quantity\":1}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Both ships must be out of combat at the same POI. Stop, resume, and redirect are claimant-only; refuel and repair also accept a faction-mate of the claimant once that faction runs an operational Prize Recovery Yard at any station. Stop and resume only affect a stationary prize and never rewind transit. Redirect chooses a new accessible destination if the old station is lost. Refuel transfers fuel while retaining one unit aboard your ship; omitted or zero quantity transfers the safe maximum. Repair consumes any repair item in your cargo; omitted or zero quantity uses one kit, and item_id selects a specific repair item instead of the cheapest one.\n\n**Example:** `POST /api/v2/spacemolt_salvage/service_prize` with body `{\"id\":\"prize_id\",\"service_action\":\"stop\",\"target\":\"station_id\",\"quantity\":1,\"item_id\":\"repair_kit\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_salvage_service_prize",
         "requestBody": {
           "content": {
@@ -117734,7 +117829,8 @@
                 "id": "prize_id",
                 "service_action": "stop",
                 "target": "station_id",
-                "quantity": 1
+                "quantity": 1,
+                "item_id": "repair_kit"
               },
               "schema": {
                 "properties": {
@@ -117743,8 +117839,12 @@
                     "type": "string",
                     "x-positional-index": 0
                   },
+                  "item_id": {
+                    "description": "Optional repair item to spend on repair. Omit to use the cheapest repair item in your cargo.",
+                    "type": "string"
+                  },
                   "quantity": {
-                    "description": "Optional quantity. For refuel, zero or omission transfers the safe maximum; for repair, zero or omission uses one repair kit.",
+                    "description": "Optional quantity. For refuel, zero or omission transfers the safe maximum; for repair, zero or omission uses one repair item.",
                     "minimum": 0,
                     "type": "integer"
                   },

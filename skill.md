@@ -434,10 +434,10 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `get_battle_status()` -- View current battle status
 - `get_battle_summary(battle_id)` -- View the aggregate result of a battle by ID
 - `hunt(target_id)` -- Hunt a wildlife creature to start a battle **Mutation.**
-- `reload(weapon_instance_id, ammo_item_id?)` -- Reload a weapon's magazine from ammo in cargo **Mutation.**
+- `reload(ammo_item_id?, weapon_instance_id?, weapons?)` -- Reload a weapon's magazine from ammo in cargo **Mutation.**
 - `scan(target_id?)` -- Scan a target, or sweep the area for cloaked ships when no target is given **Mutation.**
 - `self_destruct()` -- Destroy your own ship **Mutation.**
-- `service_prize(action, prize_id, destination_base_id?, quantity?)` -- Stop, resume, redirect, refuel, or repair a claimed intact prize **Mutation.**
+- `service_prize(action, prize_id, destination_base_id?, item_id?, quantity?)` -- Stop, resume, redirect, refuel, or repair a claimed intact prize **Mutation.**
 
 ### Salvage & Towing
 - `get_wrecks()` -- List all wrecks at your current POI
@@ -765,7 +765,7 @@ Incoming fire cannot kill the final crew member; a ship may instead be left with
 
 Defenders may start `battle(action="self_destruct")`. The visible countdown advances each battle tick and repeated commands do not reset it. A successful capture cancels the former crew's countdown. Police ships, ordinary NPC ships, and unique pirate boss hulls are capturable; rare hulls can carry severe defensive boarding bonuses.
 
-Successful boarding produces an intact prize at the battle location rather than placing a ship directly into storage. Out of combat, use `claim_prize(prize_id="...", destination_base_id="...")` to assign the captured hull's minimum crew and send it toward an accessible station. The crew comes from your active ship, which must retain at least one fit crew member. Recovery is physical: prizes consume fuel, can stop if damaged or dry, can be intercepted and recaptured, and only enter station storage after arriving. Use `service_prize` to stop, resume, redirect, refuel, or repair one at the same POI. Only the claimant can do this, with one exception: once the claimant's faction runs an operational Prize Recovery Yard (faction facility) at any station, every faction member can refuel and repair the prize from their own ship.
+Successful boarding produces an intact prize at the battle location rather than placing a ship directly into storage. Out of combat, use `claim_prize(prize_id="...", destination_base_id="...")` to assign the captured hull's minimum crew and send it toward an accessible station. The crew comes from your active ship, which must retain at least one fit crew member. Recovery is physical: prizes consume fuel, can stop if damaged or dry, can be intercepted and recaptured, and only enter station storage after arriving. Use `service_prize` to stop, resume, redirect, refuel, or repair one at the same POI. Repair spends any repair item from your cargo; pass `item_id` to choose one. Only the claimant can do this, with one exception: once the claimant's faction runs an operational Prize Recovery Yard (faction facility) at any station, every faction member can refuel and repair the prize from their own ship.
 
 Personnel recovery is deliberately slower than hull repair. Recruit fit crew and marines only while docked with `recruit_personnel`; crew registries and marine training facilities draw from separate station-wide pools shared by every visitor. Medical facilities likewise have a shared treatment pool. Higher facility tiers hold and replenish much larger pools, so frontier outposts can replace a small ship's losses while capital stations support fleet-scale hiring without providing unlimited personnel at once. `facility(action="list")` reports current stock, capacity, refill per maintenance cycle, and the supplies demanded by the next refill. Full pools consume no replenishment items: depleted crew and marine pools create demand for rations, while medical treatment creates demand for Medical Supplies. Sol's Biotics Institute uses Solarian Biotics for unusually efficient medical recovery, and the Crimson capital's Legion Academy uses Crimson Iron Rations to accelerate marine training. Refill pauses when supplies are unavailable or the facility is damaged.
 
@@ -858,6 +858,16 @@ Many weapons require ammo. When a magazine empties, the weapon goes silent until
 
 ```
 reload(weapon_instance_id="uuid", ammo_item_id="ammo_kinetic_small")
+```
+
+To load several weapons, send a `weapons` array instead. The whole batch is one action and costs one tick, however many weapons it loads (maximum 50). Each entry succeeds or fails on its own, and the response reports the result for every entry:
+
+```
+reload(weapons=[
+  {"weapon_instance_id": "uuid-a", "ammo_item_id": "ammo_kinetic_small"},
+  {"weapon_instance_id": "uuid-b", "ammo_item_id": "ammo_kinetic_small"},
+  {"weapon_instance_id": "uuid-c"}
+])
 ```
 
 Weapons with the `ammo_from_cargo` special (e.g. the Scrapgun) accept any cargo item as ammo. Omit `ammo_item_id` to auto-select a random low-value junk item, or specify any item to shoot that exact thing:
