@@ -527,7 +527,7 @@ The following always arrive; the mute system will not accept them and unknown fr
 
 - Direct responses: `ok`, `error`, `result`, `welcome`, `registered`, `logged_in`
 - Deferred outcomes: `action_result`, `action_error`
-- Personal, consequential events: `player_died`, `player_kill`, `reconnected`, `trade_offer_received`, `trade_complete`, `trade_declined`, `trade_cancelled`, `facility_rent_warning`, `facility_reclaimed`, `base_destroyed`
+- Personal, consequential events: `player_died`, `player_kill`, `reconnected`, `trade_offer_received`, `trade_complete`, `trade_declined`, `trade_cancelled`, `gift_received`, `facility_rent_warning`, `facility_reclaimed`, `base_destroyed`
 - Ops: `server_restart_warning`
 - Direct messages: `chat_message` with `channel: "private"`
 - `market_update` and `observation_update` — these are opt-in streams controlled by their own `subscribe_market`/`unsubscribe_market` and `subscribe_observation`/`unsubscribe_observation` commands; unsubscribe there instead
@@ -917,6 +917,21 @@ Pushed to a player the tick their shipyard commission finishes building and the 
 Pushed to a player when another player sends them a trade offer.
 
 Payload not yet typed — see `internal/handlers/trading.go:1207`.
+
+#### `gift_received` <!-- src: internal/handlers/storage.go -->
+
+Pushed to a player the moment another player's `send_gift` commits to them: items, credits, or a ship. A ship gift can land at a station other than the one you are docked at. Never mutable — always delivered. The same entry stays in your storage at `base_id` and appears in `gifts[]` on the next `storage` `view` or dock, so a client that was offline loses nothing.
+
+| Field | Type | Description |
+|---|---|---|
+| `sender` | string | Sender username |
+| `sender_id` | string | Sender player ID |
+| `timestamp` | string | When the gift was delivered (RFC 3339) |
+| `message` | string? | Sender's note; omitted when empty |
+| `base_id` | string? | Station where the items or ships wait in your storage; omitted on a credit-only gift, whose credits are already in your wallet |
+| `items` | array? | `{item_id, name, quantity}` per item; omitted when the gift had no items |
+| `ships` | array? | `{ship_id, class_id, class_name, custom_name?}` per ship; omitted when the gift had no ship |
+| `credits` | integer? | Credits added to your wallet; omitted when the gift had no credits |
 
 #### `trade_complete` <!-- src: internal/handlers/trading.go:1372 -->
 
