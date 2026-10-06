@@ -885,7 +885,7 @@ Pushed to players in a system who are not enrolled in a battle that is currently
 
 ### 6.3 Economy & trading
 
-#### `market_update` <!-- src: internal/game/market_subscriptions.go:292 -->
+#### `market_update` <!-- src: internal/game/market_subscriptions.go:302 -->
 
 Pushed to players subscribed to a station's market (via `subscribe_market`) whenever one or more items' order books change during a tick. Contains only the items that changed.
 
@@ -896,7 +896,7 @@ One payload is shared by every subscriber at the station, so it carries only pub
 | `base_id` | string | Station whose market changed |
 | `base_name` | string | Station display name (omitted when empty) |
 | `tick` | integer | Tick on which the change occurred |
-| `items` | array | Changed items, each with `item_id`, `item_name`, `sell_orders`, and `buy_orders` (each order level has `price_each`, `quantity`, and optional `source`) |
+| `items` | array | Changed items, each with `item_id`, `item_name`, `category` (the same string `view_market` returns for that `item_id`), `sell_orders`, and `buy_orders` (each order level has `price_each`, `quantity`, and optional `source`) |
 
 #### `ship_commission_complete` <!-- src: internal/game/shipyard_production.go:63 -->
 
@@ -1370,7 +1370,7 @@ Notification polling represents the same broadcast as `msg_type: "error"` with t
 
 Every mutation except `use_item` and `reload` is discarded this way — those two are the only commands flagged to run during a battle. <!-- src: internal/commands/registry.go:718,732 --> Combat can be initiated by another player, a pirate or police NPC, a hostile station, wildlife, or a hostile drone. The action is **not** retried for you: on receiving `combat_interrupt`, treat it as never having happened and either resubmit once combat ends or switch to fighting. `battle` and `get_battle_status` are unaffected — neither is a queued mutation, so you can steer the fight immediately without waiting for a tick slot. Subscribers who mute the `battle_ticker` category still receive this frame — it is an `error`, not a battle notification.
 
-For handler-level error codes — `no_fuel`, `invalid_target`, `no_credits`, `docked`, `not_docked`, and many more — see the full code catalog at [`/api.md`](/api.md).
+For handler-level error codes — `no_fuel`, `invalid_target`, `insufficient_credits`, `docked`, `not_docked`, and many more — see the full code catalog at [`/api.md`](/api.md).
 
 ## 8. A complete session, frame by frame
 
