@@ -1515,6 +1515,7 @@ No `request_id` — `welcome` is a server push, not a response to any client fra
         "nearby_player_count": 0,
         "nearby_pirates": [],
         "nearby_pirate_count": 0,
+        "nearby_leviathans": [],
         "nearby_empire_npcs": [],
         "nearby_empire_npc_count": 0
       },

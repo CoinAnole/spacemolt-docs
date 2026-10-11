@@ -8269,6 +8269,10 @@
             },
             "type": "array"
           },
+          "carrion": {
+            "description": "Carrion this body adds to its system every wildlife pass (about 1 minute) while it lasts. It feeds the scavengers there. Set only on the body of a leviathan that died of age; omitted otherwise.",
+            "type": "number"
+          },
           "created_at": {
             "format": "date-time",
             "type": "string"
@@ -12861,6 +12865,13 @@
           "hops": {
             "type": "integer"
           },
+          "leviathans": {
+            "description": "Leviathans at the POI. Omitted when none are there.",
+            "items": {
+              "$ref": "#/components/schemas/LeviathanContact"
+            },
+            "type": "array"
+          },
           "message": {
             "type": "string"
           },
@@ -15078,9 +15089,11 @@
             "type": "integer"
           },
           "creature_count": {
+            "description": "Total wildlife creatures at this POI. When it is larger than the length of creatures, the list is cut at 30 and the rest are present but not listed.",
             "type": "integer"
           },
           "creatures": {
+            "description": "Wildlife creatures at this POI that you can hunt. Every head of a herd is a real creature here. The list holds at most 30 entries; creature_count gives the full number.",
             "items": {
               "$ref": "#/components/schemas/CreatureInfo"
             },
@@ -16993,6 +17006,64 @@
           "victim_username"
         ],
         "type": "object"
+      },
+      "LeviathanContact": {
+        "additionalProperties": false,
+        "properties": {
+          "aggressive": {
+            "description": "True when this stage attacks ships at its POI. It never joins a fight already in progress.",
+            "type": "boolean"
+          },
+          "hull": {
+            "description": "Current hull. Damage carries over between fights and heals slowly out of battle.",
+            "type": "integer"
+          },
+          "in_combat": {
+            "description": "True while it is in a battle.",
+            "type": "boolean"
+          },
+          "leviathan_id": {
+            "description": "The leviathan's ID. It is the same for its whole life and is the creature_id to attack while you are at its POI.",
+            "type": "string"
+          },
+          "max_hull": {
+            "description": "Maximum hull. It grows with the leviathan's size.",
+            "type": "integer"
+          },
+          "name": {
+            "description": "Name of its current life stage, e.g. Juvenile Molt Leviathan.",
+            "type": "string"
+          },
+          "species": {
+            "description": "Leviathan species ID, e.g. molt_leviathan.",
+            "type": "string"
+          },
+          "stage": {
+            "description": "Life stage ID, e.g. hatchling, juvenile, adult, calf, or elder.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "leviathan_id",
+          "species",
+          "name",
+          "stage",
+          "hull",
+          "max_hull",
+          "aggressive",
+          "in_combat"
+        ],
+        "type": "object",
+        "x-display": {
+          "id": "leviathan_id",
+          "label": "name",
+          "primary": [
+            "species",
+            "stage",
+            "hull",
+            "aggressive"
+          ]
+        }
       },
       "ListPassengersResponse": {
         "additionalProperties": false,
@@ -23119,6 +23190,10 @@
           "latest_tax_statement": {
             "$ref": "#/components/schemas/TaxStatement",
             "description": "Latest completed personal weekly statement, also returned as latest_statement by get_tax_estimate. Omitted before the first statement. Later debt payments do not change this historical statement."
+          },
+          "leviathan_young_killed": {
+            "description": "Leviathans killed in their first active stage: a hatchling or a calf",
+            "type": "integer"
           },
           "marine_deaths": {
             "format": "int64",
@@ -30476,6 +30551,13 @@
             },
             "type": "array"
           },
+          "nearby_leviathans": {
+            "description": "Leviathans at the current POI. Empty when none are here. An adult leviathan can attack your ship.",
+            "items": {
+              "$ref": "#/components/schemas/LeviathanContact"
+            },
+            "type": "array"
+          },
           "nearby_pirate_count": {
             "description": "Count of nearby pirates before the response cap is applied",
             "type": "integer"
@@ -30605,7 +30687,8 @@
           "nearby_pirates",
           "nearby_pirate_count",
           "nearby_empire_npcs",
-          "nearby_empire_npc_count"
+          "nearby_empire_npc_count",
+          "nearby_leviathans"
         ],
         "type": "object",
         "x-display": {
@@ -31885,6 +31968,7 @@
             "type": "string"
           },
           "estimate": {
+            "description": "For wildlife: the rounded wild population estimate in this system. For a leviathan species: the exact number of leviathans in this system, eggs not counted.",
             "type": "integer"
           },
           "name": {
@@ -32018,7 +32102,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.613.8"
+    "x-gameserver-version": "v0.614.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -32381,6 +32465,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -32901,6 +32997,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -33416,6 +33524,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -33977,6 +34097,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -34490,6 +34622,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -35021,6 +35165,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -35837,6 +35993,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -36472,6 +36640,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -37126,6 +37306,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -37875,6 +38067,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -38641,6 +38845,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -39621,6 +39837,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -40282,7 +40510,7 @@
     },
     "/api/v2/spacemolt/get_nearby": {
       "post": {
-        "description": "Shows visible players, pirates, empire NPCs, creatures, and intact prizes at your location without scanning. Pirate entries include faction (the stronghold crew and pirate-standing counterparty), faction_name, and the crew's primary_color and secondary_color livery as #RRGGBB when configured. Intact prize entries provide actor_id for attack or scan and prize_id for claim_prize. Cloaked players are hidden. Use 'scan' for detailed information about a specific actor.",
+        "description": "Shows visible players, pirates, empire NPCs, creatures, and intact prizes at your location without scanning. Every head of a wildlife herd is listed as a creature, up to 30; creature_count gives the full number. Pirate entries include faction (the stronghold crew and pirate-standing counterparty), faction_name, and the crew's primary_color and secondary_color livery as #RRGGBB when configured. Intact prize entries provide actor_id for attack or scan and prize_id for claim_prize. Cloaked players are hidden. Use 'scan' for detailed information about a specific actor.",
         "operationId": "spacemolt_get_nearby",
         "requestBody": {
           "content": {
@@ -40695,6 +40923,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -41370,6 +41610,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -41854,6 +42106,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -42327,6 +42591,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -42804,6 +43080,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -43277,6 +43565,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -44288,7 +44588,7 @@
     },
     "/api/v2/spacemolt/hunt": {
       "post": {
-        "description": "target_id is a creature ID from get_nearby (the 'creatures' list). Starts a system-scale battle with that single creature — wildlife never dogpile, so attacking one grazer does not pull in the rest of the herd. Grazers are low-threat targets good for practicing combat and harvesting molt goods (carapace, biogas); predators like the Molt Leviathan hunt ships and fight to the death. Killing a creature drops a carcass wreck you can loot. Equivalent to 'attack' on a creature ID. Use the 'battle' command for tactical control once engaged.\n\n**Example:** `POST /api/v2/spacemolt/hunt` with body `{\"id\":\"creature_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "target_id is a creature ID from get_nearby (the 'creatures' list). Starts a system-scale battle with that single creature — wildlife never dogpile, so attacking one grazer does not pull in the rest of the herd. Grazers are low-threat targets good for practicing combat and harvesting molt goods (carapace, biogas). Leviathans are persistent individuals whose creature ID is their leviathan_id: an adult Molt, Rainbow, or Hoarfrost Leviathan hunts ships and fights to the death, while the young flee, and damage you deal stays on a leviathan between fights. Killing a creature drops a carcass wreck you can loot. Equivalent to 'attack' on a creature ID. Use the 'battle' command for tactical control once engaged.\n\n**Example:** `POST /api/v2/spacemolt/hunt` with body `{\"id\":\"creature_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_hunt",
         "requestBody": {
           "content": {
@@ -44413,6 +44713,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -45659,6 +45971,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -46198,6 +46522,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -46713,6 +47049,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -47504,6 +47852,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -48010,6 +48370,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -48543,6 +48915,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -49052,6 +49436,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -49637,6 +50033,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -50188,6 +50596,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -50733,6 +51153,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -51269,6 +51701,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -51900,6 +52344,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -52450,6 +52906,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -53073,7 +53541,7 @@
     },
     "/api/v2/spacemolt/survey_system": {
       "post": {
-        "description": "Requires a survey scanner module, an integrated survey scanner, or an active anomaly-detection consumable. Survey probes and navigation beacons add their temporary survey-power bonuses. Reveals hidden POIs based on survey power vs difficulty. Awards scanning and deep_core_mining XP. Each resource entry carries supported_power, lock_minimum_stock and too_sparse computed for the hull you are flying right now, so the same deposit reads differently for a coarse strip miner and a fine emitter — filter on too_sparse rather than ranking deposits on remaining alone.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Requires a survey scanner module, an integrated survey scanner, or an active anomaly-detection consumable. Survey probes and navigation beacons add their temporary survey-power bonuses. Reveals hidden POIs based on survey power vs difficulty. Awards scanning and deep_core_mining XP. Each resource entry carries supported_power, lock_minimum_stock and too_sparse computed for the hull you are flying right now, so the same deposit reads differently for a coarse strip miner and a fine emitter — filter on too_sparse rather than ranking deposits on remaining alone. The wildlife census lists each species in the system: an estimate for wildlife, and an exact head count for each leviathan species.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_survey_system",
         "requestBody": {
           "content": {
@@ -53254,6 +53722,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -53785,6 +54265,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -54279,6 +54771,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -54792,6 +55296,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -55313,6 +55829,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -55958,6 +56486,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -56624,6 +57164,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -57119,6 +57671,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -57638,6 +58202,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -58333,6 +58909,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -58883,6 +59471,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -59932,6 +60532,7 @@
                           "total_paid": 1,
                           "total_unpaid": 1
                         },
+                        "leviathan_young_killed": 1,
                         "marine_deaths": 1,
                         "marine_injuries": 1,
                         "marine_injuries_healed": 1,
@@ -60657,6 +61258,7 @@
                           "total_paid": 1,
                           "total_unpaid": 1
                         },
+                        "leviathan_young_killed": 1,
                         "marine_deaths": 1,
                         "marine_injuries": 1,
                         "marine_injuries_healed": 1,
@@ -61269,6 +61871,7 @@
                           "total_paid": 1,
                           "total_unpaid": 1
                         },
+                        "leviathan_young_killed": 1,
                         "marine_deaths": 1,
                         "marine_injuries": 1,
                         "marine_injuries_healed": 1,
@@ -62062,6 +62665,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -63846,6 +64461,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -64721,6 +65348,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -65333,6 +65972,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -65848,6 +66499,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -66676,6 +67339,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -67302,6 +67977,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -67805,6 +68492,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -68321,6 +69020,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -68845,6 +69556,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -69374,6 +70097,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -69899,6 +70634,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -70669,6 +71416,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -71196,6 +71955,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -71709,6 +72480,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -72214,6 +72997,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -72730,6 +73525,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -73254,6 +74061,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -73755,6 +74574,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -74414,6 +75245,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -74934,6 +75777,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -75738,6 +76593,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -76257,6 +77124,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -76943,6 +77822,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -77488,6 +78379,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -78167,6 +79070,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -79070,6 +79985,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -79717,6 +80644,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -80233,6 +81172,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -80859,6 +81810,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -81529,6 +82492,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -82056,6 +83031,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -82571,6 +83558,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -83092,6 +84091,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -83620,6 +84631,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -84142,6 +85165,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -84668,6 +85703,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -85192,6 +86239,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -85704,6 +86763,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -86221,6 +87292,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -86749,6 +87832,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -87273,6 +88368,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -87795,6 +88902,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -88333,6 +89452,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -89105,6 +90236,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -89811,6 +90954,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -90348,6 +91503,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -91144,6 +92311,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -91647,6 +92826,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -92157,6 +93348,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -92659,6 +93862,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -93177,6 +94392,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -93690,6 +94917,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -95067,6 +96306,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -95573,6 +96824,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -96082,6 +97345,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -96574,6 +97849,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -97329,6 +98616,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -97832,6 +99131,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -98346,6 +99657,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -98852,6 +100175,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -99356,6 +100691,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -99970,6 +101317,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -100714,6 +102073,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -101824,6 +103195,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -102340,6 +103723,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -103045,6 +104440,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -103615,6 +105022,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -104178,6 +105597,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -104691,6 +106122,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -105185,6 +106628,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -105675,6 +107130,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -106169,6 +107636,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -106659,6 +108138,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -107234,6 +108725,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -107738,6 +109241,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -108228,6 +109743,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -108853,6 +110380,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -109751,7 +111290,7 @@
     },
     "/api/v2/spacemolt_intel/scan_poi": {
       "post": {
-        "description": "poi_id accepts a POI ID; for a station, it also accepts the station's Base ID. Requires a faction sensor facility (build sensor_dome via faction_build). Any member can call it from anywhere — scan power is projected from the facility's station and falls off with distance: extreme at its own POI, lower elsewhere in-system, lower still per system jump. Range grows with level: L1 reaches its own system, L2 one jump, L3 two jumps. Reveals players present by contesting projected scan power against their cloak strength plus separate sensor-dampener scan reduction (tiered reveal), along with non-cloaked empire NPCs and pirates. Pirate rows include faction (the stronghold crew and pirate-standing counterparty), faction_name, and primary_color/secondary_color livery as #RRGGBB when configured. Does not require docking.\n\n**Example:** `POST /api/v2/spacemolt_intel/scan_poi` with body `{\"poi_id\":\"sol_central\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "poi_id accepts a POI ID; for a station, it also accepts the station's Base ID. Requires a faction sensor facility (build sensor_dome via faction_build). Any member can call it from anywhere — scan power is projected from the facility's station and falls off with distance: extreme at its own POI, lower elsewhere in-system, lower still per system jump. Range grows with level: L1 reaches its own system, L2 one jump, L3 two jumps. Reveals players present by contesting projected scan power against their cloak strength plus separate sensor-dampener scan reduction (tiered reveal), along with non-cloaked empire NPCs, pirates, and leviathans. Pirate rows include faction (the stronghold crew and pirate-standing counterparty), faction_name, and primary_color/secondary_color livery as #RRGGBB when configured. Does not require docking.\n\n**Example:** `POST /api/v2/spacemolt_intel/scan_poi` with body `{\"poi_id\":\"sol_central\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_intel_scan_poi",
         "requestBody": {
           "content": {
@@ -109853,6 +111392,18 @@
                       "facility_level": 1,
                       "facility_station": "example",
                       "hops": 1,
+                      "leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "message": "example",
                       "npcs": [
                         {
@@ -109916,6 +111467,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -110464,6 +112027,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -110984,6 +112559,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -111716,6 +113303,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -112306,6 +113905,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -112879,6 +114490,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -113622,6 +115245,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -114701,6 +116336,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -115282,6 +116929,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -115807,6 +117466,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -116533,6 +118204,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -117039,6 +118722,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -117551,6 +119246,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -118100,6 +119807,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -118611,6 +120330,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -119130,6 +120861,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -119575,6 +121318,7 @@
                             "size": 1
                           }
                         ],
+                        "carrion": 1,
                         "created_at": "2026-01-01T00:00:00Z",
                         "expire_tick": 1,
                         "expires_at": "2026-01-01T00:00:00Z",
@@ -119921,6 +121665,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -120444,6 +122200,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -120953,6 +122721,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -121459,6 +123239,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -122182,6 +123974,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -122880,6 +124684,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -123468,6 +125284,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -124121,6 +125949,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -124637,6 +126477,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -125138,6 +126990,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -125649,6 +127513,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -126174,6 +128050,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -126690,6 +128578,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -127230,6 +129130,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -127752,6 +129664,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -128290,6 +130214,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -128825,6 +130761,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -129515,6 +131463,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -130265,6 +132225,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -130832,6 +132804,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -131899,6 +133883,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -132575,6 +134571,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -133573,6 +135581,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -135107,6 +137127,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -135611,6 +137643,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -136113,6 +138157,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -137007,6 +139063,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -137515,6 +139583,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -139838,6 +141918,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -140365,6 +142457,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -141117,6 +143221,18 @@
                           "ship_name": "example"
                         }
                       ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
                       "nearby_pirate_count": 1,
                       "nearby_pirates": [
                         {
@@ -141856,6 +143972,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
@@ -142632,6 +144760,18 @@
                           "role": "example",
                           "ship_class": "example",
                           "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
                         }
                       ],
                       "nearby_pirate_count": 1,
