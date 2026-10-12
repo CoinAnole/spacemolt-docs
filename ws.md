@@ -203,7 +203,7 @@ Sent after every successful auth action. Contains the full initial game state fo
 | `player` | Full player record |
 | `ship` | Current ship |
 | `modules` | Enriched module details (type info and stats) |
-| `system` | Current star system with POI and connection details |
+| `system` | Current star system with its charted POIs and connections. With a working ship scanner, each POI carries `ship_count`. Station fuel fields are not included |
 | `poi` | Current point of interest (docked station, asteroid field, etc.) |
 | `pending_trades` | Open incoming and outgoing trade offers |
 | `recent_chat` | Recent messages from system, faction, and private channels |
@@ -628,7 +628,7 @@ Pushed to players in range who have a `pirate_radio_scanner` module installed, c
 |---|---|---|
 | `pirate_name` | string | Display name of the selected grammatical speaker |
 | `source_system` | string | System ID from which the transmission originated |
-| `source_poi` | string | POI ID from which the transmission originated; empty when unresolved |
+| `source_poi` | string | POI ID from which the transmission originated; empty when unresolved or when the POI is hidden (the radio never names an uncharted POI) |
 | `faction_key` | string | Pirate stronghold crew key |
 | `faction_name` | string | Human-readable pirate stronghold crew name |
 | `primary_color` | string | Crew primary livery color as `#RRGGBB` |
@@ -649,13 +649,13 @@ Pushed to players in range who have a `pirate_radio_scanner` module installed, c
 
 #### `scan_detected` <!-- src: internal/handlers/combat.go:448 -->
 
-Pushed to a player when another player scans them.
+Pushed to a player when another player scans them: a targeted scan, an area sweep, a remote POI scan, or an active observation sweep. A cloaked scanner is never named.
 
 | Field | Type | Description |
 |---|---|---|
-| `scanner_id` | string | Player ID of the scanner |
-| `scanner_username` | string | Scanner's username (`"Unknown"` when scanner is anonymous) |
-| `scanner_ship_class` | string | Scanner's ship class ID (omitted when empty) |
+| `scanner_id` | string | Player ID of the scanner (empty when the scanner is cloaked or the scan came from a faction sensor station) |
+| `scanner_username` | string | Scanner's username (`"Unknown"` when the scanner is cloaked) |
+| `scanner_ship_class` | string | Scanner's ship class ID (omitted when the scanner is cloaked) |
 | `revealed_info` | array | List of strings describing what was revealed about the scanned player |
 | `message` | string | Human-readable description of the scan event |
 
@@ -668,7 +668,7 @@ Broadcast to all players in the system when a new battle begins.
 | `battle_id` | string | Unique battle identifier |
 | `system_id` | string | System where the battle is taking place |
 | `sides` | array | List of battle sides (each with `side_id`, `faction_id`, `player_count`) |
-| `participants` | array | List of participants with per-player status (see `BattleParticipantInfo`) |
+| `participants` | array | List of participants with per-player status (see `BattleParticipantInfo`). No entry carries `stance`: a stance is private |
 
 #### `battle_update` <!-- src: internal/game/battle.go:2770 -->
 
@@ -690,14 +690,13 @@ Pushed every game tick to each player enrolled in a battle, carrying their perso
 Each `BattleParticipantInfo` entry here carries `player_id`, `username`,
 `side_id`, `zone`, `stance`, `ship_class`, `hull_pct`, `shield_pct`, and `kind`,
 plus `is_npc` for server-controlled combatants (`hull_pct`, `shield_pct`, and a
-false `is_npc` are omitted). The same list is sent to
-everyone in the battle, so `stance` is populated for **every** participant, not
-just the receiver — an opponent whose stance reads `flee` is trying to
-disengage. It is an attempt, not a departure: escape takes several consecutive
-ticks at the outer zone, scaled by how the fleer's speed compares to its fastest
-pursuer, and never completes while warp-disrupted. Only `battle_left` with
-reason `"fled"` means they are actually gone. `get_battle_status` reports
-`stance` for yourself only, so this push is where an opponent's stance is read.
+false `is_npc` are omitted). A stance is private: `stance` is set only on the
+receiver's own entry and omitted on every other entry, the same as
+`get_battle_status`. An opponent's flee attempt shows up as its zone moving
+outward; escape takes several consecutive ticks at the outer zone, scaled by how
+the fleer's speed compares to its fastest pursuer, and never completes while
+warp-disrupted. Only `battle_left` with reason `"fled"` means they are actually
+gone.
 `kind` identifies `player`, `pirate`, `police`, `drone`, `creature`, `station`,
 `prize`, or fallback `npc`; `is_npc` is true for every server-controlled
 combatant, including an autonomously moving intact prize. Boarding status is
@@ -820,7 +819,7 @@ marine counts.
 | `ship_id` | string | Captured intact ship ID |
 | `ship_class` | string | Captured ship class ID |
 | `prize_id` | string | Prize created for the captured hull (omitted on historical records and arena captures) |
-| `prize_poi_id` | string | POI where the prize was left — the battle origin, which can differ from your POI (omitted when no prize, the POI is hidden, or the battle began in transit) |
+| `prize_poi_id` | string | POI where the prize sits: the captor's POI at the moment of capture (the battle origin when the captor has no POI). A prize never lands at a hidden POI; it goes to the nearest charted POI in the system (omitted when there is no prize or no POI is known) |
 | `prize_poi_name` | string | Display name of the prize POI (omitted when unknown or hidden) |
 | `prize_system_id` | string | System where the prize sits (omitted when no prize) |
 | `prize_system_name` | string | Display name of the prize system (omitted when unknown) |
@@ -880,7 +879,7 @@ Pushed to players in a system who are not enrolled in a battle that is currently
 | `battle_id` | string | Battle identifier |
 | `system_id` | string | System where the battle is occurring |
 | `sides` | array | Current side composition |
-| `participants` | array | Enrolled participants |
+| `participants` | array | Enrolled participants, with sides and ship classes. No entry carries `stance`: a stance is private |
 | `message` | string | Human-readable alert text |
 
 ### 6.3 Economy & trading
@@ -955,17 +954,17 @@ Payload not yet typed — see `internal/handlers/trading.go:1490`.
 
 #### `observation_update` <!-- src: internal/game/observation_subscriptions.go:566 -->
 
-Pushed each tick to players subscribed via `subscribe_observation` whenever visible presence changes at their watched POI or system — players, and the pirates, empire NPCs, wildlife, intact prizes and arena challenge enemies `get_nearby` returns at the POI.
+Pushed each tick to players subscribed via `subscribe_observation` whenever visible presence changes at their watched POI — players, and the pirates, empire NPCs, wildlife, intact prizes and arena challenge enemies `get_nearby` returns at the POI — or, with a ship scanner, when the ship counts of their system change.
 
 | Field | Type | Description |
 |---|---|---|
 | `poi_id` | string | Watched POI |
 | `system_id` | string | Parent system of the watched POI |
 | `tick` | integer | Tick of the update |
-| `nearby_changed` | array | Players that appeared or whose visible attributes changed at the POI (omitted when empty) |
-| `nearby_departed` | array | Player IDs that are no longer visible at the POI (omitted when empty) |
-| `system_changed` | array | Players that appeared or changed at system level (omitted when empty) |
-| `system_departed` | array | Player IDs that departed at system level (omitted when empty) |
+| `nearby_changed` | array | Players that appeared in the `get_nearby` list or whose visible attributes changed at the POI (omitted when empty) |
+| `nearby_departed` | array | Player IDs no longer listed at the POI: they left, cloaked, or collapsed into `offline_collapsed` (omitted when empty) |
+| `offline_collapsed` | integer | New count of offline players at the POI not listed individually (more than 10 players there). Present only when the count changed; `0` means every offline player is listed again |
+| `ship_counts` | object | Replacement map of POI ID to ship scanner count for every charted POI in your system, the same value as `ship_count` in `get_system`. Omitted means unchanged. An empty object (`{}`) clears all cached counts when the last working scanner stops. The full current map returns when a scanner resumes |
 | `pirates_changed` | array | Pirates that appeared or whose visible state changed at the POI. Each row includes `faction` (the stronghold crew and standing counterparty), `faction_name`, and the crew's `primary_color` and `secondary_color` livery as `#RRGGBB` when configured. Omitted when empty. |
 | `pirates_departed` | array | Pirate IDs that are no longer visible at the watched POI (omitted when empty) |
 | `arena_npcs_changed` | array | Arena challenge enemies that joined the match at the watched POI or whose visible state changed this tick — `hull`, `shield`, `status`, or `flees` going up. A knockout surfaces here as `hull` reaching 0, not as a departure. Each row carries `npc_id`, `name`, `ship_class`, `ship_class_name`, livery `primary_color`/`secondary_color`, `is_boss` and `battle_id`. Omitted when none changed; absent entirely unless an NPC challenge is running here. While a match runs, hull and shield move every tick, so expect this key on most updates until it ends. |
@@ -1041,17 +1040,32 @@ Pushed to a drone owner when their drone runs out of fuel in transit and goes ad
 
 ### 6.7 Facilities & bases
 
-#### `facility_rent_warning` <!-- src: internal/game/station_economy.go:3572 -->
+#### `facility_rent_warning` <!-- src: internal/game/station_economy.go:5149 -->
 
 Pushed to a player (or to all faction members for faction-owned facilities) when rent payments are overdue and repossession is approaching.
 
-Payload not yet typed — see `internal/game/station_economy.go:3572`.
+| Field | Type | Description |
+|---|---|---|
+| `base_id` | string | Station where the facilities are behind on rent. |
+| `base_name` | string | Station display name. |
+| `facilities_behind` | integer | Number of the owner's facilities behind on rent at this base. |
+| `missed_cycles` | integer | Consecutive missed rent cycles so far. |
+| `grace_cycles` | integer | Missed cycles at which the station repossesses. |
+| `credits_owed` | integer | Arrears owed. |
+| `message` | string | Human-readable warning. |
+| `faction_id` | string | Set only on the faction-owned-facility variant. |
 
-#### `facility_reclaimed` <!-- src: internal/game/station_economy.go:3567 -->
+#### `facility_reclaimed` <!-- src: internal/game/station_economy.go:5141 -->
 
-Pushed to a player (or to all faction members) when the station repossesses facilities for unpaid rent.
+Pushed to a player (or to all faction members) when the station repossesses facilities for unpaid rent. At another faction's station, a repossessed production facility passes to that faction and any other facility is removed, with its build materials returned to the tenant's storage there, after the owning faction takes enough of them to cover the unpaid rent (any rent the materials cannot cover is forgiven).
 
-Payload not yet typed — see `internal/game/station_economy.go:3567`.
+| Field | Type | Description |
+|---|---|---|
+| `base_id` | string | Station that repossessed the facilities. |
+| `base_name` | string | Station display name. |
+| `facilities` | array of string | Names of the repossessed facilities. |
+| `message` | string | Human-readable notice, including what happened to the facilities. |
+| `faction_id` | string | Set only on the faction-owned-facility variant. |
 
 #### `base_raid_update` <!-- src: internal/game/engine.go:7350 -->
 
@@ -1191,7 +1205,7 @@ Each entry in `jobs`:
 
 #### `pilotless_ship` <!-- src: internal/game/engine.go:1000 -->
 
-Broadcast to players in the same system when a player disconnects while in combat, leaving their ship as a pilotless target that will despawn after a countdown.
+Broadcast to players at the same POI when a player disconnects while in combat, leaving their ship as a pilotless target that will despawn after a countdown. Not sent when the pilot is cloaked.
 
 | Field | Type | Description |
 |---|---|---|
