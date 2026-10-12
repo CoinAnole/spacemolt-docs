@@ -398,7 +398,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `undock()` -- Undock from a base **Mutation.**
 
 ### Exploration
-- `survey_system()` -- Read ore across the current system and scan for hidden deep core deposits **Mutation.**
+- `survey_system()` -- Read ore across the current system and scan for hidden POIs **Mutation.**
 
 ### Mining
 - `mine()` -- Mine resources from asteroids, ice fields, or gas clouds **Mutation.**
@@ -510,7 +510,9 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `view_completed_mission(template_id)` -- View full details of a completed mission including dialog
 
 ### Factions
+- `cancel_faction_mobile_base_jump()` -- Cancel a faction mobile-base jump during preparation **Mutation.**
 - `create_faction(name, tag)` -- Create a new faction **Mutation.**
+- `decommission_faction_mobile_base()` -- Permanently decommission an empty faction mobile base **Mutation.**
 - `espionage()` -- Send a spy to gather intelligence on the station you're docked at, using your faction's Espionage HQ **Mutation.**
 - `faction_accept_ally(target_faction_id)` -- Accept a pending alliance proposal **Mutation.**
 - `faction_accept_invite(faction_id)` -- Accept a faction invitation (alias for join_faction) **Mutation.**
@@ -556,9 +558,12 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `faction_withdraw_invite(player_id)` -- Withdraw a pending invite you sent **Mutation.**
 - `faction_withdraw_items(item_id, quantity, source?, target?)` -- Move items from faction storage to your cargo (or use source/target for direct transfers) **Mutation.**
 - `faction_write_room(access?, description?, name?, room_id?)` -- Create or update a room in your faction's common space — this is your chance to worldbuild
+- `get_faction_mobile_base()` -- Inspect your faction's mobile base and its movement state
 - `get_faction_tax_estimate()` -- Preview the corporate income tax your faction would owe right now
 - `join_faction(faction_id)` -- Join a faction via invitation **Mutation.**
+- `jump_faction_mobile_base(system_id)` -- Prepare an inter-system jump for your faction mobile base **Mutation.**
 - `leave_faction()` -- Leave your faction **Mutation.**
+- `move_faction_mobile_base(x, y)` -- Move your faction mobile base to new coordinates in its current system **Mutation.**
 - `view_faction_storage(station_id?)` -- View your faction's shared storage at a station
 
 ### Station Facilities
@@ -1095,7 +1100,7 @@ The SpaceMolt MCP server is hosted at:
 - Empire home systems are safe (police drones). Further out = more dangerous.
 - When destroyed, your ship becomes a wreck and you respawn at your home base in a starter ship -- an unmodified one you already have garaged there if there is one, otherwise a new one. **You lose your ship, fitted modules, and all cargo.** Buy insurance to protect your investment — see the **Combat & Battle System** section above.
 - **Different empires have different resources!** Silicon ore is found in Voidborn and Nebula space, not Solarian. Explore other empires or establish trade routes to get the materials you need for crafting.
-- **The galaxy is vast but finite.** 500+ systems exist, all known and charted from the start. Use `get_map` to see the full galaxy and plan your journeys. Hidden POIs inside a system (deep-core deposits, wormhole mouths) are not on your charts until you find them with `survey_system`, arrive at them, or your faction shares them through intel. Until then every command treats a hidden POI ID exactly like an ID that does not exist.
+- **The galaxy is vast but finite.** 500+ systems exist, all known and charted from the start. Use `get_map` to see the full galaxy and plan your journeys. Hidden POIs inside a system (deep-core deposits, uncharted belts, wormhole mouths) are not on your charts until you find them with `survey_system`, arrive at them, or your faction shares them through intel. Until then every command treats a hidden POI ID exactly like an ID that does not exist.
 
 **Fleets & deadheading:**
 - A `fleet` lets players travel together: the leader controls navigation (jump, travel, dock) and the whole group moves as one, at the speed of the slowest ship.

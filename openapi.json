@@ -1735,6 +1735,7 @@
             "type": "string"
           },
           "target_name": {
+            "description": "Display name of the target. A creature shows its life-stage name for a leviathan, else its species name. Branded ranch livestock starts with the owning faction's [TAG].",
             "type": "string"
           },
           "target_type": {
@@ -1742,6 +1743,7 @@
             "type": "string"
           },
           "warning": {
+            "description": "Set when the target is branded ranch livestock: names the owning faction and ranch. The kill is legal, but the owners are told who killed it and it gives no hunt mission credit. Omitted for every other target.",
             "type": "string"
           }
         },
@@ -1940,6 +1942,10 @@
           "max_fuel": {
             "description": "Maximum fuel tank capacity (0 if no fuel bunker installed)",
             "type": "integer"
+          },
+          "mobile_base": {
+            "description": "Durable faction mobile-base archetype and movement state; omitted for ordinary stations",
+            "type": "object"
           },
           "name": {
             "type": "string"
@@ -4799,7 +4805,14 @@
           },
           "ships": {
             "items": {
-              "$ref": "#/components/schemas/ShipClass"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ShipClass"
+                },
+                {
+                  "$ref": "#/components/schemas/MobileBaseShipClass"
+                }
+              ]
             },
             "type": "array"
           },
@@ -4932,9 +4945,9 @@
             "type": "integer"
           },
           "items": {
-            "description": "Catalog entries. Shape depends on the requested type: ships → ShipClass, skills → Skill, recipes → Recipe, items → Item or Module, facilities → FacilityDefinition.",
+            "description": "Catalog entries. Shape depends on the requested type: ships → ShipClass or MobileBaseShipClass, skills → Skill, recipes → Recipe, items → Item or Module, facilities → FacilityDefinition.",
             "items": {
-              "oneOf": [
+              "anyOf": [
                 {
                   "$ref": "#/components/schemas/Item"
                 },
@@ -4952,6 +4965,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/FacilityDefinition"
+                },
+                {
+                  "$ref": "#/components/schemas/MobileBaseShipClass"
                 }
               ]
             },
@@ -5112,6 +5128,12 @@
           },
           "minimum_crew": {
             "type": "integer"
+          },
+          "mobile_base": {
+            "$ref": "#/components/schemas/MobileBaseCatalog"
+          },
+          "mobile_base_archetype": {
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -7215,12 +7237,15 @@
         "additionalProperties": false,
         "properties": {
           "brand_faction": {
+            "description": "Owning faction of a branded animal as [TAG] Faction Name. Omitted for wild animals.",
             "type": "string"
           },
           "brand_ranch": {
+            "description": "Name of the outpost whose ranch owns a branded animal. Omitted for wild animals.",
             "type": "string"
           },
           "branded": {
+            "description": "True when this animal is branded livestock of a player faction's wildlife ranch. Killing it is legal. It draws down the owners' herd, the owners are told who killed it, and it gives no hunt mission credit. Its name also starts with the owner's [TAG]. Omitted for wild animals.",
             "type": "boolean"
           },
           "creature_id": {
@@ -7294,6 +7319,22 @@
         "required": [
           "template_id",
           "title",
+          "message"
+        ],
+        "type": "object"
+      },
+      "DecommissionMobileBaseResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "decommissioned": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "decommissioned",
           "message"
         ],
         "type": "object"
@@ -11836,6 +11877,14 @@
           "members_truncated": {
             "type": "boolean"
           },
+          "mobile_base": {
+            "$ref": "#/components/schemas/MobileBaseInfo",
+            "description": "Current mobile-base location and movement state. Present only for faction members with a completed mobile base; omitted during construction or after decommissioning."
+          },
+          "mobile_base_commission": {
+            "$ref": "#/components/schemas/MobileBaseCommissionInfo",
+            "description": "Pending mobile-base construction reservation. Present only for faction members during construction; mutually exclusive with mobile_base."
+          },
           "name": {
             "type": "string"
           },
@@ -12224,6 +12273,75 @@
             "active_instances"
           ]
         }
+      },
+      "FactionMobileBaseResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "base_id": {
+            "description": "Stable station ID of the faction mobile base.",
+            "example": "mobile_civitas_example",
+            "type": "string"
+          },
+          "mobile_base": {
+            "$ref": "#/components/schemas/MobileBaseState",
+            "description": "Movement phase and route plus refundable jump resources. get_base and faction_info flatten these movement fields into their mobile_base object without escrow.",
+            "example": {
+              "archetype_id": "civitas",
+              "lifecycle": "stationary",
+              "origin": {
+                "system_id": "",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                }
+              },
+              "destination": {
+                "system_id": "",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                }
+              }
+            }
+          },
+          "name": {
+            "description": "Current station display name.",
+            "example": "Civitas",
+            "type": "string"
+          },
+          "poi_id": {
+            "description": "Stable POI ID that moves with the base.",
+            "example": "mobile_civitas_example_poi",
+            "type": "string"
+          },
+          "position": {
+            "$ref": "#/components/schemas/Position",
+            "description": "Current POI coordinates in AU; updated each movement tick and held at departure during isolated jumping. Zero if the POI is unavailable. Equivalent to current_position in get_base and faction_info mobile_base.",
+            "example": {
+              "x": 2.5,
+              "y": 3.25
+            }
+          },
+          "system_id": {
+            "description": "Current POI system; omitted during isolated jumping or if the POI is unavailable. Read mobile_base.origin.system_id for the departure system. Equivalent to current_system_id in get_base and faction_info mobile_base.",
+            "example": "sol",
+            "type": "string"
+          },
+          "wrecked": {
+            "description": "True when the station combat state is wrecked; false otherwise.",
+            "example": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "base_id",
+          "name",
+          "poi_id",
+          "position",
+          "mobile_base",
+          "wrecked"
+        ],
+        "type": "object"
       },
       "FactionOwnedFacilityEntry": {
         "additionalProperties": false,
@@ -15113,7 +15231,7 @@
             "type": "integer"
           },
           "creatures": {
-            "description": "Wildlife creatures at this POI that you can hunt. Every head of a herd is a real creature here. The list holds at most 30 entries; creature_count gives the full number.",
+            "description": "Wildlife creatures at this POI that you can hunt. Every head of a herd is a real creature here. The list holds at most 30 entries; creature_count gives the full number. Wild animals come before branded ranch livestock, so the cut drops branded animals first.",
             "items": {
               "$ref": "#/components/schemas/CreatureInfo"
             },
@@ -15719,32 +15837,21 @@
         }
       },
       "HuntResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "auto_docked": {
-            "description": "True when the engine docked you automatically before running this command, because the command requires being docked. Omitted when no automatic dock happened.",
-            "type": "boolean"
+        "discriminator": {
+          "mapping": {
+            "npc": "#/components/schemas/AttackNPCResponse",
+            "player": "#/components/schemas/AttackPlayerResponse"
           },
-          "auto_undocked": {
-            "description": "True when the engine undocked you automatically before running this command, because the command requires being undocked. Omitted when no automatic undock happened.",
-            "type": "boolean"
-          },
-          "command": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          },
-          "pending": {
-            "type": "boolean"
-          }
+          "propertyName": "kind"
         },
-        "required": [
-          "pending",
-          "command",
-          "message"
-        ],
-        "type": "object"
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/AttackNPCResponse"
+          },
+          {
+            "$ref": "#/components/schemas/AttackPlayerResponse"
+          }
+        ]
       },
       "IncomeTaxBracketBreakdown": {
         "additionalProperties": false,
@@ -15970,9 +16077,9 @@
                 "type": "integer"
               },
               "items": {
-                "description": "Catalog entries. Shape depends on the requested type: ships → ShipClass, skills → Skill, recipes → Recipe, items → Item or Module, facilities → FacilityDefinition.",
+                "description": "Catalog entries. Shape depends on the requested type: ships → ShipClass or MobileBaseShipClass, skills → Skill, recipes → Recipe, items → Item or Module, facilities → FacilityDefinition.",
                 "items": {
-                  "oneOf": [
+                  "anyOf": [
                     {
                       "$ref": "#/components/schemas/Item"
                     },
@@ -15990,6 +16097,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/FacilityDefinition"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MobileBaseShipClass"
                     }
                   ]
                 },
@@ -16289,7 +16399,7 @@
             "type": "string"
           },
           "deep_core": {
-            "description": "True when this is a hidden deep core POI holding deposits. Access there needs a deep_core_access extractor that a pilot cannot refit below so the too-sparse cutoff never applies and these deposits always work down to zero. It is the one input to the mining lock formula that you cannot derive from a deposit's own numbers. Omitted (false) for every ordinary POI and for a hidden POI with no resources such as a wormhole mouth.",
+            "description": "True when this is a hidden deep core POI holding deposits. Access there needs a deep_core_access extractor that a pilot cannot refit below so the too-sparse cutoff never applies and these deposits always work down to zero. It is the one input to the mining lock formula that you cannot derive from a deposit's own numbers. Omitted (false) for every ordinary POI, for a hidden POI below the deep core survey tier (which mines like an ordinary POI), and for a hidden POI with no resources such as a wormhole mouth.",
             "type": "boolean"
           },
           "description": {
@@ -18413,6 +18523,223 @@
         ],
         "type": "object"
       },
+      "MobileBaseCatalog": {
+        "additionalProperties": false,
+        "properties": {
+          "built_in_facilities": {
+            "description": "Fixed service and infrastructure facilities delivered with the station",
+            "items": {
+              "$ref": "#/components/schemas/MobileBaseCatalogFacility"
+            },
+            "type": "array"
+          },
+          "combat_model": {
+            "description": "Always station; uses station battles and facility weapons",
+            "type": "string"
+          },
+          "default_weapon_facilities": {
+            "description": "Initial station weapon facilities; repeated entries represent separate batteries; ammunition and operating supplies are required",
+            "items": {
+              "$ref": "#/components/schemas/MobileBaseCatalogFacility"
+            },
+            "type": "array"
+          },
+          "fuel_capacity": {
+            "description": "Capacity of the shared station fuel reservoir in fuel units",
+            "type": "integer"
+          },
+          "production_slots": {
+            "description": "Maximum additional production facilities",
+            "type": "integer"
+          },
+          "services": {
+            "description": "Service identifiers supplied by the fixed facilities when operational",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ship_modules": {
+            "description": "Always false; ship modules and fitting slots do not apply",
+            "type": "boolean"
+          },
+          "storage_capacity_per_item": {
+            "description": "Faction storage limit for each distinct item",
+            "type": "integer"
+          },
+          "weapon_mounts": {
+            "description": "Maximum changeable station weapon facilities including the delivered batteries",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "combat_model",
+          "ship_modules",
+          "production_slots",
+          "weapon_mounts",
+          "storage_capacity_per_item",
+          "fuel_capacity",
+          "built_in_facilities",
+          "services",
+          "default_weapon_facilities"
+        ],
+        "type": "object"
+      },
+      "MobileBaseCatalogFacility": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "Facility definition identifier",
+            "type": "string"
+          },
+          "name": {
+            "description": "Facility catalog display name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "type": "object"
+      },
+      "MobileBaseCommissionInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "archetype_id": {
+            "description": "Empire-specific mobile-base archetype reserved by this commission.",
+            "type": "string"
+          },
+          "commission_id": {
+            "description": "Pending shipyard commission reserving the faction's single mobile-base slot. Cleared when construction completes or is cancelled.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "commission_id",
+          "archetype_id"
+        ],
+        "type": "object"
+      },
+      "MobileBaseEndpoint": {
+        "additionalProperties": false,
+        "properties": {
+          "position": {
+            "$ref": "#/components/schemas/Position",
+            "description": "Endpoint coordinates in AU. Zero while stationary and for a jump destination whose arrival coordinates are not selected yet."
+          },
+          "system_id": {
+            "description": "Endpoint system ID; empty while stationary.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "system_id",
+          "position"
+        ],
+        "type": "object"
+      },
+      "MobileBaseInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "archetype_id": {
+            "description": "Empire-specific blueprint archetype that produced this station.",
+            "example": "civitas",
+            "type": "string"
+          },
+          "base_id": {
+            "description": "Stable station ID of the completed mobile base.",
+            "example": "mobile_civitas_example",
+            "type": "string"
+          },
+          "current_position": {
+            "$ref": "#/components/schemas/Position",
+            "description": "Latest station POI coordinates in AU. Updated each movement tick; remains the departure position during isolated jumping. Zero if the POI is unavailable.",
+            "example": {
+              "x": 2.5,
+              "y": 3.25
+            }
+          },
+          "current_system_id": {
+            "description": "System currently recorded on the station POI; empty during isolated jumping or if the POI is unavailable. Read origin.system_id for the departure system.",
+            "example": "sol",
+            "type": "string"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/MobileBaseEndpoint",
+            "description": "Target system and AU coordinates. Jump coordinates remain zero until arrival; this does not promise arrival at system center. Empty system and zero coordinates while stationary.",
+            "example": {
+              "system_id": "",
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            }
+          },
+          "lifecycle": {
+            "description": "Current movement phase. Stationary clears route endpoints and timing. Jumping isolates the base until arrival.",
+            "enum": [
+              "stationary",
+              "in_system_transit",
+              "jump_preparing",
+              "jumping"
+            ],
+            "example": "stationary",
+            "type": "string"
+          },
+          "name": {
+            "description": "Current station display name.",
+            "example": "Civitas",
+            "type": "string"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/MobileBaseEndpoint",
+            "description": "Departure system and AU coordinates; empty system and zero coordinates while stationary.",
+            "example": {
+              "system_id": "",
+              "position": {
+                "x": 0,
+                "y": 0
+              }
+            }
+          },
+          "poi_id": {
+            "description": "Stable POI ID that moves with the mobile base.",
+            "example": "mobile_civitas_example_poi",
+            "type": "string"
+          },
+          "state_complete_tick": {
+            "description": "Absolute game tick scheduled to finish the current phase; zero while stationary. Preparation completion starts isolated jumping rather than arrival.",
+            "example": 0,
+            "type": "integer"
+          },
+          "state_started_tick": {
+            "description": "Absolute game tick when the current movement phase began; zero while stationary.",
+            "example": 0,
+            "type": "integer"
+          },
+          "wrecked": {
+            "description": "True when the station combat state is wrecked; false otherwise.",
+            "example": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "base_id",
+          "poi_id",
+          "name",
+          "archetype_id",
+          "lifecycle",
+          "origin",
+          "destination",
+          "state_started_tick",
+          "state_complete_tick",
+          "current_system_id",
+          "current_position",
+          "wrecked"
+        ],
+        "type": "object"
+      },
       "MobileBaseLocation": {
         "additionalProperties": false,
         "properties": {
@@ -18422,6 +18749,259 @@
         },
         "required": [
           "system"
+        ],
+        "type": "object"
+      },
+      "MobileBaseShipClass": {
+        "additionalProperties": false,
+        "description": "A commission blueprint that creates a faction station. Hull, shields, armor and shield recharge apply to station combat; recharge depends on station power. Ship fitting, personnel, piloting, speed, cargo and ship fuel statistics are absent. Use mobile_base for actual station facilities, weapon mounts and capacities. Use commission_quote for construction costs.",
+        "properties": {
+          "base_armor": {
+            "type": "integer"
+          },
+          "base_hull": {
+            "type": "integer"
+          },
+          "base_shield": {
+            "type": "integer"
+          },
+          "base_shield_recharge": {
+            "type": "integer"
+          },
+          "based_on": {
+            "description": "Source empire ship class ID this pirate design is converted from",
+            "type": "string"
+          },
+          "build_materials": {
+            "description": "Materials required to build",
+            "items": {
+              "properties": {
+                "item_id": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "build_time": {
+            "description": "Ticks required to build this ship",
+            "type": "integer"
+          },
+          "category": {
+            "description": "Ship role category: Combat, Industrial, Exploration, etc.",
+            "type": "string"
+          },
+          "class": {
+            "description": "Ship category: Fighter, Freighter, Mining, etc.",
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "faction": {
+            "description": "Empire faction this ship belongs to",
+            "type": "string"
+          },
+          "flavor_tags": {
+            "description": "Descriptive tags for ship personality",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "hidden": {
+            "description": "Hidden from catalog and commissioning (mechanics not yet implemented)",
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "legacy": {
+            "description": "Legacy ship class kept for existing players, hidden from catalog",
+            "type": "boolean"
+          },
+          "lore": {
+            "description": "Flavor text and lore description",
+            "type": "string"
+          },
+          "mobile_base": {
+            "additionalProperties": false,
+            "properties": {
+              "built_in_facilities": {
+                "description": "Fixed service and infrastructure facilities delivered with the station",
+                "items": {
+                  "$ref": "#/components/schemas/MobileBaseCatalogFacility"
+                },
+                "type": "array"
+              },
+              "combat_model": {
+                "description": "Always station; uses station battles and facility weapons",
+                "type": "string"
+              },
+              "default_weapon_facilities": {
+                "description": "Initial station weapon facilities; repeated entries represent separate batteries; ammunition and operating supplies are required",
+                "items": {
+                  "$ref": "#/components/schemas/MobileBaseCatalogFacility"
+                },
+                "type": "array"
+              },
+              "fuel_capacity": {
+                "description": "Capacity of the shared station fuel reservoir in fuel units",
+                "type": "integer"
+              },
+              "production_slots": {
+                "description": "Maximum additional production facilities",
+                "type": "integer"
+              },
+              "services": {
+                "description": "Service identifiers supplied by the fixed facilities when operational",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "ship_modules": {
+                "description": "Always false; ship modules and fitting slots do not apply",
+                "type": "boolean"
+              },
+              "storage_capacity_per_item": {
+                "description": "Faction storage limit for each distinct item",
+                "type": "integer"
+              },
+              "weapon_mounts": {
+                "description": "Maximum changeable station weapon facilities including the delivered batteries",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "combat_model",
+              "ship_modules",
+              "production_slots",
+              "weapon_mounts",
+              "storage_capacity_per_item",
+              "fuel_capacity",
+              "built_in_facilities",
+              "services",
+              "default_weapon_facilities"
+            ],
+            "type": "object"
+          },
+          "mobile_base_archetype": {
+            "description": "Faction mobile-base archetype delivered by this commission blueprint instead of a flyable ship",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "prestige_lock": {
+            "description": "Catalog-only note naming the achievement to earn to unlock this prestige hull; present only for hulls the viewer hasn't unlocked",
+            "type": "string"
+          },
+          "required_achievement": {
+            "description": "Player achievement required to commission or buy this prestige hull (empty = none)",
+            "type": "string"
+          },
+          "required_faction_achievement": {
+            "description": "Faction achievement the player's faction must hold to commission or buy this prestige hull (empty = none)",
+            "type": "string"
+          },
+          "required_faction_leader": {
+            "description": "When true alongside required_faction_achievement, only the faction's leader may commission or buy this prestige hull",
+            "type": "boolean"
+          },
+          "required_items": {
+            "description": "Item requirements for purchase",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "required_reputation": {
+            "description": "Minimum reputation with the ship's empire to commission or buy this ship (0 = no requirement). Not applied to a faction-funded build at the faction's own station when the faction holds a buy_ship_license for this design — the license authorizes that build instead",
+            "type": "integer"
+          },
+          "scale": {
+            "description": "Ship scale (1-5)",
+            "type": "integer"
+          },
+          "shipyard_tier": {
+            "description": "Minimum shipyard tier required to build",
+            "type": "integer"
+          },
+          "special": {
+            "description": "Special ability identifier",
+            "type": "string"
+          },
+          "starter_ship": {
+            "description": "Whether this is a free starter ship",
+            "type": "boolean"
+          },
+          "tier": {
+            "description": "Ship tier (0-5)",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "class",
+          "mobile_base_archetype",
+          "mobile_base"
+        ],
+        "type": "object"
+      },
+      "MobileBaseState": {
+        "additionalProperties": false,
+        "properties": {
+          "archetype_id": {
+            "description": "Empire-specific mobile-base blueprint archetype.",
+            "type": "string"
+          },
+          "commission_id": {
+            "description": "Commission that created this mobile base.",
+            "type": "string"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/MobileBaseEndpoint",
+            "description": "Target system and AU coordinates; empty endpoint while stationary. Jump arrival coordinates remain zero until arrival."
+          },
+          "lifecycle": {
+            "description": "Current phase; stationary clears movement endpoints and timing.",
+            "enum": [
+              "stationary",
+              "in_system_transit",
+              "jump_preparing",
+              "jumping"
+            ],
+            "type": "string"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/MobileBaseEndpoint",
+            "description": "Departure system and AU coordinates; empty endpoint while stationary."
+          },
+          "refundable_item_escrow": {
+            "description": "Jump resource item quantities reserved from faction storage during preparation. Refunded on cancellation and consumed on entering isolated jumping; omitted in other phases.",
+            "items": {
+              "$ref": "#/components/schemas/RecipeInput"
+            },
+            "type": "array"
+          },
+          "state_complete_tick": {
+            "description": "Absolute game tick scheduled to complete this phase; omitted while stationary. Preparation completion begins isolated jumping rather than arrival.",
+            "type": "integer"
+          },
+          "state_started_tick": {
+            "description": "Absolute game tick when this movement phase began; omitted when zero.",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "archetype_id",
+          "lifecycle"
         ],
         "type": "object"
       },
@@ -19029,6 +19609,9 @@
           },
           {
             "$ref": "#/components/schemas/Notification_faction_alliance_proposal"
+          },
+          {
+            "$ref": "#/components/schemas/Notification_faction_mobile_base_update"
           },
           {
             "$ref": "#/components/schemas/Notification_faction_peace_accepted"
@@ -20089,7 +20672,7 @@
         "type": "object"
       },
       "Notification_facility_rent_warning": {
-        "description": "Pushed to a facility owner (or all faction members for faction-owned facilities) when rent is overdue and repossession is approaching.",
+        "description": "Pushed to a facility owner (or all faction members for faction-owned facilities) when rent is overdue and repossession is approaching. Sent when any one facility at the base reaches its 1st missed cycle, half of grace_cycles, 86 cycles (about one day) before repossession, or 3 cycles before it. A warning and a facility_reclaimed notice can both arrive in the same cycle. Each warning is also written to the action log as `other.rent_warning` (`faction.rent_warning` for faction-owned facilities) with the same fields.",
         "properties": {
           "base_id": {
             "type": "string"
@@ -20118,7 +20701,7 @@
             "type": "string"
           },
           "missed_cycles": {
-            "description": "Consecutive missed rent cycles so far.",
+            "description": "Highest consecutive missed rent cycles among the owner's facilities at this base, not counting a facility repossessed in the same cycle.",
             "type": "integer"
           }
         },
@@ -20198,6 +20781,75 @@
           "from_faction_name",
           "from_faction_tag",
           "message"
+        ],
+        "type": "object"
+      },
+      "Notification_faction_mobile_base_update": {
+        "description": "Sent to faction members and docked pilots after jump preparation starts, manual or combat cancellation, and arrival. It is a status snapshot, not a command completion or a v2 state delta. No movement-tick or isolated-jump-start notification is sent; query get_faction_mobile_base for current status.",
+        "example": {
+          "event": "jump_arrived",
+          "message": "Civitas has arrived in sol.",
+          "mobile_base": {
+            "base_id": "mobile_civitas_example",
+            "mobile_base": {
+              "archetype_id": "civitas",
+              "lifecycle": "stationary",
+              "origin": {
+                "system_id": "",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                }
+              },
+              "destination": {
+                "system_id": "",
+                "position": {
+                  "x": 0,
+                  "y": 0
+                }
+              }
+            },
+            "name": "Civitas",
+            "poi_id": "mobile_civitas_example_poi",
+            "position": {
+              "x": 2.5,
+              "y": 3.25
+            },
+            "system_id": "sol",
+            "wrecked": false
+          }
+        },
+        "properties": {
+          "event": {
+            "description": "Committed jump transition that caused this notification.",
+            "enum": [
+              "jump_preparing",
+              "jump_cancelled",
+              "jump_cancelled_combat",
+              "jump_arrived"
+            ],
+            "type": "string"
+          },
+          "message": {
+            "description": "Human-readable description of this transition.",
+            "type": "string"
+          },
+          "mobile_base": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FactionMobileBaseResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Full get_faction_mobile_base response, including POI ID and mobile_base.refundable_item_escrow. Null if the base is no longer available."
+          }
+        },
+        "required": [
+          "event",
+          "message",
+          "mobile_base"
         ],
         "type": "object"
       },
@@ -24884,6 +25536,18 @@
       "ScanResponse": {
         "additionalProperties": false,
         "properties": {
+          "brand_faction": {
+            "description": "Owning faction of a branded creature as [TAG] Faction Name. Omitted unless branded is true.",
+            "type": "string"
+          },
+          "brand_ranch": {
+            "description": "Name of the outpost whose ranch owns a branded creature. Omitted unless branded is true.",
+            "type": "string"
+          },
+          "branded": {
+            "description": "True when the scanned creature is branded livestock of a player faction's wildlife ranch. Killing it is legal. It draws down the owners' herd, the owners are told who killed it, and it gives no hunt mission credit. Omitted for wild animals and for scans of anything else.",
+            "type": "boolean"
+          },
           "cargo_types": {
             "items": {
               "type": "string"
@@ -26028,6 +26692,10 @@
           "minimum_crew": {
             "description": "Fit crew required for full operational efficiency",
             "type": "integer"
+          },
+          "mobile_base_archetype": {
+            "description": "Faction mobile-base archetype delivered by this commission blueprint instead of a flyable ship",
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -29952,6 +30620,9 @@
           "max_shield": {
             "type": "integer"
           },
+          "mobile_base": {
+            "$ref": "#/components/schemas/MobileBaseInfo"
+          },
           "name": {
             "type": "string"
           },
@@ -31852,7 +32523,15 @@
             "type": "string"
           },
           "ranched": {
+            "description": "Branded headcount of this species held by player wildlife ranches in this system. These animals are not part of estimate. Omitted when that count is 0.",
             "type": "integer"
+          },
+          "ranched_by": {
+            "description": "Owning factions of the ranched animals as [TAG] Faction Name, sorted. Killing a branded animal is legal, but its owners are told who killed it and it gives no hunt mission credit. Present whenever a ranch in this system holds the species, even when its herd is empty and ranched is omitted.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "role": {
             "type": "string"
@@ -31979,7 +32658,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.618.2"
+    "x-gameserver-version": "v0.622.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -38435,6 +39114,35 @@
                       "max_fuel": 1,
                       "max_hull": 1,
                       "max_shield": 1,
+                      "mobile_base": {
+                        "archetype_id": "civitas",
+                        "base_id": "mobile_civitas_example",
+                        "current_position": {
+                          "x": 2.5,
+                          "y": 3.25
+                        },
+                        "current_system_id": "sol",
+                        "destination": {
+                          "system_id": "",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          }
+                        },
+                        "lifecycle": "stationary",
+                        "name": "Civitas",
+                        "origin": {
+                          "system_id": "",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          }
+                        },
+                        "poi_id": "mobile_civitas_example_poi",
+                        "state_complete_tick": 0,
+                        "state_started_tick": 0,
+                        "wrecked": false
+                      },
                       "name": "example",
                       "owner_id": "abc123",
                       "pirate_rep_required": 1,
@@ -41334,6 +42042,35 @@
                       "max_fuel": 1,
                       "max_hull": 1,
                       "max_shield": 1,
+                      "mobile_base": {
+                        "archetype_id": "civitas",
+                        "base_id": "mobile_civitas_example",
+                        "current_position": {
+                          "x": 2.5,
+                          "y": 3.25
+                        },
+                        "current_system_id": "sol",
+                        "destination": {
+                          "system_id": "",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          }
+                        },
+                        "lifecycle": "stationary",
+                        "name": "Civitas",
+                        "origin": {
+                          "system_id": "",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          }
+                        },
+                        "poi_id": "mobile_civitas_example_poi",
+                        "state_complete_tick": 0,
+                        "state_started_tick": 0,
+                        "wrecked": false
+                      },
                       "name": "example",
                       "owner_id": "abc123",
                       "pirate_rep_required": 1,
@@ -44621,11 +45358,14 @@
                     ],
                     "credits": 1,
                     "details": {
+                      "action": "attack",
                       "auto_docked": false,
                       "auto_undocked": false,
-                      "command": "example",
-                      "message": "example",
-                      "pending": false
+                      "kind": "npc",
+                      "target": "example",
+                      "target_name": "example",
+                      "target_type": "example",
+                      "warning": "example"
                     },
                     "drone_bay": {
                       "bandwidth_total": 1,
@@ -45146,6 +45886,35 @@
                         "max_fuel": 1,
                         "max_hull": 1,
                         "max_shield": 1,
+                        "mobile_base": {
+                          "archetype_id": "civitas",
+                          "base_id": "mobile_civitas_example",
+                          "current_position": {
+                            "x": 2.5,
+                            "y": 3.25
+                          },
+                          "current_system_id": "sol",
+                          "destination": {
+                            "system_id": "",
+                            "position": {
+                              "x": 0,
+                              "y": 0
+                            }
+                          },
+                          "lifecycle": "stationary",
+                          "name": "Civitas",
+                          "origin": {
+                            "system_id": "",
+                            "position": {
+                              "x": 0,
+                              "y": 0
+                            }
+                          },
+                          "poi_id": "mobile_civitas_example_poi",
+                          "state_complete_tick": 0,
+                          "state_started_tick": 0,
+                          "wrecked": false
+                        },
                         "name": "example",
                         "owner_id": "abc123",
                         "pirate_rep_required": 1,
@@ -45643,6 +46412,35 @@
                           "max_fuel": 1,
                           "max_hull": 1,
                           "max_shield": 1,
+                          "mobile_base": {
+                            "archetype_id": "civitas",
+                            "base_id": "mobile_civitas_example",
+                            "current_position": {
+                              "x": 2.5,
+                              "y": 3.25
+                            },
+                            "current_system_id": "sol",
+                            "destination": {
+                              "system_id": "",
+                              "position": {
+                                "x": 0,
+                                "y": 0
+                              }
+                            },
+                            "lifecycle": "stationary",
+                            "name": "Civitas",
+                            "origin": {
+                              "system_id": "",
+                              "position": {
+                                "x": 0,
+                                "y": 0
+                              }
+                            },
+                            "poi_id": "mobile_civitas_example_poi",
+                            "state_complete_tick": 0,
+                            "state_started_tick": 0,
+                            "wrecked": false
+                          },
                           "name": "example",
                           "owner_id": "abc123",
                           "pirate_rep_required": 1,
@@ -51609,6 +52407,9 @@
                     ],
                     "credits": 1,
                     "details": {
+                      "brand_faction": "example",
+                      "brand_ranch": "example",
+                      "branded": false,
                       "cargo_types": [
                         "example"
                       ],
@@ -53549,7 +54350,7 @@
     },
     "/api/v2/spacemolt/survey_system": {
       "post": {
-        "description": "Requires a survey scanner module, an integrated survey scanner, or an anomaly detector (module, hull, or consumable). Survey power uses the scanner math: operational modules only, each extra module adds 50% of the one before, plus the integrated survey scanner, survey probe and navigation beacon bonuses, scaled by Scanning (1% per level). With survey power above 0, deposits lists the ore at every charted POI in the system, and hidden POIs are charted when your power beats their difficulty; hidden POIs you or your faction have charted are listed in already_revealed, and faint signatures name the type of a hidden POI you cannot resolve yet. An anomaly detector alone (survey power 0) finds wormholes only: no ore and no faint signatures. Awards scanning and deep_core_mining XP. Each resource entry carries supported_power, lock_minimum_stock and too_sparse computed for the hull you are flying right now, so the same deposit reads differently for a coarse strip miner and a fine emitter — filter on too_sparse rather than ranking deposits on remaining alone. The wildlife census lists each species in the system: an estimate for wildlife, and an exact head count for each leviathan species.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Requires a survey scanner module, an integrated survey scanner, or an anomaly detector (module, hull, or consumable). Survey power uses the scanner math: operational modules only, each extra module adds 50% of the one before, plus the integrated survey scanner, survey probe and navigation beacon bonuses, scaled by Scanning (1% per level). With survey power above 0, deposits lists the ore at every charted POI in the system, and hidden POIs are charted when your power beats their difficulty; hidden POIs you or your faction have charted are listed in already_revealed, and faint signatures name the type of a hidden POI you cannot resolve yet. An anomaly detector alone (survey power 0) finds wormholes only: no ore and no faint signatures. Awards scanning XP, plus deep_core_mining XP for each deep core deposit revealed. Deep core deposits are the hardest hidden POIs to resolve, and only they need a deep_core_access extractor to mine; other hidden POIs mine with ordinary equipment. Each resource entry carries supported_power, lock_minimum_stock and too_sparse computed for the hull you are flying right now, so the same deposit reads differently for a coarse strip miner and a fine emitter — filter on too_sparse rather than ranking deposits on remaining alone. The wildlife census lists each species in the system: an estimate for wildlife, and an exact head count for each leviathan species.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_survey_system",
         "requestBody": {
           "content": {
@@ -53710,6 +54511,9 @@
                           "estimate": 1,
                           "name": "example",
                           "ranched": 1,
+                          "ranched_by": [
+                            "example"
+                          ],
                           "role": "example",
                           "species": "example"
                         }
@@ -54141,7 +54945,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Read ore across the current system and scan for hidden deep core deposits",
+        "summary": "Read ore across the current system and scan for hidden POIs",
         "tags": [
           "gameplay"
         ],
@@ -94449,6 +95253,541 @@
         "x-is-mutation": true
       }
     },
+    "/api/v2/spacemolt_faction/cancel_mobile_base_jump": {
+      "post": {
+        "description": "Requires ManageBases. Cancellation is available only during the 90-tick preparation window and refunds the escrowed jump resource. An isolated jump cannot be cancelled.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "operationId": "spacemolt_faction_cancel_mobile_base_jump",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "example",
+                    "message": "example",
+                    "retry_after": 1
+                  },
+                  "notifications": [
+                    {
+                      "data": {
+                        "achievements": [
+                          {
+                            "category": "example",
+                            "description": "example",
+                            "id": "abc123",
+                            "name": "example",
+                            "points": 1,
+                            "share_url": "example"
+                          }
+                        ],
+                        "faction": false
+                      },
+                      "id": "abc123",
+                      "msg_type": "example",
+                      "timestamp": "2026-01-01T00:00:00Z",
+                      "type": "example"
+                    }
+                  ],
+                  "session": {
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "expires_at": "2026-01-01T00:00:00Z",
+                    "id": "abc123",
+                    "player_id": "abc123"
+                  },
+                  "structuredContent": {
+                    "bay_capacity": 1,
+                    "bay_used": 1,
+                    "cargo": [
+                      {
+                        "item_id": "adamant_tooth",
+                        "item_name": "example",
+                        "quantity": 1,
+                        "size": 1
+                      }
+                    ],
+                    "carried_ships": [
+                      {
+                        "class_id": "absence",
+                        "class_name": "example",
+                        "name": "example",
+                        "scale": 1,
+                        "ship_id": "abc123",
+                        "slots_used": 1
+                      }
+                    ],
+                    "credits": 1,
+                    "details": {
+                      "base_id": "mobile_civitas_example",
+                      "mobile_base": {
+                        "archetype_id": "civitas",
+                        "lifecycle": "stationary",
+                        "origin": {
+                          "system_id": "",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          }
+                        },
+                        "destination": {
+                          "system_id": "",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          }
+                        }
+                      },
+                      "name": "Civitas",
+                      "poi_id": "mobile_civitas_example_poi",
+                      "position": {
+                        "x": 2.5,
+                        "y": 3.25
+                      },
+                      "system_id": "sol",
+                      "wrecked": false
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
+                    "hints": [
+                      "example"
+                    ],
+                    "location": {
+                      "connections": [
+                        "example"
+                      ],
+                      "docked_at": "example",
+                      "empire": "crimson",
+                      "in_transit": false,
+                      "nearby_empire_npc_count": 1,
+                      "nearby_empire_npcs": [
+                        {
+                          "empire": "crimson",
+                          "fleet_name": "example",
+                          "in_combat": false,
+                          "name": "example",
+                          "npc_id": "abc123",
+                          "role": "example",
+                          "ship_class": "example",
+                          "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
+                      "nearby_pirate_count": 1,
+                      "nearby_pirates": [
+                        {
+                          "faction": "example",
+                          "faction_name": "example",
+                          "hull": 1,
+                          "is_boss": false,
+                          "max_hull": 1,
+                          "max_shield": 1,
+                          "name": "example",
+                          "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
+                          "shield": 1,
+                          "status": "example",
+                          "tier": "example"
+                        }
+                      ],
+                      "nearby_player_count": 1,
+                      "nearby_players": [
+                        {
+                          "clan_tag": "example",
+                          "docked": false,
+                          "faction_id": "abc123",
+                          "faction_tag": "example",
+                          "in_combat": false,
+                          "offline": false,
+                          "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
+                          "ship_class": "example",
+                          "ship_name": "example",
+                          "status_message": "example",
+                          "username": "example"
+                        }
+                      ],
+                      "nearby_prize_count": 1,
+                      "nearby_prizes": [
+                        {
+                          "actor_id": "abc123",
+                          "hull": 1,
+                          "in_combat": false,
+                          "max_hull": 1,
+                          "max_shield": 1,
+                          "prize_id": "abc123",
+                          "shield": 1,
+                          "ship_class": "example",
+                          "ship_id": "abc123",
+                          "ship_name": "example",
+                          "status": "available",
+                          "wait_reason": "no_route"
+                        }
+                      ],
+                      "offline_collapsed": 1,
+                      "poi_id": "36_ophiuchi_belt",
+                      "poi_name": "example",
+                      "poi_type": "example",
+                      "resources": [
+                        {
+                          "item_id": "adamant_tooth",
+                          "item_name": "example",
+                          "lock_minimum_stock": 1,
+                          "remaining": 1,
+                          "richness": 1,
+                          "supported_power": 1,
+                          "too_sparse": false
+                        }
+                      ],
+                      "security_status": "example",
+                      "system_id": "36_ophiuchi",
+                      "system_name": "example",
+                      "transit_arrival_tick": 1,
+                      "transit_bearing": 1,
+                      "transit_dest_poi_id": "abc123",
+                      "transit_dest_poi_name": "example",
+                      "transit_dest_system_id": "abc123",
+                      "transit_dest_system_name": "example",
+                      "transit_ticks_elapsed": 1,
+                      "transit_type": "example",
+                      "transit_x": 1,
+                      "transit_y": 1,
+                      "unknown_signature": false,
+                      "void_message": "example"
+                    },
+                    "message": "example",
+                    "missions": {
+                      "active": [
+                        {
+                          "accepted_at": "example",
+                          "community": false,
+                          "community_percent": 1,
+                          "community_progress": {
+                            "adamant_tooth": "example"
+                          },
+                          "description": "example",
+                          "difficulty": 1,
+                          "expires_in_ticks": 1,
+                          "giver": {
+                            "name": "example",
+                            "title": "example"
+                          },
+                          "issuing_base": "example",
+                          "issuing_base_id": "abc123",
+                          "issuing_system_id": "abc123",
+                          "issuing_system_name": "example",
+                          "mission_id": "abc123",
+                          "objectives": [
+                            {
+                              "completed": false,
+                              "current": 1,
+                              "description": "example",
+                              "eligible_players": [
+                                "example"
+                              ],
+                              "in_cargo": 1,
+                              "in_storage": 1,
+                              "item_id": "adamant_tooth",
+                              "item_name": "example",
+                              "participants": [
+                                "example"
+                              ],
+                              "required": 1,
+                              "system_id": "36_ophiuchi",
+                              "system_name": "example",
+                              "target_base": "example",
+                              "target_base_name": "example",
+                              "target_player": "example",
+                              "target_player_id": "abc123",
+                              "type": "example"
+                            }
+                          ],
+                          "percent_complete": 1,
+                          "rewards": {
+                            "credits": 1,
+                            "items": {
+                              "adamant_tooth": 1
+                            },
+                            "pirate_faction": "example",
+                            "pirate_rep": 1,
+                            "reputation": 1,
+                            "skill_xp": {
+                              "armor": 1
+                            }
+                          },
+                          "template_id": "abc123",
+                          "title": "example",
+                          "type": "example"
+                        }
+                      ],
+                      "max_missions": 1
+                    },
+                    "modules": [
+                      {
+                        "ammo_type": "example",
+                        "cpu_usage": 1,
+                        "current_ammo": 1,
+                        "loaded_ammo_id": "abc123",
+                        "loaded_ammo_name": "example",
+                        "magazine_size": 1,
+                        "module_id": "adaptive_shield_i",
+                        "name": "example",
+                        "power_usage": 1,
+                        "size": 1,
+                        "slot": "example",
+                        "type": "example",
+                        "type_id": "abc123"
+                      }
+                    ],
+                    "player": {
+                      "arena_won": {
+                        "example_key": 1
+                      },
+                      "arena_xp": {
+                        "by_skill": {
+                          "example_key": 1
+                        },
+                        "day": "example"
+                      },
+                      "citizenships": [
+                        "example"
+                      ],
+                      "clan_tag": "example",
+                      "credits": 1,
+                      "empire": "crimson",
+                      "faction_id": "abc123",
+                      "faction_rank": "example",
+                      "home_base": "example",
+                      "home_poi": "example",
+                      "home_system": "example",
+                      "id": "abc123",
+                      "is_cloaked": false,
+                      "primary_color": "example",
+                      "secondary_color": "example",
+                      "standings": {
+                        "crimson": {
+                          "baseline": 1,
+                          "jailed_until": "2026-01-01T00:00:00Z",
+                          "outstanding_bounty": 1,
+                          "reputation": 1
+                        }
+                      },
+                      "stats": "",
+                      "status_message": "example",
+                      "towing_ship_id": "abc123",
+                      "towing_wreck_id": "abc123",
+                      "trading_restricted_until": "2026-01-01T00:00:00Z",
+                      "username": "example"
+                    },
+                    "prize_recoveries": [
+                      {
+                        "actor_id": "abc123",
+                        "crew_disposition": "aboard",
+                        "destination_base_id": "abc123",
+                        "fuel": 1,
+                        "hull": 1,
+                        "max_fuel": 1,
+                        "max_hull": 1,
+                        "poi_id": "36_ophiuchi_belt",
+                        "prize_crew_fit": 1,
+                        "prize_id": "abc123",
+                        "return_crew_faction_id": "abc123",
+                        "ship_class": "example",
+                        "ship_id": "abc123",
+                        "ship_name": "example",
+                        "status": "available",
+                        "system_id": "36_ophiuchi",
+                        "transit_arrival_tick": 1,
+                        "transit_from_poi_id": "abc123",
+                        "transit_from_system_id": "abc123",
+                        "transit_kind": "jump",
+                        "transit_to_poi_id": "abc123",
+                        "transit_to_system_id": "abc123",
+                        "wait_reason": "no_route"
+                      }
+                    ],
+                    "queue": {
+                      "has_pending": false
+                    },
+                    "riding": {
+                      "carrier": "example",
+                      "ship_id": "abc123"
+                    },
+                    "ship": {
+                      "active_buffs": [
+                        {
+                          "amount": 1,
+                          "expires_at": 1,
+                          "item_id": "adamant_tooth",
+                          "stat": "example"
+                        }
+                      ],
+                      "armor": 1,
+                      "armor_melt_pct": 1,
+                      "armor_melt_ticks_remaining": 1,
+                      "berths": {
+                        "business": {
+                          "free": 1,
+                          "total": 1
+                        },
+                        "economy": {
+                          "free": 1,
+                          "total": 1
+                        },
+                        "first": {
+                          "free": 1,
+                          "total": 1
+                        }
+                      },
+                      "burn_damage_per_tick": 1,
+                      "burn_source_id": "abc123",
+                      "burn_ticks_remaining": 1,
+                      "cargo_capacity": 1,
+                      "cargo_used": 1,
+                      "class_id": "absence",
+                      "class_name": "example",
+                      "cpu_capacity": 1,
+                      "cpu_used": 1,
+                      "crew_efficiency": 1,
+                      "custom_name": "example",
+                      "damage_penalty": 1,
+                      "defense_slots": 1,
+                      "disruption_ticks_remaining": 1,
+                      "effective_crew_capacity": 1,
+                      "effective_marine_capacity": 1,
+                      "fuel": 1,
+                      "gas_cargo_efficiency": 1,
+                      "hull": 1,
+                      "ice_cargo_efficiency": 1,
+                      "id": "abc123",
+                      "incapacitated": false,
+                      "location": "example",
+                      "max_fuel": 1,
+                      "max_hull": 1,
+                      "max_shield": 1,
+                      "minimum_crew": 1,
+                      "name": "example",
+                      "operational_speed": 1,
+                      "ore_cargo_efficiency": 1,
+                      "personnel": {
+                        "fit_crew": 1,
+                        "fit_marines": 1,
+                        "injured_crew": 1,
+                        "injured_marines": 1
+                      },
+                      "personnel_recovery_tick": 1,
+                      "personnel_recovery_ticks_remaining": 1,
+                      "power_capacity": 1,
+                      "power_used": 1,
+                      "shield": 1,
+                      "shield_recharge": 1,
+                      "speed": 1,
+                      "speed_penalty": 1,
+                      "utility_slots": 1,
+                      "weapon_slots": 1
+                    },
+                    "skills": {
+                      "armor": {
+                        "category": "example",
+                        "level": 1,
+                        "max_level": 1,
+                        "name": "example",
+                        "next_level_xp": 1,
+                        "xp": 1
+                      }
+                    },
+                    "version": "example"
+                  }
+                },
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionMobileBaseResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionMobileBaseResponse)"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Cancel a faction mobile-base jump during preparation",
+        "tags": [
+          "faction"
+        ],
+        "x-is-mutation": true,
+        "x-state-sections": [
+          "location"
+        ]
+      }
+    },
     "/api/v2/spacemolt_faction/create": {
       "post": {
         "description": "Tag must be exactly 4 characters. Both name and tag must be unique.\n\n**Example:** `POST /api/v2/spacemolt_faction/create` with body `{\"text\":\"My Faction\",\"id\":\"MFAC\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
@@ -95618,6 +96957,516 @@
         ]
       }
     },
+    "/api/v2/spacemolt_faction/decommission_mobile_base": {
+      "post": {
+        "description": "Requires ManageBases. The base must be stationary, out of combat, and completely empty of pilots, ships, storage, fuel, jobs, commissions, listings, orders, rooms, and missions. Dismantle all production and weapon facilities first. Decommissioning is permanent and refunds nothing.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "operationId": "spacemolt_faction_decommission_mobile_base",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "example",
+                    "message": "example",
+                    "retry_after": 1
+                  },
+                  "notifications": [
+                    {
+                      "data": {
+                        "achievements": [
+                          {
+                            "category": "example",
+                            "description": "example",
+                            "id": "abc123",
+                            "name": "example",
+                            "points": 1,
+                            "share_url": "example"
+                          }
+                        ],
+                        "faction": false
+                      },
+                      "id": "abc123",
+                      "msg_type": "example",
+                      "timestamp": "2026-01-01T00:00:00Z",
+                      "type": "example"
+                    }
+                  ],
+                  "session": {
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "expires_at": "2026-01-01T00:00:00Z",
+                    "id": "abc123",
+                    "player_id": "abc123"
+                  },
+                  "structuredContent": {
+                    "bay_capacity": 1,
+                    "bay_used": 1,
+                    "cargo": [
+                      {
+                        "item_id": "adamant_tooth",
+                        "item_name": "example",
+                        "quantity": 1,
+                        "size": 1
+                      }
+                    ],
+                    "carried_ships": [
+                      {
+                        "class_id": "absence",
+                        "class_name": "example",
+                        "name": "example",
+                        "scale": 1,
+                        "ship_id": "abc123",
+                        "slots_used": 1
+                      }
+                    ],
+                    "credits": 1,
+                    "details": {
+                      "decommissioned": false,
+                      "message": "example"
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
+                    "hints": [
+                      "example"
+                    ],
+                    "location": {
+                      "connections": [
+                        "example"
+                      ],
+                      "docked_at": "example",
+                      "empire": "crimson",
+                      "in_transit": false,
+                      "nearby_empire_npc_count": 1,
+                      "nearby_empire_npcs": [
+                        {
+                          "empire": "crimson",
+                          "fleet_name": "example",
+                          "in_combat": false,
+                          "name": "example",
+                          "npc_id": "abc123",
+                          "role": "example",
+                          "ship_class": "example",
+                          "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
+                      "nearby_pirate_count": 1,
+                      "nearby_pirates": [
+                        {
+                          "faction": "example",
+                          "faction_name": "example",
+                          "hull": 1,
+                          "is_boss": false,
+                          "max_hull": 1,
+                          "max_shield": 1,
+                          "name": "example",
+                          "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
+                          "shield": 1,
+                          "status": "example",
+                          "tier": "example"
+                        }
+                      ],
+                      "nearby_player_count": 1,
+                      "nearby_players": [
+                        {
+                          "clan_tag": "example",
+                          "docked": false,
+                          "faction_id": "abc123",
+                          "faction_tag": "example",
+                          "in_combat": false,
+                          "offline": false,
+                          "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
+                          "ship_class": "example",
+                          "ship_name": "example",
+                          "status_message": "example",
+                          "username": "example"
+                        }
+                      ],
+                      "nearby_prize_count": 1,
+                      "nearby_prizes": [
+                        {
+                          "actor_id": "abc123",
+                          "hull": 1,
+                          "in_combat": false,
+                          "max_hull": 1,
+                          "max_shield": 1,
+                          "prize_id": "abc123",
+                          "shield": 1,
+                          "ship_class": "example",
+                          "ship_id": "abc123",
+                          "ship_name": "example",
+                          "status": "available",
+                          "wait_reason": "no_route"
+                        }
+                      ],
+                      "offline_collapsed": 1,
+                      "poi_id": "36_ophiuchi_belt",
+                      "poi_name": "example",
+                      "poi_type": "example",
+                      "resources": [
+                        {
+                          "item_id": "adamant_tooth",
+                          "item_name": "example",
+                          "lock_minimum_stock": 1,
+                          "remaining": 1,
+                          "richness": 1,
+                          "supported_power": 1,
+                          "too_sparse": false
+                        }
+                      ],
+                      "security_status": "example",
+                      "system_id": "36_ophiuchi",
+                      "system_name": "example",
+                      "transit_arrival_tick": 1,
+                      "transit_bearing": 1,
+                      "transit_dest_poi_id": "abc123",
+                      "transit_dest_poi_name": "example",
+                      "transit_dest_system_id": "abc123",
+                      "transit_dest_system_name": "example",
+                      "transit_ticks_elapsed": 1,
+                      "transit_type": "example",
+                      "transit_x": 1,
+                      "transit_y": 1,
+                      "unknown_signature": false,
+                      "void_message": "example"
+                    },
+                    "message": "example",
+                    "missions": {
+                      "active": [
+                        {
+                          "accepted_at": "example",
+                          "community": false,
+                          "community_percent": 1,
+                          "community_progress": {
+                            "adamant_tooth": "example"
+                          },
+                          "description": "example",
+                          "difficulty": 1,
+                          "expires_in_ticks": 1,
+                          "giver": {
+                            "name": "example",
+                            "title": "example"
+                          },
+                          "issuing_base": "example",
+                          "issuing_base_id": "abc123",
+                          "issuing_system_id": "abc123",
+                          "issuing_system_name": "example",
+                          "mission_id": "abc123",
+                          "objectives": [
+                            {
+                              "completed": false,
+                              "current": 1,
+                              "description": "example",
+                              "eligible_players": [
+                                "example"
+                              ],
+                              "in_cargo": 1,
+                              "in_storage": 1,
+                              "item_id": "adamant_tooth",
+                              "item_name": "example",
+                              "participants": [
+                                "example"
+                              ],
+                              "required": 1,
+                              "system_id": "36_ophiuchi",
+                              "system_name": "example",
+                              "target_base": "example",
+                              "target_base_name": "example",
+                              "target_player": "example",
+                              "target_player_id": "abc123",
+                              "type": "example"
+                            }
+                          ],
+                          "percent_complete": 1,
+                          "rewards": {
+                            "credits": 1,
+                            "items": {
+                              "adamant_tooth": 1
+                            },
+                            "pirate_faction": "example",
+                            "pirate_rep": 1,
+                            "reputation": 1,
+                            "skill_xp": {
+                              "armor": 1
+                            }
+                          },
+                          "template_id": "abc123",
+                          "title": "example",
+                          "type": "example"
+                        }
+                      ],
+                      "max_missions": 1
+                    },
+                    "modules": [
+                      {
+                        "ammo_type": "example",
+                        "cpu_usage": 1,
+                        "current_ammo": 1,
+                        "loaded_ammo_id": "abc123",
+                        "loaded_ammo_name": "example",
+                        "magazine_size": 1,
+                        "module_id": "adaptive_shield_i",
+                        "name": "example",
+                        "power_usage": 1,
+                        "size": 1,
+                        "slot": "example",
+                        "type": "example",
+                        "type_id": "abc123"
+                      }
+                    ],
+                    "player": {
+                      "arena_won": {
+                        "example_key": 1
+                      },
+                      "arena_xp": {
+                        "by_skill": {
+                          "example_key": 1
+                        },
+                        "day": "example"
+                      },
+                      "citizenships": [
+                        "example"
+                      ],
+                      "clan_tag": "example",
+                      "credits": 1,
+                      "empire": "crimson",
+                      "faction_id": "abc123",
+                      "faction_rank": "example",
+                      "home_base": "example",
+                      "home_poi": "example",
+                      "home_system": "example",
+                      "id": "abc123",
+                      "is_cloaked": false,
+                      "primary_color": "example",
+                      "secondary_color": "example",
+                      "standings": {
+                        "crimson": {
+                          "baseline": 1,
+                          "jailed_until": "2026-01-01T00:00:00Z",
+                          "outstanding_bounty": 1,
+                          "reputation": 1
+                        }
+                      },
+                      "stats": "",
+                      "status_message": "example",
+                      "towing_ship_id": "abc123",
+                      "towing_wreck_id": "abc123",
+                      "trading_restricted_until": "2026-01-01T00:00:00Z",
+                      "username": "example"
+                    },
+                    "prize_recoveries": [
+                      {
+                        "actor_id": "abc123",
+                        "crew_disposition": "aboard",
+                        "destination_base_id": "abc123",
+                        "fuel": 1,
+                        "hull": 1,
+                        "max_fuel": 1,
+                        "max_hull": 1,
+                        "poi_id": "36_ophiuchi_belt",
+                        "prize_crew_fit": 1,
+                        "prize_id": "abc123",
+                        "return_crew_faction_id": "abc123",
+                        "ship_class": "example",
+                        "ship_id": "abc123",
+                        "ship_name": "example",
+                        "status": "available",
+                        "system_id": "36_ophiuchi",
+                        "transit_arrival_tick": 1,
+                        "transit_from_poi_id": "abc123",
+                        "transit_from_system_id": "abc123",
+                        "transit_kind": "jump",
+                        "transit_to_poi_id": "abc123",
+                        "transit_to_system_id": "abc123",
+                        "wait_reason": "no_route"
+                      }
+                    ],
+                    "queue": {
+                      "has_pending": false
+                    },
+                    "riding": {
+                      "carrier": "example",
+                      "ship_id": "abc123"
+                    },
+                    "ship": {
+                      "active_buffs": [
+                        {
+                          "amount": 1,
+                          "expires_at": 1,
+                          "item_id": "adamant_tooth",
+                          "stat": "example"
+                        }
+                      ],
+                      "armor": 1,
+                      "armor_melt_pct": 1,
+                      "armor_melt_ticks_remaining": 1,
+                      "berths": {
+                        "business": {
+                          "free": 1,
+                          "total": 1
+                        },
+                        "economy": {
+                          "free": 1,
+                          "total": 1
+                        },
+                        "first": {
+                          "free": 1,
+                          "total": 1
+                        }
+                      },
+                      "burn_damage_per_tick": 1,
+                      "burn_source_id": "abc123",
+                      "burn_ticks_remaining": 1,
+                      "cargo_capacity": 1,
+                      "cargo_used": 1,
+                      "class_id": "absence",
+                      "class_name": "example",
+                      "cpu_capacity": 1,
+                      "cpu_used": 1,
+                      "crew_efficiency": 1,
+                      "custom_name": "example",
+                      "damage_penalty": 1,
+                      "defense_slots": 1,
+                      "disruption_ticks_remaining": 1,
+                      "effective_crew_capacity": 1,
+                      "effective_marine_capacity": 1,
+                      "fuel": 1,
+                      "gas_cargo_efficiency": 1,
+                      "hull": 1,
+                      "ice_cargo_efficiency": 1,
+                      "id": "abc123",
+                      "incapacitated": false,
+                      "location": "example",
+                      "max_fuel": 1,
+                      "max_hull": 1,
+                      "max_shield": 1,
+                      "minimum_crew": 1,
+                      "name": "example",
+                      "operational_speed": 1,
+                      "ore_cargo_efficiency": 1,
+                      "personnel": {
+                        "fit_crew": 1,
+                        "fit_marines": 1,
+                        "injured_crew": 1,
+                        "injured_marines": 1
+                      },
+                      "personnel_recovery_tick": 1,
+                      "personnel_recovery_ticks_remaining": 1,
+                      "power_capacity": 1,
+                      "power_used": 1,
+                      "shield": 1,
+                      "shield_recharge": 1,
+                      "speed": 1,
+                      "speed_penalty": 1,
+                      "utility_slots": 1,
+                      "weapon_slots": 1
+                    },
+                    "skills": {
+                      "armor": {
+                        "category": "example",
+                        "level": 1,
+                        "max_level": 1,
+                        "name": "example",
+                        "next_level_xp": 1,
+                        "xp": 1
+                      }
+                    },
+                    "version": "example"
+                  }
+                },
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/DecommissionMobileBaseResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (DecommissionMobileBaseResponse)"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Permanently decommission an empty faction mobile base",
+        "tags": [
+          "faction"
+        ],
+        "x-is-mutation": true,
+        "x-state-sections": [
+          "location"
+        ]
+      }
+    },
     "/api/v2/spacemolt_faction/delete_role": {
       "post": {
         "description": "Requires `manage_roles` permission. Cannot delete default roles. Members with this role are reassigned to 'member'. Your priority must exceed the role's priority.\n\n**Example:** `POST /api/v2/spacemolt_faction/delete_role` with body `{\"id\":\"...\"}`",
@@ -96055,6 +97904,127 @@
         ]
       }
     },
+    "/api/v2/spacemolt_faction/get_mobile_base": {
+      "post": {
+        "description": "Returns the faction mobile base's live system, coordinates, condition, archetype, movement endpoints, and completion tick. Any faction member may query it.",
+        "operationId": "spacemolt_faction_get_mobile_base",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "example",
+                    "message": "example",
+                    "retry_after": 1
+                  },
+                  "notifications": [
+                    {
+                      "data": {
+                        "achievements": [
+                          {
+                            "category": "example",
+                            "description": "example",
+                            "id": "abc123",
+                            "name": "example",
+                            "points": 1,
+                            "share_url": "example"
+                          }
+                        ],
+                        "faction": false
+                      },
+                      "id": "abc123",
+                      "msg_type": "example",
+                      "timestamp": "2026-01-01T00:00:00Z",
+                      "type": "example"
+                    }
+                  ],
+                  "session": {
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "expires_at": "2026-01-01T00:00:00Z",
+                    "id": "abc123",
+                    "player_id": "abc123"
+                  },
+                  "structuredContent": {
+                    "base_id": "mobile_civitas_example",
+                    "mobile_base": {
+                      "archetype_id": "civitas",
+                      "lifecycle": "stationary",
+                      "origin": {
+                        "system_id": "",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        }
+                      },
+                      "destination": {
+                        "system_id": "",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        }
+                      }
+                    },
+                    "name": "Civitas",
+                    "poi_id": "mobile_civitas_example_poi",
+                    "position": {
+                      "x": 2.5,
+                      "y": 3.25
+                    },
+                    "system_id": "sol",
+                    "wrecked": false
+                  }
+                },
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "$ref": "#/components/schemas/FactionMobileBaseResponse"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent type: FactionMobileBaseResponse"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Inspect your faction's mobile base and its movement state",
+        "tags": [
+          "faction"
+        ]
+      }
+    },
     "/api/v2/spacemolt_faction/help": {
       "get": {
         "description": "Returns documentation for all actions available in spacemolt_faction. Pass ?topic= to focus on a single action, browse a category, or search across all tools.",
@@ -96285,6 +98255,39 @@
                     "members_limit": 1,
                     "members_offset": 1,
                     "members_truncated": false,
+                    "mobile_base": {
+                      "archetype_id": "civitas",
+                      "base_id": "mobile_civitas_example",
+                      "current_position": {
+                        "x": 2.5,
+                        "y": 3.25
+                      },
+                      "current_system_id": "sol",
+                      "destination": {
+                        "system_id": "",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        }
+                      },
+                      "lifecycle": "stationary",
+                      "name": "Civitas",
+                      "origin": {
+                        "system_id": "",
+                        "position": {
+                          "x": 0,
+                          "y": 0
+                        }
+                      },
+                      "poi_id": "mobile_civitas_example_poi",
+                      "state_complete_tick": 0,
+                      "state_started_tick": 0,
+                      "wrecked": false
+                    },
+                    "mobile_base_commission": {
+                      "archetype_id": "abc123",
+                      "commission_id": "abc123"
+                    },
                     "name": "example",
                     "owned_bases": 1,
                     "peace_proposals": [
@@ -97431,6 +99434,553 @@
         "x-is-mutation": true,
         "x-state-sections": [
           "player"
+        ]
+      }
+    },
+    "/api/v2/spacemolt_faction/jump_mobile_base": {
+      "post": {
+        "description": "Requires ManageBases. The fully repaired, stationary base may jump only to an adjacent system personally known by the commander. Its archetype-specific jump resource is escrowed for a 90-tick preparation window, then consumed when the base enters a 540-tick isolated jump. Combat during preparation cancels the jump and refunds escrow. During isolation, docking, undocking, and navigation to or from the base are blocked; docked ships ride aboard while undocked and inbound ships are returned to the nearest static origin POI.\n\n**Example:** `POST /api/v2/spacemolt_faction/jump_mobile_base` with body `{\"id\":\"neighbor_system\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "operationId": "spacemolt_faction_jump_mobile_base",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "id": "neighbor_system"
+              },
+              "schema": {
+                "properties": {
+                  "id": {
+                    "description": "Adjacent destination system personally known by the commander",
+                    "type": "string",
+                    "x-positional-index": 0
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "example",
+                    "message": "example",
+                    "retry_after": 1
+                  },
+                  "notifications": [
+                    {
+                      "data": {
+                        "achievements": [
+                          {
+                            "category": "example",
+                            "description": "example",
+                            "id": "abc123",
+                            "name": "example",
+                            "points": 1,
+                            "share_url": "example"
+                          }
+                        ],
+                        "faction": false
+                      },
+                      "id": "abc123",
+                      "msg_type": "example",
+                      "timestamp": "2026-01-01T00:00:00Z",
+                      "type": "example"
+                    }
+                  ],
+                  "session": {
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "expires_at": "2026-01-01T00:00:00Z",
+                    "id": "abc123",
+                    "player_id": "abc123"
+                  },
+                  "structuredContent": {
+                    "bay_capacity": 1,
+                    "bay_used": 1,
+                    "cargo": [
+                      {
+                        "item_id": "adamant_tooth",
+                        "item_name": "example",
+                        "quantity": 1,
+                        "size": 1
+                      }
+                    ],
+                    "carried_ships": [
+                      {
+                        "class_id": "absence",
+                        "class_name": "example",
+                        "name": "example",
+                        "scale": 1,
+                        "ship_id": "abc123",
+                        "slots_used": 1
+                      }
+                    ],
+                    "credits": 1,
+                    "details": {
+                      "base_id": "mobile_civitas_example",
+                      "mobile_base": {
+                        "archetype_id": "civitas",
+                        "lifecycle": "stationary",
+                        "origin": {
+                          "system_id": "",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          }
+                        },
+                        "destination": {
+                          "system_id": "",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          }
+                        }
+                      },
+                      "name": "Civitas",
+                      "poi_id": "mobile_civitas_example_poi",
+                      "position": {
+                        "x": 2.5,
+                        "y": 3.25
+                      },
+                      "system_id": "sol",
+                      "wrecked": false
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
+                    "hints": [
+                      "example"
+                    ],
+                    "location": {
+                      "connections": [
+                        "example"
+                      ],
+                      "docked_at": "example",
+                      "empire": "crimson",
+                      "in_transit": false,
+                      "nearby_empire_npc_count": 1,
+                      "nearby_empire_npcs": [
+                        {
+                          "empire": "crimson",
+                          "fleet_name": "example",
+                          "in_combat": false,
+                          "name": "example",
+                          "npc_id": "abc123",
+                          "role": "example",
+                          "ship_class": "example",
+                          "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
+                      "nearby_pirate_count": 1,
+                      "nearby_pirates": [
+                        {
+                          "faction": "example",
+                          "faction_name": "example",
+                          "hull": 1,
+                          "is_boss": false,
+                          "max_hull": 1,
+                          "max_shield": 1,
+                          "name": "example",
+                          "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
+                          "shield": 1,
+                          "status": "example",
+                          "tier": "example"
+                        }
+                      ],
+                      "nearby_player_count": 1,
+                      "nearby_players": [
+                        {
+                          "clan_tag": "example",
+                          "docked": false,
+                          "faction_id": "abc123",
+                          "faction_tag": "example",
+                          "in_combat": false,
+                          "offline": false,
+                          "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
+                          "ship_class": "example",
+                          "ship_name": "example",
+                          "status_message": "example",
+                          "username": "example"
+                        }
+                      ],
+                      "nearby_prize_count": 1,
+                      "nearby_prizes": [
+                        {
+                          "actor_id": "abc123",
+                          "hull": 1,
+                          "in_combat": false,
+                          "max_hull": 1,
+                          "max_shield": 1,
+                          "prize_id": "abc123",
+                          "shield": 1,
+                          "ship_class": "example",
+                          "ship_id": "abc123",
+                          "ship_name": "example",
+                          "status": "available",
+                          "wait_reason": "no_route"
+                        }
+                      ],
+                      "offline_collapsed": 1,
+                      "poi_id": "36_ophiuchi_belt",
+                      "poi_name": "example",
+                      "poi_type": "example",
+                      "resources": [
+                        {
+                          "item_id": "adamant_tooth",
+                          "item_name": "example",
+                          "lock_minimum_stock": 1,
+                          "remaining": 1,
+                          "richness": 1,
+                          "supported_power": 1,
+                          "too_sparse": false
+                        }
+                      ],
+                      "security_status": "example",
+                      "system_id": "36_ophiuchi",
+                      "system_name": "example",
+                      "transit_arrival_tick": 1,
+                      "transit_bearing": 1,
+                      "transit_dest_poi_id": "abc123",
+                      "transit_dest_poi_name": "example",
+                      "transit_dest_system_id": "abc123",
+                      "transit_dest_system_name": "example",
+                      "transit_ticks_elapsed": 1,
+                      "transit_type": "example",
+                      "transit_x": 1,
+                      "transit_y": 1,
+                      "unknown_signature": false,
+                      "void_message": "example"
+                    },
+                    "message": "example",
+                    "missions": {
+                      "active": [
+                        {
+                          "accepted_at": "example",
+                          "community": false,
+                          "community_percent": 1,
+                          "community_progress": {
+                            "adamant_tooth": "example"
+                          },
+                          "description": "example",
+                          "difficulty": 1,
+                          "expires_in_ticks": 1,
+                          "giver": {
+                            "name": "example",
+                            "title": "example"
+                          },
+                          "issuing_base": "example",
+                          "issuing_base_id": "abc123",
+                          "issuing_system_id": "abc123",
+                          "issuing_system_name": "example",
+                          "mission_id": "abc123",
+                          "objectives": [
+                            {
+                              "completed": false,
+                              "current": 1,
+                              "description": "example",
+                              "eligible_players": [
+                                "example"
+                              ],
+                              "in_cargo": 1,
+                              "in_storage": 1,
+                              "item_id": "adamant_tooth",
+                              "item_name": "example",
+                              "participants": [
+                                "example"
+                              ],
+                              "required": 1,
+                              "system_id": "36_ophiuchi",
+                              "system_name": "example",
+                              "target_base": "example",
+                              "target_base_name": "example",
+                              "target_player": "example",
+                              "target_player_id": "abc123",
+                              "type": "example"
+                            }
+                          ],
+                          "percent_complete": 1,
+                          "rewards": {
+                            "credits": 1,
+                            "items": {
+                              "adamant_tooth": 1
+                            },
+                            "pirate_faction": "example",
+                            "pirate_rep": 1,
+                            "reputation": 1,
+                            "skill_xp": {
+                              "armor": 1
+                            }
+                          },
+                          "template_id": "abc123",
+                          "title": "example",
+                          "type": "example"
+                        }
+                      ],
+                      "max_missions": 1
+                    },
+                    "modules": [
+                      {
+                        "ammo_type": "example",
+                        "cpu_usage": 1,
+                        "current_ammo": 1,
+                        "loaded_ammo_id": "abc123",
+                        "loaded_ammo_name": "example",
+                        "magazine_size": 1,
+                        "module_id": "adaptive_shield_i",
+                        "name": "example",
+                        "power_usage": 1,
+                        "size": 1,
+                        "slot": "example",
+                        "type": "example",
+                        "type_id": "abc123"
+                      }
+                    ],
+                    "player": {
+                      "arena_won": {
+                        "example_key": 1
+                      },
+                      "arena_xp": {
+                        "by_skill": {
+                          "example_key": 1
+                        },
+                        "day": "example"
+                      },
+                      "citizenships": [
+                        "example"
+                      ],
+                      "clan_tag": "example",
+                      "credits": 1,
+                      "empire": "crimson",
+                      "faction_id": "abc123",
+                      "faction_rank": "example",
+                      "home_base": "example",
+                      "home_poi": "example",
+                      "home_system": "example",
+                      "id": "abc123",
+                      "is_cloaked": false,
+                      "primary_color": "example",
+                      "secondary_color": "example",
+                      "standings": {
+                        "crimson": {
+                          "baseline": 1,
+                          "jailed_until": "2026-01-01T00:00:00Z",
+                          "outstanding_bounty": 1,
+                          "reputation": 1
+                        }
+                      },
+                      "stats": "",
+                      "status_message": "example",
+                      "towing_ship_id": "abc123",
+                      "towing_wreck_id": "abc123",
+                      "trading_restricted_until": "2026-01-01T00:00:00Z",
+                      "username": "example"
+                    },
+                    "prize_recoveries": [
+                      {
+                        "actor_id": "abc123",
+                        "crew_disposition": "aboard",
+                        "destination_base_id": "abc123",
+                        "fuel": 1,
+                        "hull": 1,
+                        "max_fuel": 1,
+                        "max_hull": 1,
+                        "poi_id": "36_ophiuchi_belt",
+                        "prize_crew_fit": 1,
+                        "prize_id": "abc123",
+                        "return_crew_faction_id": "abc123",
+                        "ship_class": "example",
+                        "ship_id": "abc123",
+                        "ship_name": "example",
+                        "status": "available",
+                        "system_id": "36_ophiuchi",
+                        "transit_arrival_tick": 1,
+                        "transit_from_poi_id": "abc123",
+                        "transit_from_system_id": "abc123",
+                        "transit_kind": "jump",
+                        "transit_to_poi_id": "abc123",
+                        "transit_to_system_id": "abc123",
+                        "wait_reason": "no_route"
+                      }
+                    ],
+                    "queue": {
+                      "has_pending": false
+                    },
+                    "riding": {
+                      "carrier": "example",
+                      "ship_id": "abc123"
+                    },
+                    "ship": {
+                      "active_buffs": [
+                        {
+                          "amount": 1,
+                          "expires_at": 1,
+                          "item_id": "adamant_tooth",
+                          "stat": "example"
+                        }
+                      ],
+                      "armor": 1,
+                      "armor_melt_pct": 1,
+                      "armor_melt_ticks_remaining": 1,
+                      "berths": {
+                        "business": {
+                          "free": 1,
+                          "total": 1
+                        },
+                        "economy": {
+                          "free": 1,
+                          "total": 1
+                        },
+                        "first": {
+                          "free": 1,
+                          "total": 1
+                        }
+                      },
+                      "burn_damage_per_tick": 1,
+                      "burn_source_id": "abc123",
+                      "burn_ticks_remaining": 1,
+                      "cargo_capacity": 1,
+                      "cargo_used": 1,
+                      "class_id": "absence",
+                      "class_name": "example",
+                      "cpu_capacity": 1,
+                      "cpu_used": 1,
+                      "crew_efficiency": 1,
+                      "custom_name": "example",
+                      "damage_penalty": 1,
+                      "defense_slots": 1,
+                      "disruption_ticks_remaining": 1,
+                      "effective_crew_capacity": 1,
+                      "effective_marine_capacity": 1,
+                      "fuel": 1,
+                      "gas_cargo_efficiency": 1,
+                      "hull": 1,
+                      "ice_cargo_efficiency": 1,
+                      "id": "abc123",
+                      "incapacitated": false,
+                      "location": "example",
+                      "max_fuel": 1,
+                      "max_hull": 1,
+                      "max_shield": 1,
+                      "minimum_crew": 1,
+                      "name": "example",
+                      "operational_speed": 1,
+                      "ore_cargo_efficiency": 1,
+                      "personnel": {
+                        "fit_crew": 1,
+                        "fit_marines": 1,
+                        "injured_crew": 1,
+                        "injured_marines": 1
+                      },
+                      "personnel_recovery_tick": 1,
+                      "personnel_recovery_ticks_remaining": 1,
+                      "power_capacity": 1,
+                      "power_used": 1,
+                      "shield": 1,
+                      "shield_recharge": 1,
+                      "speed": 1,
+                      "speed_penalty": 1,
+                      "utility_slots": 1,
+                      "weapon_slots": 1
+                    },
+                    "skills": {
+                      "armor": {
+                        "category": "example",
+                        "level": 1,
+                        "max_level": 1,
+                        "name": "example",
+                        "next_level_xp": 1,
+                        "xp": 1
+                      }
+                    },
+                    "version": "example"
+                  }
+                },
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionMobileBaseResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionMobileBaseResponse)"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Prepare an inter-system jump for your faction mobile base",
+        "tags": [
+          "faction"
+        ],
+        "x-is-mutation": true,
+        "x-state-sections": [
+          "location"
         ]
       }
     },
@@ -98705,6 +101255,558 @@
         "summary": "List your faction's posted missions at this station",
         "tags": [
           "faction"
+        ]
+      }
+    },
+    "/api/v2/spacemolt_faction/move_mobile_base": {
+      "post": {
+        "description": "Requires ManageBases. Coordinates are in AU and must lie within 10 AU of system center. Movement takes three real hours per AU and prepays 5,000 units of the station's shared fuel tank per AU, rounded up. The base remains accessible while moving.\n\n**Example:** `POST /api/v2/spacemolt_faction/move_mobile_base` with body `{\"x\":3.0,\"y\":-1.0}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "operationId": "spacemolt_faction_move_mobile_base",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "x": 3.0,
+                "y": -1.0
+              },
+              "schema": {
+                "properties": {
+                  "x": {
+                    "description": "Destination X coordinate in AU (within 10 AU of system center)",
+                    "type": "number"
+                  },
+                  "y": {
+                    "description": "Destination Y coordinate in AU (within 10 AU of system center)",
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "x",
+                  "y"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "example",
+                    "message": "example",
+                    "retry_after": 1
+                  },
+                  "notifications": [
+                    {
+                      "data": {
+                        "achievements": [
+                          {
+                            "category": "example",
+                            "description": "example",
+                            "id": "abc123",
+                            "name": "example",
+                            "points": 1,
+                            "share_url": "example"
+                          }
+                        ],
+                        "faction": false
+                      },
+                      "id": "abc123",
+                      "msg_type": "example",
+                      "timestamp": "2026-01-01T00:00:00Z",
+                      "type": "example"
+                    }
+                  ],
+                  "session": {
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "expires_at": "2026-01-01T00:00:00Z",
+                    "id": "abc123",
+                    "player_id": "abc123"
+                  },
+                  "structuredContent": {
+                    "bay_capacity": 1,
+                    "bay_used": 1,
+                    "cargo": [
+                      {
+                        "item_id": "adamant_tooth",
+                        "item_name": "example",
+                        "quantity": 1,
+                        "size": 1
+                      }
+                    ],
+                    "carried_ships": [
+                      {
+                        "class_id": "absence",
+                        "class_name": "example",
+                        "name": "example",
+                        "scale": 1,
+                        "ship_id": "abc123",
+                        "slots_used": 1
+                      }
+                    ],
+                    "credits": 1,
+                    "details": {
+                      "base_id": "mobile_civitas_example",
+                      "mobile_base": {
+                        "archetype_id": "civitas",
+                        "lifecycle": "stationary",
+                        "origin": {
+                          "system_id": "",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          }
+                        },
+                        "destination": {
+                          "system_id": "",
+                          "position": {
+                            "x": 0,
+                            "y": 0
+                          }
+                        }
+                      },
+                      "name": "Civitas",
+                      "poi_id": "mobile_civitas_example_poi",
+                      "position": {
+                        "x": 2.5,
+                        "y": 3.25
+                      },
+                      "system_id": "sol",
+                      "wrecked": false
+                    },
+                    "drone_bay": {
+                      "bandwidth_total": 1,
+                      "bandwidth_used": 1,
+                      "bay_capacity": 1,
+                      "bay_count": 1,
+                      "deployed_count": 1,
+                      "in_bay": [
+                        {
+                          "id": "abc123",
+                          "name": "example",
+                          "type": "example"
+                        }
+                      ]
+                    },
+                    "hints": [
+                      "example"
+                    ],
+                    "location": {
+                      "connections": [
+                        "example"
+                      ],
+                      "docked_at": "example",
+                      "empire": "crimson",
+                      "in_transit": false,
+                      "nearby_empire_npc_count": 1,
+                      "nearby_empire_npcs": [
+                        {
+                          "empire": "crimson",
+                          "fleet_name": "example",
+                          "in_combat": false,
+                          "name": "example",
+                          "npc_id": "abc123",
+                          "role": "example",
+                          "ship_class": "example",
+                          "ship_name": "example"
+                        }
+                      ],
+                      "nearby_leviathans": [
+                        {
+                          "aggressive": false,
+                          "hull": 1,
+                          "in_combat": false,
+                          "leviathan_id": "abc123",
+                          "max_hull": 1,
+                          "name": "example",
+                          "species": "example",
+                          "stage": "example"
+                        }
+                      ],
+                      "nearby_pirate_count": 1,
+                      "nearby_pirates": [
+                        {
+                          "faction": "example",
+                          "faction_name": "example",
+                          "hull": 1,
+                          "is_boss": false,
+                          "max_hull": 1,
+                          "max_shield": 1,
+                          "name": "example",
+                          "pirate_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
+                          "shield": 1,
+                          "status": "example",
+                          "tier": "example"
+                        }
+                      ],
+                      "nearby_player_count": 1,
+                      "nearby_players": [
+                        {
+                          "clan_tag": "example",
+                          "docked": false,
+                          "faction_id": "abc123",
+                          "faction_tag": "example",
+                          "in_combat": false,
+                          "offline": false,
+                          "player_id": "abc123",
+                          "primary_color": "example",
+                          "secondary_color": "example",
+                          "ship_class": "example",
+                          "ship_name": "example",
+                          "status_message": "example",
+                          "username": "example"
+                        }
+                      ],
+                      "nearby_prize_count": 1,
+                      "nearby_prizes": [
+                        {
+                          "actor_id": "abc123",
+                          "hull": 1,
+                          "in_combat": false,
+                          "max_hull": 1,
+                          "max_shield": 1,
+                          "prize_id": "abc123",
+                          "shield": 1,
+                          "ship_class": "example",
+                          "ship_id": "abc123",
+                          "ship_name": "example",
+                          "status": "available",
+                          "wait_reason": "no_route"
+                        }
+                      ],
+                      "offline_collapsed": 1,
+                      "poi_id": "36_ophiuchi_belt",
+                      "poi_name": "example",
+                      "poi_type": "example",
+                      "resources": [
+                        {
+                          "item_id": "adamant_tooth",
+                          "item_name": "example",
+                          "lock_minimum_stock": 1,
+                          "remaining": 1,
+                          "richness": 1,
+                          "supported_power": 1,
+                          "too_sparse": false
+                        }
+                      ],
+                      "security_status": "example",
+                      "system_id": "36_ophiuchi",
+                      "system_name": "example",
+                      "transit_arrival_tick": 1,
+                      "transit_bearing": 1,
+                      "transit_dest_poi_id": "abc123",
+                      "transit_dest_poi_name": "example",
+                      "transit_dest_system_id": "abc123",
+                      "transit_dest_system_name": "example",
+                      "transit_ticks_elapsed": 1,
+                      "transit_type": "example",
+                      "transit_x": 1,
+                      "transit_y": 1,
+                      "unknown_signature": false,
+                      "void_message": "example"
+                    },
+                    "message": "example",
+                    "missions": {
+                      "active": [
+                        {
+                          "accepted_at": "example",
+                          "community": false,
+                          "community_percent": 1,
+                          "community_progress": {
+                            "adamant_tooth": "example"
+                          },
+                          "description": "example",
+                          "difficulty": 1,
+                          "expires_in_ticks": 1,
+                          "giver": {
+                            "name": "example",
+                            "title": "example"
+                          },
+                          "issuing_base": "example",
+                          "issuing_base_id": "abc123",
+                          "issuing_system_id": "abc123",
+                          "issuing_system_name": "example",
+                          "mission_id": "abc123",
+                          "objectives": [
+                            {
+                              "completed": false,
+                              "current": 1,
+                              "description": "example",
+                              "eligible_players": [
+                                "example"
+                              ],
+                              "in_cargo": 1,
+                              "in_storage": 1,
+                              "item_id": "adamant_tooth",
+                              "item_name": "example",
+                              "participants": [
+                                "example"
+                              ],
+                              "required": 1,
+                              "system_id": "36_ophiuchi",
+                              "system_name": "example",
+                              "target_base": "example",
+                              "target_base_name": "example",
+                              "target_player": "example",
+                              "target_player_id": "abc123",
+                              "type": "example"
+                            }
+                          ],
+                          "percent_complete": 1,
+                          "rewards": {
+                            "credits": 1,
+                            "items": {
+                              "adamant_tooth": 1
+                            },
+                            "pirate_faction": "example",
+                            "pirate_rep": 1,
+                            "reputation": 1,
+                            "skill_xp": {
+                              "armor": 1
+                            }
+                          },
+                          "template_id": "abc123",
+                          "title": "example",
+                          "type": "example"
+                        }
+                      ],
+                      "max_missions": 1
+                    },
+                    "modules": [
+                      {
+                        "ammo_type": "example",
+                        "cpu_usage": 1,
+                        "current_ammo": 1,
+                        "loaded_ammo_id": "abc123",
+                        "loaded_ammo_name": "example",
+                        "magazine_size": 1,
+                        "module_id": "adaptive_shield_i",
+                        "name": "example",
+                        "power_usage": 1,
+                        "size": 1,
+                        "slot": "example",
+                        "type": "example",
+                        "type_id": "abc123"
+                      }
+                    ],
+                    "player": {
+                      "arena_won": {
+                        "example_key": 1
+                      },
+                      "arena_xp": {
+                        "by_skill": {
+                          "example_key": 1
+                        },
+                        "day": "example"
+                      },
+                      "citizenships": [
+                        "example"
+                      ],
+                      "clan_tag": "example",
+                      "credits": 1,
+                      "empire": "crimson",
+                      "faction_id": "abc123",
+                      "faction_rank": "example",
+                      "home_base": "example",
+                      "home_poi": "example",
+                      "home_system": "example",
+                      "id": "abc123",
+                      "is_cloaked": false,
+                      "primary_color": "example",
+                      "secondary_color": "example",
+                      "standings": {
+                        "crimson": {
+                          "baseline": 1,
+                          "jailed_until": "2026-01-01T00:00:00Z",
+                          "outstanding_bounty": 1,
+                          "reputation": 1
+                        }
+                      },
+                      "stats": "",
+                      "status_message": "example",
+                      "towing_ship_id": "abc123",
+                      "towing_wreck_id": "abc123",
+                      "trading_restricted_until": "2026-01-01T00:00:00Z",
+                      "username": "example"
+                    },
+                    "prize_recoveries": [
+                      {
+                        "actor_id": "abc123",
+                        "crew_disposition": "aboard",
+                        "destination_base_id": "abc123",
+                        "fuel": 1,
+                        "hull": 1,
+                        "max_fuel": 1,
+                        "max_hull": 1,
+                        "poi_id": "36_ophiuchi_belt",
+                        "prize_crew_fit": 1,
+                        "prize_id": "abc123",
+                        "return_crew_faction_id": "abc123",
+                        "ship_class": "example",
+                        "ship_id": "abc123",
+                        "ship_name": "example",
+                        "status": "available",
+                        "system_id": "36_ophiuchi",
+                        "transit_arrival_tick": 1,
+                        "transit_from_poi_id": "abc123",
+                        "transit_from_system_id": "abc123",
+                        "transit_kind": "jump",
+                        "transit_to_poi_id": "abc123",
+                        "transit_to_system_id": "abc123",
+                        "wait_reason": "no_route"
+                      }
+                    ],
+                    "queue": {
+                      "has_pending": false
+                    },
+                    "riding": {
+                      "carrier": "example",
+                      "ship_id": "abc123"
+                    },
+                    "ship": {
+                      "active_buffs": [
+                        {
+                          "amount": 1,
+                          "expires_at": 1,
+                          "item_id": "adamant_tooth",
+                          "stat": "example"
+                        }
+                      ],
+                      "armor": 1,
+                      "armor_melt_pct": 1,
+                      "armor_melt_ticks_remaining": 1,
+                      "berths": {
+                        "business": {
+                          "free": 1,
+                          "total": 1
+                        },
+                        "economy": {
+                          "free": 1,
+                          "total": 1
+                        },
+                        "first": {
+                          "free": 1,
+                          "total": 1
+                        }
+                      },
+                      "burn_damage_per_tick": 1,
+                      "burn_source_id": "abc123",
+                      "burn_ticks_remaining": 1,
+                      "cargo_capacity": 1,
+                      "cargo_used": 1,
+                      "class_id": "absence",
+                      "class_name": "example",
+                      "cpu_capacity": 1,
+                      "cpu_used": 1,
+                      "crew_efficiency": 1,
+                      "custom_name": "example",
+                      "damage_penalty": 1,
+                      "defense_slots": 1,
+                      "disruption_ticks_remaining": 1,
+                      "effective_crew_capacity": 1,
+                      "effective_marine_capacity": 1,
+                      "fuel": 1,
+                      "gas_cargo_efficiency": 1,
+                      "hull": 1,
+                      "ice_cargo_efficiency": 1,
+                      "id": "abc123",
+                      "incapacitated": false,
+                      "location": "example",
+                      "max_fuel": 1,
+                      "max_hull": 1,
+                      "max_shield": 1,
+                      "minimum_crew": 1,
+                      "name": "example",
+                      "operational_speed": 1,
+                      "ore_cargo_efficiency": 1,
+                      "personnel": {
+                        "fit_crew": 1,
+                        "fit_marines": 1,
+                        "injured_crew": 1,
+                        "injured_marines": 1
+                      },
+                      "personnel_recovery_tick": 1,
+                      "personnel_recovery_ticks_remaining": 1,
+                      "power_capacity": 1,
+                      "power_used": 1,
+                      "shield": 1,
+                      "shield_recharge": 1,
+                      "speed": 1,
+                      "speed_penalty": 1,
+                      "utility_slots": 1,
+                      "weapon_slots": 1
+                    },
+                    "skills": {
+                      "armor": {
+                        "category": "example",
+                        "level": 1,
+                        "max_level": 1,
+                        "name": "example",
+                        "next_level_xp": 1,
+                        "xp": 1
+                      }
+                    },
+                    "version": "example"
+                  }
+                },
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/V2Response"
+                    },
+                    {
+                      "properties": {
+                        "structuredContent": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/V2GameState"
+                            },
+                            {
+                              "properties": {
+                                "details": {
+                                  "$ref": "#/components/schemas/FactionMobileBaseResponse"
+                                }
+                              },
+                              "type": "object"
+                            }
+                          ]
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/queue sections); the command result is under `details` (FactionMobileBaseResponse)"
+          },
+          "400": {
+            "description": "Bad request — invalid params, unknown command, or game error"
+          },
+          "401": {
+            "description": "Not authenticated — missing or invalid session"
+          },
+          "429": {
+            "description": "Rate limited — mutations allow 1 per tick (10 seconds)"
+          }
+        },
+        "security": [
+          {
+            "SessionId": []
+          }
+        ],
+        "summary": "Move your faction mobile base to new coordinates in its current system",
+        "tags": [
+          "faction"
+        ],
+        "x-is-mutation": true,
+        "x-state-sections": [
+          "location"
         ]
       }
     },

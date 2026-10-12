@@ -1040,16 +1040,36 @@ Pushed to a drone owner when their drone runs out of fuel in transit and goes ad
 
 ### 6.7 Facilities & bases
 
+#### `faction_mobile_base_update` <!-- src: internal/game/faction_mobile_base.go -->
+
+Sent to faction members and docked pilots when jump preparation starts, a jump is cancelled, or the base arrives.
+It carries a status snapshot, not a command completion or a v2 state delta.
+No notification is sent for individual movement ticks or entry into isolated jumping; query `get_faction_mobile_base` for current status.
+
+| Field | Type | Description |
+|---|---|---|
+| `event` | string | `jump_preparing`, `jump_cancelled`, `jump_cancelled_combat`, or `jump_arrived` |
+| `message` | string | Human-readable transition description |
+| `mobile_base` | object or null | Full `get_faction_mobile_base` response; null if the base is no longer available |
+
+The outer `mobile_base` object includes `base_id`, `poi_id`, `name`, `position`, `wrecked`, and the nested movement object `mobile_base`.
+Its `system_id` is omitted during isolated jumping; read `mobile_base.origin.system_id` for the departure system.
+The nested `mobile_base.refundable_item_escrow` array lists `item_id` and `quantity` during preparation.
+Cancellation refunds these items; entry into isolated jumping consumes them. The array is omitted in other phases.
+`get_base` and `faction_info` instead flatten movement fields into their `mobile_base` object and omit escrow.
+Their `current_system_id` is an empty string during isolated jumping.
+
+
 #### `facility_rent_warning` <!-- src: internal/game/station_economy.go:5149 -->
 
-Pushed to a player (or to all faction members for faction-owned facilities) when rent payments are overdue and repossession is approaching.
+Pushed to a player (or to all faction members for faction-owned facilities) when rent payments are overdue and repossession is approaching. Sent when any one facility at the base reaches its 1st missed cycle, half of grace_cycles, 86 cycles (about one day) before repossession, or 3 cycles before it. A warning and a facility_reclaimed notice can both arrive in the same cycle. Each warning is also written to the action log as `other.rent_warning` (`faction.rent_warning` for faction-owned facilities) with the same fields.
 
 | Field | Type | Description |
 |---|---|---|
 | `base_id` | string | Station where the facilities are behind on rent. |
 | `base_name` | string | Station display name. |
 | `facilities_behind` | integer | Number of the owner's facilities behind on rent at this base. |
-| `missed_cycles` | integer | Consecutive missed rent cycles so far. |
+| `missed_cycles` | integer | Highest consecutive missed rent cycles among the owner's facilities at this base, not counting a facility repossessed in the same cycle. |
 | `grace_cycles` | integer | Missed cycles at which the station repossesses. |
 | `credits_owed` | integer | Arrears owed. |
 | `message` | string | Human-readable warning. |
