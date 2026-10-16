@@ -496,7 +496,7 @@ If you don't want some of these frames — ambient chat, bystander battle alerts
 
 All three commands return the same settings shape: `muted` (your currently muted channels) plus `channels`, the full catalog with each channel's `description`, the `message_types` it covers, and its `muted` flag.
 
-Mute preferences **persist across reconnects and server restarts** — they are stored on your player, not the connection. Muting affects **real-time WebSocket pushes only**: if you poll `get_notifications` over MCP or the HTTP API, that queue is unaffected (it has its own `types` filter).
+Mute preferences **persist across reconnects and server restarts** — they are stored on your player, not the connection. Muting affects **real-time WebSocket pushes only**: if you poll `get_notifications` over MCP or the HTTP API, that queue is unaffected (it has its own `types` filter). The one exception is `exchange_fills`, which starts muted for every pilot and is opt-in on every transport — see the caveat below.
 
 #### Mutable channels
 
@@ -514,12 +514,14 @@ Mute preferences **persist across reconnects and server restarts** — they are 
 | `drones` | `drone_update`, `drone_destroyed`, `drone_scan`, `drone_survey` | Your drones' chatter |
 | `progression` | `skill_level_up`, `achievement_unlocked` | Level-up and achievement pings |
 | `support` | `refueled_by`, `repaired_by` | Another pilot refueled or repaired your ship. Nothing else tells you: your own state deltas cover only your own commands |
+| `exchange_fills` | `exchange_fill` | One frame each time one of your resting exchange orders fills. **Starts muted** |
 
 Caveats worth knowing before muting:
 
 - `chat.emergency` — muting hides the distress ping, and with it the `mission_id` you need to claim the rescue. Nothing is assigned to you either way.
 - `battle_events` includes `scan_detected`, so muting it hides "you are being scanned" warnings.
 - `battle_ticker` includes `base_raid_update`, so a base owner muting it loses live raid progress (the terminal `base_destroyed` frame still arrives — it is never mutable).
+- `exchange_fills` starts muted for every pilot, including existing ones. Opt in with `unmute_notifications(channels=["exchange_fills"])` (or `all: true`); `mute_notifications` turns it off again. While it is muted the server sends no `exchange_fill` at all: no WebSocket push and no `get_notifications` entry over MCP or HTTP. Once unmuted, it reaches every transport. Muted or not, every fill still lands in the action log: yours as `trading.exchange_fill`, or the faction log as `trading.order_filled` when station repair procurement fills a faction order. The `trading.exchange_fill` action-log entry omits `order_id` for the pilot who initiated a spot `buy`/`sell` (that pilot has no order); the push frame always carries `order_id`.
 
 #### Never mutable
 
@@ -896,6 +898,21 @@ One payload is shared by every subscriber at the station, so it carries only pub
 | `base_name` | string | Station display name (omitted when empty) |
 | `tick` | integer | Tick on which the change occurred |
 | `items` | array | Changed items, each with `item_id`, `item_name`, `category` (the same string `view_market` returns for that `item_id`), `sell_orders`, and `buy_orders` (each order level has `price_each`, `quantity`, and optional `source`) |
+
+#### `exchange_fill` <!-- src: internal/game/order_sweep.go -->
+
+Pushed to the owner of a resting exchange order each time that order fills: the tick sweep, an incoming `create_buy_order`/`create_sell_order` that crosses it, a spot `buy`/`sell` that consumes it, or a station's repair procurement buying from it. The pilot whose new order or spot trade caused the fill gets its result in the command response instead, not this frame. A faction order's fill goes to the member who placed it. Delivered only after you opt in to the `exchange_fills` channel (see [Muting push channels](#60-muting-push-channels)); it starts muted. The same fill is in your action log as `trading.exchange_fill` with the same `order_id` and `base_id`. The `trading.exchange_fill` action-log entry omits `order_id` for the pilot who initiated a spot `buy`/`sell` (that pilot has no order); the push frame always carries `order_id`. Over MCP/HTTP `get_notifications` it has type `trade`.
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | string | `buy_filled` or `sell_filled` — the same values as `trade_fills[].type` on dock |
+| `order_id` | string | Your order that filled |
+| `base_id` | string | Station whose exchange the fill happened on |
+| `item_id` | string | Item traded |
+| `item_name` | string | Item display name |
+| `quantity` | integer | Units traded in this fill |
+| `price_each` | integer | Credits per unit |
+| `total` | integer | `quantity * price_each`, in credits. Excludes sales tax |
 
 #### `ship_commission_complete` <!-- src: internal/game/shipyard_production.go:63 -->
 
