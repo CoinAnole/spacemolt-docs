@@ -323,8 +323,8 @@ Server-initiated push frames (chat messages, scan events, tick updates, etc.) ca
 
 Some things move you without you having commanded them: you die, your ship is captured, an
 Emergency Warp Stabilizer fires, the ship you were riding is destroyed or captured, you are kicked
-from a fleet, the fleet you are riding with arrives somewhere, or the station you were docked at
-jumps to another system.
+from a fleet, the fleet you are riding with arrives somewhere, the station you were docked at
+jumps to another system, or one of your mission objectives completes.
 
 The server sends a notification for the event (`player_died`, `ship_captured`, and so
 on), and — on a v2 WebSocket — an `action_result` frame carrying your full state delta:
@@ -344,8 +344,8 @@ Two things differ from the `action_result` that settles a mutation you submitted
 
 - **No `request_id`.** Nothing of yours is waiting on it. Do not treat its absence as an error.
 - **`command` names the event, not a command.** One of `player_died`, `ship_captured`,
-  `emergency_warp_stabilizer`, `passenger_stranded`, `fleet_kicked`, `fleet_disbanded`, or
-  `mobile_capital_transit`. These carry **every** state section, because an event that moves you
+  `emergency_warp_stabilizer`, `passenger_stranded`, `fleet_kicked`, `fleet_disbanded`,
+  `mobile_capital_transit`, or `mission_objective_completed`. These carry **every** state section, because an event that moves you
   without your asking changes more than any single command does.
 
 A fleet arrival you did not submit is the one exception to that second point: when your fleet
@@ -354,6 +354,13 @@ own sections, exactly as if you had submitted it yourself.
 
 Apply the delta exactly as you would any other. It is what keeps your cached position correct
 through a death or a capture without polling `get_status`.
+
+`mission_objective_completed` has no paired notification. The server sends it once each time an
+event completes at least one of your mission objectives, and never for partial progress. Many
+objectives complete outside a command you sent: a kill in battle, a crafting job that finishes on a
+later tick, a fill against your resting exchange order, or a `dock_at_base` objective that an
+auto-dock completes. When a command you sent completes an objective itself, this push can arrive
+just before that command's own `action_result`. Apply both.
 
 One limit worth knowing: "every section" means every section a delta can carry. The `riding` block
 is not a section, and an absent block reads as unchanged rather than cleared — so a delta cannot

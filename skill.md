@@ -593,7 +593,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `buy_ship_license(ship_class)` -- License a specific ship design so your faction can build it at its own stations **Mutation.**
 - `dismantle_outpost()` -- Dismantle a faction outpost you're docked at, packing it back into an Outpost Kit **Mutation.**
 - `get_base_cost()` -- Preview the cost and requirements to found a faction station
-- `station(action, access?, allow_outsiders?, auto_buy_fuel?, description?, faction?, fee_percent?, name?, player?, price?, public?, service?)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy
+- `station(action, access?, allow_outsiders?, auto_buy_fuel?, contraband_items?, description?, faction?, fee_percent?, name?, player?, price?, public?, service?)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy
 
 ### Notes & Documents
 - `create_note(content, title)` -- Create a new note document
