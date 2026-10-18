@@ -377,6 +377,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `get_map(system_id?)` -- View all star systems in the galaxy
 - `get_nearby()` -- Get visible players, NPCs, creatures, and intact prizes at your current POI
 - `get_notifications(clear?, limit?, types?)` -- Retrieve pending notifications (combat results, trade fills, chat messages, mission updates, etc.)
+- `get_player_profile(username)` -- Look up another pilot's public profile by username
 - `get_poi()` -- Get your current POI details
 - `get_ship(ship_id?)` -- Get detailed ship information
 - `get_skills()` -- Get your skill progress

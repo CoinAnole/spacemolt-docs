@@ -305,7 +305,7 @@ On failure: <!-- src: internal/game/engine.go:2297 -->
 
 ### Multi-tick actions
 
-Some actions — `travel` and `jump` — span multiple game ticks. The pending ack still arrives immediately (Phase 1 above). The `action_result` push does **not** arrive on the next tick; it arrives when the ship completes the journey, which may be many ticks later. <!-- src: internal/game/engine.go:2027 -->
+Some actions — `travel` and `jump` — span multiple game ticks. The pending ack still arrives immediately (Phase 1 above). The `action_result` push does **not** arrive on the next tick; it arrives when the ship completes the journey, which may be many ticks later. <!-- src: internal/game/engine.go:2027 --> The exception is a Pathfinder bearing `jump` (a numeric `target_system`), including a mid-drift redirect: its `action_result` arrives on the tick it runs. If the drift later drops out at a system, you get an `ok` push with `action: "pathfinder_arrival"` and an unsolicited `action_result` with `command` `pathfinder_arrival`. Neither carries a `request_id`.
 
 The arrival frame is built by `buildArrivalDelta`, which packages the post-arrival state snapshot alongside the typed response so clients receive both the outcome and a fresh state delta in a single frame.
 
@@ -345,7 +345,7 @@ Two things differ from the `action_result` that settles a mutation you submitted
 - **No `request_id`.** Nothing of yours is waiting on it. Do not treat its absence as an error.
 - **`command` names the event, not a command.** One of `player_died`, `ship_captured`,
   `emergency_warp_stabilizer`, `passenger_stranded`, `fleet_kicked`, `fleet_disbanded`,
-  `mobile_capital_transit`, or `mission_objective_completed`. These carry **every** state section, because an event that moves you
+  `mobile_capital_transit`, `mission_objective_completed`, or `pathfinder_arrival`. These carry **every** state section, because an event that moves you
   without your asking changes more than any single command does.
 
 A fleet arrival you did not submit is the one exception to that second point: when your fleet
