@@ -443,7 +443,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 ### Salvage & Towing
 - `get_wrecks()` -- List all wrecks at your current POI
 - `loot_wreck(item_id?, module_id?, quantity?, wreck_id?)` -- Loot items and modules from a wreck **Mutation.**
-- `release_tow()` -- Release a towed wreck at your current location **Mutation.**
+- `release_tow()` -- Release your wreck tow without moving the wreck **Mutation.**
 - `scrap_wreck()` -- Scrap a towed wreck for salvage materials **Mutation.**
 - `sell_wreck()` -- Sell a towed wreck to an NPC salvage yard for credits **Mutation.**
 - `tow_wreck(wreck_id)` -- Attach a tow line to a wreck for hauling **Mutation.**
@@ -481,7 +481,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 
 ### Station Storage
 - `deposit_items(item_id, quantity, source?, target?)` -- Move items from cargo (or directly from personal/faction storage) into a storage destination **Mutation.**
-- `send_gift(recipient, credits?, item_id?, message?, quantity?, ship_id?, source?)` -- Send player or empire gifts, or voluntarily donate materials to a station **Mutation.**
+- `send_gift(recipient, credits?, item_id?, message?, quantity?, ship_id?, source?)` -- Send player or empire gifts, or donate goods or credits to a station or pirate crew **Mutation.**
 - `view_storage(station_id?)` -- View your storage at a station
 - `withdraw_items(item_id, quantity, source?, target?)` -- Move items from station storage into cargo (or use source/target for direct transfers) **Mutation.**
 
@@ -1309,7 +1309,9 @@ For example, two repairs needing 10 steel plates each with 5 plates stored need 
 
 For a player-founded station, supply its founding faction's storage. Tenant facilities remain their owners' responsibility. `next_blocked` identifies the first blocked repair, not the only repair being pursued.
 
-If you want to contribute without payment, use `send_gift` with `recipient="station:grand_exchange_station"`, `item_id="steel_plate"`, and `quantity=20`, or `storage` with `action="deposit"` and the same station as `target`. The identifier after `station:` accepts a Base ID or station POI ID; you must already be docked at that managed NPC empire station. Cargo donations work even while storage service is offline. `source="storage"` donates from personal storage and requires storage service. Normal gift unlock (1000 lifetime credits earned) and trading restrictions apply. Credits, ships, packages, and quest items cannot be donated this way. Bulk `items` entries report independent success/failure. Donations enter manager station inventory used for repairs and ordinary operations; excess is not reserved exclusively for repairs. These gifts are optional: reconstruction primarily uses treasury-funded paid procurement.
+If you want to contribute without payment, use `send_gift` with `recipient="station:grand_exchange_station"`, `item_id="steel_plate"`, and `quantity=20`, or `storage` with `action="deposit"` and the same station as `target`. The identifier after `station:` accepts a Base ID or station POI ID; you must already be docked at that managed NPC empire station or pirate stronghold. Cargo donations work even while storage service is offline. `source="storage"` donates from personal storage and requires storage service. Normal gift unlock (1000 lifetime credits earned) and trading restrictions apply. Credits can be donated the same way (one gift per call); ships, packages, and quest items cannot. Bulk `items` entries report independent success/failure. Donations enter manager station inventory used for repairs and ordinary operations; excess is not reserved exclusively for repairs. These gifts are optional: reconstruction primarily uses treasury-funded paid procurement.
+
+Gifts to empires (`recipient="solarian"` etc.), NPC empire stations and pirate crews earn standing based on how much the recipient values the gift and what they already think of you. They value most: cash when they are short of money, goods that fill a real shortage (repair materials, urgent stock, parts for ships they are building), and valuable, well-fitted hulls their fleets need. They value least: cash they do not need, goods beyond what they need, and cheap or stripped hulls. Topping up a standing that has slipped is cheap; holding a top standing is very expensive. Gifts count for little while an attack, kill or capture against the recipient is fresh, and hardly at all while they shoot you on sight, so let tempers cool first. An empire takes any bounty you owe it out of the gift first. Credits to an empire or to `pirate:<crew>` (e.g. `pirate:voss`) can be wired from anywhere. A pirate crew keeps gifts from pilots never introduced to the pirate network and gives nothing back. The response's `goodwill` object reports the value to the recipient, any bounty paid, standing before and after, and the recipient's reply, which also arrives as a private message.
 
 ### Fixer debt and restitution
 
