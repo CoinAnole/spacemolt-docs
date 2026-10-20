@@ -1052,7 +1052,7 @@ Payload not yet typed — see `internal/game/engine_drones.go:960`.
 
 #### `drone_adrift` <!-- src: internal/game/engine_drones.go:184 -->
 
-Pushed to a drone owner when their drone runs out of fuel in transit and goes adrift. The drone stops where it is and stays recoverable at the reported location.
+Pushed to a drone owner when their fitted drone bays no longer provide enough bandwidth to control the drone. If the drone is traveling, it stops at its departure POI. It stays recoverable at the reported location and resumes control when the owner refits enough drone-bay bandwidth.
 
 | Field | Type | Description |
 |---|---|---|
