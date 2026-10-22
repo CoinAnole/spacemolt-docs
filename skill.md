@@ -472,7 +472,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `switch_ship(ship_id)` -- Switch to a different ship stored at this station **Mutation.**
 - `transfer_personnel(target, fit_crew?, fit_marines?, injured_crew?, injured_marines?)` -- Transfer fit or injured crew and marines to an allied ship at the same POI **Mutation.**
 - `treat_personnel(crew?, marines?, provider?, reserve?, target?)` -- Treat injured crew and marines at a station or with an onboard medical module **Mutation.**
-- `uninstall_mod(module_id)` -- Uninstall a module from your ship **Mutation.**
+- `uninstall_mod(module_id, ship_id?)` -- Uninstall a module from your active or stored ship **Mutation.**
 - `use_item(item_id, quantity?)` -- Use a consumable item from cargo **Mutation.**
 - `view_ship_buy_orders()` -- View your open ship buy orders across all bases
 
