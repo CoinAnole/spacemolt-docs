@@ -939,7 +939,11 @@ Pushed to a player the tick their shipyard commission finishes building and the 
 
 Pushed to a player when another player sends them a trade offer.
 
-Payload not yet typed — see `internal/handlers/trading.go:1207`.
+The payload contains `trade_id`, `offerer_id`, `offerer_name`, `offer_items`, `offer_credits`, `request_items`, `request_credits`, and `expires_at`.
+
+Station sales also contain `station_id`, `seller_faction_id`, `buyer_faction_id`, `labor_cost`, and `transfer_tax`. The station includes its facilities and faction storage. The price in `request_credits` moves between faction treasuries. Both players must lead their factions. Acceptance rechecks station caps and facility eligibility. Offers do not reserve inventory or capacity; seller-faction contents transfer as they exist at acceptance. Personal and third-party assets retain their owners. The seller must fund both fees before receiving the price. See the [complete station sale contract](https://game.spacemolt.com/api.md#faction-station-sales).
+
+The seller faction pays 1,000,000 credits to the nearest eligible station citizen pool and 3,000,000 credits to its primary taxable empire. No payment occurs before acceptance. The notification is unsolicited. Use `trade_id` to accept or decline.
 
 #### `gift_received` <!-- src: internal/handlers/storage.go -->
 
@@ -960,7 +964,11 @@ Pushed to a player the moment another player's `send_gift` commits to them: item
 
 Pushed to the offerer when the trade recipient accepts.
 
-Payload not yet typed — see `internal/handlers/trading.go:1372`.
+The payload contains `trade_id`, `message`, and `your_credits` for an ordinary trade.
+
+Station sales instead include `station_id`, `seller_faction_id`, `buyer_faction_id`, `credits` (price), `labor_cost`, `transfer_tax`, and `your_faction_credits`. The last field is the seller faction treasury balance after the price and fees settle, including zero.
+
+The notification is unsolicited and identifies the original offer with `trade_id`. Refresh faction information and station storage after the sale.
 
 #### `trade_declined` <!-- src: internal/handlers/trading.go:1438 -->
 

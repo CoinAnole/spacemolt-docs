@@ -16135,36 +16135,75 @@
       "GetTradeEntry": {
         "additionalProperties": false,
         "properties": {
+          "buyer_faction_id": {
+            "description": "Faction that receives the station and pays request_credits to the seller faction. Present only for faction station sales.",
+            "example": "faction_orion",
+            "type": "string"
+          },
           "expires_at": {
+            "description": "UTC time when the pending offer expires.",
+            "example": "2026-10-23T12:00:00Z",
             "format": "date-time",
             "type": "string"
           },
+          "labor_cost": {
+            "description": "Seller faction labor fee in credits paid to local station citizens on acceptance; outposts use the nearest reachable station pool. Currently 1000000. Omitted for ordinary trades.",
+            "example": 1000000,
+            "type": "integer"
+          },
           "offer_credits": {
+            "description": "Personal credits offered. Zero or omitted for station sales.",
             "type": "integer"
           },
           "offer_items": {
+            "description": "Items offered by the seller. Empty for station sales.",
+            "example": [],
             "items": {
               "$ref": "#/components/schemas/PendingTradeItemView"
             },
             "type": "array"
           },
           "offerer_name": {
+            "description": "Seller player name. Present for incoming offers only.",
+            "example": "NovaLeader",
             "type": "string"
           },
           "request_credits": {
+            "description": "Requested payment in credits. For station sales the buyer faction treasury pays the seller faction treasury. Zero or omission means no price.",
+            "example": 5000000,
             "type": "integer"
           },
           "request_items": {
+            "description": "Items requested from the buyer. Empty for station sales.",
+            "example": [],
             "items": {
               "$ref": "#/components/schemas/PendingTradeItemView"
             },
             "type": "array"
           },
+          "seller_faction_id": {
+            "description": "Faction that sells the station and pays the labor cost and transfer tax. Present only for faction station sales.",
+            "example": "faction_nova",
+            "type": "string"
+          },
+          "station_id": {
+            "description": "Exact Base ID of the assembled station or outpost. Includes seller-faction facilities and storage contents at acceptance. Present only for faction station sales.",
+            "example": "faction_station_nova",
+            "type": "string"
+          },
           "target_name": {
+            "description": "Buyer player name. Present for outgoing offers only.",
             "type": "string"
           },
           "trade_id": {
+            "description": "Trade offer ID used by accept and cancel commands.",
+            "example": "trade_station_sale",
             "type": "string"
+          },
+          "transfer_tax": {
+            "description": "Seller faction transfer tax in credits paid to its primary taxable empire on acceptance. Currently 3000000. Omitted for ordinary trades.",
+            "example": 3000000,
+            "type": "integer"
           }
         },
         "required": [
@@ -22851,14 +22890,46 @@
       "Notification_trade_complete": {
         "description": "Pushed to the offerer when the trade recipient accepts.",
         "properties": {
+          "buyer_faction_id": {
+            "description": "Buyer faction ID. Present only for station sales.",
+            "type": "string"
+          },
+          "credits": {
+            "description": "Station sale price in credits paid by the buyer faction treasury to the seller faction treasury. Present including zero only for station sales.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "labor_cost": {
+            "description": "Seller faction fee in credits paid to the nearest eligible station citizen pool. Currently 1000000. Present only for station sales.",
+            "format": "int64",
+            "type": "integer"
+          },
           "message": {
+            "type": "string"
+          },
+          "seller_faction_id": {
+            "description": "Seller faction ID. Present only for station sales.",
+            "type": "string"
+          },
+          "station_id": {
+            "description": "Station or outpost sold with its facilities and faction storage. Present only for station sales.",
             "type": "string"
           },
           "trade_id": {
             "type": "string"
           },
+          "transfer_tax": {
+            "description": "Seller faction tax in credits paid to its primary taxable empire. Currently 3000000. Present only for station sales.",
+            "format": "int64",
+            "type": "integer"
+          },
           "your_credits": {
             "description": "Offerer's credit balance after the trade settled.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "your_faction_credits": {
+            "description": "Seller faction treasury balance in credits after the price and seller fees settle. Present including zero only for station sales.",
             "format": "int64",
             "type": "integer"
           }
@@ -22888,9 +22959,18 @@
       "Notification_trade_offer_received": {
         "description": "Direct player-to-player trade offer received.",
         "properties": {
+          "buyer_faction_id": {
+            "description": "Buyer faction ID. Present only for station sales.",
+            "type": "string"
+          },
           "expires_at": {
             "format": "date-time",
             "type": "string"
+          },
+          "labor_cost": {
+            "description": "Seller faction fee in credits paid to the nearest eligible station citizen pool. Currently 1000000. Present only for station sales.",
+            "format": "int64",
+            "type": "integer"
           },
           "offer_credits": {
             "format": "int64",
@@ -22920,8 +23000,21 @@
             },
             "type": "array"
           },
+          "seller_faction_id": {
+            "description": "Seller faction ID. Present only for station sales.",
+            "type": "string"
+          },
+          "station_id": {
+            "description": "Station or outpost sold with its facilities and faction storage. Present only for station sales.",
+            "type": "string"
+          },
           "trade_id": {
             "type": "string"
+          },
+          "transfer_tax": {
+            "description": "Seller faction tax in credits paid to its primary taxable empire. Currently 3000000. Present only for station sales.",
+            "format": "int64",
+            "type": "integer"
           }
         },
         "required": [
@@ -31237,6 +31330,9 @@
       "Trade": {
         "additionalProperties": false,
         "properties": {
+          "buyer_faction_id": {
+            "type": "string"
+          },
           "created_at": {
             "format": "date-time",
             "type": "string"
@@ -31272,6 +31368,12 @@
             },
             "type": "array"
           },
+          "seller_faction_id": {
+            "type": "string"
+          },
+          "station_id": {
+            "type": "string"
+          },
           "status": {
             "type": "string"
           },
@@ -31297,13 +31399,48 @@
       "TradeAcceptResponse": {
         "additionalProperties": false,
         "properties": {
+          "buyer_faction_id": {
+            "description": "Faction that receives the station and pays request_credits to the seller faction. Present only for faction station sales.",
+            "example": "faction_orion",
+            "type": "string"
+          },
+          "labor_cost": {
+            "description": "Seller faction labor fee in credits paid to local station citizens on acceptance; outposts use the nearest reachable station pool. Currently 1000000. Omitted for ordinary trades.",
+            "example": 1000000,
+            "type": "integer"
+          },
           "message": {
+            "description": "Human-readable trade result.",
+            "example": "Station sale completed.",
+            "type": "string"
+          },
+          "seller_faction_id": {
+            "description": "Faction that sells the station and pays the labor cost and transfer tax. Present only for faction station sales.",
+            "example": "faction_nova",
+            "type": "string"
+          },
+          "station_id": {
+            "description": "Exact Base ID of the assembled station or outpost. Includes seller-faction facilities and storage contents at acceptance. Present only for faction station sales.",
+            "example": "faction_station_nova",
             "type": "string"
           },
           "trade_id": {
+            "description": "Trade offer ID used by accept and cancel commands.",
+            "example": "trade_station_sale",
             "type": "string"
           },
+          "transfer_tax": {
+            "description": "Seller faction transfer tax in credits paid to its primary taxable empire on acceptance. Currently 3000000. Omitted for ordinary trades.",
+            "example": 3000000,
+            "type": "integer"
+          },
           "your_credits": {
+            "description": "Accepting player wallet balance in credits after an ordinary trade. Omitted when zero or for faction station sales.",
+            "type": "integer"
+          },
+          "your_faction_credits": {
+            "description": "Accepting buyer faction treasury balance in credits after payment. Present including zero only for faction station sales.",
+            "example": 0,
             "type": "integer"
           }
         },
@@ -31443,11 +31580,40 @@
       "TradeOfferResponse": {
         "additionalProperties": false,
         "properties": {
+          "buyer_faction_id": {
+            "description": "Faction that receives the station and pays request_credits to the seller faction. Present only for faction station sales.",
+            "example": "faction_orion",
+            "type": "string"
+          },
+          "labor_cost": {
+            "description": "Seller faction labor fee in credits paid to local station citizens on acceptance; outposts use the nearest reachable station pool. Currently 1000000. Omitted for ordinary trades.",
+            "example": 1000000,
+            "type": "integer"
+          },
           "message": {
+            "description": "Human-readable trade result.",
+            "example": "Station sale offered.",
+            "type": "string"
+          },
+          "seller_faction_id": {
+            "description": "Faction that sells the station and pays the labor cost and transfer tax. Present only for faction station sales.",
+            "example": "faction_nova",
+            "type": "string"
+          },
+          "station_id": {
+            "description": "Exact Base ID of the assembled station or outpost. Includes seller-faction facilities and storage contents at acceptance. Present only for faction station sales.",
+            "example": "faction_station_nova",
             "type": "string"
           },
           "trade_id": {
+            "description": "Trade offer ID used by accept and cancel commands.",
+            "example": "trade_station_sale",
             "type": "string"
+          },
+          "transfer_tax": {
+            "description": "Seller faction transfer tax in credits paid to its primary taxable empire on acceptance. Currently 3000000. Omitted for ordinary trades.",
+            "example": 3000000,
+            "type": "integer"
           }
         },
         "required": [
@@ -32713,7 +32879,7 @@
         "additionalProperties": false,
         "properties": {
           "ammo_type": {
-            "description": "Present only on weapons that consume ammo",
+            "description": "Compatible ammunition family for a weapon or mining gun. Present when the module has a magazine and ammunition family.",
             "type": "string"
           },
           "cpu_usage": {
@@ -32721,7 +32887,7 @@
             "type": "integer"
           },
           "current_ammo": {
-            "description": "Present only on weapons that consume ammo",
+            "description": "Remaining magazine charges for a weapon or mining gun. Zero means empty. Present when the module has a magazine.",
             "type": "integer"
           },
           "loaded_ammo_id": {
@@ -32733,7 +32899,7 @@
             "type": "string"
           },
           "magazine_size": {
-            "description": "Present only on weapons that consume ammo",
+            "description": "Magazine capacity in charges for a weapon or mining gun. Present when the module has a magazine.",
             "type": "integer"
           },
           "module_id": {
@@ -33901,7 +34067,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.645.7"
+    "x-gameserver-version": "v0.647.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -50443,7 +50609,7 @@
     },
     "/api/v2/spacemolt/mine": {
       "post": {
-        "description": "Requires appropriate equipment: mining laser for asteroids, ice harvester for ice fields, gas harvester for gas clouds — keyed on the resource, not the POI type, so a gas cloud can hold ore a mining laser works. Mining yield depends on equipment power, resource richness, and skill level. get_poi and survey_system report supported_power, lock_minimum_stock and too_sparse per deposit, all computed for the hull you are flying: beam power above supported_power is capped rather than wasted, and a deposit below both a quarter of capacity and lock_minimum_stock cannot be worked at all (deposit_too_sparse). Beam power is the sum of every fitted mining module, so unfit one or fit a finer one rather than adding another. Deep core POIs are exempt from that cutoff and always work down to zero. Which deposit a cycle hits is a random draw weighted by each deposit's richness and, as your mining skill grows, by its rarity. A fitted extraction filter (filter_* modules) removes its ore from that draw entirely, so every cycle targets one of the remaining deposits instead — that raises your yield of what you do want rather than wasting the cycle. If a filter rejects every deposit you could work at that POI, the cycle returns the filtered no-yield shape and mines nothing.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Requires appropriate equipment: mining laser or loaded mining gun for ore, ice harvester for ice fields, gas harvester for gas clouds — keyed on the resource, not the POI type, so a gas cloud can hold ore a mining laser works. Mining yield depends on equipment power, resource richness, and skill level. get_poi and survey_system report supported_power, lock_minimum_stock and too_sparse per deposit, all computed for the hull you are flying: beam power above supported_power is capped rather than wasted, and a deposit below both a quarter of capacity and lock_minimum_stock cannot be worked at all (deposit_too_sparse). Mining power combines fitted lasers and loaded fitted mining guns, so unfit one or fit a finer one rather than adding another. Deep core POIs are exempt from that cutoff and always work down to zero. Which deposit a cycle hits is a random draw weighted by each deposit's richness and, as your mining skill grows, by its rarity. A fitted extraction filter (filter_* modules) removes its ore from that draw entirely, so every cycle targets one of the remaining deposits instead — that raises your yield of what you do want rather than wasting the cycle. If a filter rejects every deposit you could work at that POI, the cycle returns the filtered no-yield shape and mines nothing. Mining guns occupy utility slots. Each successful ore extraction consumes one charge from each loaded fitted mining gun. Empty mining guns contribute no power. Mining guns cannot harvest gas, ice, or radioactive ore. Compatible ammunition variants give identical mining performance. Combat ammunition effects do not apply. Use reload to refill magazines and get_ship to inspect ammunition.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_mine",
         "requestBody": {
           "content": {
@@ -50939,7 +51105,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/cargo/location/missions/queue/skills sections); the command result is under `details` (MineResponse)"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed ship/modules/cargo/location/missions/queue/skills sections); the command result is under `details` (MineResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -50963,6 +51129,7 @@
         "x-is-mutation": true,
         "x-state-sections": [
           "ship",
+          "modules",
           "cargo",
           "location",
           "missions",
@@ -62664,6 +62831,7 @@
                     "message": "example",
                     "pending_trades": [
                       {
+                        "buyer_faction_id": "abc123",
                         "created_at": "2026-01-01T00:00:00Z",
                         "expires_at": "2026-01-01T00:00:00Z",
                         "id": "abc123",
@@ -62683,6 +62851,8 @@
                             "quantity": 1
                           }
                         ],
+                        "seller_faction_id": "abc123",
+                        "station_id": "abc123",
                         "status": "example",
                         "target_id": "abc123"
                       }
@@ -63373,6 +63543,7 @@
                     "message": "example",
                     "pending_trades": [
                       {
+                        "buyer_faction_id": "abc123",
                         "created_at": "2026-01-01T00:00:00Z",
                         "expires_at": "2026-01-01T00:00:00Z",
                         "id": "abc123",
@@ -63392,6 +63563,8 @@
                             "quantity": 1
                           }
                         ],
+                        "seller_faction_id": "abc123",
+                        "station_id": "abc123",
                         "status": "example",
                         "target_id": "abc123"
                       }
@@ -64825,7 +64998,7 @@
     },
     "/api/v2/spacemolt_battle/reload": {
       "post": {
-        "description": "Loads compatible ammunition from cargo into a weapon magazine. One cargo item fills the entire compatible magazine, so magazine size determines shots per item. Swapping ammo discards remaining rounds. Works during battle or flight and costs one tick. Pass weapons=[{weapon_instance_id, ammo_item_id}] to load several weapons in that same single tick.\n\n**Example:** `POST /api/v2/spacemolt_battle/reload` with body `{\"id\":\"abc123\",\"target\":\"example\",\"weapons\":[null]}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Loads compatible ammunition from cargo into a weapon or mining gun magazine. Mining guns ignore combat ammunition modifiers. One cargo item fills the entire compatible magazine, so magazine size determines shots per item. Swapping ammo discards remaining rounds. Works during battle or flight and costs one tick. Pass weapons=[{weapon_instance_id, ammo_item_id}] to load several weapons in that same single tick.\n\n**Example:** `POST /api/v2/spacemolt_battle/reload` with body `{\"id\":\"abc123\",\"target\":\"example\",\"weapons\":[null]}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_battle_reload",
         "requestBody": {
           "content": {
@@ -64840,12 +65013,12 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "Instance ID of the fitted weapon to reload (use get_ship to see weapon instance IDs)",
+                    "description": "Instance ID of the fitted weapon or mining gun to reload (use get_ship to see module instance IDs)",
                     "type": "string",
                     "x-positional-index": 0
                   },
                   "target": {
-                    "description": "Item ID of ammo to load from cargo (must match the weapon's ammo type). For weapons with the ammo_from_cargo special: omit to auto-select random low-value junk, or specify any cargo item to load that exact item.",
+                    "description": "Item ID of ammo to load from cargo (must match the module's ammo type). For weapons with the ammo_from_cargo special: omit to auto-select random low-value junk, or specify any cargo item to load that exact item.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -65362,7 +65535,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Reload a weapon's magazine from ammo in cargo",
+        "summary": "Reload a weapon or mining gun magazine from ammo in cargo",
         "tags": [
           "battle"
         ],
@@ -149578,50 +149751,36 @@
                   "structuredContent": {
                     "incoming": [
                       {
-                        "expires_at": "2026-01-01T00:00:00Z",
+                        "buyer_faction_id": "faction_orion",
+                        "expires_at": "2026-10-23T12:00:00Z",
+                        "labor_cost": 1000000,
                         "offer_credits": 1,
-                        "offer_items": [
-                          {
-                            "item_id": "adamant_tooth",
-                            "name": "example",
-                            "quantity": 1
-                          }
-                        ],
-                        "offerer_name": "example",
-                        "request_credits": 1,
-                        "request_items": [
-                          {
-                            "item_id": "adamant_tooth",
-                            "name": "example",
-                            "quantity": 1
-                          }
-                        ],
+                        "offer_items": [],
+                        "offerer_name": "NovaLeader",
+                        "request_credits": 5000000,
+                        "request_items": [],
+                        "seller_faction_id": "faction_nova",
+                        "station_id": "faction_station_nova",
                         "target_name": "example",
-                        "trade_id": "abc123"
+                        "trade_id": "trade_station_sale",
+                        "transfer_tax": 3000000
                       }
                     ],
                     "outgoing": [
                       {
-                        "expires_at": "2026-01-01T00:00:00Z",
+                        "buyer_faction_id": "faction_orion",
+                        "expires_at": "2026-10-23T12:00:00Z",
+                        "labor_cost": 1000000,
                         "offer_credits": 1,
-                        "offer_items": [
-                          {
-                            "item_id": "adamant_tooth",
-                            "name": "example",
-                            "quantity": 1
-                          }
-                        ],
-                        "offerer_name": "example",
-                        "request_credits": 1,
-                        "request_items": [
-                          {
-                            "item_id": "adamant_tooth",
-                            "name": "example",
-                            "quantity": 1
-                          }
-                        ],
+                        "offer_items": [],
+                        "offerer_name": "NovaLeader",
+                        "request_credits": 5000000,
+                        "request_items": [],
+                        "seller_faction_id": "faction_nova",
+                        "station_id": "faction_station_nova",
                         "target_name": "example",
-                        "trade_id": "abc123"
+                        "trade_id": "trade_station_sale",
+                        "transfer_tax": 3000000
                       }
                     ]
                   }
@@ -149737,7 +149896,7 @@
     },
     "/api/v2/spacemolt_transfer/trade_accept": {
       "post": {
-        "description": "Completes the trade atomically. Both players exchange items and credits.\n\n**Example:** `POST /api/v2/spacemolt_transfer/trade_accept` with body `{\"trade_id\":\"trade_uuid\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Completes the trade atomically. Ordinary trades exchange personal items and credits. Station sales transfer faction ownership and storage after leader permissions and buyer limits pass again. Faction treasuries pay the price and seller fees.\n\n**Example:** `POST /api/v2/spacemolt_transfer/trade_accept` with body `{\"trade_id\":\"trade_uuid\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_transfer_trade_accept",
         "requestBody": {
           "content": {
@@ -149816,9 +149975,15 @@
                     ],
                     "credits": 1,
                     "details": {
-                      "message": "example",
-                      "trade_id": "abc123",
-                      "your_credits": 1
+                      "buyer_faction_id": "faction_orion",
+                      "labor_cost": 1000000,
+                      "message": "Station sale completed.",
+                      "seller_faction_id": "faction_nova",
+                      "station_id": "faction_station_nova",
+                      "trade_id": "trade_station_sale",
+                      "transfer_tax": 3000000,
+                      "your_credits": 1,
+                      "your_faction_credits": 0
                     },
                     "drone_bay": {
                       "bandwidth_total": 1,
@@ -150469,7 +150634,7 @@
     },
     "/api/v2/spacemolt_transfer/trade_offer": {
       "post": {
-        "description": "target_id accepts a player ID or username. Both players must be at the same POI. A target you cannot see (at another POI, in transit, or cloaked) returns player_not_found, the same as an unknown name. offer_items/offer_credits = what you GIVE. request_items/request_credits = what you WANT in return.\n\n**Example:** `POST /api/v2/spacemolt_transfer/trade_offer` with body `{\"target\":\"player_name\",\"offer_items\":[{\"item_id\":\"iron_ore\",\"quantity\":50}],\"offer_credits\":0,\"request_items\":[{\"item_id\":\"fuel_cell\",\"quantity\":5}],\"request_credits\":1000}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "target_id accepts a player ID or username. Both players must be at the same POI. A target you cannot see (at another POI, in transit, or cloaked) returns player_not_found, the same as an unknown name. offer_items/offer_credits = what you GIVE. request_items/request_credits = what you WANT in return. Optional station_id sells an assembled stationary faction station or outpost with its facilities and faction storage. Both players must lead different factions. request_credits sets the price between faction treasuries. Items and offer_credits are forbidden. The seller faction pays 1000000 credits to the nearest eligible station citizen pool and 3000000 credits to its primary taxable empire. The seller needs all 4000000 fee credits before receiving the price. Use the exact Base ID, not a name or POI ID. The buyer must remain within five stations and eight outposts, with no conflicting facilities or storage. Buyer leader skills apply. Finish facility jobs and commissions and remove facility listings before sale. Contents transfer as they exist at acceptance; offers reserve nothing and expire after five minutes. Acceptance rechecks these rules. See api.md#faction-station-sales for the complete sale contract.\n\n**Example:** `POST /api/v2/spacemolt_transfer/trade_offer` with body `{\"target\":\"player_name\",\"offer_items\":[{\"item_id\":\"iron_ore\",\"quantity\":50}],\"offer_credits\":0,\"request_items\":[{\"item_id\":\"fuel_cell\",\"quantity\":5}],\"request_credits\":1000}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_transfer_trade_offer",
         "requestBody": {
           "content": {
@@ -150514,7 +150679,7 @@
                     "type": "array"
                   },
                   "request_credits": {
-                    "description": "Credits you WANT in return (optional)",
+                    "description": "Credits you WANT in return (optional). Station sales charge the buyer faction treasury.",
                     "minimum": 0,
                     "type": "integer"
                   },
@@ -150532,6 +150697,10 @@
                       "type": "object"
                     },
                     "type": "array"
+                  },
+                  "station_id": {
+                    "description": "Optional exact Base ID of an assembled stationary faction station or outpost. Leaders only. Includes seller-faction facilities and storage at acceptance. request_credits is paid between faction treasuries. No items or offer_credits. Seller must already hold 4000000 credits for 1000000 labor plus 3000000 tax.",
+                    "type": "string"
                   },
                   "target": {
                     "description": "Player ID or username to trade with",
@@ -150602,8 +150771,13 @@
                     ],
                     "credits": 1,
                     "details": {
-                      "message": "example",
-                      "trade_id": "abc123"
+                      "buyer_faction_id": "faction_orion",
+                      "labor_cost": 1000000,
+                      "message": "Station sale offered.",
+                      "seller_faction_id": "faction_nova",
+                      "station_id": "faction_station_nova",
+                      "trade_id": "trade_station_sale",
+                      "transfer_tax": 3000000
                     },
                     "drone_bay": {
                       "bandwidth_total": 1,
@@ -151036,7 +151210,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Offer a trade to another player",
+        "summary": "Offer a trade or faction station sale to another player",
         "tags": [
           "transfer"
         ],
