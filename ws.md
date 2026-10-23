@@ -1238,10 +1238,10 @@ Each entry in `jobs`:
 | Field | Type | Description |
 |---|---|---|
 | `job_id` | string | Job identifier |
-| `recipe` | string | Recipe ID |
-| `mode` | string | `"craft"` or `"recycle"` |
+| `recipe` | string | Recipe display name, not the recipe ID. For a package job: the package label, or `"Package"` |
+| `mode` | string | `"craft"` or `"recycle"`; `"pack"` or `"unpack"` for a package job |
 | `venue` | string | Facility name or `"Station Workshop"` |
-| `storage` | string | Destination storage: `"station"` or `"faction"` |
+| `storage` | string | Destination storage: `"station"`, `"faction"` or `"cargo"` (`"cargo+station"` when a package job overflowed cargo) |
 | `deposited` | array | Items deposited this tick (each with `item_id`, `item_name`, `quantity`) |
 | `runs_done` | integer | Runs completed this tick |
 | `runs_remaining` | integer | Runs still queued on the job |
