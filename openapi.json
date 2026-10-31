@@ -9916,7 +9916,7 @@
                 "damaged": true,
                 "faction_service": "faction_storage",
                 "faction_id": "f3a1c5e9b7d24a8c6e0f2b4d6a8c1e57",
-                "rent_per_cycle": 100,
+                "rent_per_cycle": 69,
                 "rent_paid_until_tick": 482200,
                 "missed_rent_cycles": 1,
                 "capacity": 100000
@@ -9934,7 +9934,7 @@
               "facilities": 1,
               "total_rent_per_cycle": 0,
               "est_rent_per_day": 0,
-              "arrears_owed": 100,
+              "arrears_owed": 69,
               "note": "Rent is paused while damaged. Stored rates apply after repair; existing arrears remain owed."
             }
           },
@@ -9987,7 +9987,7 @@
                 "level": 1,
                 "personal_service": "quarters",
                 "owner_id": "1a3c5e7b9d2f4a6c8e0b2d4f6a8c0e35",
-                "rent_per_cycle": 100,
+                "rent_per_cycle": 11,
                 "rent_paid_until_tick": 482300
               },
               {
@@ -10002,7 +10002,7 @@
                 "bonus_type": "market_fee_discount",
                 "bonus_value": 25,
                 "owner_id": "1a3c5e7b9d2f4a6c8e0b2d4f6a8c0e35",
-                "rent_per_cycle": 100,
+                "rent_per_cycle": 11,
                 "rent_paid_until_tick": 482100,
                 "missed_rent_cycles": 2
               }
@@ -10017,9 +10017,9 @@
             "description": "Current recurring rent and existing arrears for player_facilities. Omitted when you own no facilities here; present with zero recurring rent when all your facilities have paused billing.",
             "example": {
               "facilities": 2,
-              "total_rent_per_cycle": 100,
-              "est_rent_per_day": 8600,
-              "arrears_owed": 200,
+              "total_rent_per_cycle": 11,
+              "est_rent_per_day": 946,
+              "arrears_owed": 22,
               "note": "Rent is paused while damaged. Stored rates apply after repair; existing arrears remain owed."
             }
           },
@@ -34283,7 +34283,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.655.1"
+    "x-gameserver-version": "v0.656.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -82408,7 +82408,7 @@
                         "damaged": true,
                         "faction_service": "faction_storage",
                         "faction_id": "f3a1c5e9b7d24a8c6e0f2b4d6a8c1e57",
-                        "rent_per_cycle": 100,
+                        "rent_per_cycle": 69,
                         "rent_paid_until_tick": 482200,
                         "missed_rent_cycles": 1,
                         "capacity": 100000
@@ -82418,7 +82418,7 @@
                       "facilities": 1,
                       "total_rent_per_cycle": 0,
                       "est_rent_per_day": 0,
-                      "arrears_owed": 100,
+                      "arrears_owed": 69,
                       "note": "Rent is paused while damaged. Stored rates apply after repair; existing arrears remain owed."
                     },
                     "life_support": {
@@ -82464,7 +82464,7 @@
                         "level": 1,
                         "personal_service": "quarters",
                         "owner_id": "1a3c5e7b9d2f4a6c8e0b2d4f6a8c0e35",
-                        "rent_per_cycle": 100,
+                        "rent_per_cycle": 11,
                         "rent_paid_until_tick": 482300
                       },
                       {
@@ -82479,16 +82479,16 @@
                         "bonus_type": "market_fee_discount",
                         "bonus_value": 25,
                         "owner_id": "1a3c5e7b9d2f4a6c8e0b2d4f6a8c0e35",
-                        "rent_per_cycle": 100,
+                        "rent_per_cycle": 11,
                         "rent_paid_until_tick": 482100,
                         "missed_rent_cycles": 2
                       }
                     ],
                     "player_rent": {
                       "facilities": 2,
-                      "total_rent_per_cycle": 100,
-                      "est_rent_per_day": 8600,
-                      "arrears_owed": 200,
+                      "total_rent_per_cycle": 11,
+                      "est_rent_per_day": 946,
+                      "arrears_owed": 22,
                       "note": "Rent is paused while damaged. Stored rates apply after repair; existing arrears remain owed."
                     },
                     "power": {
