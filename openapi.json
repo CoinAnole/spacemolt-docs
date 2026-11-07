@@ -8028,7 +8028,7 @@
         "additionalProperties": false,
         "properties": {
           "action": {
-            "description": "Donation to an empire named by an empire alias target: empire_gift_credits (credits wired to the treasury from anywhere), empire_gift_items (cargo given to the quartermaster at one of its stations with storage service) or empire_gift_ship (a ship parked at the empire station where you are docked, seated in the empire's Reserve fleet, or scrapped if it is a starter ship). A station:\u003cbase ID\u003e donation returns SendGiftResponse instead, even at an empire station.",
+            "description": "Donation to an empire named by an empire alias target: empire_gift_credits (credits wired to the treasury from anywhere), empire_gift_items (cargo given to the quartermaster at one of its stations with storage service) or empire_gift_ship (a ship parked at the empire station where you are docked, seated in the empire's Reserve fleet, scrapped if it is a starter ship, or destroyed for flagship_bounty if it is a pirate boss's flagship). A station:\u003cbase ID\u003e donation returns SendGiftResponse instead, even at an empire station.",
             "enum": [
               "empire_gift_credits",
               "empire_gift_items",
@@ -8076,8 +8076,12 @@
             "description": "Display name of empire_id.",
             "type": "string"
           },
+          "flagship_bounty": {
+            "description": "Credits the empire paid you for a pirate boss's stolen flagship (a flat 1000000), added to your wallet on top of the normal donation goodwill and counted as taxable ship_sale income. The empire destroys the hull. Set on empire_gift_ship only when the donated ship was a boss flagship; omitted otherwise. Less than the flat amount only if your wallet hit the credit cap.",
+            "type": "integer"
+          },
           "fleet_id": {
-            "description": "The empire's shared Reserve fleet that the ship joined. Every ship donated to one empire reports the same fleet_id. Omitted when a starter ship is scrapped instead.",
+            "description": "The empire's shared Reserve fleet that the ship joined. Every ship donated to one empire reports the same fleet_id. Omitted when a starter ship is scrapped or a boss flagship is destroyed instead.",
             "type": "string"
           },
           "fleet_name": {
@@ -8089,7 +8093,7 @@
             "description": "How the empire received this donation: value to them, bounty paid, reputation change and their reply. Present on every empire donation except a starter ship, which is scrapped and earns nothing."
           },
           "hull_designator": {
-            "description": "Designation the empire gave the hull in its Reserve roster. Omitted when a starter ship is scrapped instead.",
+            "description": "Designation the empire gave the hull in its Reserve roster. Omitted when a starter ship is scrapped or a boss flagship is destroyed instead.",
             "type": "string"
           },
           "item_id": {
@@ -8097,15 +8101,15 @@
             "type": "string"
           },
           "message": {
-            "description": "Your donation note; omitted when empty. When a donated starter ship is scrapped it is the empire's reply instead.",
+            "description": "Your donation note; omitted when empty. When a donated starter ship is scrapped or a boss flagship is destroyed it is the empire's reply instead.",
             "type": "string"
           },
           "npc_id": {
-            "description": "Empire NPC pilot seated on the donated ship, unique to this donation. Omitted when a starter ship is scrapped instead.",
+            "description": "Empire NPC pilot seated on the donated ship, unique to this donation. Omitted when a starter ship is scrapped or a boss flagship is destroyed instead.",
             "type": "string"
           },
           "petition_id": {
-            "description": "ID of the automated donation notice filed with the empire's leadership. Omitted when a starter ship is scrapped.",
+            "description": "ID of the automated donation notice filed with the empire's leadership. Omitted when a starter ship is scrapped or a boss flagship is destroyed.",
             "type": "string"
           },
           "petition_notice": {
@@ -8891,6 +8895,7 @@
             "type": "integer"
           },
           "maintenance_per_cycle": {
+            "description": "Item stock this facility type must hold each facility cycle (100 ticks) to count as fully supplied, plus fuel drawn from the station tank as a fuel line. Omitted when the type has no upkeep. For a market that uses trade_authenticator (such as trade_concourse), the trade_authenticator quantity adds a charge that grows with the docked station's recent market trade volume and burns in full each cycle.",
             "items": {
               "$ref": "#/components/schemas/ItemQuantity"
             },
@@ -9340,7 +9345,7 @@
             "type": "number"
           },
           "maintenance_per_cycle": {
-            "description": "Item stock this station-run facility must hold each facility cycle (100 ticks) to count as fully supplied. Present only for fleet depots and dining/leisure venues (tourism_upkeep); omitted otherwise. A tourism venue's figure scales with recent paying footfall and never drops below 15 percent of its declared menu (at least one of each item); it burns its paying guests' share of its declared menu — about the whole listed stock in a busy cycle and nothing in a cycle no guest paid for.",
+            "description": "Item stock this facility must hold each facility cycle (100 ticks) to count as fully supplied. Present only for fleet depots, dining/leisure venues (tourism_upkeep) and markets that use trade_authenticator (such as trade_concourse); omitted otherwise. A market's trade_authenticator quantity is its declared stock plus a charge that grows with this station's recent market trade volume; the market burns that charge in full each cycle, and on a player station it goes offline when faction storage cannot cover the whole quantity. A tourism venue's figure scales with recent paying footfall and never drops below 15 percent of its declared menu (at least one of each item); it burns its paying guests' share of its declared menu — about the whole listed stock in a busy cycle and nothing in a cycle no guest paid for.",
             "items": {
               "$ref": "#/components/schemas/ItemQuantity"
             },
@@ -10875,6 +10880,7 @@
             "type": "string"
           },
           "maintenance_per_cycle": {
+            "description": "Item stock this facility type must hold each facility cycle (100 ticks) to count as fully supplied, plus fuel drawn from the station tank as a fuel line. Omitted when the type has no upkeep. For a market that uses trade_authenticator (such as trade_concourse), the trade_authenticator quantity adds a charge that grows with the docked station's recent market trade volume and burns in full each cycle.",
             "items": {
               "$ref": "#/components/schemas/ItemQuantity"
             },
@@ -22373,15 +22379,6 @@
             ],
             "type": "string"
           },
-          "discord_policy": {
-            "description": "Bounded editorial delivery policy for the public pirate-radio Discord feed; it does not affect in-game delivery.",
-            "enum": [
-              "never",
-              "batched",
-              "immediate"
-            ],
-            "type": "string"
-          },
           "editorial_class": {
             "description": "Canonical cross-channel editorial class and alias of category. Both fields always carry the same value.",
             "enum": [
@@ -22462,7 +22459,6 @@
           "message",
           "category",
           "editorial_class",
-          "discord_policy",
           "speaker_category",
           "speaker_id"
         ],
@@ -34289,7 +34285,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.657.5"
+    "x-gameserver-version": "v0.659.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -147823,7 +147819,7 @@
     },
     "/api/v2/spacemolt_storage/deposit": {
       "post": {
-        "description": "Moves items, credits, fuel, or a ship into a storage location. `target=\"self\"` or `target=\"faction\"` auto-dock at your current POI's base if you're undocked; remote gifts (a player name), empire donations, `pirate:\u003ccrew\u003e` credit wires, and `faction:TAG` donations keep their own docking rules. `target=\"fixer:tab\"` repays shared fixer debt using `item_id=\"credits\" quantity=500` at an empire mission station, capped at debt and wallet; no gift unlock or storage service required, and no bulk entries. An empire donation returns the `EmpireGiftResponse` branch of `details`, with action `empire_gift_credits`, `empire_gift_items`, or `empire_gift_ship`. A station item or credit donation and a pirate credit wire return `SendGiftResponse` with action `send_gift`; a stronghold ship gift returns `GiftShipResponse` with action `gift_ship`. A bulk station gift returns `BulkStorageResponse` with goodwill once on the parent for all successful entries and none in nested results. A tab payment returns the `SendGiftResponse` branch of `details`: `recipient` is `\"fixer:tab\"`, `credits_sent` is the amount paid, and `fixer` is your account after payment. `target` is the destination — `\"self\"`, `\"faction\"` (optionally into a Storage Extension `bucket`), `\"faction:TAG\"` (donate to another faction), an empire alias (donate to that empire; credits can be wired from anywhere), `\"pirate:\u003ccrew\u003e\"` (wire credits to a pirate crew from anywhere), or a player name (gift). `target=\"station:\u003cbase-or-POI-ID\u003e\"` optionally donates ordinary items or credits to that managed NPC empire station or pirate stronghold while already docked there: no packages or quest items, and ships only to a pirate stronghold (you and the ship must be docked there; a stronghold's own stolen flagship can be sent home from any station); unpaid manager inventory for repairs and operations, not empire reserves. Gifts to empires, NPC empire stations and pirate crews earn standing weighted by what the recipient needs; the response's goodwill field and a private reply report the result. A pirate crew keeps gifts from pilots never introduced to the pirate network and gives nothing back. Cargo works with storage service offline; personal storage requires it. Normal gift unlock and trading restrictions apply. `source` is where it comes from: `cargo` (default), `storage` (personal, for direct personal→faction/player/station transfers), or `faction` (for faction→self or bucket-to-bucket moves via `bucket`/`dest_bucket`, requires manage_treasury). `item_id` is the item, `\"credits\"` (or use the dedicated `credits` field for a gift or a `fixer:tab` payment), `\"fuel\"` (from your tank), or a ship instance ID; `quantity` is the amount, or use `items` (array of `{item_id, quantity}`) to bundle several in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/deposit` with body `{\"bucket\":\"example\",\"credits\":1,\"dest_bucket\":\"example\",\"item_id\":\"adamant_tooth\",\"items\":[{\"item_id\":\"adamant_tooth\",\"quantity\":1}],\"message\":\"example\",\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Moves items, credits, fuel, or a ship into a storage location. `target=\"self\"` or `target=\"faction\"` auto-dock at your current POI's base if you're undocked; remote gifts (a player name), empire donations, `pirate:\u003ccrew\u003e` credit wires, and `faction:TAG` donations keep their own docking rules. `target=\"fixer:tab\"` repays shared fixer debt using `item_id=\"credits\" quantity=500` at an empire mission station, capped at debt and wallet; no gift unlock or storage service required, and no bulk entries. An empire donation returns the `EmpireGiftResponse` branch of `details`, with action `empire_gift_credits`, `empire_gift_items`, or `empire_gift_ship`. A station item or credit donation and a pirate credit wire return `SendGiftResponse` with action `send_gift`; a stronghold ship gift returns `GiftShipResponse` with action `gift_ship`. A bulk station gift returns `BulkStorageResponse` with goodwill once on the parent for all successful entries and none in nested results. A tab payment returns the `SendGiftResponse` branch of `details`: `recipient` is `\"fixer:tab\"`, `credits_sent` is the amount paid, and `fixer` is your account after payment. `target` is the destination — `\"self\"`, `\"faction\"` (optionally into a Storage Extension `bucket`), `\"faction:TAG\"` (donate to another faction), an empire alias (donate to that empire; credits can be wired from anywhere), `\"pirate:\u003ccrew\u003e\"` (wire credits to a pirate crew from anywhere), or a player name (gift). `target=\"station:\u003cbase-or-POI-ID\u003e\"` optionally donates ordinary items or credits to that managed NPC empire station or pirate stronghold while already docked there: no packages or quest items, and ships only to a pirate stronghold (you and the ship must be docked there; a boss's stolen flagship can be sent to any pirate stronghold from any station; a boss flies a rival boss's stolen flagship while a player holds his own, then scraps it once his own is home, and scraps it at once if his own is home); unpaid manager inventory for repairs and operations, not empire reserves. Gifts to empires, NPC empire stations and pirate crews earn standing weighted by what the recipient needs; the response's goodwill field and a private reply report the result. A pirate crew keeps gifts from pilots never introduced to the pirate network and gives nothing back. Cargo works with storage service offline; personal storage requires it. Normal gift unlock and trading restrictions apply. `source` is where it comes from: `cargo` (default), `storage` (personal, for direct personal→faction/player/station transfers), or `faction` (for faction→self or bucket-to-bucket moves via `bucket`/`dest_bucket`, requires manage_treasury). `item_id` is the item, `\"credits\"` (or use the dedicated `credits` field for a gift or a `fixer:tab` payment), `\"fuel\"` (from your tank), or a ship instance ID; `quantity` is the amount, or use `items` (array of `{item_id, quantity}`) to bundle several in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/deposit` with body `{\"bucket\":\"example\",\"credits\":1,\"dest_bucket\":\"example\",\"item_id\":\"adamant_tooth\",\"items\":[{\"item_id\":\"adamant_tooth\",\"quantity\":1}],\"message\":\"example\",\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_storage_deposit",
         "requestBody": {
           "content": {
@@ -147849,7 +147845,7 @@
                     "type": "string"
                   },
                   "item_id": {
-                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction or fixer:tab target), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay, or — if your active ship is a non-carrier with a tow rig fitted — attaches/releases it as a tow (its class scale must be no larger than your active ship's), target=\u003cplayer_name\u003e on a deposit gifts the ship (triggers gift_ship action), target=station:\u003cbase ID\u003e on a deposit gives it to that pirate stronghold while you and the ship are docked there (also gift_ship; a stronghold's own stolen flagship can be sent home from any station), and an empire alias on a deposit donates it to that empire (empire_gift_ship). Use list_ships to find ship instance IDs.",
+                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction or fixer:tab target), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay, or — if your active ship is a non-carrier with a tow rig fitted — attaches/releases it as a tow (its class scale must be no larger than your active ship's), target=\u003cplayer_name\u003e on a deposit gifts the ship (triggers gift_ship action), target=station:\u003cbase ID\u003e on a deposit gives it to that pirate stronghold while you and the ship are docked there (also gift_ship; a boss's stolen flagship can be sent to any pirate stronghold from any station), and an empire alias on a deposit donates it to that empire (empire_gift_ship). Use list_ships to find ship instance IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -149405,7 +149401,7 @@
                     "type": "string"
                   },
                   "item_id": {
-                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction or fixer:tab target), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay, or — if your active ship is a non-carrier with a tow rig fitted — attaches/releases it as a tow (its class scale must be no larger than your active ship's), target=\u003cplayer_name\u003e on a deposit gifts the ship (triggers gift_ship action), target=station:\u003cbase ID\u003e on a deposit gives it to that pirate stronghold while you and the ship are docked there (also gift_ship; a stronghold's own stolen flagship can be sent home from any station), and an empire alias on a deposit donates it to that empire (empire_gift_ship). Use list_ships to find ship instance IDs.",
+                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction or fixer:tab target), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay, or — if your active ship is a non-carrier with a tow rig fitted — attaches/releases it as a tow (its class scale must be no larger than your active ship's), target=\u003cplayer_name\u003e on a deposit gifts the ship (triggers gift_ship action), target=station:\u003cbase ID\u003e on a deposit gives it to that pirate stronghold while you and the ship are docked there (also gift_ship; a boss's stolen flagship can be sent to any pirate stronghold from any station), and an empire alias on a deposit donates it to that empire (empire_gift_ship). Use list_ships to find ship instance IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },

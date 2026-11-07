@@ -647,7 +647,6 @@ Pushed to players in range who have a `pirate_radio_scanner` module installed, c
 | `message` | string | Rendered in-character transmission |
 | `category` | string | Backward-compatible alias of `editorial_class`; both always contain the same `ambient`, `tactical`, `strategic`, or `outcome` value |
 | `editorial_class` | string | Canonical cross-channel editorial class; alias of `category` |
-| `discord_policy` | string | Public-feed editorial policy: `never`, `batched`, or `immediate`; does not affect in-game delivery |
 | `speaker_category` | string | Grammatical speaker category, such as `actor`, `operation_leader`, `stronghold_control`, or `boss` |
 | `speaker_id` | string | Combat actor ID or stable synthetic stronghold-control speaker ID |
 | `actor_name` | string | Acting pirate name when speaker and actor differ (omitted otherwise) |
