@@ -9281,7 +9281,7 @@
             "type": "boolean"
           },
           "description": {
-            "description": "Flavor text. For a facility with upkeep it adds a satisfied or degraded line that matches maintenance_satisfied. An owner-written description replaces the text, and a disguised facility seen from outside shows its cover description. Can be an empty string.",
+            "description": "Flavor text. For a facility with upkeep it adds a satisfied or degraded line that matches maintenance_satisfied. A per-facility description replaces the text, and a disguised facility seen from outside shows its cover description. Can be an empty string.",
             "type": "string"
           },
           "dining_points": {
@@ -16399,7 +16399,7 @@
             "type": "integer"
           },
           "situation": {
-            "description": "Outcome class that picked the reply: stranger (a pirate crew kept the gift but owes nothing to a pilot never introduced to the pirate network), bounty_partial, bounty_cleared, hostile, cooling, unwanted_items, unwanted_ship, or token/appreciated/generous/lavish/devoted followed by _credits, _items or _ship. A ship given to a pirate crew instead reports what the crew did with it: ship_scrap (no pirate design for that hull), ship_refit (rebuilt to a pirate design) or ship_pirate (a pirate-built hull) followed by _cheap, _mid or _expensive by its fitted value; or, when the boss gets involved, boss_upgrade (the boss switches to your ship because it out-fights the boss's current one), boss_hunt (the boss's flagship is in a player's hands and the boss takes your stronger ship to hunt them), boss_flagship_returned, boss_rival_flown (the boss flies another boss's flagship until the stolen one comes back), boss_rival_scrapped, boss_flagship_copy (your hull was rebuilt into a copy of the boss's stolen flagship and the boss flies it) or boss_flagship_spare (rebuilt into a spare copy of the boss's flagship), each with _cold appended when the crew does not like you. stranger, hostile and cooling still apply to ordinary pirate ship gifts.",
+            "description": "Outcome class that picked the reply: stranger (a pirate crew kept the gift but owes nothing to a pilot never introduced to the pirate network), bounty_partial, bounty_cleared, hostile, cooling, unwanted_items, unwanted_ship, or token/appreciated/generous/lavish/devoted followed by _credits, _items or _ship. A ship given to a pirate crew instead reports what the crew did with it: ship_scrap (no pirate design for that hull), ship_refit (rebuilt to a pirate design) or ship_pirate (a pirate-built hull) followed by _cheap, _mid or _expensive by its fitted value; or, when the boss gets involved, boss_upgrade (the boss switches to your ship because it out-fights the boss's current one), boss_hunt (the boss's flagship is in a player's hands and the boss takes your stronger ship to hunt them), boss_flagship_returned, boss_rival_flown (the boss flies another boss's flagship until the stolen one comes back) or boss_rival_scrapped, each with _cold appended when the crew does not like you. stranger, hostile and cooling still apply to ordinary pirate ship gifts.",
             "enum": [
               "stranger",
               "bounty_partial",
@@ -16441,11 +16441,7 @@
               "boss_rival_flown",
               "boss_rival_flown_cold",
               "boss_rival_scrapped",
-              "boss_rival_scrapped_cold",
-              "boss_flagship_copy",
-              "boss_flagship_copy_cold",
-              "boss_flagship_spare",
-              "boss_flagship_spare_cold"
+              "boss_rival_scrapped_cold"
             ],
             "type": "string"
           }
@@ -34285,7 +34281,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.659.1"
+    "x-gameserver-version": "v0.660.2"
   },
   "openapi": "3.1.0",
   "paths": {
