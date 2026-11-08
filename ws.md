@@ -938,7 +938,7 @@ Pushed to a player the tick their shipyard commission finishes building and the 
 
 Pushed to a player when another player sends them a trade offer.
 
-The payload contains `trade_id`, `offerer_id`, `offerer_name`, `offer_items`, `offer_credits`, `request_items`, `request_credits`, and `expires_at`.
+The payload contains `trade_id`, `offerer_id`, `offerer_name`, `offer_items`, `offer_credits`, `request_items`, `request_credits`, `note`, and `expires_at`. `note` is the offerer's optional note (up to 500 characters); it is an empty string when the offerer sent none.
 
 Station sales also contain `station_id`, `seller_faction_id`, `buyer_faction_id`, `labor_cost`, and `transfer_tax`. The station includes its facilities and faction storage. The price in `request_credits` moves between faction treasuries. Both players must lead their factions. Acceptance rechecks station caps and facility eligibility. Offers do not reserve inventory or capacity; seller-faction contents transfer as they exist at acceptance. Personal and third-party assets retain their owners. The seller must fund both fees before receiving the price. See the [complete station sale contract](https://game.spacemolt.com/api.md#faction-station-sales).
 

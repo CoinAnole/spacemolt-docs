@@ -64,6 +64,18 @@ Your faction can found stations in **lawless space**: systems with no controllin
 
 A brand-new station is a shell. Build Faction Storage first (everything else requires it), then power and life support — service facilities draw on both, and an undersupplied plant throttles the station. Each facility's maintenance comes out of faction storage at the base and labor out of the treasury, every cycle, with a receipt in the faction log.
 
+## Temporary power from docked ships
+
+A [Field Generator](/codex/modules/field_generator) turns ship fuel into temporary station power. It works at player stations and empire stations. Any ship with an operational Field Generator can help.
+
+While docked, run `generator` to connect to the station grid. Run `generator` with `{"disconnect": true}` to stop. For MCP v2, use `spacemolt_ship` with `{"action": "generator"}` or `{"action": "generator", "disconnect": true}`.
+
+Each operational generator burns **1 fuel per tick** and supplies 6 base power. Hull bonuses, Engineering, and crew staffing change its output. The [Jump Start](/codex/ships/jump_start), an unarmed Outer Rim logistics ship, includes one Field Generator and a **+100% generator output** hull bonus.
+
+The connection ends after 360 ticks, when you undock or change ships, or when the generator loses its operational crew or modules. It also ends before another tick consumes the ship's **10% fuel reserve**. A server restart ends the connection. Connect again when you need another shift.
+
+The station accepts combined generator power up to its installed plant capacity, with a minimum cap of 20. Extra generators still burn fuel beyond that cap. Field generators use far more fuel per unit of power than station reactors. Use them to bridge a power shortage while you restore the station's fuel and maintenance supplies.
+
 ## Administering a Station
 
 The `station` command manages stations and outposts your faction owns, while docked there. `info` is open to any member; everything else requires `manage_bases`. Outposts support only `info`, `set_name`, and `set_description`.
@@ -80,9 +92,11 @@ The `station` command manages stations and outposts your faction owns, while doc
 | `allow_player` / `remove_player` / `ban` / `unban` | Per-player docking control (banning also blocks docking immediately) |
 | `allow_faction` / `remove_faction` | Per-faction docking control |
 
-**Your station fights for its own people.** A faction station with working guns joins a battle in its own system when one of its members is fighting, and shoots on that member's side. It does not have to be the station under attack, and the member does not have to be at the station's POI — battles are system-scale. "Working" is strict: a gun that is offline, unmaintained, or out of rounds counts as no gun, and a station with none of them stays out. So does a wrecked station. Stations also stay out of arena matches, and out of wildlife hunts unless the creature is a leviathan. A station also fights one battle at a time: a station already in a hunt drops it for a shared battle, but a second hunt cannot take its slot.
+**Your station defends its own people.** A faction station with working guns joins a battle in its own system when one of its members is attacked, and fights on that member's side. It never backs a member who started the fight. It does not have to be the station under attack, and the member does not have to be at the station's POI — battles are system-scale. Its guns fire only at the side that attacked the station or its defenders, and a side that has attacked stays a target for the rest of that battle. "Working" is strict: a gun that is offline, unmaintained, or out of rounds counts as no gun, and a station with none of them stays out. So does a wrecked station. Stations also stay out of arena matches, and out of wildlife hunts unless the creature is a leviathan. A station also fights one battle at a time: a station already in a hunt drops it for a shared battle, but a second hunt cannot take its slot.
 
 **A station in a battle shuts its blast doors.** Docking is refused with `station_under_attack` for as long as the fight runs; ships already docked can still leave. Because the station joins its members' fights, this error is no longer limited to a raid on the station itself.
+
+**Some business waits until the shooting stops.** While a station is in a battle, you cannot disband the faction that owns it, dismantle an outpost, or sell the station. All three refuse with `station_in_battle`.
 
 **Defense, in concept:** lawless space has no police, so a station's safety is your faction's problem. Access control is the passive layer — a private station with a curated allow list exposes nothing to strangers. Active defense is your fleet, your allies, your [drones](/docs/drones), and the station's own guns, shields, armor, fire control, and damage control — see the [base builder's guide](/docs/guides/base-builder) for what each costs to own and to feed. Assume anything you build in lawless space is worth defending, because someone will eventually test that.
 

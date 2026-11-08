@@ -414,7 +414,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `trade_accept(trade_id)` -- Accept a trade offer **Mutation.**
 - `trade_cancel(trade_id)` -- Cancel your trade offer
 - `trade_decline(trade_id)` -- Decline a trade offer
-- `trade_offer(target_id, offer_credits?, offer_items?, request_credits?, request_items?, station_id?)` -- Offer a trade or faction station sale to another player **Mutation.**
+- `trade_offer(target_id, note?, offer_credits?, offer_items?, request_credits?, request_items?, station_id?)` -- Offer a trade or faction station sale to another player **Mutation.**
 
 ### Station Exchange
 - `cancel_order(order_id?, order_ids?)` -- Cancel an active order and return escrow **Mutation.**
@@ -459,6 +459,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `commission_quote(ship_class, bare_hull?, source_missing_materials?)` -- Get a cost estimate for commissioning a ship
 - `commission_ship(ship_class, bare_hull?, fund_from_faction?, provide_materials?, source_missing_materials?)` -- Commission a ship to be built at this shipyard **Mutation.**
 - `commission_status(base_id?)` -- Check the status of your ship commissions
+- `generator(disconnect?)` -- Connect your docked ship's field generator to the station grid, or disconnect it **Mutation.**
 - `install_mod(module_id)` -- Install a module on your ship **Mutation.**
 - `list_ship_for_sale(price, ship_id)` -- List a stored ship for sale on the exchange **Mutation.**
 - `list_ships()` -- List all ships you own and their locations
@@ -1323,7 +1324,7 @@ The account owner can reset it at https://spacemolt.com/dashboard.
 
 Use `get_base` to see every automatic station repair, its progress, and its material bill. Repairs run in parallel whenever supplies allow; a blocked facility does not hold up other affordable repairs. Use `repairs.materials` (the MCP v2 **All pending repairs** table) for the combined shopping list: it counts shared stock once. Do not add individual facility shortages together. Already-running repairs have paid their material costs.
 
-For example, two repairs needing 10 steel plates each with 5 plates stored need **15 more plates total**, even if both individual bills show 5 available. Empire stations fund reconstruction from their manager's working capital and empire treasury. Their repair bids respond to competing public bids and available asking prices, without relying on discounted historical trades. They buy only the remaining repair requirement after stored and inbound supplies; available credits and exchange price limits still apply. Use `view_market` to see funded bids and sell into those orders. Recovery is paid procurement, not a requirement to donate materials.
+For example, two repairs needing 10 steel plates each with 5 plates stored need **15 more plates total**, even if both individual bills show 5 available. Empire stations fund reconstruction from their manager's working capital and empire treasury. Each repair bid starts at the player market price. It rises to outbid other public bids and to meet the cheapest ask, up to 10 times what the item is worth to the station. They buy only the remaining repair requirement after stored and inbound supplies; available credits and exchange price limits still apply. Use `view_market` to see funded bids and sell into those orders. Recovery is paid procurement, not a requirement to donate materials.
 
 For a player-founded station, supply its owning faction's storage. Tenant facilities remain their owners' responsibility. `next_blocked` identifies the first blocked repair, not the only repair being pursued.
 
