@@ -2933,7 +2933,7 @@
             "type": "string"
           },
           "reason": {
-            "description": "Why the event fired, when the event alone is ambiguous. boarding_rejected carries either a validation reason or contested_same_tick when deterministic boarding initiative selected another eligible request sharing either hull. self_destruct_canceled may carry battle_ended when combat ending cleared the countdown. Omitted otherwise.",
+            "description": "Why the event fired, when the event alone is ambiguous. boarding_rejected carries either a validation reason or contested_same_tick when deterministic boarding initiative selected another eligible request sharing either hull. self_destruct_canceled may carry battle_ended when combat ending cleared the countdown. plundered carries surrendered when the target's crew gave up because no fit marine was left aboard, at latch or when its last marine fell; that ship keeps its surviving crew. Captures never surrender. Omitted otherwise.",
             "type": "string"
           },
           "self_destruct_countdown": {
@@ -8195,7 +8195,13 @@
           "bounty_attack": {
             "type": "integer"
           },
+          "bounty_hold": {
+            "type": "integer"
+          },
           "bounty_kill": {
+            "type": "integer"
+          },
+          "bounty_plunder": {
             "type": "integer"
           },
           "bounty_rep_restoration_bps": {
@@ -8285,7 +8291,13 @@
           "rep_penalty_attack": {
             "type": "integer"
           },
+          "rep_penalty_hold": {
+            "type": "integer"
+          },
           "rep_penalty_kill": {
+            "type": "integer"
+          },
+          "rep_penalty_plunder": {
             "type": "integer"
           },
           "rep_trade_fill_cap": {
@@ -8334,6 +8346,10 @@
           "bounty_kill",
           "rep_penalty_attack",
           "rep_penalty_kill",
+          "bounty_hold",
+          "rep_penalty_hold",
+          "bounty_plunder",
+          "rep_penalty_plunder",
           "shoot_on_sight_threshold",
           "jail_duration_hours",
           "bounty_rep_restoration_bps",
@@ -11917,6 +11933,9 @@
           "ally_intel_opt_out": {
             "type": "boolean"
           },
+          "ally_shipyard_access": {
+            "type": "boolean"
+          },
           "charter": {
             "type": "string"
           },
@@ -12177,6 +12196,9 @@
             "type": "boolean"
           },
           "ally_intel_opt_out": {
+            "type": "boolean"
+          },
+          "ally_shipyard_access": {
             "type": "boolean"
           },
           "at_war": {
@@ -14024,7 +14046,7 @@
             "type": "array"
           },
           "found": {
-            "description": "True when a route exists, including when you are already in the target system. False means no path was found; route is then null and the fuel fields are 0.",
+            "description": "True when a route exists, including when you are already in the target system. False means no path was found; route is then empty and the fuel fields are 0.",
             "example": true,
             "type": "boolean"
           },
@@ -14044,7 +14066,7 @@
             "type": "string"
           },
           "route": {
-            "description": "Systems in order from your current system to target_system, both included; see RouteStep. It holds a single step when you are already there. Normal connections and wormholes you know count as one jump each. Null when found is false.",
+            "description": "Systems in order from your current system to target_system, both included; see RouteStep. It holds a single step when you are already there. Normal connections and wormholes you know count as one jump each. Empty when found is false.",
             "example": [
               {
                 "system_id": "sol",
@@ -14065,10 +14087,7 @@
             "items": {
               "$ref": "#/components/schemas/RouteStep"
             },
-            "type": [
-              "array",
-              "null"
-            ]
+            "type": "array"
           },
           "target_poi": {
             "description": "POI ID to travel to after the last jump. Present only when you asked for a POI or base ID; a base resolves to the POI it sits at. Omitted for a system target.",
@@ -16252,10 +16271,18 @@
             "type": "string"
           },
           "expires_at": {
-            "description": "UTC time when the pending offer expires.",
+            "description": "UTC time when the pending offer expires. Tolls expire by expires_tick instead.",
             "example": "2026-10-23T12:00:00Z",
             "format": "date-time",
             "type": "string"
+          },
+          "expires_tick": {
+            "description": "Tick at which the toll offer expires unpaid. Present only for tolls.",
+            "type": "integer"
+          },
+          "hold": {
+            "description": "True while the offerer holds the target with a warp scrambler for this toll. Omitted when no hold stands.",
+            "type": "boolean"
           },
           "labor_cost": {
             "description": "Seller faction labor fee in credits paid to local station citizens on acceptance; outposts use the nearest reachable station pool. Currently 1000000. Omitted for ordinary trades.",
@@ -16277,6 +16304,10 @@
               "$ref": "#/components/schemas/PendingTradeItemView"
             },
             "type": "array"
+          },
+          "offer_safe_passage": {
+            "description": "True when the offer is a toll: request_credits buys the target a grant of safe passage from the offerer's faction (or the offerer alone if factionless) for 2160 ticks. Accepting pays what the target has, up to request_credits. Omitted for ordinary trades.",
+            "type": "boolean"
           },
           "offerer_name": {
             "description": "Seller player name. Present for incoming offers only.",
@@ -17916,6 +17947,7 @@
         "discriminator": {
           "mapping": {
             "jumped": "#/components/schemas/JumpResponse",
+            "pathfinder_arrival": "#/components/schemas/JumpResponse",
             "pathfinder_jump": "#/components/schemas/PathfinderJumpResponse",
             "pathfinder_redirect": "#/components/schemas/PathfinderJumpResponse"
           },
@@ -17934,9 +17966,10 @@
         "additionalProperties": false,
         "properties": {
           "action": {
-            "description": "Always jumped for a jump command result.",
+            "description": "jumped for a jump command result. pathfinder_arrival only on the unsolicited ok push sent when a Pathfinder drift reaches a system.",
             "enum": [
-              "jumped"
+              "jumped",
+              "pathfinder_arrival"
             ],
             "example": "jumped",
             "type": "string"
@@ -18649,7 +18682,7 @@
             "type": "string"
           },
           "msg_type": {
-            "description": "Specific frame subtype. Switch on this to pick the matching Notification_\u003cmsg_type\u003e payload schema. Routing to the coarse type field: chat_message -\u003e chat. player_died / player_kill / scan_detected / pilotless_ship / drone_update / drone_destroyed / battle_started / battle_update / battle_joined / battle_left / battle_ended / battle_alert / ship_captured / prize_update -\u003e combat. trade_offer_received / trade_complete / trade_declined / trade_cancelled / gift_received / exchange_fill -\u003e trade. market_update -\u003e market. crafting_update -\u003e crafting. observation_update -\u003e observation. personnel_update -\u003e system. Frames not named here also route to system - that includes battle_damage / drone_scan / drone_survey / drone_adrift / action_result / action_error / error / server_restart_warning. A types=combat filter does not carry them.",
+            "description": "Specific frame subtype. Switch on this to pick the matching Notification_\u003cmsg_type\u003e payload schema. Routing to the coarse type field: chat_message -\u003e chat. player_died / player_kill / scan_detected / hold_update / pilotless_ship / drone_update / drone_destroyed / battle_started / battle_update / battle_joined / battle_left / battle_ended / battle_alert / ship_captured / prize_update -\u003e combat. trade_offer_received / trade_complete / trade_declined / trade_cancelled / gift_received / exchange_fill -\u003e trade. market_update -\u003e market. crafting_update -\u003e crafting. observation_update -\u003e observation. personnel_update -\u003e system. Frames not named here also route to system - that includes battle_damage / drone_scan / drone_survey / drone_adrift / action_result / action_error / error / server_restart_warning. A types=combat filter does not carry them.",
             "type": "string"
           },
           "timestamp": {
@@ -20509,6 +20542,9 @@
             "$ref": "#/components/schemas/Notification_gift_received"
           },
           {
+            "$ref": "#/components/schemas/Notification_hold_update"
+          },
+          {
             "$ref": "#/components/schemas/Notification_market_update"
           },
           {
@@ -21507,13 +21543,19 @@
         "additionalProperties": false,
         "properties": {
           "code": {
+            "description": "Machine-readable error code. Switch on this rather than on message.",
             "type": "string"
           },
-          "details": true,
+          "details": {
+            "description": "Optional extra context. Shape depends on code. Omitted when the error carries none.",
+            "type": "object"
+          },
           "message": {
+            "description": "Human-readable explanation of the error.",
             "type": "string"
           },
           "pending_command": {
+            "description": "Name of the already-queued command. Present only on action_pending errors.",
             "type": "string"
           }
         },
@@ -21939,6 +21981,79 @@
           "sender",
           "sender_id",
           "timestamp"
+        ],
+        "type": "object"
+      },
+      "Notification_hold_update": {
+        "additionalProperties": false,
+        "description": "Pushed to both the holder and the held pilot when a hold starts or ends. A hold is a crime in empire space and a hostile act everywhere.",
+        "properties": {
+          "event": {
+            "description": "started when the hold begins; ended when it ends.",
+            "enum": [
+              "started",
+              "ended"
+            ],
+            "type": "string"
+          },
+          "holder_id": {
+            "description": "Player whose warp scrambler holds the target.",
+            "type": "string"
+          },
+          "holder_name": {
+            "description": "Holder username.",
+            "type": "string"
+          },
+          "message": {
+            "description": "Human-readable summary.",
+            "type": "string"
+          },
+          "reason": {
+            "description": "Why the hold ended. Present only on ended. paid: the target accepted the toll. offer_closed: the toll was declined, cancelled or expired and the 2-tick grace ran out. holder_acted: the holder queued a command other than scan, trade_offer, attack or reload. holder_left: the holder or target left the POI, docked, jumped or died. battle: the two pilots are now in the same battle, and combat tackle applies. scan_over: a scan hold ran its 5 ticks with no toll offer.",
+            "enum": [
+              "paid",
+              "offer_closed",
+              "holder_acted",
+              "holder_left",
+              "battle",
+              "scan_over"
+            ],
+            "type": "string"
+          },
+          "source": {
+            "description": "What holds the target: toll is a trade_offer with hold=true; scan is a cargo scan from a ship with a warp scrambler. A toll offer sent during a scan hold turns it into a toll hold.",
+            "enum": [
+              "toll",
+              "scan"
+            ],
+            "type": "string"
+          },
+          "start_tick": {
+            "description": "Tick the hold started.",
+            "type": "integer"
+          },
+          "target_id": {
+            "description": "Held player.",
+            "type": "string"
+          },
+          "target_name": {
+            "description": "Held player username.",
+            "type": "string"
+          },
+          "trade_id": {
+            "description": "The toll offer that keeps the hold. Present for toll holds.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event",
+          "holder_id",
+          "holder_name",
+          "target_id",
+          "target_name",
+          "source",
+          "start_tick",
+          "message"
         ],
         "type": "object"
       },
@@ -23060,6 +23175,16 @@
           "message": {
             "type": "string"
           },
+          "paid_credits": {
+            "description": "Credits the target paid for your toll: request_credits, or their whole wallet when they had less. Present including zero only for tolls.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "pass_until_tick": {
+            "description": "Tick at which the grant of safe passage the target bought ends. Present only for tolls.",
+            "format": "int64",
+            "type": "integer"
+          },
           "seller_faction_id": {
             "description": "Seller faction ID. Present only for station sales.",
             "type": "string"
@@ -23117,8 +23242,18 @@
             "type": "string"
           },
           "expires_at": {
+            "description": "Wall-clock expiry of an ordinary offer. Tolls expire by expires_tick instead.",
             "format": "date-time",
             "type": "string"
+          },
+          "expires_tick": {
+            "description": "Tick at which the toll offer expires unpaid. Present only for tolls.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "hold": {
+            "description": "True when the offerer's warp scrambler holds you while the toll stands: your jump and travel wait, and dock, emergency warps, self-destruct, fleet moves and other fights are refused. Attacking the offerer is lawful defense. False otherwise.",
+            "type": "boolean"
           },
           "labor_cost": {
             "description": "Seller faction fee in credits paid to the nearest eligible station citizen pool. Currently 1000000. Present only for station sales.",
@@ -23140,11 +23275,19 @@
             },
             "type": "array"
           },
+          "offer_safe_passage": {
+            "description": "True when the offer is a toll: request_credits buys you a grant of safe passage from the offerer's faction (or the offerer alone if factionless). Accepting pays what you have, up to request_credits. False for ordinary trades.",
+            "type": "boolean"
+          },
           "offerer_id": {
             "type": "string"
           },
           "offerer_name": {
             "type": "string"
+          },
+          "pass_until_ticks": {
+            "description": "Length in ticks of the grant of safe passage the toll buys, counted from acceptance. Currently 2160. Present only for tolls.",
+            "type": "integer"
           },
           "request_credits": {
             "format": "int64",
@@ -24794,6 +24937,48 @@
           "riding_ship_id": {
             "description": "Ship ID the player is riding aboard as a passenger (empty if piloting their own ship)",
             "type": "string"
+          },
+          "safe_passages": {
+            "description": "Grants of safe passage you hold, longest-running first, at most 16. Until until_tick, members of grantor_faction_id (or grantor_player_id alone when the grantor has no faction) cannot attack, target or board you; attacking a bound pilot yourself ends the grant. Expired grants may remain until the list next changes. Omitted when you hold none.",
+            "items": {
+              "properties": {
+                "granted_tick": {
+                  "format": "int64",
+                  "type": "integer"
+                },
+                "grantor_faction_id": {
+                  "description": "Faction bound by the grant. Omitted when the grantor had no faction.",
+                  "type": "string"
+                },
+                "grantor_player_id": {
+                  "description": "Player who granted the pass.",
+                  "type": "string"
+                },
+                "ref_id": {
+                  "description": "The toll's trade ID, when the grant came from a toll.",
+                  "type": "string"
+                },
+                "source": {
+                  "description": "toll: bought with a trade_offer toll. robbery: left by a robbery.",
+                  "enum": [
+                    "toll",
+                    "robbery"
+                  ],
+                  "type": "string"
+                },
+                "system_id": {
+                  "description": "System where the grant was made.",
+                  "type": "string"
+                },
+                "until_tick": {
+                  "description": "First tick at which the grant no longer binds.",
+                  "format": "int64",
+                  "type": "integer"
+                }
+              },
+              "type": "object"
+            },
+            "type": "array"
           },
           "secondary_color": {
             "description": "Hex color",
@@ -26980,6 +27165,40 @@
         ],
         "type": "object"
       },
+      "SafePassage": {
+        "additionalProperties": false,
+        "properties": {
+          "granted_tick": {
+            "type": "integer"
+          },
+          "grantor_faction_id": {
+            "type": "string"
+          },
+          "grantor_player_id": {
+            "type": "string"
+          },
+          "ref_id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "system_id": {
+            "type": "string"
+          },
+          "until_tick": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "grantor_player_id",
+          "system_id",
+          "granted_tick",
+          "until_tick",
+          "source"
+        ],
+        "type": "object"
+      },
       "SalvageMaterial": {
         "additionalProperties": false,
         "properties": {
@@ -27070,11 +27289,20 @@
             "description": "True when the scanned creature is branded livestock of a player faction's wildlife ranch. Killing it is legal. It draws down the owners' herd, the owners are told who killed it, and it gives no hunt mission credit. Omitted for wild animals and for scans of anything else.",
             "type": "boolean"
           },
-          "cargo_types": {
+          "cargo": {
+            "description": "The target's ship cargo in the get_cargo item shape (item_id, name, quantity, size). Present when a cargo scan succeeds and the hold is not empty. A successful cargo scan without cargo means an empty hold. A cargo scan never reveals credits.",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/ShipCargoItem"
             },
             "type": "array"
+          },
+          "cargo_capacity": {
+            "description": "The target ship's cargo capacity. Present when a cargo scan succeeds.",
+            "type": "integer"
+          },
+          "cargo_used": {
+            "description": "Cargo space the target uses. Present when a cargo scan succeeds and the hold is not empty.",
+            "type": "integer"
           },
           "cloaked": {
             "type": "boolean"
@@ -27092,6 +27320,14 @@
           "faction_id": {
             "type": "string"
           },
+          "hold": {
+            "description": "True when your warp scrambler held the target for the cargo scan: 5 ticks from the scan start. Omitted when false.",
+            "type": "boolean"
+          },
+          "hold_cancelled": {
+            "description": "True when you carry a warp scrambler but the target's warp stabilizer cancelled the hold. The scan still ran. Omitted when false.",
+            "type": "boolean"
+          },
           "hull": {
             "type": "integer"
           },
@@ -27103,6 +27339,13 @@
             "type": "array"
           },
           "message": {
+            "type": "string"
+          },
+          "mode": {
+            "description": "cargo when this result is a cargo scan (scan with mode=cargo). success is true when the scan read the cargo. Omitted for other scans.",
+            "enum": [
+              "cargo"
+            ],
             "type": "string"
           },
           "npcs": {
@@ -27123,6 +27366,16 @@
             "description": "The POI a remote POI scan read. Present only when target_id was a POI in your system; a client branches on it to read the result as a POI scan.",
             "type": "string"
           },
+          "reason": {
+            "description": "Why a cargo scan failed. evaded: scan power was 0 against the target's stealth and scan evasion. target_left: the target left your POI, docked or boarded a carrier. target_lost: the target cloaked beyond your sensors. scanner_left: you left the POI, docked or boarded a carrier. Omitted when the scan succeeded and for other scans.",
+            "enum": [
+              "evaded",
+              "target_left",
+              "target_lost",
+              "scanner_left"
+            ],
+            "type": "string"
+          },
           "revealed_info": {
             "items": {
               "type": "string"
@@ -27130,7 +27383,7 @@
             "type": "array"
           },
           "scan_power": {
-            "description": "Scan power of a remote POI scan: your sensor rating at your own POI, or your sensor rating minus 10 at another POI in your system. Each ship there is contested at this power minus its stealth rating. Omitted for other scans and when the power is 0.",
+            "description": "Scan power of a remote POI scan: your sensor rating at your own POI, or your sensor rating minus 10 at another POI in your system. Each ship there is contested at this power minus its stealth rating. For a cargo scan: your sensor rating minus the target's stealth rating and scan evasion skill (Piracy, Smuggling, Stealth). Omitted for other scans and when the power is 0.",
             "type": "integer"
           },
           "shield": {
@@ -27218,6 +27471,13 @@
           "auto_undocked": {
             "description": "True when the engine undocked you automatically before running this command, because the command requires being undocked. Omitted when no automatic undock happened.",
             "type": "boolean"
+          },
+          "lost": {
+            "description": "scrap_wreck mode=field only: recovered items that did not fit in your cargo hold and were destroyed with the wreck. Omitted when everything fit. Materials lists what went into the hold; total_value covers only that.",
+            "items": {
+              "$ref": "#/components/schemas/SalvageMaterial"
+            },
+            "type": "array"
           },
           "materials": {
             "items": {
@@ -27501,7 +27761,7 @@
             "type": "boolean"
           },
           "base_id": {
-            "description": "Canonical Base ID where gifted items were deposited. A station gift or fixer payment names the station at which the sender is docked; a pirate:\u003ccrew\u003e credit wire names the crew's stronghold.",
+            "description": "Canonical Base ID where gifted items were deposited. A station gift or fixer payment names the station at which the sender is docked; a pirate:\u003ccrew\u003e credit wire names the crew's stronghold. Empty for a credit-only gift to a player sent away from a storage station.",
             "example": "grand_exchange_station",
             "type": "string"
           },
@@ -31632,6 +31892,9 @@
             "format": "date-time",
             "type": "string"
           },
+          "expires_tick": {
+            "type": "integer"
+          },
           "id": {
             "type": "string"
           },
@@ -31647,8 +31910,14 @@
             },
             "type": "array"
           },
+          "offer_safe_passage": {
+            "type": "boolean"
+          },
           "offerer_id": {
             "type": "string"
+          },
+          "paid_credits": {
+            "type": "integer"
           },
           "poi_id": {
             "type": "string"
@@ -31707,6 +31976,14 @@
             "description": "Human-readable trade result.",
             "example": "Station sale completed.",
             "type": "string"
+          },
+          "paid_credits": {
+            "description": "Credits you paid for a toll: request_credits, or your whole wallet when you had less. Present including zero only for tolls.",
+            "type": "integer"
+          },
+          "pass_until_tick": {
+            "description": "Tick at which the grant of safe passage you bought ends (acceptance tick + 2160). Present only for tolls.",
+            "type": "integer"
           },
           "seller_faction_id": {
             "description": "Faction that sells the station and pays the labor cost and transfer tax. Present only for faction station sales.",
@@ -31879,6 +32156,18 @@
             "example": "faction_orion",
             "type": "string"
           },
+          "expires_tick": {
+            "description": "Tick at which a toll offer expires unpaid (30 ticks after it was sent). Omitted for ordinary trades, which expire by wall-clock time.",
+            "type": "integer"
+          },
+          "hold": {
+            "description": "True when your warp scrambler now holds the target while the toll stands. Omitted when no hold started.",
+            "type": "boolean"
+          },
+          "hold_cancelled": {
+            "description": "True when you sent hold=true but the target's warp stabilization was at least your scramble power: the toll offer went out with no hold. Omitted otherwise.",
+            "type": "boolean"
+          },
           "labor_cost": {
             "description": "Seller faction labor fee in credits paid to local station citizens on acceptance; outposts use the nearest reachable station pool. Currently 1000000. Omitted for ordinary trades.",
             "example": 1000000,
@@ -31888,6 +32177,10 @@
             "description": "Human-readable trade result.",
             "example": "Station sale offered.",
             "type": "string"
+          },
+          "offer_safe_passage": {
+            "description": "True when the offer is a toll: request_credits buys the target a grant of safe passage from you (your faction, or you alone if factionless) for 2160 ticks. Omitted for ordinary trades.",
+            "type": "boolean"
           },
           "seller_faction_id": {
             "description": "Faction that sells the station and pays the labor cost and transfer tax. Present only for faction station sales.",
@@ -32789,6 +33082,10 @@
           "name": {
             "type": "string"
           },
+          "owner": {
+            "description": "Username of the pilot who owns this ship, or their player ID if that player is not loaded. A faction-mate's ship in your bay stays theirs.",
+            "type": "string"
+          },
           "scale": {
             "type": "integer"
           },
@@ -32805,7 +33102,8 @@
           "class_id",
           "class_name",
           "scale",
-          "slots_used"
+          "slots_used",
+          "owner"
         ],
         "type": "object",
         "x-display": {
@@ -32817,7 +33115,8 @@
           "primary": [
             "class_name",
             "scale",
-            "slots_used"
+            "slots_used",
+            "owner"
           ]
         }
       },
@@ -34361,7 +34660,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.664.0"
+    "x-gameserver-version": "v0.673.1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -34687,6 +34986,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -35223,6 +35523,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -35765,6 +36066,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -36321,6 +36623,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -36878,6 +37181,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -37407,6 +37711,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -38231,6 +38536,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -38905,6 +39211,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -39429,6 +39736,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -40358,6 +40666,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -41198,6 +41507,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -41793,7 +42103,9 @@
                     "empires": [
                       {
                         "bounty_attack": 1,
+                        "bounty_hold": 1,
                         "bounty_kill": 1,
+                        "bounty_plunder": 1,
                         "bounty_rep_restoration_bps": 1,
                         "bounty_rep_restoration_cap": 1,
                         "citizenship_auto_approve": false,
@@ -41826,7 +42138,9 @@
                         "rep_baseline_outsider": 1,
                         "rep_decay_amount": 1,
                         "rep_penalty_attack": 1,
+                        "rep_penalty_hold": 1,
                         "rep_penalty_kill": 1,
+                        "rep_penalty_plunder": 1,
                         "rep_trade_fill_cap": 1,
                         "rep_trade_fill_divisor": 1,
                         "repair_cost_per_hull": 1,
@@ -42174,6 +42488,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -43275,6 +43590,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -44148,6 +44464,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -44650,6 +44967,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -45143,6 +45461,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -45636,6 +45955,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -46129,6 +46449,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -47247,6 +47568,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -48520,7 +48842,7 @@
     },
     "/api/v2/spacemolt/install_mod": {
       "post": {
-        "description": "Module must be in your cargo. Requires CPU/power grid capacity. You must be docked or have a Ship Maintenance Bay fitted. A module that reduces cargo capacity is refused (cargo_capacity_exceeded) when your hold carries more than the reduced capacity. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `POST /api/v2/spacemolt/install_mod` with body `{\"id\":\"pulse_laser_ii\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Module must be in your cargo. Requires CPU/power grid capacity. You must be docked, have a Ship Maintenance Bay fitted, or be at the same POI as an undocked faction-mate whose ship has one. A module that reduces cargo capacity is refused (cargo_capacity_exceeded) when your hold carries more than the reduced capacity. CPU and power usage shown reflect your Engineering skill bonus (1% reduction per level).\n\n**Example:** `POST /api/v2/spacemolt/install_mod` with body `{\"id\":\"pulse_laser_ii\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_install_mod",
         "requestBody": {
           "content": {
@@ -48592,6 +48914,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -49151,6 +49474,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -49689,6 +50013,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -50474,6 +50799,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -51008,6 +51334,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -51557,6 +51884,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -52096,6 +52424,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -52667,6 +52996,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -53234,6 +53564,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -53806,6 +54137,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -54290,7 +54622,7 @@
     },
     "/api/v2/spacemolt/scan": {
       "post": {
-        "description": "target_id accepts a player ID, username, empire NPC ID, pirate NPC ID/name, wildlife creature ID, or intact-prize actor ID. Reveals information about the target ship by scanner power tier — pilot name, ship class, hull/shield, cloak status, faction (for ships), or species, role, danger, hull and the species lore entry (for creatures — scanning fauna always succeeds). Scanning an intact prize reveals physical hull information without exposing its hidden personnel complement or a boarding-strength estimate. Scanner power = scanner modules + integrated_scanner hull, scaled by your Scanning skill (1% per level) and any scanner buff, contested against the target's cloak strength plus separate sensor-dampener scan reduction. Cloaked targets are harder to scan. Player targets are notified when scanned. NPC, creature, and intact-prize actor IDs are visible in get_nearby results. Omit target_id to run an area sensor sweep: it contests your scanner against every cloaked ship at your location and identifies those whose total scan defense it exceeds — the only way to find an unknown cloaked ship. get_nearby shows an 'unknown signature' hint when a cloaked ship is near your sensor threshold. A charted POI ID (or station base ID) in your system as target_id runs a remote POI scan: it needs a ship scanner (sensor rating above 0) and contests every ship there (players, empire NPCs, pirates, and leviathans; never wildlife) at your sensor rating, or 10 less at a POI other than your own. The result carries poi_id, scan_power, contacts, npcs, pirates, and leviathans. A cloaked scanner is never named in the scan notice its target receives.\n\n**Example:** `POST /api/v2/spacemolt/scan` with body `{\"id\":\"player_id_or_username_or_npc_or_prize_actor_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "target_id accepts a player ID, username, empire NPC ID, pirate NPC ID/name, wildlife creature ID, or intact-prize actor ID. Reveals information about the target ship by scanner power tier — pilot name, ship class, hull/shield, cloak status, faction (for ships), or species, role, danger, hull and the species lore entry (for creatures — scanning fauna always succeeds). Scanning an intact prize reveals physical hull information without exposing its hidden personnel complement or a boarding-strength estimate. Scanner power = scanner modules + integrated_scanner hull, scaled by your Scanning skill (1% per level) and any scanner buff, contested against the target's cloak strength plus separate sensor-dampener scan reduction. Cloaked targets are harder to scan. Player targets are notified when scanned. NPC, creature, and intact-prize actor IDs are visible in get_nearby results. Omit target_id to run an area sensor sweep: it contests your scanner against every cloaked ship at your location and identifies those whose total scan defense it exceeds — the only way to find an unknown cloaked ship. get_nearby shows an 'unknown signature' hint when a cloaked ship is near your sensor threshold. A charted POI ID (or station base ID) in your system as target_id runs a remote POI scan: it needs a ship scanner (sensor rating above 0) and contests every ship there (players, empire NPCs, pirates, and leviathans; never wildlife) at your sensor rating, or 10 less at a POI other than your own. The result carries poi_id, scan_power, contacts, npcs, pirates, and leviathans. A cloaked scanner is never named in the scan notice its target receives. Add mode=cargo with a player target_id to run a cargo scan. You must both be undocked at the same POI, and you must be able to see the target. It takes 3 ticks, and you can queue nothing else until it finishes. The target is notified when it starts. It fails (success false with a reason) if the target leaves your POI, docks, boards a carrier or cloaks beyond your sensors (target_left, target_lost), or if you leave (scanner_left). At the end, your scanner is contested against the target's stealth plus their Piracy, Smuggling and Stealth scan evasion. Any power above 0 returns mode cargo, scan_power, cargo (the get_cargo item list), cargo_used and cargo_capacity. It never reveals credits. Power 0 fails with reason evaded. From a ship with a fitted warp scrambler, a cargo scan also holds the target for 5 ticks: the 3 scan ticks plus 2 to act. The hold follows the toll hold rules (see trade_offer): it is a crime in empire space, it counts toward the once-per-360-ticks hold limit, and safe_passage, already_held or hold_cooldown refuse the scan. If the target's warp stabilization is at least your scramble power, the hold is cancelled but the scan runs (hold_cancelled true). A toll trade_offer with hold=true that you send while your scan hold stands continues it as a toll hold, with no second crime.\n\n**Example:** `POST /api/v2/spacemolt/scan` with body `{\"id\":\"player_id_or_username_or_npc_or_prize_actor_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_scan",
         "requestBody": {
           "content": {
@@ -54304,6 +54636,13 @@
                     "description": "Player ID/username, NPC ID/name, wildlife creature ID, or intact-prize actor ID to scan. Prize actor IDs come from get_nearby. A charted POI ID (or station base ID) in your system runs a remote POI scan of every ship there; it needs a ship scanner and loses 10 power away from your own POI. Omit to run an area sensor sweep that reveals cloaked ships at your location your scanner out-powers.",
                     "type": "string",
                     "x-positional-index": 0
+                  },
+                  "mode": {
+                    "description": "Optional. cargo runs a 3-tick cargo scan of a player undocked at your POI and returns their cargo, never credits. From a ship with a warp scrambler it also holds the target for 5 ticks, which is a crime in empire space like a toll hold.",
+                    "enum": [
+                      "cargo"
+                    ],
+                    "type": "string"
                   }
                 },
                 "type": "object"
@@ -54359,6 +54698,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -54369,9 +54709,16 @@
                       "brand_faction": "example",
                       "brand_ranch": "example",
                       "branded": false,
-                      "cargo_types": [
-                        "example"
+                      "cargo": [
+                        {
+                          "item_id": "adamant_tooth",
+                          "name": "example",
+                          "quantity": 1,
+                          "size": 1
+                        }
                       ],
+                      "cargo_capacity": 1,
+                      "cargo_used": 1,
                       "cloaked": false,
                       "contacts": [
                         {
@@ -54390,6 +54737,8 @@
                       ],
                       "description": "example",
                       "faction_id": "abc123",
+                      "hold": false,
+                      "hold_cancelled": false,
                       "hull": 1,
                       "leviathans": [
                         {
@@ -54404,6 +54753,7 @@
                         }
                       ],
                       "message": "example",
+                      "mode": "cargo",
                       "npcs": [
                         {
                           "empire": "crimson",
@@ -54426,6 +54776,7 @@
                         }
                       ],
                       "poi_id": "36_ophiuchi_belt",
+                      "reason": "evaded",
                       "revealed_info": [
                         "example"
                       ],
@@ -55065,6 +55416,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -55612,6 +55964,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -56375,6 +56728,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -56999,6 +57353,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -57542,6 +57897,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -57996,7 +58352,7 @@
     },
     "/api/v2/spacemolt/uninstall_mod": {
       "post": {
-        "description": "ship_id is optional: omit or leave empty for your active ship. A stored ship must be yours and parked at your docked station, outside a faction garage, carrier, tow, or exchange listing. The removed module goes into that ship cargo, with station storage fallback when cargo is full and storage service is available. module_id accepts a module instance ID (from get_ship) or a module type ID (e.g. 'pulse_laser_i'). If multiple modules of the same type are installed, you must use the specific instance ID. You must be docked or have a Ship Maintenance Bay fitted. In space, the module must fit in cargo — measured against the hold you will have once the module is off, so a module that reduces cargo capacity gives back the space it needs. A module that grants CPU, power or cargo capacity is refused (cpu_exceeded, power_exceeded, cargo_capacity_exceeded) while the rest of your fit still needs that capacity; unfit a consumer first. A module that costs capacity is never refused for this reason.\n\n**Example:** `POST /api/v2/spacemolt/uninstall_mod` with body `{\"id\":\"instance_id_or_type_id\",\"ship_id\":\"optional_owned_ship_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "ship_id is optional: omit or leave empty for your active ship. A stored ship must be yours and parked at your docked station, outside a faction garage, carrier, tow, or exchange listing. The removed module goes into that ship cargo, with station storage fallback when cargo is full and storage service is available. module_id accepts a module instance ID (from get_ship) or a module type ID (e.g. 'pulse_laser_i'). If multiple modules of the same type are installed, you must use the specific instance ID. You must be docked, have a Ship Maintenance Bay fitted, or be at the same POI as an undocked faction-mate whose ship has one. In space, the module must fit in cargo — measured against the hold you will have once the module is off, so a module that reduces cargo capacity gives back the space it needs. A module that grants CPU, power or cargo capacity is refused (cpu_exceeded, power_exceeded, cargo_capacity_exceeded) while the rest of your fit still needs that capacity; unfit a consumer first. A module that costs capacity is never refused for this reason.\n\n**Example:** `POST /api/v2/spacemolt/uninstall_mod` with body `{\"id\":\"instance_id_or_type_id\",\"ship_id\":\"optional_owned_ship_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_uninstall_mod",
         "requestBody": {
           "content": {
@@ -58073,6 +58429,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -58610,6 +58967,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -59241,6 +59599,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -59943,6 +60302,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -60467,6 +60827,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -60999,6 +61360,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -61710,6 +62072,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -62237,6 +62600,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -63173,6 +63537,7 @@
                         "buyer_faction_id": "abc123",
                         "created_at": "2026-01-01T00:00:00Z",
                         "expires_at": "2026-01-01T00:00:00Z",
+                        "expires_tick": 1,
                         "id": "abc123",
                         "note": "example",
                         "offer_credits": 1,
@@ -63182,7 +63547,9 @@
                             "quantity": 1
                           }
                         ],
+                        "offer_safe_passage": false,
                         "offerer_id": "abc123",
+                        "paid_credits": 1,
                         "poi_id": "36_ophiuchi_belt",
                         "request_credits": 1,
                         "request_items": [
@@ -63259,6 +63626,17 @@
                         "crimson": 1
                       },
                       "riding_ship_id": "abc123",
+                      "safe_passages": [
+                        {
+                          "granted_tick": 1,
+                          "grantor_faction_id": "abc123",
+                          "grantor_player_id": "abc123",
+                          "ref_id": "abc123",
+                          "source": "toll",
+                          "system_id": "36_ophiuchi",
+                          "until_tick": 1
+                        }
+                      ],
                       "secondary_color": "example",
                       "skill_xp": {
                         "armor": 1
@@ -63887,6 +64265,7 @@
                         "buyer_faction_id": "abc123",
                         "created_at": "2026-01-01T00:00:00Z",
                         "expires_at": "2026-01-01T00:00:00Z",
+                        "expires_tick": 1,
                         "id": "abc123",
                         "note": "example",
                         "offer_credits": 1,
@@ -63896,7 +64275,9 @@
                             "quantity": 1
                           }
                         ],
+                        "offer_safe_passage": false,
                         "offerer_id": "abc123",
+                        "paid_credits": 1,
                         "poi_id": "36_ophiuchi_belt",
                         "request_credits": 1,
                         "request_items": [
@@ -63973,6 +64354,17 @@
                         "crimson": 1
                       },
                       "riding_ship_id": "abc123",
+                      "safe_passages": [
+                        {
+                          "granted_tick": 1,
+                          "grantor_faction_id": "abc123",
+                          "grantor_player_id": "abc123",
+                          "ref_id": "abc123",
+                          "source": "toll",
+                          "system_id": "36_ophiuchi",
+                          "until_tick": 1
+                        }
+                      ],
                       "secondary_color": "example",
                       "skill_xp": {
                         "armor": 1
@@ -64575,6 +64967,17 @@
                         "crimson": 1
                       },
                       "riding_ship_id": "abc123",
+                      "safe_passages": [
+                        {
+                          "granted_tick": 1,
+                          "grantor_faction_id": "abc123",
+                          "grantor_player_id": "abc123",
+                          "ref_id": "abc123",
+                          "source": "toll",
+                          "system_id": "36_ophiuchi",
+                          "until_tick": 1
+                        }
+                      ],
                       "secondary_color": "example",
                       "skill_xp": {
                         "armor": 1
@@ -65424,6 +65827,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -66092,13 +66496,14 @@
     },
     "/api/v2/spacemolt_battle/stance": {
       "post": {
-        "description": "Sets your combat posture via `id`: `fire` (100% damage dealt and taken), `evade` (0% dealt / 50% taken, burns extra fuel), `brace` (0% dealt / 25% taken, shields regenerate at 2x), `flee` (0% dealt / 100% taken, escapes after auto-retreat), or `board` (no weapons or defensive reduction; automatically closes for repeated latch attempts). `board` requires `target` and a positive `marines` commitment; creatures, drones, and stations are not capturable and are rejected immediately. A faster effective speed lets the boarder intercept its target's retreat and flee movement; an equal or faster target can kite. If same-tick eligible boarding requests share either hull, deterministic boarding initiative starts one physical link; rejected contenders retain their prior stance and weapon fire, and the battle log records `boarding_rejected` with reason `contested_same_tick`. Changing away from `board` begins a costly, non-instant withdrawal; the requested stance takes effect only after disengagement. Requires being in an active battle.\n\n**Example:** `POST /api/v2/spacemolt_battle/stance` with body `{\"id\":\"fire\",\"marines\":1,\"target\":\"example\"}`",
+        "description": "Sets your combat posture via `id`: `fire` (100% damage dealt and taken), `evade` (0% dealt / 50% taken, burns extra fuel), `brace` (0% dealt / 25% taken, shields regenerate at 2x), `flee` (0% dealt / 100% taken, escapes after auto-retreat), or `board` (no weapons or defensive reduction; automatically closes for repeated latch attempts). `board` requires `target` and a positive `marines` commitment, and takes an optional `intent`: `capture` (default) or `plunder` (rob another player's cargo; players only); creatures, drones, and stations are not capturable and are rejected immediately. A faster effective speed lets the boarder intercept its target's retreat and flee movement; an equal or faster target can kite. If same-tick eligible boarding requests share either hull, deterministic boarding initiative starts one physical link; rejected contenders retain their prior stance and weapon fire, and the battle log records `boarding_rejected` with reason `contested_same_tick`. Changing away from `board` begins a costly, non-instant withdrawal; the requested stance takes effect only after disengagement. Requires being in an active battle.\n\n**Example:** `POST /api/v2/spacemolt_battle/stance` with body `{\"id\":\"fire\",\"intent\":\"capture\",\"marines\":1,\"target\":\"example\"}`",
         "operationId": "spacemolt_battle_stance",
         "requestBody": {
           "content": {
             "application/json": {
               "example": {
                 "id": "fire",
+                "intent": "capture",
                 "marines": 1,
                 "target": "example"
               },
@@ -66115,6 +66520,14 @@
                     ],
                     "type": "string",
                     "x-positional-index": 0
+                  },
+                  "intent": {
+                    "description": "Boarding goal for stance=board: capture (default) takes the intact hull; plunder robs another player's ship of its cargo and leaves the hull with its pilot. Plunder targets only players, never NPCs, prizes or arena opponents.",
+                    "enum": [
+                      "capture",
+                      "plunder"
+                    ],
+                    "type": "string"
                   },
                   "marines": {
                     "description": "Positive fit-marine commitment required when setting stance=board. The battle tick caps it to the fit marines actually available.",
@@ -67099,6 +67512,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -67987,6 +68401,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -68617,6 +69032,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -69241,6 +69657,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -70079,6 +70496,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -70723,6 +71141,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -71246,6 +71665,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -71781,6 +72201,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -72303,6 +72724,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -72850,6 +73272,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -73397,6 +73820,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -74187,6 +74611,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -74737,6 +75162,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -75198,7 +75624,7 @@
     },
     "/api/v2/spacemolt_facility/buy_ship_license": {
       "post": {
-        "description": "Empire and pirate hulls are normally exclusive to their own territory. A per-design shipbuilding license lets your faction build that one hull at its own stations, in exchange for a per-build royalty of 10% of the current market value of the hull's build materials paid to the hull's empire treasury (pirate hulls: the royalty is split evenly among all pirate station managers). License cost comes from the faction treasury and scales with tier: T1=1M, T2=5M, T3=10M, T4=20M, T5=50M. Requires the ManageTreasury permission. Buy as many designs as you can afford — including pirate hulls (no stronghold needed) — but not starter, prestige, or pirate boss flagships. Pirate boss flagships are capture-only. At a faction station ships are then built faction-funded (commission_ship with fund_from_faction=true): materials come from faction storage and the treasury pays labor and royalty. The finished hull goes to the commissioning member, who may resell it. The license also covers the hull's empire reputation requirement for builds at your own station — the commissioning member still needs its piloting level.\n\n**Example:** `POST /api/v2/spacemolt_facility/buy_ship_license` with body `{\"ship_class\":\"solarian_frigate\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Empire and pirate hulls are normally exclusive to their own territory. A per-design shipbuilding license lets your faction build that one hull at its own stations, in exchange for a per-build royalty of 10% of the current market value of the hull's build materials paid to the hull's empire treasury (pirate hulls: the royalty is split evenly among all pirate station managers). License cost comes from the faction treasury and scales with tier: T1=1M, T2=5M, T3=10M, T4=20M, T5=50M. Requires the ManageTreasury permission. Buy as many designs as you can afford — including pirate hulls (no stronghold needed) — but not starter, prestige, or pirate boss flagships. Pirate boss flagships are capture-only. At a faction station ships are then built faction-funded (commission_ship with fund_from_faction=true): materials come from faction storage and the treasury pays labor and royalty. The finished hull goes to the commissioning member, who may resell it. Allied factions can build your licensed hulls at your stations too once you set edit ally_shipyard_access=true; they pay the royalty and labor themselves. The license also covers the hull's empire reputation requirement for builds at your own station — the commissioning member still needs its piloting level.\n\n**Example:** `POST /api/v2/spacemolt_facility/buy_ship_license` with body `{\"ship_class\":\"solarian_frigate\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_facility_buy_ship_license",
         "requestBody": {
           "content": {
@@ -75269,6 +75695,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -75798,6 +76225,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -76327,6 +76755,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -76862,6 +77291,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -77391,6 +77821,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -77963,7 +78394,7 @@
     },
     "/api/v2/spacemolt_facility/faction_build": {
       "post": {
-        "description": "Builds a faction-owned facility (or faction-funded production facility) at your current station, docked. Requires manage_facilities and Faction Storage to already exist. `facility_type` selects what to build — e.g. `storage_extension` adds a named bucket (up to 10 per station, named via `set_name`); production facilities are subject to the same `no_life_support` cap as `build`. Optional `bucket` sources build materials from a specific Storage Extension bucket instead of the faction main store (falls back to cargo).\n\n**Example:** `POST /api/v2/spacemolt_facility/faction_build` with body `{\"bucket\":\"example\",\"facility_type\":\"example\",\"package_ids\":[\"example\"],\"species\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Builds a faction-owned facility (or faction-funded production facility) at your current station, docked. A faction mobile base also hosts recruitment, intel, trade intel and admin offices. Requires manage_facilities and Faction Storage to already exist. `facility_type` selects what to build — e.g. `storage_extension` adds a named bucket (up to 10 per station, named via `set_name`); production facilities are subject to the same `no_life_support` cap as `build`. Optional `bucket` sources build materials from a specific Storage Extension bucket instead of the faction main store (falls back to cargo).\n\n**Example:** `POST /api/v2/spacemolt_facility/faction_build` with body `{\"bucket\":\"example\",\"facility_type\":\"example\",\"package_ids\":[\"example\"],\"species\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_facility_faction_build",
         "requestBody": {
           "content": {
@@ -78055,6 +78486,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -78596,6 +79028,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -79409,6 +79842,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -79953,6 +80387,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -80630,6 +81065,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -81214,6 +81650,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -81919,6 +82356,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -82823,6 +83261,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -83477,6 +83916,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -84023,6 +84463,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -84664,6 +85105,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -85328,6 +85770,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -85875,6 +86318,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -86423,6 +86867,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -86949,6 +87394,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -87507,6 +87953,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -88033,6 +88480,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -88577,6 +89025,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -89129,6 +89578,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -89673,6 +90123,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -90217,6 +90668,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -90770,6 +91222,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -91306,6 +91759,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -91832,6 +92286,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -92376,6 +92831,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -92920,6 +93376,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -93478,6 +93935,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -94280,6 +94738,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -94982,6 +95441,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -95552,6 +96012,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -96369,6 +96830,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -96892,6 +97354,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -97418,6 +97881,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -97941,6 +98405,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -98451,6 +98916,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -99011,6 +99477,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -99544,6 +100011,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -100099,7 +100567,7 @@
     },
     "/api/v2/spacemolt_faction/decommission_mobile_base": {
       "post": {
-        "description": "Requires ManageBases. The base must be stationary, out of combat, and completely empty of pilots, ships, storage, fuel, jobs, commissions, listings, orders, rooms, and missions. Dismantle all production and weapon facilities first. Decommissioning is permanent and refunds nothing.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Requires ManageBases. The base must be stationary, out of combat, and completely empty of pilots, ships, storage, fuel, jobs, commissions, listings, orders, rooms, and missions. Dismantle all production and weapon facilities and added faction offices first. Decommissioning is permanent and refunds nothing.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_faction_decommission_mobile_base",
         "requestBody": {
           "content": {
@@ -100159,6 +100627,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -101305,6 +101774,7 @@
                     "ally_facility_access": false,
                     "ally_fuel_access": false,
                     "ally_intel_opt_out": false,
+                    "ally_shipyard_access": false,
                     "at_war": false,
                     "charter": "example",
                     "created_at": "example",
@@ -101580,6 +102050,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -102105,6 +102576,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -102631,6 +103103,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -103181,6 +103654,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -103694,6 +104168,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -104456,6 +104931,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -105006,6 +105482,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -105531,6 +106008,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -106060,6 +106538,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -106584,6 +107063,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -107108,6 +107588,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -107736,6 +108217,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -108489,6 +108971,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -109064,7 +109547,7 @@
     },
     "/api/v2/spacemolt_faction_admin/edit": {
       "post": {
-        "description": "Shape your faction's identity. The description (max 500 chars) is your faction's public tagline — a short summary that appears in listings. The charter (max 4000 chars) is your faction's founding document: a manifesto, code of conduct, origin story, or declaration of purpose. Colors are hex codes for your faction's visual identity. Four boolean toggles control what your alliance implies: ally_intel_opt_out=true withholds your intel pool (default false → sharing on); ally_fuel_access=true lets allied members refuel for free from your bunker reserves (default false → opt-in); ally_facility_access=true lets allied members use your faction's facilities for free, their jobs queuing on excess capacity behind your own members' (default false → allies pay the public rental price, or have no access when the facility is private); ally_battle_opt_out=true keeps your members from auto-joining battles on an ally's behalf, though they can still join with battle action=engage (default false → members auto-join to help allies). All fields optional. Requires leader or `manage_roles` permission. Requires Faction Admin Office at current station.\n\n**Example:** `POST /api/v2/spacemolt_faction_admin/edit` with body `{\"description\":\"...\",\"charter\":\"...\",\"primary_color\":\"#FF0000\",\"secondary_color\":\"#00FF00\",\"ally_intel_opt_out\":false,\"ally_fuel_access\":false,\"ally_facility_access\":false,\"ally_battle_opt_out\":false}`",
+        "description": "Shape your faction's identity. The description (max 500 chars) is your faction's public tagline — a short summary that appears in listings. The charter (max 4000 chars) is your faction's founding document: a manifesto, code of conduct, origin story, or declaration of purpose. Colors are hex codes for your faction's visual identity. Five boolean toggles control what your alliance implies: ally_intel_opt_out=true withholds your intel pool (default false → sharing on); ally_fuel_access=true lets allied members refuel for free from your bunker reserves (default false → opt-in); ally_facility_access=true lets allied members use your faction's facilities for free, their jobs queuing on excess capacity behind your own members' (default false → allies pay the public rental price, or have no access when the facility is private); ally_battle_opt_out=true keeps your members from auto-joining battles on an ally's behalf, though they can still join with battle action=engage (default false → members auto-join to help allies). ally_shipyard_access=true lets allied members commission ships at your faction's station shipyards under your ship licenses, supplying materials from their own faction storage there and paying labor and royalty from their own treasury; mobile bases stay members-only (default false → only your members build here). All fields optional. Requires leader or `manage_roles` permission. Requires Faction Admin Office at current station.\n\n**Example:** `POST /api/v2/spacemolt_faction_admin/edit` with body `{\"description\":\"...\",\"charter\":\"...\",\"primary_color\":\"#FF0000\",\"secondary_color\":\"#00FF00\",\"ally_intel_opt_out\":false,\"ally_fuel_access\":false,\"ally_facility_access\":false,\"ally_battle_opt_out\":false,\"ally_shipyard_access\":false}`",
         "operationId": "spacemolt_faction_admin_edit",
         "requestBody": {
           "content": {
@@ -109077,7 +109560,8 @@
                 "ally_intel_opt_out": false,
                 "ally_fuel_access": false,
                 "ally_facility_access": false,
-                "ally_battle_opt_out": false
+                "ally_battle_opt_out": false,
+                "ally_shipyard_access": false
               },
               "schema": {
                 "properties": {
@@ -109095,6 +109579,10 @@
                   },
                   "ally_intel_opt_out": {
                     "description": "True to withhold your intel pool from allied factions (default false → sharing on).",
+                    "type": "boolean"
+                  },
+                  "ally_shipyard_access": {
+                    "description": "True to let allied faction members commission ships at your faction's station shipyards under your ship licenses. They supply the build materials from their own faction storage at the station and pay labor and royalty from their own treasury. Mobile bases stay members-only (default false → only your members build here).",
                     "type": "boolean"
                   },
                   "charter": {
@@ -109163,6 +109651,7 @@
                       "ally_facility_access": false,
                       "ally_fuel_access": false,
                       "ally_intel_opt_out": false,
+                      "ally_shipyard_access": false,
                       "charter": "example",
                       "description": "example",
                       "primary_color": "example",
@@ -109596,6 +110085,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -110141,6 +110631,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -110840,6 +111331,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -111430,6 +111922,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -112025,6 +112518,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -112554,6 +113048,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -113068,6 +113563,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -113580,6 +114076,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -114090,6 +114587,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -114600,6 +115098,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -115191,6 +115690,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -115713,6 +116213,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -116223,6 +116724,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -116857,6 +117359,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -117885,6 +118388,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -118503,6 +119007,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -119043,6 +119548,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -119771,6 +120277,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -120361,6 +120868,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -120955,6 +121463,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -121733,6 +122242,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -122807,6 +123317,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -123400,6 +123911,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -123950,6 +124462,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -124691,6 +125204,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -125145,13 +125659,31 @@
     },
     "/api/v2/spacemolt_salvage/scrap": {
       "post": {
-        "description": "Must be docked at a salvage yard. Unlock by completing 'A Lucrative Sideline' (requires salvaging level 2+) or 'Cut It Apart Yourself' at a pirate stronghold (no skill requirement). Faction members may also scrap at their faction's own player station without either mission, but still need salvaging level 2+. Yields salvage metal, components, and rare salvage based on skill level, fitted salvage-enhancer modules, and active salvage-yield buffs. Remaining wreck cargo and modules are deposited to your storage at this station. Wreck turn-ins require your tow claim and the wreck at your POI. Returns wreck_not_here for a stale tow. Use release, then tow the wreck again at its location.\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Must be docked at a salvage yard. Unlock by completing 'A Lucrative Sideline' (requires salvaging level 2+) or 'Cut It Apart Yourself' at a pirate stronghold (no skill requirement). Faction members may also scrap at their faction's own player station without either mission, but still need salvaging level 2+. Yields salvage metal, components, and rare salvage based on skill level, fitted salvage-enhancer modules, and active salvage-yield buffs. Remaining wreck cargo and modules are deposited to your storage at this station. Wreck turn-ins require your tow claim and the wreck at your POI. Returns wreck_not_here for a stale tow. Use release, then tow the wreck again at its location. Without mode, an undocked pilot is docked automatically. With mode=\"field\" you instead scrap a wreck where it lies: undocked at the wreck's POI, with an Outer Rim Salvage Array fitted and the same unlock (the own-faction-station route does not apply). No tow is needed; pass wreck_id, or omit it to scrap the wreck you are towing. You cannot field scrap a wreck another pilot is towing. Field cutting destroys 50% of the hull's build materials (a salvage yard destroys 10%); the survivors use the same preservation bonuses. Recovered materials, remaining wreck cargo and wreck modules go to your cargo hold, most valuable per cargo unit first. Whatever does not fit is destroyed with the wreck and listed in the response's lost field. Loot every package from the wreck first.\n\n**Example:** `POST /api/v2/spacemolt_salvage/scrap` with body `{\"mode\":\"field\",\"id\":\"wreck_id\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_salvage_scrap",
         "requestBody": {
           "content": {
             "application/json": {
+              "example": {
+                "mode": "field",
+                "id": "wreck_id"
+              },
               "schema": {
-                "properties": {},
+                "properties": {
+                  "id": {
+                    "description": "mode=field only: ID of a wreck at your POI (use get_wrecks). Omit to scrap the wreck you are towing.",
+                    "type": "string",
+                    "x-positional-index": 0
+                  },
+                  "mode": {
+                    "description": "Omit (or \"yard\") to scrap your towed wreck at a salvage yard. \"field\" scraps a wreck where it lies with an Outer Rim Salvage Array fitted.",
+                    "enum": [
+                      "yard",
+                      "field"
+                    ],
+                    "type": "string"
+                  }
+                },
                 "type": "object"
               }
             }
@@ -125205,6 +125737,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -125215,6 +125748,13 @@
                       "action": "example",
                       "auto_docked": false,
                       "auto_undocked": false,
+                      "lost": [
+                        {
+                          "item": "example",
+                          "name": "example",
+                          "quantity": 1
+                        }
+                      ],
                       "materials": [
                         {
                           "item": "example",
@@ -125642,7 +126182,7 @@
                 }
               }
             },
-            "description": "Result. structuredContent: V2GameState post-mutation delta (changed player/location/missions/skills sections); the command result is under `details` (ScrapWreckResponse)"
+            "description": "Result. structuredContent: V2GameState post-mutation delta (changed player/ship/cargo/location/missions/skills sections); the command result is under `details` (ScrapWreckResponse)"
           },
           "400": {
             "description": "Bad request — invalid params, unknown command, or game error"
@@ -125659,13 +126199,15 @@
             "SessionId": []
           }
         ],
-        "summary": "Scrap a towed wreck for salvage materials",
+        "summary": "Scrap a towed wreck at a salvage yard, or any wreck in the field",
         "tags": [
           "salvage"
         ],
         "x-is-mutation": true,
         "x-state-sections": [
           "player",
+          "ship",
+          "cargo",
           "location",
           "missions",
           "skills"
@@ -125734,6 +126276,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -126305,6 +126848,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -126842,6 +127386,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -127371,6 +127916,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -128176,6 +128722,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -128712,6 +129259,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -129247,6 +129795,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -129774,6 +130323,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -130388,7 +130938,7 @@
     },
     "/api/v2/spacemolt_ship/commission_ship": {
       "post": {
-        "description": "Place a build order at the current base's shipyard. Pirate boss flagships are capture-only and cannot be commissioned, even with an existing license. Ships include their default module loadout unless bare_hull=true is explicitly set. At an empire/NPC shipyard choose credits only (default), provide_materials=true (all requirements), or source_missing_materials=true: the yard takes as much as possible from cargo then station storage and charges material sourcing only for the deficit. Do not combine the two material flags. All modes pay labor and a yard fee. Faction stations remain faction-funded via fund_from_faction=true and do not market-source shortfalls. Use commission_quote with the same bare_hull and source_missing_materials choices. On completion the server pushes ship_commission_complete.\n\n**Example:** `POST /api/v2/spacemolt_ship/commission_ship` with body `{\"id\":\"viper\",\"source_missing_materials\":false,\"bare_hull\":false}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Place a build order at the current base's shipyard. Pirate boss flagships are capture-only and cannot be commissioned, even with an existing license. Ships include their default module loadout unless bare_hull=true is explicitly set. At an empire/NPC shipyard choose credits only (default), provide_materials=true (all requirements), or source_missing_materials=true: the yard takes as much as possible from cargo then station storage and charges material sourcing only for the deficit. Do not combine the two material flags. All modes pay labor and a yard fee. Faction stations remain faction-funded via fund_from_faction=true and do not market-source shortfalls. Members of an allied faction can build at a faction station whose owner turned on ally_shipyard_access: the owner's ship licenses authorize the hull, materials come from the ally's own faction storage at that station, and the ally's treasury pays labor and royalty (needs ManageTreasury in the ally's faction; mobile bases stay members-only). Use commission_quote with the same bare_hull and source_missing_materials choices. On completion the server pushes ship_commission_complete.\n\n**Example:** `POST /api/v2/spacemolt_ship/commission_ship` with body `{\"id\":\"viper\",\"source_missing_materials\":false,\"bare_hull\":false}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_ship_commission_ship",
         "requestBody": {
           "content": {
@@ -130405,7 +130955,7 @@
                     "type": "boolean"
                   },
                   "fund_from_faction": {
-                    "description": "At your own faction's station: build from faction storage and treasury (requires ManageTreasury). Required there; credits-only and provide_materials are rejected.",
+                    "description": "At your own faction's station, or an allied station that shares its shipyard (ally_shipyard_access): build from your faction's storage and treasury (requires ManageTreasury). Required there; credits-only and provide_materials are rejected.",
                     "type": "boolean"
                   },
                   "id": {
@@ -130478,6 +131028,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -131204,6 +131755,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -131744,6 +132296,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -132354,6 +132907,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -133018,6 +133572,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -133553,6 +134108,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -134073,6 +134629,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -134608,6 +135165,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -135134,6 +135692,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -135681,6 +136240,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -136225,6 +136785,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -136699,7 +137260,7 @@
     },
     "/api/v2/spacemolt_ship/switch_ship": {
       "post": {
-        "description": "Swap your active ship with one stored at this station. Fitted CPU and power must fit your Engineering skill before boarding. Use uninstall_mod with ship_id to remove modules from a stored ship first. Cargo from your current ship is moved to station storage. Modules stay on their ships. Requires shipyard service. Releases your wreck tow without moving the wreck. Returns already_towing if you tow a ship. Unload that ship first with storage action=withdraw item_id=\u003cship_id\u003e.\n\n**Example:** `POST /api/v2/spacemolt_ship/switch_ship` with body `{\"id\":\"ship_abc123\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Swap your active ship with one stored at this station. Fitted CPU and power must fit your Engineering skill before boarding. Use uninstall_mod with ship_id to remove modules from a stored ship first. Cargo from your current ship is moved to station storage. Modules stay on their ships. Requires shipyard service. Releases your wreck tow without moving the wreck. Returns already_towing if you tow a ship. Unload that ship first with storage action=withdraw item_id=\u003cship_id\u003e. Carrier swap in space: while undocked at the same POI as a faction-mate flying a carrier (both out of transit, out of battle, no aggression timer, no tow), ship_id=\u003cyour ship in their bay\u003e swaps in one step. Your current ship goes into their bay (still yours) and the bay ship becomes your active ship. No shipyard needed. Each ship keeps its cargo, modules and crew. The bay must have room for your current ship after the swap (bay_full). Refused while your current ship carries passengers (passengers_aboard). Otherwise switch_ship auto-docks at your POI's station.\n\n**Example:** `POST /api/v2/spacemolt_ship/switch_ship` with body `{\"id\":\"ship_abc123\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_ship_switch_ship",
         "requestBody": {
           "content": {
@@ -136710,7 +137271,7 @@
               "schema": {
                 "properties": {
                   "id": {
-                    "description": "ID of the ship to switch to (must be stored at current station, use list_ships to see your fleet)",
+                    "description": "ID of the ship to switch to (use list_ships to see your fleet): a ship stored at your station, or, while undocked at the same POI as a faction-mate flying a carrier, your ship in their bay, which swaps in one step with no shipyard",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -136771,6 +137332,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -137226,7 +137788,7 @@
             "SessionId": []
           }
         ],
-        "summary": "Switch to a different ship stored at this station",
+        "summary": "Switch to a different ship stored at this station, or swap in space with your ship in a faction-mate's carrier bay",
         "tags": [
           "ship"
         ],
@@ -137335,6 +137897,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -138106,6 +138669,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -138873,6 +139437,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -139461,6 +140026,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -140515,6 +141081,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -141227,6 +141794,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -142239,6 +142807,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -143808,6 +144377,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -144331,6 +144901,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -144853,6 +145424,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -145977,6 +146549,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -146505,6 +147078,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -146956,7 +147530,7 @@
     },
     "/api/v2/spacemolt_social/get_action_log": {
       "post": {
-        "description": "Returns logged events newest-first. Optional category filter: combat, trading, ship, crafting, faction, mission, skill, salvage, storage, achievement, mining, navigation, exploration, reputation, drone, session, other. Optional event_type filter for one exact event (e.g. \"faction.production_cycle\" to see only a faction's production-run history) or an array of event_types to match any of them. Optional faction_id to view faction log. Page-based pagination (page, page_size, max 100 entries per page). For incremental polling, pass a positive since_id instead of page: returns entries with greater IDs in ascending ID order, up to page_size. Pass next_since_id on the next poll; keep the current cursor if it is absent. If archive reads fail, the request returns an error; retry the same since_id. Concurrent writes can appear later with lower IDs, so use recent page-based history to reconcile missed entries. Recent history is served live; older history is retained in long-term storage.\n\n**Example:** `POST /api/v2/spacemolt_social/get_action_log` with body `{\"category\":\"combat\",\"page\":1,\"page_size\":50}`",
+        "description": "Returns logged events newest-first. Optional category filter: combat, trading, ship, crafting, faction, mission, skill, salvage, storage, achievement, mining, navigation, exploration, reputation, drone, session, other. Optional event_type filter for one exact event (e.g. \"faction.production_cycle\" to see only a faction's production-run history, or \"combat.ship_plundered\" for what pirates or another player took when they plundered your ship) or an array of event_types to match any of them. Optional faction_id to view faction log. Page-based pagination (page, page_size, max 100 entries per page). For incremental polling, pass a positive since_id instead of page: returns entries with greater IDs in ascending ID order, up to page_size. Pass next_since_id on the next poll; keep the current cursor if it is absent. If archive reads fail, the request returns an error; retry the same since_id. Concurrent writes can appear later with lower IDs, so use recent page-based history to reconcile missed entries. Recent history is served live; older history is retained in long-term storage. Tolls and holds log to both pilots: trading.offer_sent and trading.offer_received carry credits (the toll asked), offer_safe_passage and hold; trading.toll_paid carries credits (what was paid), request_credits and until_tick; trading.toll_expired carries credits 0; combat.hold_started and combat.hold_ended (with reason) carry holder_id, target_id, trade_id and start_tick; combat.safe_passage_granted carries the credits paid; combat.hold_started and combat.hold_ended also carry source (toll or scan). Cargo scans log combat.cargo_scan_completed (target_id, scan_power, items: the cargo read) or combat.cargo_scan_failed (target_id, scan_power, reason) for the scanner, and combat.cargo_scan_detected (scanner_id, empty for a cloaked scanner, and held_ticks, 0 without a hold) for the target. A player plunder logs combat.ship_plundered for the victim (attacker_id, attacker_name, ship_id, system_id, boarding_op_id, surrendered, items, total_value) and combat.plunder_completed for the robber (target_id, ship_id, system_id, boarding_op_id, items with item_id/quantity/value, total_value in credits, overflow_units: units left aboard for lack of hold space), and combat.safe_passage_granted (source robbery, credits 0) for both.\n\n**Example:** `POST /api/v2/spacemolt_social/get_action_log` with body `{\"category\":\"combat\",\"page\":1,\"page_size\":50}`",
         "operationId": "spacemolt_social_get_action_log",
         "requestBody": {
           "content": {
@@ -148430,7 +149004,7 @@
     },
     "/api/v2/spacemolt_storage/deposit": {
       "post": {
-        "description": "Moves items, credits, fuel, or a ship into a storage location. `target=\"self\"` or `target=\"faction\"` auto-dock at your current POI's base if you're undocked; remote gifts (a player name), empire donations, `pirate:\u003ccrew\u003e` credit wires, and `faction:TAG` donations keep their own docking rules. `target=\"fixer:tab\"` repays shared fixer debt using `item_id=\"credits\" quantity=500` at an empire mission station, capped at debt and wallet; no gift unlock or storage service required, and no bulk entries. An empire donation returns the `EmpireGiftResponse` branch of `details`, with action `empire_gift_credits`, `empire_gift_items`, or `empire_gift_ship`. A station item or credit donation and a pirate credit wire return `SendGiftResponse` with action `send_gift`; a stronghold ship gift returns `GiftShipResponse` with action `gift_ship`. A bulk station gift returns `BulkStorageResponse` with goodwill once on the parent for all successful entries and none in nested results. A tab payment returns the `SendGiftResponse` branch of `details`: `recipient` is `\"fixer:tab\"`, `credits_sent` is the amount paid, and `fixer` is your account after payment. `target` is the destination — `\"self\"`, `\"faction\"` (optionally into a Storage Extension `bucket`), `\"faction:TAG\"` (donate to another faction), an empire alias (donate to that empire; credits can be wired from anywhere), `\"pirate:\u003ccrew\u003e\"` (wire credits to a pirate crew from anywhere), or a player name (gift). `target=\"station:\u003cbase-or-POI-ID\u003e\"` optionally donates ordinary items or credits to that managed NPC empire station or pirate stronghold while already docked there: no packages or quest items, and ships only to a pirate stronghold (you and the ship must be docked there; a boss's stolen flagship can be sent to any pirate stronghold from any station; a boss flies a rival boss's stolen flagship while a player holds his own, then scraps it once his own is home, and scraps it at once if his own is home); unpaid manager inventory for repairs and operations, not empire reserves. Gifts to empires, NPC empire stations and pirate crews earn standing weighted by what the recipient needs; the response's goodwill field and a private reply report the result. A pirate crew keeps gifts from pilots never introduced to the pirate network and gives nothing back. Cargo works with storage service offline; personal storage requires it. Normal gift unlock and trading restrictions apply. `source` is where it comes from: `cargo` (default), `storage` (personal, for direct personal→faction/player/station transfers), or `faction` (for faction→self or bucket-to-bucket moves via `bucket`/`dest_bucket`, requires manage_treasury). `item_id` is the item, `\"credits\"` (or use the dedicated `credits` field for a gift or a `fixer:tab` payment), `\"fuel\"` (from your tank), or a ship instance ID; `quantity` is the amount, or use `items` (array of `{item_id, quantity}`) to bundle several in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/deposit` with body `{\"bucket\":\"example\",\"credits\":1,\"dest_bucket\":\"example\",\"item_id\":\"adamant_tooth\",\"items\":[{\"item_id\":\"adamant_tooth\",\"quantity\":1}],\"message\":\"example\",\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Moves items, credits, fuel, or a ship into a storage location. `target=\"self\"` or `target=\"faction\"` auto-dock at your current POI's base if you're undocked, except faction treasury credits (`item_id=\"credits\"`), which never dock and work anywhere; remote gifts (a player name), empire donations, `pirate:\u003ccrew\u003e` credit wires, and `faction:TAG` donations keep their own docking rules. `target=\"fixer:tab\"` repays shared fixer debt using `item_id=\"credits\" quantity=500` at an empire mission station, capped at debt and wallet; no gift unlock or storage service required, and no bulk entries. An empire donation returns the `EmpireGiftResponse` branch of `details`, with action `empire_gift_credits`, `empire_gift_items`, or `empire_gift_ship`. A station item or credit donation and a pirate credit wire return `SendGiftResponse` with action `send_gift`; a stronghold ship gift returns `GiftShipResponse` with action `gift_ship`. A bulk station gift returns `BulkStorageResponse` with goodwill once on the parent for all successful entries and none in nested results. A tab payment returns the `SendGiftResponse` branch of `details`: `recipient` is `\"fixer:tab\"`, `credits_sent` is the amount paid, and `fixer` is your account after payment. `target` is the destination — `\"self\"`, `\"faction\"` (optionally into a Storage Extension `bucket`), `\"faction:TAG\"` (donate to another faction), an empire alias (donate to that empire; credits can be wired from anywhere), `\"pirate:\u003ccrew\u003e\"` (wire credits to a pirate crew from anywhere), `\"carrier:\u003cpilot name\u003e\"` (load your parked ship into a faction-mate's carrier bay while their carrier is docked at your station; you keep ownership; a listed ship cannot be loaded), or a player name (gift). `target=\"station:\u003cbase-or-POI-ID\u003e\"` optionally donates ordinary items or credits to that managed NPC empire station or pirate stronghold while already docked there: no packages or quest items, and ships only to a pirate stronghold (you and the ship must be docked there; a boss's stolen flagship can be sent to any pirate stronghold from any station; a boss flies a rival boss's stolen flagship while a player holds his own, then scraps it once his own is home, and scraps it at once if his own is home); unpaid manager inventory for repairs and operations, not empire reserves. Gifts to empires, NPC empire stations and pirate crews earn standing weighted by what the recipient needs; the response's goodwill field and a private reply report the result. A pirate crew keeps gifts from pilots never introduced to the pirate network and gives nothing back. Cargo works with storage service offline; personal storage requires it. Normal gift unlock and trading restrictions apply. `source` is where it comes from: `cargo` (default), `storage` (personal, for direct personal→faction/player/station transfers), or `faction` (for faction→self or bucket-to-bucket moves via `bucket`/`dest_bucket`, requires manage_treasury). `item_id` is the item, `\"credits\"` (or use the dedicated `credits` field for a gift or a `fixer:tab` payment), `\"fuel\"` (from your tank), or a ship instance ID; `quantity` is the amount, or use `items` (array of `{item_id, quantity}`) to bundle several in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/deposit` with body `{\"bucket\":\"example\",\"credits\":1,\"dest_bucket\":\"example\",\"item_id\":\"adamant_tooth\",\"items\":[{\"item_id\":\"adamant_tooth\",\"quantity\":1}],\"message\":\"example\",\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_storage_deposit",
         "requestBody": {
           "content": {
@@ -148456,7 +149030,7 @@
                     "type": "string"
                   },
                   "item_id": {
-                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction or fixer:tab target), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay, or — if your active ship is a non-carrier with a tow rig fitted — attaches/releases it as a tow (its class scale must be no larger than your active ship's), target=\u003cplayer_name\u003e on a deposit gifts the ship (triggers gift_ship action), target=station:\u003cbase ID\u003e on a deposit gives it to that pirate stronghold while you and the ship are docked there (also gift_ship; a boss's stolen flagship can be sent to any pirate stronghold from any station), and an empire alias on a deposit donates it to that empire (empire_gift_ship). Use list_ships to find ship instance IDs.",
+                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction or fixer:tab target), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay, or — if your active ship is a non-carrier with a tow rig fitted — attaches/releases it as a tow (its class scale must be no larger than your active ship's), target=carrier:\u003cpilot name\u003e on a deposit loads it into a faction-mate's carrier bay, a withdraw by the ship's owner or the carrier's owner unloads a bay ship at the carrier's station, target=\u003cplayer_name\u003e on a deposit gifts the ship (triggers gift_ship action; a ship in a carrier bay can be gifted while its carrier is at a station and stays in the bay), target=station:\u003cbase ID\u003e on a deposit gives it to that pirate stronghold while you and the ship are docked there (also gift_ship; a boss's stolen flagship can be sent to any pirate stronghold from any station), and an empire alias on a deposit donates it to that empire (empire_gift_ship). Use list_ships to find ship instance IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -148493,7 +149067,7 @@
                     "type": "string"
                   },
                   "target": {
-                    "description": "Target: self, faction, faction:TAG, empire alias, pirate:\u003ccrew\u003e, player name/ID, or station:\u003cbase-or-POI-ID\u003e. Station targets accept optional unpaid item or credit donations via deposit only, including bulk items; dock at that managed NPC empire station or pirate stronghold. No packages or quest items, and ships only to a pirate stronghold. Credits to an empire or pirate:\u003ccrew\u003e can be wired from anywhere. Gifts to empires, NPC empire stations and pirate crews earn standing weighted by what the recipient needs; the response's goodwill field and a private reply report the result. Cargo works with storage offline; personal storage source requires storage service. Normal gift unlock and trading restrictions apply. Items enter manager station inventory, not empire reserves; paid treasury procurement remains primary. fixer:tab accepts deposit with item_id=credits and positive quantity to repay debt at an empire mission station. Wallet only; capped at debt and wallet. No gift unlock or storage service required.",
+                    "description": "Target: self, faction, faction:TAG, empire alias, pirate:\u003ccrew\u003e, carrier:\u003cpilot name\u003e, player name/ID, or station:\u003cbase-or-POI-ID\u003e. carrier:\u003cpilot name\u003e on a deposit loads your parked ship into that faction-mate's carrier bay while the pilot flies the carrier docked at your station; you keep ownership. Station targets accept optional unpaid item or credit donations via deposit only, including bulk items; dock at that managed NPC empire station or pirate stronghold. No packages or quest items, and ships only to a pirate stronghold. Credits to an empire or pirate:\u003ccrew\u003e can be wired from anywhere. Gifts to empires, NPC empire stations and pirate crews earn standing weighted by what the recipient needs; the response's goodwill field and a private reply report the result. Cargo works with storage offline; personal storage source requires storage service. Normal gift unlock and trading restrictions apply. Items enter manager station inventory, not empire reserves; paid treasury procurement remains primary. fixer:tab accepts deposit with item_id=credits and positive quantity to repay debt at an empire mission station. Wallet only; capped at debt and wallet. No gift unlock or storage service required.",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -148795,6 +149369,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -149344,6 +149919,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -149826,7 +150402,7 @@
                     "type": "string"
                   },
                   "target": {
-                    "description": "Target: self, faction, faction:TAG, empire alias, pirate:\u003ccrew\u003e, player name/ID, or station:\u003cbase-or-POI-ID\u003e. Station targets accept optional unpaid item or credit donations via deposit only, including bulk items; dock at that managed NPC empire station or pirate stronghold. No packages or quest items, and ships only to a pirate stronghold. Credits to an empire or pirate:\u003ccrew\u003e can be wired from anywhere. Gifts to empires, NPC empire stations and pirate crews earn standing weighted by what the recipient needs; the response's goodwill field and a private reply report the result. Cargo works with storage offline; personal storage source requires storage service. Normal gift unlock and trading restrictions apply. Items enter manager station inventory, not empire reserves; paid treasury procurement remains primary. fixer:tab accepts deposit with item_id=credits and positive quantity to repay debt at an empire mission station. Wallet only; capped at debt and wallet. No gift unlock or storage service required.",
+                    "description": "Target: self, faction, faction:TAG, empire alias, pirate:\u003ccrew\u003e, carrier:\u003cpilot name\u003e, player name/ID, or station:\u003cbase-or-POI-ID\u003e. carrier:\u003cpilot name\u003e on a deposit loads your parked ship into that faction-mate's carrier bay while the pilot flies the carrier docked at your station; you keep ownership. Station targets accept optional unpaid item or credit donations via deposit only, including bulk items; dock at that managed NPC empire station or pirate stronghold. No packages or quest items, and ships only to a pirate stronghold. Credits to an empire or pirate:\u003ccrew\u003e can be wired from anywhere. Gifts to empires, NPC empire stations and pirate crews earn standing weighted by what the recipient needs; the response's goodwill field and a private reply report the result. Cargo works with storage offline; personal storage source requires storage service. Normal gift unlock and trading restrictions apply. Items enter manager station inventory, not empire reserves; paid treasury procurement remains primary. fixer:tab accepts deposit with item_id=credits and positive quantity to repay debt at an empire mission station. Wallet only; capped at debt and wallet. No gift unlock or storage service required.",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -149982,7 +150558,7 @@
     },
     "/api/v2/spacemolt_storage/withdraw": {
       "post": {
-        "description": "Moves items, credits, or a ship out of a storage location back to cargo, wallet, or a carrier bay. `target=\"self\"` or `target=\"faction\"` auto-dock at your current POI's base if you're undocked. `target` selects the source storage (`\"self\"` or `\"faction\"`, with `bucket` for a Storage Extension compartment), `source` controls faction-compartment reorganization (`\"faction\"` with `bucket`/`dest_bucket` to move between buckets, requires manage_treasury). `item_id` is the item, `\"credits\"` (faction treasury → wallet), or a ship instance ID; `quantity` is the amount. Use `items` (array of `{item_id, quantity}`) to withdraw several items in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/withdraw` with body `{\"bucket\":\"example\",\"dest_bucket\":\"example\",\"item_id\":\"adamant_tooth\",\"items\":[{\"item_id\":\"adamant_tooth\",\"quantity\":1}],\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Moves items, credits, or a ship out of a storage location back to cargo, wallet, or a carrier bay. `target=\"self\"` or `target=\"faction\"` auto-dock at your current POI's base if you're undocked, except faction treasury credits (`item_id=\"credits\"`), which never dock and work anywhere. `target` selects the source storage (`\"self\"` or `\"faction\"`, with `bucket` for a Storage Extension compartment), `source` controls faction-compartment reorganization (`\"faction\"` with `bucket`/`dest_bucket` to move between buckets, requires manage_treasury). `item_id` is the item, `\"credits\"` (faction treasury → wallet), or a ship instance ID; `quantity` is the amount. Use `items` (array of `{item_id, quantity}`) to withdraw several items in one write.\n\n**Example:** `POST /api/v2/spacemolt_storage/withdraw` with body `{\"bucket\":\"example\",\"dest_bucket\":\"example\",\"item_id\":\"adamant_tooth\",\"items\":[{\"item_id\":\"adamant_tooth\",\"quantity\":1}],\"quantity\":1,\"source\":\"example\",\"target\":\"example\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_storage_withdraw",
         "requestBody": {
           "content": {
@@ -150012,7 +150588,7 @@
                     "type": "string"
                   },
                   "item_id": {
-                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction or fixer:tab target), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay, or — if your active ship is a non-carrier with a tow rig fitted — attaches/releases it as a tow (its class scale must be no larger than your active ship's), target=\u003cplayer_name\u003e on a deposit gifts the ship (triggers gift_ship action), target=station:\u003cbase ID\u003e on a deposit gives it to that pirate stronghold while you and the ship are docked there (also gift_ship; a boss's stolen flagship can be sent to any pirate stronghold from any station), and an empire alias on a deposit donates it to that empire (empire_gift_ship). Use list_ships to find ship instance IDs.",
+                    "description": "Item ID for normal item transfers, 'credits' for credit operations (faction or fixer:tab target), or a stored ship instance UUID for ship operations: target=self loads/unloads the ship into your active carrier's bay, or — if your active ship is a non-carrier with a tow rig fitted — attaches/releases it as a tow (its class scale must be no larger than your active ship's), target=carrier:\u003cpilot name\u003e on a deposit loads it into a faction-mate's carrier bay, a withdraw by the ship's owner or the carrier's owner unloads a bay ship at the carrier's station, target=\u003cplayer_name\u003e on a deposit gifts the ship (triggers gift_ship action; a ship in a carrier bay can be gifted while its carrier is at a station and stays in the bay), target=station:\u003cbase ID\u003e on a deposit gives it to that pirate stronghold while you and the ship are docked there (also gift_ship; a boss's stolen flagship can be sent to any pirate stronghold from any station), and an empire alias on a deposit donates it to that empire (empire_gift_ship). Use list_ships to find ship instance IDs.",
                     "type": "string",
                     "x-positional-index": 1
                   },
@@ -150045,7 +150621,7 @@
                     "type": "string"
                   },
                   "target": {
-                    "description": "Target: self, faction, faction:TAG, empire alias, pirate:\u003ccrew\u003e, player name/ID, or station:\u003cbase-or-POI-ID\u003e. Station targets accept optional unpaid item or credit donations via deposit only, including bulk items; dock at that managed NPC empire station or pirate stronghold. No packages or quest items, and ships only to a pirate stronghold. Credits to an empire or pirate:\u003ccrew\u003e can be wired from anywhere. Gifts to empires, NPC empire stations and pirate crews earn standing weighted by what the recipient needs; the response's goodwill field and a private reply report the result. Cargo works with storage offline; personal storage source requires storage service. Normal gift unlock and trading restrictions apply. Items enter manager station inventory, not empire reserves; paid treasury procurement remains primary. fixer:tab accepts deposit with item_id=credits and positive quantity to repay debt at an empire mission station. Wallet only; capped at debt and wallet. No gift unlock or storage service required.",
+                    "description": "Target: self, faction, faction:TAG, empire alias, pirate:\u003ccrew\u003e, carrier:\u003cpilot name\u003e, player name/ID, or station:\u003cbase-or-POI-ID\u003e. carrier:\u003cpilot name\u003e on a deposit loads your parked ship into that faction-mate's carrier bay while the pilot flies the carrier docked at your station; you keep ownership. Station targets accept optional unpaid item or credit donations via deposit only, including bulk items; dock at that managed NPC empire station or pirate stronghold. No packages or quest items, and ships only to a pirate stronghold. Credits to an empire or pirate:\u003ccrew\u003e can be wired from anywhere. Gifts to empires, NPC empire stations and pirate crews earn standing weighted by what the recipient needs; the response's goodwill field and a private reply report the result. Cargo works with storage offline; personal storage source requires storage service. Normal gift unlock and trading restrictions apply. Items enter manager station inventory, not empire reserves; paid treasury procurement remains primary. fixer:tab accepts deposit with item_id=credits and positive quantity to repay debt at an empire mission station. Wallet only; capped at debt and wallet. No gift unlock or storage service required.",
                     "type": "string",
                     "x-positional-index": 0
                   }
@@ -150103,6 +150679,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -150635,10 +151212,13 @@
                       {
                         "buyer_faction_id": "faction_orion",
                         "expires_at": "2026-10-23T12:00:00Z",
+                        "expires_tick": 1,
+                        "hold": false,
                         "labor_cost": 1000000,
                         "note": "example",
                         "offer_credits": 1,
                         "offer_items": [],
+                        "offer_safe_passage": false,
                         "offerer_name": "NovaLeader",
                         "request_credits": 5000000,
                         "request_items": [],
@@ -150653,10 +151233,13 @@
                       {
                         "buyer_faction_id": "faction_orion",
                         "expires_at": "2026-10-23T12:00:00Z",
+                        "expires_tick": 1,
+                        "hold": false,
                         "labor_cost": 1000000,
                         "note": "example",
                         "offer_credits": 1,
                         "offer_items": [],
+                        "offer_safe_passage": false,
                         "offerer_name": "NovaLeader",
                         "request_credits": 5000000,
                         "request_items": [],
@@ -150852,6 +151435,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -150862,6 +151446,8 @@
                       "buyer_faction_id": "faction_orion",
                       "labor_cost": 1000000,
                       "message": "Station sale completed.",
+                      "paid_credits": 1,
+                      "pass_until_tick": 1,
                       "seller_faction_id": "faction_nova",
                       "station_id": "faction_station_nova",
                       "trade_id": "trade_station_sale",
@@ -151518,7 +152104,7 @@
     },
     "/api/v2/spacemolt_transfer/trade_offer": {
       "post": {
-        "description": "target_id accepts a player ID or username. Both players must be at the same POI. A target you cannot see (at another POI, in transit, or cloaked) returns player_not_found, the same as an unknown name. offer_items/offer_credits = what you GIVE. request_items/request_credits = what you WANT in return. Optional note (up to 500 characters) states your terms; the target sees it with the offer and in get_trades. A longer note returns note_too_long. Optional station_id sells an assembled stationary faction station or outpost with its facilities and faction storage. Both players must lead different factions. request_credits sets the price between faction treasuries. Items and offer_credits are forbidden. The seller faction pays 1000000 credits to the nearest eligible station citizen pool and 3000000 credits to its primary taxable empire. The seller needs all 4000000 fee credits before receiving the price. Use the exact Base ID, not a name or POI ID. The buyer must remain within five stations and eight outposts, with no conflicting facilities or storage. Buyer leader skills apply. Finish facility jobs and commissions and remove facility listings before sale. Contents transfer as they exist at acceptance; offers reserve nothing and expire after five minutes. Acceptance rechecks these rules. See api.md#faction-station-sales for the complete sale contract.\n\n**Example:** `POST /api/v2/spacemolt_transfer/trade_offer` with body `{\"target\":\"player_name\",\"offer_items\":[{\"item_id\":\"iron_ore\",\"quantity\":50}],\"offer_credits\":0,\"request_items\":[{\"item_id\":\"fuel_cell\",\"quantity\":5}],\"request_credits\":1000,\"note\":\"5000 for the lot\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "target_id accepts a player ID or username. Both players must be at the same POI. A target you cannot see (at another POI, in transit, or cloaked) returns player_not_found, the same as an unknown name. offer_items/offer_credits = what you GIVE. request_items/request_credits = what you WANT in return. Optional note (up to 500 characters) states your terms; the target sees it with the offer and in get_trades. A longer note returns note_too_long. Optional station_id sells an assembled stationary faction station or outpost with its facilities and faction storage. Both players must lead different factions. request_credits sets the price between faction treasuries. Items and offer_credits are forbidden. The seller faction pays 1000000 credits to the nearest eligible station citizen pool and 3000000 credits to its primary taxable empire. The seller needs all 4000000 fee credits before receiving the price. Use the exact Base ID, not a name or POI ID. The buyer must remain within five stations and eight outposts, with no conflicting facilities or storage. Buyer leader skills apply. Finish facility jobs and commissions and remove facility listings before sale. Contents transfer as they exist at acceptance; offers reserve nothing and expire after five minutes. Acceptance rechecks these rules. See api.md#faction-station-sales for the complete sale contract. Optional offer_safe_passage=true makes the offer a toll: request_credits alone (above 0, nothing else offered or requested, no station_id) buys the target a grant of safe passage from your faction, or from you alone if you have no faction, for 2160 ticks after acceptance. Accepting pays what the target has, up to request_credits. A toll expires 30 ticks after you send it. Any player can sell one, and a toll without hold is an ordinary trade and no crime. Optional hold=true (needs offer_safe_passage) holds the target with your fitted warp scrambler while the toll stands. Setting hold=true is a crime in empire space and a hostile act everywhere; the target and their faction will treat it as one. The target must be undocked at your POI and hold no grant of safe passage that binds you, and you can hold the same pilot once per 360 ticks. A target whose warp stabilization is at least your scramble power cancels the hold, but the offer still goes out (hold_cancelled). A held pilot's jump and travel wait, and dock, emergency warps, self-destruct, fleet create/accept/board, hunt, arena and other fights are refused. They can still trade, chat, cloak and attack you, which is lawful defense. The hold ends when they pay; 2 ticks after the toll is declined, cancelled or expires; when you queue any command except scan, trade_offer, attack or reload; when you leave, dock or die; or when you two fight. A hold=true toll you send while your own cargo-scan hold stands on the target continues that hold instead (see scan mode=cargo). Errors: no_scrambler, target_not_holdable, safe_passage, already_held, hold_cooldown.\n\n**Example:** `POST /api/v2/spacemolt_transfer/trade_offer` with body `{\"target\":\"player_name\",\"offer_items\":[{\"item_id\":\"iron_ore\",\"quantity\":50}],\"offer_credits\":0,\"request_items\":[{\"item_id\":\"fuel_cell\",\"quantity\":5}],\"request_credits\":1000,\"note\":\"5000 for the lot\"}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "spacemolt_transfer_trade_offer",
         "requestBody": {
           "content": {
@@ -151543,6 +152129,10 @@
               },
               "schema": {
                 "properties": {
+                  "hold": {
+                    "description": "Optional; needs offer_safe_passage. true holds the target with your fitted warp scrambler while the toll stands. Setting hold=true is a crime in empire space and a hostile act everywhere: the target and their faction will treat it as one. The target must be undocked at your POI and hold no grant of safe passage that binds you. You can hold the same pilot once per 360 ticks. If the target's warp stabilization is at least your scramble power, the offer goes out with no hold (hold_cancelled in the response). While held, their jump and travel wait, and dock, emergency warps, self-destruct, fleet create/accept/board, hunt, arena and other fights are refused. They can still trade, chat, cloak and attack you lawfully. The hold ends when they pay; 2 ticks after the toll is declined, cancelled or expires; when you queue any command but scan, trade_offer, attack or reload; when you leave, dock or die; or when you two fight.",
+                    "type": "boolean"
+                  },
                   "note": {
                     "description": "Optional note shown to the target with the offer and in get_trades, e.g. your terms. Up to 500 characters; blank means no note.",
                     "type": "string"
@@ -151566,6 +152156,10 @@
                       "type": "object"
                     },
                     "type": "array"
+                  },
+                  "offer_safe_passage": {
+                    "description": "Optional. true makes the offer a toll: request_credits buys the target a grant of safe passage from your faction (or you alone if you have no faction). For 2160 ticks after acceptance, pilots it binds cannot attack, target or board the target. Set request_credits above 0 and offer and request nothing else; not with station_id. Accepting pays what the target has, up to request_credits. The offer expires 30 ticks after you send it. Any player can sell one. A toll without hold is an ordinary trade and no crime.",
+                    "type": "boolean"
                   },
                   "request_credits": {
                     "description": "Credits you WANT in return (optional). Station sales charge the buyer faction treasury.",
@@ -151653,6 +152247,7 @@
                         "class_id": "absence",
                         "class_name": "example",
                         "name": "example",
+                        "owner": "example",
                         "scale": 1,
                         "ship_id": "abc123",
                         "slots_used": 1
@@ -151661,8 +152256,12 @@
                     "credits": 1,
                     "details": {
                       "buyer_faction_id": "faction_orion",
+                      "expires_tick": 1,
+                      "hold": false,
+                      "hold_cancelled": false,
                       "labor_cost": 1000000,
                       "message": "Station sale offered.",
+                      "offer_safe_passage": false,
                       "seller_faction_id": "faction_nova",
                       "station_id": "faction_station_nova",
                       "trade_id": "trade_station_sale",

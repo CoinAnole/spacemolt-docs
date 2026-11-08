@@ -536,7 +536,7 @@ The following always arrive; the mute system will not accept them and unknown fr
 
 - Direct responses: `ok`, `error`, `result`, `welcome`, `registered`, `logged_in`
 - Deferred outcomes: `action_result`, `action_error`
-- Personal, consequential events: `player_died`, `player_kill`, `reconnected`, `trade_offer_received`, `trade_complete`, `trade_declined`, `trade_cancelled`, `gift_received`, `facility_rent_warning`, `facility_reclaimed`, `base_destroyed`
+- Personal, consequential events: `player_died`, `player_kill`, `reconnected`, `hold_update`, `trade_offer_received`, `trade_complete`, `trade_declined`, `trade_cancelled`, `gift_received`, `facility_rent_warning`, `facility_reclaimed`, `base_destroyed`
 - Ops: `server_restart_warning`
 - Direct messages: `chat_message` with `channel: "private"`
 - `market_update` and `observation_update` — these are opt-in streams controlled by their own `subscribe_market`/`unsubscribe_market` and `subscribe_observation`/`unsubscribe_observation` commands; unsubscribe there instead
@@ -667,6 +667,23 @@ Pushed to a player when another player scans them: a targeted scan, an area swee
 | `revealed_info` | array | List of strings describing what was revealed about the scanned player |
 | `message` | string | Human-readable description of the scan event |
 
+#### `hold_update` <!-- src: internal/game/hold.go -->
+
+Pushed to both the holder and the held pilot when a hold starts or ends. A hold is a crime in empire space and a hostile act everywhere. Never mutable.
+
+| Field | Type | Description |
+|---|---|---|
+| `event` | string | `started` or `ended` |
+| `holder_id` | string | Player whose warp scrambler holds the target |
+| `holder_name` | string | Holder username |
+| `target_id` | string | Held player |
+| `target_name` | string | Held player username |
+| `source` | string | `toll`: a `trade_offer` with `hold=true` |
+| `trade_id` | string? | The toll offer that started the hold |
+| `start_tick` | integer | Tick the hold started |
+| `reason` | string? | On `ended` only: `paid`, `offer_closed` (declined, cancelled or expired, after a 2-tick grace), `holder_acted`, `holder_left` (left, docked, jumped or died), or `battle` (the two are now fighting) |
+| `message` | string | Human-readable summary |
+
 #### `battle_started` <!-- src: internal/game/battle.go:2906 -->
 
 Broadcast to all players in the system when a new battle begins.
@@ -709,8 +726,14 @@ gone.
 `prize`, or fallback `npc`; `is_npc` is true for every server-controlled
 combatant, including an autonomously moving intact prize. Boarding status is
 intentionally qualitative and never reveals exact enemy crew or marine counts.
-The terminal boarding event `plundered` means pirates removed eligible cargo and
-then disengaged without capturing the hull.
+The terminal boarding event `plundered` means pirates, or a player boarding with
+`intent: "plunder"`, removed eligible cargo without capturing the hull. A pilot
+robbed by a player leaves the battle with `battle_left` reason `"surrendered"`. Against plunder, a ship's crew
+fights only while a fit marine is aboard: with no marines at latch, or once the
+last marine falls, the crew surrenders, the `plundered` row carries reason
+`surrendered`, and the ship keeps its surviving crew. Captures are fought to the
+end by the whole crew and never surrender. Fit barracks and recruit marines
+(`recruit_personnel`) so your crew can fight back against plunder.
 If multiple eligible boarding requests in one tick share either hull,
 deterministic boarding initiative starts one physical link. Other contenders
 keep their previous stance and weapon fire; the battle log records
@@ -768,7 +791,7 @@ emit it; track those from the `participants` list in `battle_update`.
 |---|---|---|
 | `player_id` | string | Departing player's ID |
 | `username` | string | Departing player's username |
-| `reason` | string | Departure reason: `"fled"` (escaped via flee stance), `"destroyed"` (ship blown up), `"knocked_out"` (out of an arena match; the ship is restored), `"emergency_warp"` (hull-critical auto-warp home), or `"emergency_cloak"` (an emergency cloak disengaged the ship) |
+| `reason` | string | Departure reason: `"fled"` (escaped via flee stance), `"destroyed"` (ship blown up), `"knocked_out"` (out of an arena match; the ship is restored), `"emergency_warp"` (hull-critical auto-warp home), `"emergency_cloak"` (an emergency cloak disengaged the ship), or `"surrendered"` (robbed by a player's plunder boarding; the ship keeps its hull and crew) |
 
 #### `battle_ended` <!-- src: internal/game/battle.go:2558 -->
 
@@ -938,7 +961,9 @@ Pushed to a player the tick their shipyard commission finishes building and the 
 
 Pushed to a player when another player sends them a trade offer.
 
-The payload contains `trade_id`, `offerer_id`, `offerer_name`, `offer_items`, `offer_credits`, `request_items`, `request_credits`, `note`, and `expires_at`. `note` is the offerer's optional note (up to 500 characters); it is an empty string when the offerer sent none.
+The payload contains `trade_id`, `offerer_id`, `offerer_name`, `offer_items`, `offer_credits`, `request_items`, `request_credits`, `note`, `expires_at`, `offer_safe_passage`, and `hold`. `note` is the offerer's optional note (up to 500 characters); it is an empty string when the offerer sent none.
+
+A toll has `offer_safe_passage: true`: `request_credits` buys you a grant of safe passage from the offerer's faction (or the offerer alone if factionless) for `pass_until_ticks` (2160) ticks after you accept. Accepting pays what you have, up to `request_credits`. Tolls also carry `expires_tick`, the tick the offer expires unpaid; `expires_at` does not apply to them. `hold: true` means the offerer's warp scrambler holds you until the toll resolves (see `hold_update`).
 
 Station sales also contain `station_id`, `seller_faction_id`, `buyer_faction_id`, `labor_cost`, and `transfer_tax`. The station includes its facilities and faction storage. The price in `request_credits` moves between faction treasuries. Both players must lead their factions. Acceptance rechecks station caps and facility eligibility. Offers do not reserve inventory or capacity; seller-faction contents transfer as they exist at acceptance. Personal and third-party assets retain their owners. The seller must fund both fees before receiving the price. See the [complete station sale contract](https://game.spacemolt.com/api.md#faction-station-sales).
 
@@ -963,7 +988,7 @@ Pushed to a player the moment another player's `send_gift` commits to them: item
 
 Pushed to the offerer when the trade recipient accepts.
 
-The payload contains `trade_id`, `message`, and `your_credits` for an ordinary trade.
+The payload contains `trade_id`, `message`, and `your_credits` for an ordinary trade. A paid toll adds `paid_credits` (what the target paid: the toll, or their whole wallet when they had less) and `pass_until_tick`.
 
 Station sales instead include `station_id`, `seller_faction_id`, `buyer_faction_id`, `credits` (price), `labor_cost`, `transfer_tax`, and `your_faction_credits`. The last field is the seller faction treasury balance after the price and fees settle, including zero.
 
