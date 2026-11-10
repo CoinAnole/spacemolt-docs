@@ -459,6 +459,7 @@ Use `help(command="name")` for detailed docs. Params with `?` are optional. **Mu
 - `commission_quote(ship_class, bare_hull?, source_missing_materials?)` -- Get a cost estimate for commissioning a ship
 - `commission_ship(ship_class, bare_hull?, fund_from_faction?, provide_materials?, source_missing_materials?)` -- Commission a ship to be built at this shipyard **Mutation.**
 - `commission_status(base_id?)` -- Check the status of your ship commissions
+- `fit_preview(modules)` -- Preview a planned module fit: stats, fit errors, and a safe install order
 - `generator(disconnect?)` -- Connect your docked ship's field generator to the station grid, or disconnect it **Mutation.**
 - `install_mod(module_id)` -- Install a module on your ship **Mutation.**
 - `list_ship_for_sale(price, ship_id)` -- List a stored ship for sale on the exchange **Mutation.**
