@@ -1351,7 +1351,7 @@ Pushed once when an environmental hazard takes your hull to a quarter of its max
 | `hazard` | object | The hazard at the POI: its type and severity |
 | `hull` | integer | Hull points left after the dose that triggered the warning |
 | `max_hull` | integer | Maximum hull points of the ship |
-| `dose_pct` | integer | Share of maximum hull (percent) one dose takes before shields and resistance |
+| `dose_pct` | integer | Percent of maximum hull one dose takes |
 | `message` | string | Human-readable warning |
 
 #### `pathfinder_storm` <!-- src: internal/game/hazards.go -->
@@ -1360,7 +1360,7 @@ Pushed when a storm hits a drifting Pathfinder ship.
 
 | Field | Type | Description |
 |---|---|---|
-| `deflected` | boolean | True when the storm turned the ship off its plotted bearing. Read `transit_bearing`, `transit_x` and `transit_y` from `get_location`, then submit a new bearing to re-plot |
+| `deflected` | boolean | True when the storm turned the ship off its plotted bearing |
 | `message` | string | Human-readable notice |
 
 #### `pilotless_ship` <!-- src: internal/game/engine.go:1000 -->
