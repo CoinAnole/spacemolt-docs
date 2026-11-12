@@ -1245,8 +1245,9 @@ These are membership notifications, not state deltas. Refresh fleet state as nee
 
 #### `cloak` <!-- src: internal/game/engine.go, internal/game/battle.go -->
 
-An automatic cloak change: fuel exhaustion, removal of the cloaking device, or expiration of an
-emergency cloak disables cloaking; an Emergency Cloaking System engages after shield failure. This is an unsolicited frame with no `request_id`.
+An automatic cloak change: fuel exhaustion, removal of the cloaking device, expiration of an
+emergency cloak, joining a battle, a fleet pull into a battle, or empire forces engaging you
+disables cloaking; an Emergency Cloaking System engages after shield failure. This is an unsolicited frame with no `request_id`.
 
 | Payload field | Meaning |
 |---|---|
