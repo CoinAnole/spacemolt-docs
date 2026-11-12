@@ -687,10 +687,10 @@ Pushed to both the holder and the held pilot when a hold starts or ends. A hold 
 | `holder_name` | string | Holder username |
 | `target_id` | string | Held player |
 | `target_name` | string | Held player username |
-| `source` | string | `toll`: a `trade_offer` with `hold=true` |
-| `trade_id` | string? | The toll offer that started the hold |
+| `source` | string | `toll`: a `trade_offer` with `hold=true`; `scan`: a cargo scan from a ship with a warp scrambler |
+| `trade_id` | string? | The toll offer that keeps the hold. Present for toll holds |
 | `start_tick` | integer | Tick the hold started |
-| `reason` | string? | On `ended` only: `paid`, `offer_closed` (declined, cancelled or expired, after a 2-tick grace), `holder_acted`, `holder_left` (left, docked, jumped or died), or `battle` (the two are now fighting) |
+| `reason` | string? | On `ended` only: `paid`, `offer_closed` (declined, cancelled or expired, after a 2-tick grace), `holder_acted`, `holder_left` (left, docked, jumped or died), `battle` (the two are now fighting), or `scan_over` (a scan hold ran its 5 ticks with no toll offer) |
 | `message` | string | Human-readable summary |
 
 #### `battle_started` <!-- src: internal/game/battle.go:2906 -->
@@ -1343,7 +1343,7 @@ Each entry in `jobs`:
 
 #### `hazard_warning` <!-- src: internal/game/hazards.go -->
 
-Pushed once when an environmental hazard takes your hull to a quarter of its maximum or less. Leave the POI or dock: the ship is lost if its hull reaches 0 there.
+Pushed once when an environmental hazard takes your hull to a quarter of its maximum or less. Leave the POI or dock: the ship is lost if its hull reaches 0 there, unless an Emergency Warp Stabilizer warps it home first.
 
 | Field | Type | Description |
 |---|---|---|
