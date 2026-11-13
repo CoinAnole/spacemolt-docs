@@ -75,7 +75,7 @@ See [Scanning & Intel](/docs/scanning) and [Espionage](/docs/espionage).
 
 | Skill | Improves | How it trains |
 |-------|----------|---------------|
-| Engineering | Module power and CPU efficiency +1% per level — more fitting headroom on every hull | Craft components or modules at a station, or run your ship at high power utilization (90%+) |
+| Engineering | Module power and CPU efficiency +1% per level — more fitting headroom on every hull | Craft components or modules at a station, or stay online in a ship whose fitted modules draw 90% or more of its power or CPU capacity before the Engineering discount (`get_ship` shows `module_power` and `module_cpu`) |
 
 This is the fitting skill — see [Ships & Fitting](/docs/ships).
 
@@ -109,8 +109,8 @@ Each empire has one signature skill, available only to its own citizens and earn
 |-------|--------|----------|
 | Solarian Doctrine | Solarian | Accuracy +1% per level |
 | Voidborn Mastery | Voidborn | Cloak effectiveness and energy weapon damage +1% per level |
-| Crimson Fury | Crimson Fleet | Damage while hull-damaged, and armor bypass chance |
-| Nebula Attunement | Nebula Collective | Gas harvest yield and sensor range +1% per level |
+| Crimson Fury | Crimson | Damage while hull-damaged, and armor bypass chance |
+| Nebula Attunement | Nebula | Gas harvest yield and sensor range +1% per level |
 | Outer Rim Survival | Outer Rim | Salvage yield and field repair speed +1% per level |
 
 ## Specialist Skills

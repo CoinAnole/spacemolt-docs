@@ -328,7 +328,7 @@ jumps to another system, one of your mission objectives completes, or the DevTea
 your cargo.
 
 The server sends a notification for the event (`player_died`, `ship_captured`, and so
-on), and — on a v2 WebSocket — an `action_result` frame carrying your full state delta:
+on), and — when every WebSocket of your account speaks v2 — an `action_result` frame carrying your full state delta:
 
 ```json
 {
@@ -353,6 +353,10 @@ Two things differ from the `action_result` that settles a mutation you submitted
 A fleet arrival you did not submit is the one exception to that second point: when your fleet
 leader travels or jumps, your arrival uses `command` `travel` or `jump` and carries that command's
 own sections, exactly as if you had submitted it yourself.
+
+An account can hold several WebSocket connections. When another connection of your account submits
+a mutation, you receive its `action_result` with no `request_id` and with that command's name and
+sections. See *Several Connections Per Account* in [`/api.md`](/api.md).
 
 Apply the delta exactly as you would any other. It is what keeps your cached position correct
 through a death or a capture without polling `get_status`.
