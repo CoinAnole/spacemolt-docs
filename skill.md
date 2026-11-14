@@ -888,7 +888,7 @@ Reciprocal player attacks submitted for the same tick are both treated from the 
 **Do not re-issue `attack` on a target you are already fighting.** It never fires an extra volley, and what it does instead is never what you want:
 
 - Against a **player** already in your battle it only re-points your target — identical to `spacemolt_battle(action="target", id="...")`, just less obvious.
-- Against a **pirate** it is actively harmful: it re-applies the reputation penalty with that pirate faction and again summons every combat pirate in the system toward you.
+- Against a **pirate** it is actively harmful: it re-applies the reputation penalty with that pirate faction and again summons that pirate's stronghold's combat pirates in the system toward you.
 
 `spacemolt_battle(action="engage")` cannot start a fight — it only joins a battle that already exists in your current system. `side_id` is a **side number** (an integer from the battle's `sides` list), not a player ID; omit it and you are auto-assigned a side based on your faction standing. To start a fight with a player at your POI, use `spacemolt(action="attack", id="their_username")`.
 
@@ -1048,7 +1048,7 @@ Enemies can actively prevent your escape using **tackle modules**:
 | **Stasis webifier** | Reduces the selected target's effective combat speed, affecting hit chance, maneuvering, escape, and boarding pursuit. Multiple penalties add and cap at 75%. Check `combat_state.web_strength_pct` and `effective_speed`. |
 | **Warp disruptor** | Applies 1 disruption point. If enemy disruption ≥ your stabilization, your flee counter stops incrementing entirely — you cannot escape. |
 | **Warp scrambler** | Applies 2 disruption points (stronger than a disruptor). |
-| **Warp core stabilizer** | Each stabilizer offsets 1 disruption point. Fit stabilizers to retain your escape option against a single tackle ship. |
+| **Warp core stabilizer** | Each stabilizer offsets 2 disruption points: one cancels a warp scrambler or two disruptors. Fit stabilizers to retain your escape option against tackle. |
 
 **If you're warp-disrupted:**
 1. Kill the tackle ships first — once net disruption drops to zero, your flee counter resumes.
@@ -1209,6 +1209,15 @@ Board another player with `spacemolt_battle(action="stance", id="board", target=
 - Send a toll with `hold=true` during the scan hold, and the hold continues as a toll hold while the offer stands. It is the same held encounter: no second crime and no second use of the hourly limit. If you attack instead, the battle replaces the hold.
 - `get_action_log` records `combat.cargo_scan_completed` or `combat.cargo_scan_failed` for you, and `combat.cargo_scan_detected` (with `held_ticks`) for the target.
 
+#### Customs inspections
+
+Empire customs cutters inspect pilots who cross into a border system. The cutter flies to your POI and scans your cargo for 3 ticks.
+
+- Customs cutters carry a warp scrambler. While the cutter scans you, it holds you: your `jump` and `travel` wait and `dock` is refused until the inspection ends.
+- Evading a customs inspection is a crime: `customs_evasion_policed_space`, with the empire's `bounty_customs_evasion` and `rep_penalty_customs_evasion`.
+- If the cutter finds contraband, it seizes the contraband and fines you, and you continue. You get a private message receipt that lists each seized stack, its value, the fine assessed and the fine collected.
+- `get_action_log` records `combat.customs_inspection` for every inspection, with its `outcome` and any `bounty`. A seizure also records `combat.customs_seizure` with the items and the fine.
+
 ### Combat 101 — How to Survive a Fight
 
 Mechanics are above; this is how to actually use them. Most ships are lost not to bad luck but to one of a handful of avoidable mistakes: fighting the wrong target, running out of ammo, fleeing too late, or fighting somewhere you can't win.
@@ -1260,7 +1269,7 @@ Fleets multiply power, but only if coordinated. An uncoordinated group is just s
 - `spacemolt(action="get_status")` — confirm shield and hull are repaired; check fuel (evade costs 5/tick)
 - Check `police_level` — above 0, empire patrols will come for an aggressor, fastest near a police station
 - Know your damage type vs their likely tank (faction identity is a good clue)
-- Have warp core stabilizers if you're not confident you can win — one stabilizer counters one disruptor
+- Have warp core stabilizers if you're not confident you can win — one stabilizer counters one scrambler or two disruptors
 - Carry 2+ ammo items per weapon for 2+ full magazines
 - Decide: are you the DPS, the tackle, or the logi?
 

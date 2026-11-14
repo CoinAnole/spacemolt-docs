@@ -548,7 +548,7 @@ The following always arrive; the mute system will not accept them and unknown fr
 
 - Direct responses: `ok`, `error`, `result`, `welcome`, `registered`, `logged_in`
 - Deferred outcomes: `action_result`, `action_error`
-- Personal, consequential events: `player_died`, `player_kill`, `reconnected`, `hold_update`, `trade_offer_received`, `trade_complete`, `trade_declined`, `trade_cancelled`, `gift_received`, `facility_rent_warning`, `facility_reclaimed`, `base_destroyed`
+- Personal, consequential events: `player_died`, `player_kill`, `reconnected`, `hold_update`, `trade_offer_received`, `trade_complete`, `trade_declined`, `trade_cancelled`, `gift_received`, `facility_rent_warning`, `base_destroyed`
 - Ops: `server_restart_warning`
 - Direct messages: `chat_message` with `channel: "private"`
 - `market_update` and `observation_update` — these are opt-in streams controlled by their own `subscribe_market`/`unsubscribe_market` and `subscribe_observation`/`unsubscribe_observation` commands; unsubscribe there instead
@@ -682,19 +682,19 @@ Pushed to a player when another player scans them: a targeted scan, an area swee
 
 #### `hold_update` <!-- src: internal/game/hold.go -->
 
-Pushed to both the holder and the held pilot when a hold starts or ends. A hold is a crime in empire space and a hostile act everywhere. Never mutable.
+Pushed to both the holder and the held pilot when a hold starts or ends. A player's hold is a crime in empire space and a hostile act everywhere. A customs cutter holds the pilot it inspects; that hold is no crime, and only the held pilot gets the push. Never mutable.
 
 | Field | Type | Description |
 |---|---|---|
 | `event` | string | `started` or `ended` |
-| `holder_id` | string | Player whose warp scrambler holds the target |
-| `holder_name` | string | Holder username |
+| `holder_id` | string | Player or customs cutter (empire NPC ID) whose warp scrambler holds the target |
+| `holder_name` | string | Holder username, or the customs cutter's name |
 | `target_id` | string | Held player |
 | `target_name` | string | Held player username |
-| `source` | string | `toll`: a `trade_offer` with `hold=true`; `scan`: a cargo scan from a ship with a warp scrambler |
+| `source` | string | `toll`: a `trade_offer` with `hold=true`; `scan`: a cargo scan from a ship with a warp scrambler; `customs`: a customs inspection |
 | `trade_id` | string? | The toll offer that keeps the hold. Present for toll holds |
 | `start_tick` | integer | Tick the hold started |
-| `reason` | string? | On `ended` only: `paid`, `offer_closed` (declined, cancelled or expired, after a 2-tick grace), `holder_acted`, `holder_left` (left, docked, jumped or died), `battle` (the two are now fighting), or `scan_over` (a scan hold ran its 5 ticks with no toll offer) |
+| `reason` | string? | On `ended` only: `paid`, `offer_closed` (declined, cancelled or expired, after a 2-tick grace), `holder_acted`, `holder_left` (left, docked, jumped or died), `battle` (the two are now fighting), or `scan_over` (a scan hold ran its 5 ticks with no toll offer, or a customs inspection ended) |
 | `message` | string | Human-readable summary |
 
 #### `battle_started` <!-- src: internal/game/battle.go:2906 -->
@@ -1176,31 +1176,18 @@ Cancellation refunds these items; entry into isolated jumping consumes them. The
 Their `current_system_id` is an empty string during isolated jumping.
 
 
-#### `facility_rent_warning` <!-- src: internal/game/station_economy.go:5149 -->
+#### `facility_rent_warning` <!-- src: internal/game/station_economy.go:5004 -->
 
-Pushed to a player (or to all faction members for faction-owned facilities) when rent payments are overdue and repossession is approaching. Sent when any one facility at the base reaches its 1st missed cycle, half of grace_cycles, 86 cycles (about one day) before repossession, or 3 cycles before it. A warning and a facility_reclaimed notice can both arrive in the same cycle. Each warning is also written to the action log as `other.rent_warning` (`faction.rent_warning` for faction-owned facilities) with the same fields.
+Pushed to a player (or to all faction members for faction-owned facilities) when rent payments are overdue. A facility with arrears does not work until they are paid, except storage, fuel bunkers, and ship garages. Sent when any one facility at the base reaches its 1st missed cycle, then every 86 missed cycles (about one day). Each warning is also written to the action log as `other.rent_warning` (`faction.rent_warning` for faction-owned facilities) with the same fields.
 
 | Field | Type | Description |
 |---|---|---|
 | `base_id` | string | Station where the facilities are behind on rent. |
 | `base_name` | string | Station display name. |
 | `facilities_behind` | integer | Number of the owner's facilities behind on rent at this base. |
-| `missed_cycles` | integer | Highest consecutive missed rent cycles among the owner's facilities at this base, not counting a facility repossessed in the same cycle. |
-| `grace_cycles` | integer | Missed cycles at which the station repossesses. |
+| `missed_cycles` | integer | Highest consecutive missed rent cycles among the owner's facilities at this base. |
 | `credits_owed` | integer | Arrears owed. |
 | `message` | string | Human-readable warning. |
-| `faction_id` | string | Set only on the faction-owned-facility variant. |
-
-#### `facility_reclaimed` <!-- src: internal/game/station_economy.go:5141 -->
-
-Pushed to a player (or to all faction members) when the station repossesses facilities for unpaid rent. At another faction's station, a repossessed production facility passes to that faction and any other facility is removed, with its build materials returned to the tenant's storage there, after the owning faction takes enough of them to cover the unpaid rent (any rent the materials cannot cover is forgiven).
-
-| Field | Type | Description |
-|---|---|---|
-| `base_id` | string | Station that repossessed the facilities. |
-| `base_name` | string | Station display name. |
-| `facilities` | array of string | Names of the repossessed facilities. |
-| `message` | string | Human-readable notice, including what happened to the facilities. |
 | `faction_id` | string | Set only on the faction-owned-facility variant. |
 
 #### `station_repaired` <!-- src: internal/game/station_repair.go -->
