@@ -5,6 +5,8 @@ repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 workdir="$(mktemp -d)"
 trap 'rm -rf "$workdir"' EXIT
 export INTER_FETCH_DELAY=0
+# Production spaces shared spec buckets by 60s. Tests opt in when they cover that wait.
+export SPEC_MIN_INTERVAL=0
 
 valid_docs_response='[
   {"name":"crafting.md","type":"file"},
@@ -43,7 +45,9 @@ write_fake_curl() {
   local guides_response="${4:-$valid_guides_response}"
   local rate_limit_pattern="${5:-}"
   local hard_failure_pattern="${6:-}"
+  local rate_limit_retry_after="${7:-0}"
   local state_file="${bin_dir}/.rate-limit-state"
+  local request_log="${bin_dir}/requests.log"
 
   cat > "${bin_dir}/curl" <<EOF
 #!/usr/bin/env bash
@@ -77,6 +81,8 @@ while [[ \$# -gt 0 ]]; do
   esac
 done
 
+printf '%s\n' "\$url" >> "$request_log"
+
 status="200"
 if [[ -n "$hard_failure_pattern" && "\$url" == *"$hard_failure_pattern"* ]]; then
   status="500"
@@ -91,7 +97,7 @@ elif [[ -n "$rate_limit_pattern" && "\$url" == *"$rate_limit_pattern"* ]]; then
   if (( count == 1 )); then
     status="429"
     printf '{"error":"rate_limited"}\n' > "\$output"
-    printf 'HTTP/1.1 429 Too Many Requests\r\nRetry-After: 0\r\n\r\n' > "\$header_file"
+    printf 'HTTP/1.1 429 Too Many Requests\r\nRetry-After: %s\r\n\r\n' "$rate_limit_retry_after" > "\$header_file"
   fi
 fi
 
@@ -168,6 +174,59 @@ run_updater() {
     cd "$fixture"
     PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
   )
+}
+
+# Advance the updater's clock only when it sleeps, so a long Retry-After or
+# spec interval stays deterministic without waiting out the wall clock.
+install_virtual_clock() {
+  local bin_dir="$1"
+  local system_date
+  system_date="$(command -v date)"
+  local offset_file="${bin_dir}/clock-offset"
+
+  cat > "${bin_dir}/date" <<EOF
+#!/usr/bin/env bash
+if [[ "\${1:-}" == "+%s" && \$# -eq 1 ]]; then
+  offset=0
+  if [[ -f "$offset_file" ]]; then
+    offset="\$(tr -d '[:space:]' < "$offset_file")"
+  fi
+  real="\$("$system_date" +%s)"
+  printf '%s\n' "\$((real + offset))"
+  exit 0
+fi
+exec "$system_date" "\$@"
+EOF
+
+  cat > "${bin_dir}/sleep" <<EOF
+#!/usr/bin/env bash
+seconds="\${1:-0}"
+offset=0
+if [[ -f "$offset_file" ]]; then
+  offset="\$(tr -d '[:space:]' < "$offset_file")"
+fi
+printf '%s' "\$((offset + seconds))" > "$offset_file"
+EOF
+  chmod +x "${bin_dir}/date" "${bin_dir}/sleep"
+}
+
+assert_fetch_between() {
+  local log="$1"
+  local start="$2"
+  local middle="$3"
+  local end="$4"
+  local message="$5"
+
+  if ! awk -v start="$start" -v middle="$middle" -v end="$end" '
+    index($0, start) && phase == 0 { phase = 1; next }
+    index($0, middle) && phase == 1 { phase = 2; next }
+    index($0, end) && phase == 2 { phase = 3; exit }
+    END { exit (phase == 3) ? 0 : 1 }
+  ' "$log"; then
+    printf 'Request order:\n' >&2
+    cat "$log" >&2
+    fail "$message"
+  fi
 }
 
 test_commits_when_gameserver_version_changes() {
@@ -279,6 +338,44 @@ test_retries_after_rate_limit() {
     "script should retry past transient 429 responses"
 }
 
+test_fetches_other_docs_while_spec_is_rate_limited() {
+  local fixture="${workdir}/spec-wait"
+  local bin_dir="${workdir}/bin-spec-wait"
+  local spec_url="https://game.spacemolt.com/api/v2/openapi.json"
+  mkdir -p "$bin_dir"
+  make_fixture_repo "$fixture" "v1.0.0"
+  write_fake_curl "v2.0.0" "$bin_dir" "$valid_docs_response" "$valid_guides_response" \
+    "/api/v2/openapi.json" "" 30
+  install_virtual_clock "$bin_dir"
+
+  SPEC_MIN_INTERVAL=0 run_updater "$fixture" "$bin_dir"
+
+  assert_fetch_between "${bin_dir}/requests.log" \
+    "$spec_url" "/skill.md" "$spec_url" \
+    "unrestricted docs should be fetched while a spec Retry-After is in effect"
+  assert_eq "v2.0.0" "$(git -C "$fixture" log -1 --format=%s)" \
+    "spec fetch should succeed after the overlapped wait"
+}
+
+test_spaces_shared_openapi_bucket_with_other_docs() {
+  local fixture="${workdir}/spec-spacing"
+  local bin_dir="${workdir}/bin-spec-spacing"
+  mkdir -p "$bin_dir"
+  make_fixture_repo "$fixture" "v1.0.0"
+  write_fake_curl "v2.0.0" "$bin_dir"
+  install_virtual_clock "$bin_dir"
+
+  SPEC_MIN_INTERVAL=30 run_updater "$fixture" "$bin_dir"
+
+  assert_fetch_between "${bin_dir}/requests.log" \
+    "https://game.spacemolt.com/api/openapi.json" \
+    "/skill.md" \
+    "https://game.spacemolt.com/api/v2/openapi.json" \
+    "the second OpenAPI spec should wait while unrestricted docs are fetched"
+  assert_eq "v2.0.0" "$(git -C "$fixture" log -1 --format=%s)" \
+    "spaced spec fetches should still update the gameserver version"
+}
+
 test_repository_uses_clean_collection_paths() {
   local old_guides=(
     base-builder.md client-dev.md crafting.md drones.md explorer.md fuel.md
@@ -321,6 +418,8 @@ test_syncs_both_managed_collections
 test_rejects_invalid_collection_inventories
 test_failed_download_does_not_modify_tracked_docs
 test_retries_after_rate_limit
+test_fetches_other_docs_while_spec_is_rate_limited
+test_spaces_shared_openapi_bucket_with_other_docs
 test_repository_uses_clean_collection_paths
 test_workflow_configures_git_identity_before_refreshing_docs
 test_workflow_pushes_script_created_commits
