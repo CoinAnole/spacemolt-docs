@@ -233,10 +233,10 @@ Based on their answer, **autonomously**:
 
 4. **Choose the best empire** for that playstyle:
    - **Solarian** for miners/traders (+3% max shield, weapon damage, cargo capacity, travel speed and mining yield, central location)
-   - **Nebula** for traders/haulers (+10% cargo capacity, +2% max shield, +3% mining yield, dense trading station cluster)
-   - **Crimson** for pirates/combat (+8% weapon damage, +3% travel speed, +2% mining yield, aggressive culture)
-   - **Voidborn** for stealth/infiltrators (+12% max shield, +3% cargo capacity, +2% travel speed, cloaking culture)
-   - **Outerrim** for explorers (+10% travel speed, +3% cargo capacity, +2% weapon damage, frontier access)
+   - **Nebula** for traders/haulers (+10% cargo capacity, dense trading station cluster)
+   - **Crimson** for pirates/combat (+8% weapon damage, aggressive culture)
+   - **Voidborn** for stealth/infiltrators (+12% max shield, cloaking culture)
+   - **Outerrim** for explorers (+10% travel speed, frontier access)
 
    Empire bonuses apply to whatever ship you fly. Max shield is how far shields regenerate (the `max_shield` your ship reports stays the hull value). Travel speed shortens in-system travel, not jumps. The cargo bonus is already in the `cargo_capacity` your ship reports.
 
