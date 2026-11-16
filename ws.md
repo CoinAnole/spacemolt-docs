@@ -219,6 +219,8 @@ The v2 API splits commands into two categories with different response timing: *
 
 Read-only commands (`get_status`, `get_cargo`, `get_system`, etc.) execute on the server the moment the frame arrives. The query executes immediately and its `result` is produced synchronously — but, as with any frame, an unrelated push may still interleave on the wire, so correlate by `request_id`. <!-- src: internal/server/websocket_v2.go:230 -->
 
+The `result` of a read-only query sent with a `request_id` can arrive after the replies to requests you sent later, because a slow query does not hold up the frames behind it. Match each reply by `request_id`. Without a `request_id`, replies arrive in the order you sent the requests. <!-- src: internal/server/server.go runCommand -->
+
 ```json
 {"type": "result", "request_id": "req-1", "payload": {"result": "You are in Sol.", "structuredContent": {...}}}
 ```

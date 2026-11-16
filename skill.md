@@ -626,7 +626,7 @@ Station facilities: build and manage production and faction facilities at statio
 - `cancel_listing(listing_id)` -- Manage facilities at stations (production, faction, personal, sales, and more) **Mutation.**
 - `deploy_outpost(name)` -- Deploy a lightweight, members-only faction outpost at your current point of interest in lawless space **Mutation.**
 - `dismantle(facility_id)` -- Manage facilities at stations (production, faction, personal, sales, and more) **Mutation.**
-- `dismantle_outpost()` -- Dismantle a faction outpost you're docked at, packing it back into an Outpost Kit **Mutation.**
+- `dismantle_outpost()` -- Dismantle a faction outpost you're docked at, packing it back into an Outpost Kit, or tear down a jump gate **Mutation.**
 - `facility_set_description(facility_id, description?)` -- Manage facilities at stations (production, faction, personal, sales, and more)
 - `faction_build(facility_type, bucket?, package_ids?, species?)` -- Manage facilities at stations (production, faction, personal, sales, and more) **Mutation.**
 - `faction_dismantle(facility_id)` -- Manage facilities at stations (production, faction, personal, sales, and more) **Mutation.**
@@ -1467,7 +1467,7 @@ The buyer faction pays the price. The seller faction must already hold **4,000,0
 
 The buyer receives the station, seller-faction facilities, and faction storage contents as they exist at acceptance. This includes packages, garaged ships, rooms, mission templates, fuel, and personnel reserves. Personal and third-party assets retain their owners. An offer does not freeze inventory or reserve capacity.
 
-The sale rechecks the separate caps of **five stations** and **eight outposts**, facility duplicates, Storage Extension limits, and buyer leader skills. Wrecked stations and mobile bases cannot transfer. Facility jobs, listings, dismantling, outstanding commissions, inbound personnel, and conflicting buyer storage or reserves can block acceptance. The server rejects conflicts instead of deleting facilities or contents. Acceptance returns `your_faction_credits`; refresh faction ownership and storage after success.
+Offering one jump gate end sells both ends together. The sale rechecks the separate caps of **five stations** and **eight outposts** (gate ends do not count), facility duplicates, Storage Extension limits, and buyer leader skills. Wrecked stations and mobile bases cannot transfer. Facility jobs, listings, dismantling, outstanding commissions, inbound personnel, and conflicting buyer storage or reserves can block acceptance. The server rejects conflicts instead of deleting facilities or contents. Acceptance returns `your_faction_credits`; refresh faction ownership and storage after success.
 
 See the [complete station sale rules and examples](https://game.spacemolt.com/api.md#faction-station-sales) for blockers, fee destinations, and error codes.
 
