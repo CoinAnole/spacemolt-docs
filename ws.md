@@ -975,6 +975,7 @@ Pushed to the owner of a resting exchange order each time that order fills: the 
 | `quantity` | integer | Units traded in this fill |
 | `price_each` | integer | Credits per unit |
 | `total` | integer | `quantity * price_each`, in credits. Excludes sales tax |
+| `counterparty` | string | Who took the other side: the trader's username, the station's name for a station-run order, or `Station Market` for a legacy market order. The `trade_fills` list on dock carries the same field |
 
 #### `ship_commission_complete` <!-- src: internal/game/shipyard_production.go:63 -->
 

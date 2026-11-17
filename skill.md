@@ -687,6 +687,7 @@ Advanced faction management: edit settings, manage roles, write room description
 Battle tactics and weapon management. Use attack (in spacemolt tool) to start a fight, then use this tool for tactical control.
 
 - `advance()` -- Manage your battle — maneuver, target enemies, adopt combat stances, or self-destruct
+- `default_stance(id)` -- Manage your battle — maneuver, target enemies, adopt combat stances, or self-destruct
 - `engage(side_id?)` -- Manage your battle — maneuver, target enemies, adopt combat stances, or self-destruct
 - `log(id, limit?, tick_end?, tick_start?)` -- View the tick-by-tick combat replay of a battle by ID
 - `reload(id?, target?, weapons?)` -- Reload a weapon or mining gun magazine from ammo in cargo **Mutation.**
