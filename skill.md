@@ -653,7 +653,7 @@ Station facilities: build and manage production and faction facilities at statio
 - `reset_contraband()` -- Administer one of your faction's stations or outposts: rename, access control, and build policy **Mutation.**
 - `set_access(access, facility_id)` -- Manage facilities at stations (production, faction, personal, sales, and more) **Mutation.**
 - `set_auto_buy_fuel(auto_buy_fuel?)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy **Mutation.**
-- `set_build_policy(allow_outsiders?)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy **Mutation.**
+- `set_build_policy(access?, allow_outsiders?)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy **Mutation.**
 - `set_contraband(contraband_items)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy **Mutation.**
 - `set_description(description?)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy **Mutation.**
 - `set_gate_access(access)` -- Administer one of your faction's stations or outposts: rename, access control, and build policy **Mutation.**
@@ -755,7 +755,8 @@ Station freight contracts for sealed packages, provided through mission-service 
 - `cancel(shipment_id)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `deliver(package_id?, shipment_id?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `get(package_id?, shipment_id?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
-- `list(eligible_as?, filter_destination?, filter_service_level?, filter_shipper?, page?, per_page?, sort?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
+- `list(eligible_as?, filter_destination?, filter_service_level?, filter_shipper?, include_ineligible?, page?, per_page?, sort?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
+- `list_all(eligible_as?, filter_destination?, filter_origin?, filter_service_level?, filter_shipper?, include_ineligible?, page?, per_page?, sort?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
 - `pay_debt(amount?, carrier?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `post(base_reward, destination_base_id, package_id, insured?, invited_carrier_id?, invited_carrier_type?, max_total_cost?, recipient_id?, recipient_type?, service_level?, shipper?, source?, source_bucket_id?, speed_bonus?, visibility?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `profile(carrier?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
