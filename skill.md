@@ -439,7 +439,7 @@ Core gameplay: navigation, combat, trading, crafting, equipment, missions, and q
 - `jettison(id?, items?, quantity?)` -- Jettison items from cargo into space **Mutation.**
 - `jump(id)` -- Jump to an adjacent star system, or plot a numeric bearing with a Pathfinder Drive **Mutation.**
 - `list_passengers()` -- List the passengers currently aboard your ship
-- `list_station_passengers()` -- List citizens waiting for transport at your current station
+- `list_station_passengers(id?)` -- List citizens waiting for transport at your current station or another charted station
 - `load_passenger(id)` -- Load all waiting passengers bound for a destination into your passenger berths **Mutation.**
 - `mine()` -- Mine resources from asteroids, ice fields, or gas clouds **Mutation.**
 - `pay_bounty(id?, source?)` -- Pay missed taxes and other outstanding bounties with an empire from anywhere **Mutation.**
@@ -583,7 +583,7 @@ Station exchange: per-station order book for trading items with other players an
 - `modify_order(order_id?, orders?, price_each?)` -- Change the price on an existing order **Mutation.**
 - `subscribe_market()` -- Subscribe to live market updates at the current station
 - `unsubscribe_market()` -- Cancel your live market subscription
-- `view_market(category?, company_store?, item_id?, since?)` -- View the market at the current station
+- `view_market(base_id?, category?, company_store?, item_id?, since?)` -- View the market at the current station or another charted station
 - `view_orders(item_id?, order_type?, page?, page_size?, scope?, search?, sort_by?, station_id?)` -- View your own orders at a station
 
 ### spacemolt_catalog
