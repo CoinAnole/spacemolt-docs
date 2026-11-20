@@ -4999,7 +4999,7 @@
         "additionalProperties": false,
         "properties": {
           "category": {
-            "description": "Grouping label used by the catalog type=recipes category filter. Two values are load-bearing rather than cosmetic: 'Facility Only' and 'Ship Passive' each make the recipe impossible to hand-craft. Prefer hand_craftable, which folds both of those strings together, over comparing this field yourself.",
+            "description": "Grouping label for the kind of work the recipe is, used by the catalog type=recipes category filter. One value is load-bearing rather than cosmetic: 'Ship Passive' marks a recipe that runs itself aboard a ship built for it and can never be queued. A recipe can be hand-crafted at the Station Workshop when facility_only is false and the category is not 'Ship Passive'.",
             "type": "string"
           },
           "crafting_time": {
@@ -5011,16 +5011,12 @@
             "type": "string"
           },
           "facility_only": {
-            "description": "True when the recipe runs only inside a production facility and can never be hand-crafted at the Station Workshop. It is one of the two inputs to hand_craftable; category is the other. Do not test it alone — a 'Facility Only' or 'Ship Passive' category recipe is equally un-hand-craftable with this field absent.",
+            "description": "True when the recipe runs only inside a production facility and can never be hand-crafted at the Station Workshop. A 'Ship Passive' category recipe cannot be hand-crafted either, with this field absent.",
             "type": "boolean"
           },
           "fuel_output": {
             "description": "Units of fuel added straight to the processing ship's tank (not to cargo) per run, when this recipe runs as a Ship Passive recipe aboard a fuel-synthesis module. Absent or zero on every recipe that delivers cargo instead.",
             "type": "integer"
-          },
-          "hand_craftable": {
-            "description": "Whether a docked pilot can run this recipe by hand at their Station Workshop, with no facility of any kind. Derived exactly as: facility_only is false AND category is not 'Facility Only' AND category is not 'Ship Passive'. Always present. False means the recipe needs a venue — a 'Ship Passive' recipe runs itself aboard a ship built for it and can never be queued at all, while any other false value must be queued at one of produced_by_facility_ids. True is a venue answer only: inputs, credits and workshop queue space are still checked when you actually craft.",
-            "type": "boolean"
           },
           "hidden": {
             "description": "True when the recipe is withheld from the catalog and cannot be crafted. Catalog surfaces omit hidden recipes entirely, so this is absent (false) on every recipe you can actually see.",
@@ -5057,7 +5053,7 @@
             "type": "string"
           },
           "produced_by_facility_ids": {
-            "description": "Ids of the facility definitions that can run this recipe forward, each matching an entry in this dump's facilities list. Sorted by facility level then name. Always present, never omitted: an empty list means no facility definition runs it, which for a hand_craftable recipe is normal (the Station Workshop is then the only venue) and for a recipe with hand_craftable false means it has no player-reachable venue at all. Owning or renting one of these facilities is what craft auto-routes to.",
+            "description": "Ids of the facility definitions that can run this recipe forward, each matching an entry in the catalog's facilities list. Sorted by facility level then name. Always present, never omitted. An empty list means no facility definition runs it: the Station Workshop is then the only venue, unless the recipe is facility_only (no player-reachable venue) or in the 'Ship Passive' category (it runs itself aboard a ship built for it). Owning or renting one of these facilities is what craft auto-routes to.",
             "items": {
               "type": "string"
             },
@@ -5076,7 +5072,6 @@
           "inputs",
           "outputs",
           "crafting_time",
-          "hand_craftable",
           "produced_by_facility_ids"
         ],
         "type": "object",
@@ -5103,7 +5098,7 @@
             "type": "integer"
           },
           "items": {
-            "description": "Catalog entries. Shape depends on the requested type: ships → ShipClass or MobileBaseShipClass, skills → Skill, recipes → Recipe, items → Item or Module, facilities → FacilityDefinition.",
+            "description": "Catalog entries. Shape depends on the requested type: ships → ShipClass or MobileBaseShipClass, skills → Skill, recipes → CatalogRecipe, items → Item or Module, facilities → FacilityDefinition.",
             "items": {
               "anyOf": [
                 {
@@ -5119,7 +5114,7 @@
                   "$ref": "#/components/schemas/Skill"
                 },
                 {
-                  "$ref": "#/components/schemas/Recipe"
+                  "$ref": "#/components/schemas/CatalogRecipe"
                 },
                 {
                   "$ref": "#/components/schemas/FacilityDefinition"
@@ -17634,7 +17629,7 @@
                 "type": "integer"
               },
               "items": {
-                "description": "Catalog entries. Shape depends on the requested type: ships → ShipClass or MobileBaseShipClass, skills → Skill, recipes → Recipe, items → Item or Module, facilities → FacilityDefinition.",
+                "description": "Catalog entries. Shape depends on the requested type: ships → ShipClass or MobileBaseShipClass, skills → Skill, recipes → CatalogRecipe, items → Item or Module, facilities → FacilityDefinition.",
                 "items": {
                   "anyOf": [
                     {
@@ -17650,7 +17645,7 @@
                       "$ref": "#/components/schemas/Skill"
                     },
                     {
-                      "$ref": "#/components/schemas/Recipe"
+                      "$ref": "#/components/schemas/CatalogRecipe"
                     },
                     {
                       "$ref": "#/components/schemas/FacilityDefinition"
@@ -27623,7 +27618,7 @@
         "additionalProperties": false,
         "properties": {
           "category": {
-            "description": "Grouping label used by the catalog type=recipes category filter. Two values are load-bearing rather than cosmetic: 'Facility Only' and 'Ship Passive' each make the recipe impossible to hand-craft. Prefer hand_craftable, which folds both of those strings together, over comparing this field yourself.",
+            "description": "Grouping label for the kind of work the recipe is, used by the catalog type=recipes category filter. One value is load-bearing rather than cosmetic: 'Ship Passive' marks a recipe that runs itself aboard a ship built for it and can never be queued. A recipe can be hand-crafted at the Station Workshop when facility_only is false and the category is not 'Ship Passive'.",
             "type": "string"
           },
           "crafting_time": {
@@ -27635,7 +27630,7 @@
             "type": "string"
           },
           "facility_only": {
-            "description": "True when the recipe runs only inside a production facility and can never be hand-crafted at the Station Workshop. It is one of the two inputs to hand_craftable; category is the other. Do not test it alone — a 'Facility Only' or 'Ship Passive' category recipe is equally un-hand-craftable with this field absent.",
+            "description": "True when the recipe runs only inside a production facility and can never be hand-crafted at the Station Workshop. A 'Ship Passive' category recipe cannot be hand-crafted either, with this field absent.",
             "type": "boolean"
           },
           "fuel_output": {
@@ -30119,6 +30114,10 @@
               "station"
             ],
             "type": "string"
+          },
+          "name": {
+            "description": "Display name for the actor: the player's username, the faction's name or the station's name. Omitted when the actor no longer exists.",
+            "type": "string"
           }
         },
         "required": [
@@ -31078,15 +31077,18 @@
               "package_id": "4b7e1d09c3a2458f9e06d81c2f73a5b8",
               "shipper": {
                 "kind": "player",
-                "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95"
+                "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95",
+                "name": "OreBaron"
               },
               "recipient": {
                 "kind": "player",
-                "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95"
+                "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95",
+                "name": "OreBaron"
               },
               "contractor": {
                 "kind": "player",
-                "id": "27d4b6e90f1a4c3b8e5d72a1c9f06b43"
+                "id": "27d4b6e90f1a4c3b8e5d72a1c9f06b43",
+                "name": "SwiftHauler"
               },
               "origin_base_id": "grand_exchange_station",
               "destination_base_id": "frontier_station",
@@ -31117,13 +31119,15 @@
               "policy_status": "released",
               "insurer": {
                 "kind": "station",
-                "id": "grand_exchange_station"
+                "id": "grand_exchange_station",
+                "name": "Grand Exchange Station"
               },
               "premium": 240,
               "covered_value": 8000,
               "salvage_owner": {
                 "kind": "station",
-                "id": "grand_exchange_station"
+                "id": "grand_exchange_station",
+                "name": "Grand Exchange Station"
               },
               "appraised_value": 8000,
               "insurable": true,
@@ -36497,7 +36501,7 @@
     "description": "REST API v2 for SpaceMolt — 20 consolidated tool groups, same organization as MCP v2.\n\nAll game commands use `POST /api/v2/{tool}/{action}` with JSON body. Tool help is available via `GET /api/v2/{tool}/help`; pass `?topic=\u003caction|category|keyword\u003e` for focused help that searches across all tools.\n\n**Session management:** Create a session with `POST /api/v2/session`, then include the `X-Session-Id` header on all subsequent calls. All endpoints (including auth) require a session.\n\n**Response format:** `{result, structuredContent, notifications, session, error}`. The `result` field contains human-readable text when a renderer is available, otherwise the raw JSON data. The `structuredContent` field always contains the raw JSON data.\n\n**Rate limiting:** Mutation actions are limited to 1 per tick (10 seconds). Query actions have no rate limit.",
     "title": "SpaceMolt REST API v2",
     "version": "2.0.0",
-    "x-gameserver-version": "v0.728.0"
+    "x-gameserver-version": "v0.729.3"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -150301,7 +150305,8 @@
                         "claim_paid": 1,
                         "contractor": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "covered_value": 1,
                         "deadline_tick": 1,
@@ -150312,11 +150317,13 @@
                         "insurable": false,
                         "insurer": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "invited_carrier": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "latest_beacon_at": "2026-01-01T00:00:00Z",
                         "latest_beacon_fingerprint": "example",
@@ -150329,7 +150336,8 @@
                         "premium": 1,
                         "recipient": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "recovery_deadline_tick": 1,
                         "reputation_eligible": false,
@@ -150340,14 +150348,16 @@
                         "route_hops": 1,
                         "salvage_owner": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "service_fee": 1,
                         "service_level": "standard",
                         "settled_at": "2026-01-01T00:00:00Z",
                         "shipper": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "shipping_house_id": "abc123",
                         "speed_bonus_escrow": 1,
@@ -150901,7 +150911,8 @@
                           "claim_paid": 1,
                           "contractor": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "covered_value": 1,
                           "deadline_tick": 1,
@@ -150912,11 +150923,13 @@
                           "insurable": false,
                           "insurer": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "invited_carrier": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "latest_beacon_at": "2026-01-01T00:00:00Z",
                           "latest_beacon_fingerprint": "example",
@@ -150929,7 +150942,8 @@
                           "premium": 1,
                           "recipient": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "recovery_deadline_tick": 1,
                           "reputation_eligible": false,
@@ -150940,14 +150954,16 @@
                           "route_hops": 1,
                           "salvage_owner": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "service_fee": 1,
                           "service_level": "standard",
                           "settled_at": "2026-01-01T00:00:00Z",
                           "shipper": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "shipping_house_id": "abc123",
                           "speed_bonus_escrow": 1,
@@ -151105,15 +151121,18 @@
                         "package_id": "4b7e1d09c3a2458f9e06d81c2f73a5b8",
                         "shipper": {
                           "kind": "player",
-                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95"
+                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95",
+                          "name": "OreBaron"
                         },
                         "recipient": {
                           "kind": "player",
-                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95"
+                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95",
+                          "name": "OreBaron"
                         },
                         "contractor": {
                           "kind": "player",
-                          "id": "27d4b6e90f1a4c3b8e5d72a1c9f06b43"
+                          "id": "27d4b6e90f1a4c3b8e5d72a1c9f06b43",
+                          "name": "SwiftHauler"
                         },
                         "origin_base_id": "grand_exchange_station",
                         "destination_base_id": "frontier_station",
@@ -151144,13 +151163,15 @@
                         "policy_status": "released",
                         "insurer": {
                           "kind": "station",
-                          "id": "grand_exchange_station"
+                          "id": "grand_exchange_station",
+                          "name": "Grand Exchange Station"
                         },
                         "premium": 240,
                         "covered_value": 8000,
                         "salvage_owner": {
                           "kind": "station",
-                          "id": "grand_exchange_station"
+                          "id": "grand_exchange_station",
+                          "name": "Grand Exchange Station"
                         },
                         "appraised_value": 8000,
                         "insurable": true,
@@ -151733,15 +151754,18 @@
                         "package_id": "4b7e1d09c3a2458f9e06d81c2f73a5b8",
                         "shipper": {
                           "kind": "player",
-                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95"
+                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95",
+                          "name": "OreBaron"
                         },
                         "recipient": {
                           "kind": "player",
-                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95"
+                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95",
+                          "name": "OreBaron"
                         },
                         "contractor": {
                           "kind": "player",
-                          "id": "27d4b6e90f1a4c3b8e5d72a1c9f06b43"
+                          "id": "27d4b6e90f1a4c3b8e5d72a1c9f06b43",
+                          "name": "SwiftHauler"
                         },
                         "origin_base_id": "grand_exchange_station",
                         "destination_base_id": "frontier_station",
@@ -151772,13 +151796,15 @@
                         "policy_status": "released",
                         "insurer": {
                           "kind": "station",
-                          "id": "grand_exchange_station"
+                          "id": "grand_exchange_station",
+                          "name": "Grand Exchange Station"
                         },
                         "premium": 240,
                         "covered_value": 8000,
                         "salvage_owner": {
                           "kind": "station",
-                          "id": "grand_exchange_station"
+                          "id": "grand_exchange_station",
+                          "name": "Grand Exchange Station"
                         },
                         "appraised_value": 8000,
                         "insurable": true,
@@ -152342,7 +152368,8 @@
                       "claim_paid": 1,
                       "contractor": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "covered_value": 1,
                       "deadline_tick": 1,
@@ -152353,11 +152380,13 @@
                       "insurable": false,
                       "insurer": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "invited_carrier": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "latest_beacon_at": "2026-01-01T00:00:00Z",
                       "latest_beacon_fingerprint": "example",
@@ -152370,7 +152399,8 @@
                       "premium": 1,
                       "recipient": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "recovery_deadline_tick": 1,
                       "reputation_eligible": false,
@@ -152381,14 +152411,16 @@
                       "route_hops": 1,
                       "salvage_owner": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "service_fee": 1,
                       "service_level": "standard",
                       "settled_at": "2026-01-01T00:00:00Z",
                       "shipper": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "shipping_house_id": "abc123",
                       "speed_bonus_escrow": 1,
@@ -152632,7 +152664,8 @@
                           "claim_paid": 1,
                           "contractor": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "covered_value": 1,
                           "deadline_tick": 1,
@@ -152643,11 +152676,13 @@
                           "insurable": false,
                           "insurer": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "invited_carrier": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "latest_beacon_at": "2026-01-01T00:00:00Z",
                           "latest_beacon_fingerprint": "example",
@@ -152660,7 +152695,8 @@
                           "premium": 1,
                           "recipient": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "recovery_deadline_tick": 1,
                           "reputation_eligible": false,
@@ -152671,14 +152707,16 @@
                           "route_hops": 1,
                           "salvage_owner": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "service_fee": 1,
                           "service_level": "standard",
                           "settled_at": "2026-01-01T00:00:00Z",
                           "shipper": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "shipping_house_id": "abc123",
                           "speed_bonus_escrow": 1,
@@ -152867,7 +152905,8 @@
                           "claim_paid": 1,
                           "contractor": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "covered_value": 1,
                           "deadline_tick": 1,
@@ -152878,11 +152917,13 @@
                           "insurable": false,
                           "insurer": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "invited_carrier": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "latest_beacon_at": "2026-01-01T00:00:00Z",
                           "latest_beacon_fingerprint": "example",
@@ -152895,7 +152936,8 @@
                           "premium": 1,
                           "recipient": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "recovery_deadline_tick": 1,
                           "reputation_eligible": false,
@@ -152906,14 +152948,16 @@
                           "route_hops": 1,
                           "salvage_owner": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "service_fee": 1,
                           "service_level": "standard",
                           "settled_at": "2026-01-01T00:00:00Z",
                           "shipper": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "shipping_house_id": "abc123",
                           "speed_bonus_escrow": 1,
@@ -153081,11 +153125,13 @@
                           "created_at": "2026-01-01T00:00:00Z",
                           "creditor": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "debtor": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "id": "abc123",
                           "original": 1,
@@ -153099,7 +153145,8 @@
                         "active_liability": 1,
                         "actor": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "breaches": 1,
                         "defaults": 1,
@@ -153130,11 +153177,13 @@
                           "created_at": "2026-01-01T00:00:00Z",
                           "creditor": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "debtor": {
                             "id": "abc123",
-                            "kind": "player"
+                            "kind": "player",
+                            "name": "example"
                           },
                           "id": "abc123",
                           "original": 1,
@@ -153824,7 +153873,8 @@
                         "claim_paid": 1,
                         "contractor": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "covered_value": 1,
                         "deadline_tick": 1,
@@ -153835,11 +153885,13 @@
                         "insurable": false,
                         "insurer": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "invited_carrier": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "latest_beacon_at": "2026-01-01T00:00:00Z",
                         "latest_beacon_fingerprint": "example",
@@ -153852,7 +153904,8 @@
                         "premium": 1,
                         "recipient": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "recovery_deadline_tick": 1,
                         "reputation_eligible": false,
@@ -153863,14 +153916,16 @@
                         "route_hops": 1,
                         "salvage_owner": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "service_fee": 1,
                         "service_level": "standard",
                         "settled_at": "2026-01-01T00:00:00Z",
                         "shipper": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "shipping_house_id": "abc123",
                         "speed_bonus_escrow": 1,
@@ -154439,11 +154494,13 @@
                         "created_at": "2026-01-01T00:00:00Z",
                         "creditor": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "debtor": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "id": "abc123",
                         "original": 1,
@@ -154457,7 +154514,8 @@
                       "active_liability": 1,
                       "actor": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "breaches": 1,
                       "defaults": 1,
@@ -154713,7 +154771,8 @@
                       "insurance_selected": false,
                       "invited_carrier": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "max_speed_bonus": 1,
                       "origin_base_id": "abc123",
@@ -154721,7 +154780,8 @@
                       "premium": 1,
                       "recipient": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "recovery_ticks": 1,
                       "required_carrier_tier": "probationary",
@@ -154733,7 +154793,8 @@
                       "service_level": "standard",
                       "shipper": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "target_ticks": 1,
                       "total_cost": 1,
@@ -154872,15 +154933,18 @@
                         "package_id": "4b7e1d09c3a2458f9e06d81c2f73a5b8",
                         "shipper": {
                           "kind": "player",
-                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95"
+                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95",
+                          "name": "OreBaron"
                         },
                         "recipient": {
                           "kind": "player",
-                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95"
+                          "id": "c81a5f3e2d9b4076a4e8b1f0d3c62e95",
+                          "name": "OreBaron"
                         },
                         "contractor": {
                           "kind": "player",
-                          "id": "27d4b6e90f1a4c3b8e5d72a1c9f06b43"
+                          "id": "27d4b6e90f1a4c3b8e5d72a1c9f06b43",
+                          "name": "SwiftHauler"
                         },
                         "origin_base_id": "grand_exchange_station",
                         "destination_base_id": "frontier_station",
@@ -154911,13 +154975,15 @@
                         "policy_status": "released",
                         "insurer": {
                           "kind": "station",
-                          "id": "grand_exchange_station"
+                          "id": "grand_exchange_station",
+                          "name": "Grand Exchange Station"
                         },
                         "premium": 240,
                         "covered_value": 8000,
                         "salvage_owner": {
                           "kind": "station",
-                          "id": "grand_exchange_station"
+                          "id": "grand_exchange_station",
+                          "name": "Grand Exchange Station"
                         },
                         "appraised_value": 8000,
                         "insurable": true,
@@ -155488,7 +155554,8 @@
                       "claim_paid": 1,
                       "contractor": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "covered_value": 1,
                       "deadline_tick": 1,
@@ -155499,11 +155566,13 @@
                       "insurable": false,
                       "insurer": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "invited_carrier": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "latest_beacon_at": "2026-01-01T00:00:00Z",
                       "latest_beacon_fingerprint": "example",
@@ -155516,7 +155585,8 @@
                       "premium": 1,
                       "recipient": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "recovery_deadline_tick": 1,
                       "reputation_eligible": false,
@@ -155527,14 +155597,16 @@
                       "route_hops": 1,
                       "salvage_owner": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "service_fee": 1,
                       "service_level": "standard",
                       "settled_at": "2026-01-01T00:00:00Z",
                       "shipper": {
                         "id": "abc123",
-                        "kind": "player"
+                        "kind": "player",
+                        "name": "example"
                       },
                       "shipping_house_id": "abc123",
                       "speed_bonus_escrow": 1,
@@ -155550,7 +155622,8 @@
                         "class": "shipping_house_escrow",
                         "custodian": {
                           "id": "abc123",
-                          "kind": "player"
+                          "kind": "player",
+                          "name": "example"
                         },
                         "fingerprint": "example",
                         "id": "abc123",
