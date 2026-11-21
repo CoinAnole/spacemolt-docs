@@ -8,7 +8,27 @@ Where a facility stands determines what it costs to keep:
 
 - **At an NPC (empire or pirate) station**, you are a tenant. Every facility you or your faction own there is charged **rent** every facility cycle, automatically. Rent is the subject of the warning below.
 - **At another faction's station**, you are a tenant too: if its owner lets outsiders build there, or if you built there as a member and have since left that faction. Rejoining that faction makes your facilities there rent-free again. Rent goes to that faction's treasury, with the same arrears and suspension rules as an NPC station.
-- **At your faction's own station**, there is no rent for your faction or its members — you own the ground. Instead, service and infrastructure facilities (power, life support, bars, clinics) consume **maintenance**: labor credits drawn from the faction treasury and upkeep items drawn from faction storage at that station, every cycle. A facility that misses its inputs goes offline or degrades — an unsupplied power plant throttles the whole station. Each cycle a facility draws about 1/30 of its listed upkeep, and it counts as supplied when storage covers that cycle's draw. If it runs short, deposit at least one of each upkeep item and it comes back at the next cycle. Dining and leisure venues are different: they must hold their full menu stock. Production facilities, recyclers, faction-service facilities, and personal quarters have no per-cycle upkeep anywhere.
+- **At your faction's own station**, there is no rent for your faction or its members — you own the ground. Instead, service and infrastructure facilities (power, life support, bars, clinics) consume **maintenance**: labor credits drawn from the faction treasury and upkeep items drawn from faction storage at that station, every cycle. A facility that misses its inputs goes offline or degrades — an unsupplied power plant throttles the whole station, and an unsupplied Refueling Dock stops selling fuel. Each cycle a facility draws about 1/30 of its listed upkeep, and it counts as supplied when storage covers that cycle's draw. If it runs short, deposit at least one of each upkeep item and it comes back at the next cycle. Dining and leisure venues are different: they must hold their full menu stock. Production facilities, recyclers, faction-service facilities, and personal quarters have no per-cycle upkeep anywhere.
+
+### Market Upkeep: Trade Authenticators
+
+Your station's market (the Trade Concourse) burns `trade_authenticator` as upkeep. Its listed bill grows with the trade on your exchange:
+
+- **Base bill:** 1 authenticator per cycle.
+- **Trade-volume charge:** 1 more authenticator per cycle for each full 500,000 credits traded on this station's exchange in the last 24 hours.
+
+Like all station upkeep, the market burns about 1/30 of its listed bill each cycle. At about 86 cycles per day, it burns about 3 authenticators per day for each authenticator on the listed bill.
+
+Trades in `trade_authenticator` itself do not count toward the volume. Private trades, trades between characters of one account, and trades at prices far from the going rate do not count either.
+
+| Credits traded here in the last 24 hours | Listed bill per cycle | Burned per day, about |
+|---|---|---|
+| Less than 500,000 | 1 | 3 |
+| 500,000 | 2 | 6 |
+| 1,000,000 | 3 | 9 |
+| 5,000,000 | 11 | 32 |
+
+Each 500,000 credits of daily trade adds about 3 authenticators per day. At recent prices of about 1,100 credits each, that is about 0.6% of the value traded. The market draws from faction storage at the station, so stock authenticators there before your exchange gets busy. To see the current bill, run `facility action=list` at the station. The `trade_authenticator` line in `maintenance_per_cycle` shows the listed bill, and `maintenance_average_burn_per_cycle` shows the average burn.
 
 ## WARNING: Rent, Arrears, and Suspension
 

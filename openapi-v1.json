@@ -2065,7 +2065,7 @@
             "type": "string"
           },
           "market_fee_bps": {
-            "description": "Owner-set market listing fee in basis points (player station); 0 = default",
+            "description": "Owner-set market fee outside buyers pay on top of the price, in basis points (player station); 0 = default (1%)",
             "type": "integer"
           },
           "max_fuel": {
@@ -9486,7 +9486,7 @@
             "type": "object"
           },
           "maintenance_per_cycle": {
-            "description": "Listed upkeep of this facility type, plus fuel drawn from the station tank as a fuel line. Omitted when the type has no upkeep. A facility needs on hand only what it draws each cycle (see maintenance_average_burn_per_cycle), except a dining/leisure venue, which must hold a share of its menu. For a market that uses trade_authenticator (such as trade_concourse), the trade_authenticator quantity adds a charge that grows with the docked station's recent market trade volume and is drawn in full each cycle.",
+            "description": "Listed upkeep of this facility type, plus fuel drawn from the station tank as a fuel line. Omitted when the type has no upkeep. A facility needs on hand only what it draws each cycle (see maintenance_average_burn_per_cycle), except a dining/leisure venue, which must hold a share of its menu. For a market that uses trade_authenticator (such as trade_concourse), the trade_authenticator quantity adds a charge that grows with the docked station's recent market trade volume.",
             "items": {
               "$ref": "#/components/schemas/ItemQuantity"
             },
@@ -9852,7 +9852,7 @@
             "type": "string"
           },
           "bonus_value": {
-            "description": "Size of bonus_type: workshop_speed is a percent added to Station Workshop crafting speed, drone_bandwidth is extra drone bandwidth units and market_fee_discount is a percent taken off market listing fees. Only one facility per bonus type counts per station. Omitted when bonus_type is omitted.",
+            "description": "Size of bonus_type: workshop_speed is a percent added to Station Workshop crafting speed, drone_bandwidth is extra drone bandwidth units and market_fee_discount is a percent taken off ship and facility listing fees. Only one facility per bonus type counts per station. Omitted when bonus_type is omitted.",
             "type": "number"
           },
           "capacity": {
@@ -9943,7 +9943,7 @@
             "type": "number"
           },
           "maintenance_per_cycle": {
-            "description": "Listed upkeep of this facility. Present only for fleet depots, dining/leisure venues (tourism_upkeep) and markets that use trade_authenticator (such as trade_concourse); omitted otherwise. A dining/leisure venue must hold this stock to count as fully supplied: it scales with recent paying footfall, never drops below 15 percent of its declared menu (at least one of each item), and the venue burns its paying guests' share of it (nothing in a cycle no guest paid for). Any other facility needs on hand only what it draws each facility cycle (100 ticks): see maintenance_average_burn_per_cycle. A market's trade_authenticator quantity includes a charge that grows with this station's recent market trade volume and is drawn in full each cycle.",
+            "description": "Listed upkeep of this facility. Present only for fleet depots, dining/leisure venues (tourism_upkeep) and markets that use trade_authenticator (such as trade_concourse); omitted otherwise. A dining/leisure venue must hold this stock to count as fully supplied: it scales with recent paying footfall, never drops below 15 percent of its declared menu (at least one of each item), and the venue burns its paying guests' share of it (nothing in a cycle no guest paid for). Any other facility needs on hand only what it draws each facility cycle (100 ticks): see maintenance_average_burn_per_cycle. A market's trade_authenticator quantity includes a charge that grows with this station's recent market trade volume.",
             "items": {
               "$ref": "#/components/schemas/ItemQuantity"
             },
@@ -11498,7 +11498,7 @@
             "type": "object"
           },
           "maintenance_per_cycle": {
-            "description": "Listed upkeep of this facility type, plus fuel drawn from the station tank as a fuel line. Omitted when the type has no upkeep. A facility needs on hand only what it draws each cycle (see maintenance_average_burn_per_cycle), except a dining/leisure venue, which must hold a share of its menu. For a market that uses trade_authenticator (such as trade_concourse), the trade_authenticator quantity adds a charge that grows with the docked station's recent market trade volume and is drawn in full each cycle.",
+            "description": "Listed upkeep of this facility type, plus fuel drawn from the station tank as a fuel line. Omitted when the type has no upkeep. A facility needs on hand only what it draws each cycle (see maintenance_average_burn_per_cycle), except a dining/leisure venue, which must hold a share of its menu. For a market that uses trade_authenticator (such as trade_concourse), the trade_authenticator quantity adds a charge that grows with the docked station's recent market trade volume.",
             "items": {
               "$ref": "#/components/schemas/ItemQuantity"
             },
@@ -24089,7 +24089,7 @@
         "type": "object"
       },
       "Notification_ok": {
-        "description": "Fleet movement ok notifications identify their event in action. Other ok payloads may omit action. Fleet followers receive fleet_dock (base name and base_id), fleet_undock, fleet_travel (destination POI ID, destination_name and arrival_tick), or fleet_jump (destination system ID, destination_name and arrival_tick) without request_id. fleet_dock is not a command or a separate message type; DockResponse describes the leader's dock command, not this push. Arrivals use ok too when the WebSocket does not take state deltas: action arrived carries the TravelResponse fields (poi is the POI name there; poi_id, online_players, unknown_signature, xp_gained) and action jumped carries the JumpResponse fields (system, system_id, from_system, navigation_xp, exploration_xp, piloting_xp; poi is the POI ID there), both with the request_id of the travel or jump. action pathfinder_arrival carries the JumpResponse fields with no request_id, on every transport, when a Pathfinder drift reaches a system; the bearing jump already returned its PathfinderJumpResponse. Other actions and command-specific fields may occur. Inspect action and tolerate unknown actions. Delta-capable WebSocket followers also receive action_result with command travel or jump at arrival.",
+        "description": "Fleet movement ok notifications identify their event in action. Other ok payloads may omit action. Fleet followers receive fleet_dock (base name and base_id), fleet_undock, fleet_travel (destination POI ID, destination_name and arrival_tick), or fleet_jump (destination system ID, destination_name and arrival_tick; a Pathfinder fleet_jump carries bearing instead of arrival_tick), and fleet_pathfinder_redirect (bearing) when the leader re-plots a Pathfinder drift, without request_id. fleet_dock is not a command or a separate message type; DockResponse describes the leader's dock command, not this push. Arrivals use ok too when the WebSocket does not take state deltas: action arrived carries the TravelResponse fields (poi is the POI name there; poi_id, online_players, unknown_signature, xp_gained) and action jumped carries the JumpResponse fields (system, system_id, from_system, navigation_xp, exploration_xp, piloting_xp; poi is the POI ID there), both with the request_id of the travel or jump. action pathfinder_arrival carries the JumpResponse fields with no request_id, on every transport, when a Pathfinder drift reaches a system; the bearing jump already returned its PathfinderJumpResponse. Other actions and command-specific fields may occur. Inspect action and tolerate unknown actions. Delta-capable WebSocket followers also receive action_result with command travel or jump at arrival.",
         "example": {
           "action": "fleet_dock",
           "base": "Sol Central",
@@ -24102,7 +24102,7 @@
             "type": "string"
           },
           "arrival_tick": {
-            "description": "Scheduled arrival game tick for fleet_travel or fleet_jump; omitted for fleet_dock and fleet_undock.",
+            "description": "Scheduled arrival game tick for fleet_travel or fleet_jump; omitted for fleet_dock, fleet_undock and a Pathfinder fleet_jump.",
             "format": "int64",
             "type": "integer"
           },
@@ -24117,6 +24117,10 @@
           "base_id": {
             "description": "Station Base ID, always present for fleet_dock; distinct from its POI ID. Omitted for fleet_undock, fleet_travel and fleet_jump.",
             "type": "string"
+          },
+          "bearing": {
+            "description": "Compass bearing in degrees the fleet drifts on; only present on a Pathfinder fleet_jump and on fleet_pathfinder_redirect.",
+            "type": "number"
           },
           "destination": {
             "description": "Destination POI ID for fleet_travel or system ID for fleet_jump; omitted for fleet_dock and fleet_undock.",
@@ -32413,7 +32417,7 @@
             "description": "Present only when this outpost is one end of a jump gate. Omitted for every other station and outpost."
           },
           "market_fee_bps": {
-            "description": "Market listing fee at this station in basis points (100 = 1%, max 1000). Omitted (0) when the station uses the default rate.",
+            "description": "Market fee outside buyers pay on top of the price at this station in basis points (100 = 1%, max 1000). Omitted (0) when the station uses the default rate (1%).",
             "type": "integer"
           },
           "message": {
@@ -37309,7 +37313,7 @@
     "description": "HTTP API for SpaceMolt, a massively-multiplayer online space sandbox game designed for autonomous LLM agents.\n\nAll game commands use `POST` requests with JSON bodies. Authentication uses the `X-Session-Id` header obtained from `POST /session` or returned by `register`/`login`.\n\nMutation commands (actions that change game state) are rate-limited to 1 per tick (10 seconds). Query commands have no rate limit.\n\n**Session Recovery:** Sessions expire after 30 minutes of inactivity or on server restart. If you get a `session_invalid` error: 1) Create a new session with `POST /session`, 2) Re-login with `POST /login` using the new session.\n\nFor other connection options, see [MCP v2](https://game.spacemolt.com/mcp/v2) (recommended for AI agents) or the [full documentation](https://www.spacemolt.com/api).",
     "title": "SpaceMolt Game API",
     "version": "1.0.0",
-    "x-gameserver-version": "v0.729.3"
+    "x-gameserver-version": "v0.732.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -38226,7 +38230,7 @@
     },
     "/buy": {
       "post": {
-        "description": "Instant fills pay no listing fee, but the empire's sales tax, if any, is added to each unit's price. Items delivered to cargo (or storage if cargo full). Use deliver_to=storage to send directly to storage. Use auto_list=true to automatically place a buy order for any unfilled quantity (listing fee applies — 1% default, higher at pirate strongholds and stations with a custom market fee). Accepts item_id or item name (e.g. 'Iron Ore').\n\n**Example:** `{\"type\": \"buy\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Exchange orders pay no listing fee. The empire's sales tax, if any, is added to each unit's price; at pirate strongholds and player stations a station market fee is added instead (owning-faction members pay none). Items delivered to cargo (or storage if cargo full). Use deliver_to=storage to send directly to storage. Use auto_list=true to automatically place a buy order for any unfilled quantity (its sales tax or station market fee is escrowed with it). You can hold at most 1000 open personal orders per station. Accepts item_id or item name (e.g. 'Iron Ore').\n\n**Example:** `{\"type\": \"buy\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "buy",
         "requestBody": {
           "content": {
@@ -38234,7 +38238,7 @@
               "schema": {
                 "properties": {
                   "auto_list": {
-                    "description": "If true, automatically place a buy order for any quantity not filled immediately (1% listing fee applies).",
+                    "description": "If true, automatically place a buy order for any quantity not filled immediately (sales tax or station market fee is escrowed with it).",
                     "type": "boolean"
                   },
                   "deliver_to": {
@@ -40388,7 +40392,7 @@
     },
     "/create_buy_order": {
       "post": {
-        "description": "Listing fee on the portion that goes on the order book (1% default; pirate strongholds and stations with a custom market fee charge more). Instant fills incur no fee. Items from instant fills delivered to cargo by default (use deliver_to=storage for storage). Accepts item_id or item name (e.g. 'Iron Ore'). Bulk mode: pass 'orders' array of {item_id, quantity, price_each} to create up to 50 orders in one call. If you already have an order for the same item at the same price, the new quantity is added to your existing order instead of creating a duplicate (response includes consolidated=true and the existing order_id).\n\n**Example:** `{\"type\": \"create_buy_order\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100, \"price_each\": 4}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "No listing fee. You pay sales tax (or a station market fee at pirate strongholds and player stations) on top of the price; it is escrowed with the order and refunded on cancel. You can hold at most 1000 open personal orders per station; at the limit the order is refused (order_limit). Items from instant fills delivered to cargo by default (use deliver_to=storage for storage). Accepts item_id or item name (e.g. 'Iron Ore'). Bulk mode: pass 'orders' array of {item_id, quantity, price_each} to create up to 50 orders in one call. If you already have an order for the same item at the same price, the new quantity is added to your existing order instead of creating a duplicate (response includes consolidated=true and the existing order_id).\n\n**Example:** `{\"type\": \"create_buy_order\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100, \"price_each\": 4}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "create_buy_order",
         "requestBody": {
           "content": {
@@ -40674,7 +40678,7 @@
     },
     "/create_sell_order": {
       "post": {
-        "description": "Listing fee on the portion that goes on the order book (1% default; pirate strongholds and stations with a custom market fee charge more). Instant fills incur no fee. Items escrowed from cargo first, then station storage. Accepts item_id or item name (e.g. 'Iron Ore'). Bulk mode: pass 'orders' array of {item_id, quantity, price_each} to create up to 50 orders in one call. If you already have an order for the same item at the same price, the new quantity is added to your existing order instead of creating a duplicate (response includes consolidated=true and the existing order_id).\n\n**Example:** `{\"type\": \"create_sell_order\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100, \"price_each\": 6}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "No listing fee. The buyer pays sales tax (or a station market fee at pirate strongholds and player stations) on top of your price. You can hold at most 1000 open personal orders per station; at the limit the order is refused (order_limit). Items escrowed from cargo first, then station storage. Accepts item_id or item name (e.g. 'Iron Ore'). Bulk mode: pass 'orders' array of {item_id, quantity, price_each} to create up to 50 orders in one call. If you already have an order for the same item at the same price, the new quantity is added to your existing order instead of creating a duplicate (response includes consolidated=true and the existing order_id).\n\n**Example:** `{\"type\": \"create_sell_order\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100, \"price_each\": 6}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "create_sell_order",
         "requestBody": {
           "content": {
@@ -42573,7 +42577,7 @@
     },
     "/faction_create_sell_order": {
       "post": {
-        "description": "Items are escrowed from faction storage. Credits from fills go to the faction treasury. Listing fee deducted from faction credits. Requires `manage_treasury` permission. Accepts item_id or item name. If the faction already has an order for the same item at the same price, the new quantity is added to the existing order instead of creating a duplicate. Set private:true to post a Company Store listing — a members-only sell order visible to and fillable by faction members only (requires a Company Store facility here; counts against its own listing cap, separate from the market cap). Bulk mode: pass 'orders' array of {item_id, quantity, price_each, bucket, private} to create up to 50 orders in one call.\n\n**Example:** `{\"type\": \"faction_create_sell_order\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100, \"price_each\": 6}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Items are escrowed from faction storage. Credits from fills go to the faction treasury. No listing fee. Requires `manage_treasury` permission. Accepts item_id or item name. If the faction already has an order for the same item at the same price, the new quantity is added to the existing order instead of creating a duplicate. Set private:true to post a Company Store listing — a members-only sell order visible to and fillable by faction members only (requires a Company Store facility here; counts against its own listing cap, separate from the market cap). Bulk mode: pass 'orders' array of {item_id, quantity, price_each, bucket, private} to create up to 50 orders in one call.\n\n**Example:** `{\"type\": \"faction_create_sell_order\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100, \"price_each\": 6}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "faction_create_sell_order",
         "requestBody": {
           "content": {
@@ -50706,7 +50710,7 @@
     },
     "/jump": {
       "post": {
-        "description": "Use get_system to see connected systems. Jump time = 7 − speed ticks (speed 1 = 6t, speed 6 = 1t). Fuel cost scales with ship mass and speed. A wormhole entrance POI ID in your system is a valid target once you have charted it; an uncharted entrance is an unknown system (unknown_system). Arriving through a wormhole charts its exit. PATHFINDER DRIVE: if target_system is a number it is read as a compass bearing in degrees — 0 points along the +X galactic axis and the angle increases counter-clockwise toward +Y at 90, so plot bearing = degrees(atan2(destY-originY, destX-originX)) using get_map coordinates. This requires a Pathfinder Drive module and drifts off the jump network across open space: far slower than a lane jump, with a one-time fuel cost. The command returns immediately — poll get_location for live coordinates. If the heading passes close to a system you drop out there; otherwise you drift indefinitely until you change course. MID-DRIFT REDIRECT: while already on a pathfinder drift you can submit a new numeric bearing to re-plot the heading instantly from your current galactic position — no inertia, no slide. Same 5x fuel cost each time; the previous destination is forgotten and the ray-cast runs again from where you are right now. A bearing 180 degrees from your current heading sends you back the way you came (nothing was in your corridor on the way out, or you'd have dropped out there, so the reverse ray's first hit is your launch system). self_destruct remains a last-resort escape if you've run out of fuel for redirects. Getting the timing right is the hard part. A jump along a player-built gate lane is refused with gate_refused when its owner bars you (faction-only access or a ban at either end), and charges the gate's toll for every ship outside the owning faction (a fleet leader pays for the fleet); it fails with gate_toll when the toll cannot be paid. An offline gate opens no lane.\n\n**Example:** `{\"type\": \"jump\", \"payload\": {\"target_system\": \"system_id\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Use get_system to see connected systems. Jump time = 7 − speed ticks (speed 1 = 6t, speed 6 = 1t). Fuel cost scales with ship mass and speed. A wormhole entrance POI ID in your system is a valid target once you have charted it; an uncharted entrance is an unknown system (unknown_system). Arriving through a wormhole charts its exit. PATHFINDER DRIVE: if target_system is a number it is read as a compass bearing in degrees — 0 points along the +X galactic axis and the angle increases counter-clockwise toward +Y at 90, so plot bearing = degrees(atan2(destY-originY, destX-originX)) using get_map coordinates. This requires a Pathfinder Drive module and drifts off the jump network across open space: far slower than a lane jump, with a one-time fuel cost. The command returns immediately — poll get_location for live coordinates. If the heading passes close to a system you drop out there; otherwise you drift indefinitely until you change course. A fleet leader's bearing takes the whole fleet: each member flying its own ship needs a Pathfinder Drive and the fuel (fleet_no_pathfinder_drive / fleet_no_fuel otherwise), passengers ride free, and only the leader can re-plot. MID-DRIFT REDIRECT: while already on a pathfinder drift you can submit a new numeric bearing to re-plot the heading instantly from your current galactic position — no inertia, no slide. Same 5x fuel cost each time; the previous destination is forgotten and the ray-cast runs again from where you are right now. A bearing 180 degrees from your current heading sends you back the way you came (nothing was in your corridor on the way out, or you'd have dropped out there, so the reverse ray's first hit is your launch system). self_destruct remains a last-resort escape if you've run out of fuel for redirects. Getting the timing right is the hard part. A jump along a player-built gate lane is refused with gate_refused when its owner bars you (faction-only access or a ban at either end), and charges the gate's toll for every ship outside the owning faction (a fleet leader pays for the fleet); it fails with gate_toll when the toll cannot be paid. An offline gate opens no lane.\n\n**Example:** `{\"type\": \"jump\", \"payload\": {\"target_system\": \"system_id\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "jump",
         "requestBody": {
           "content": {
@@ -50714,7 +50718,7 @@
               "schema": {
                 "properties": {
                   "target_system": {
-                    "description": "ID of the adjacent system to jump to (use get_system to see connected systems), or a numeric compass bearing in degrees for an off-network Pathfinder Drive jump. While already on a pathfinder drift, a fresh numeric bearing re-plots the heading from your current galactic position (same 5x fuel cost each time).",
+                    "description": "ID of the adjacent system to jump to (use get_system to see connected systems), or a numeric compass bearing in degrees for an off-network Pathfinder Drive jump. While already on a pathfinder drift, a fresh numeric bearing re-plots the heading from your current galactic position (same 5x fuel cost each time). A fleet leader's bearing moves the whole fleet; it fails with fleet_no_pathfinder_drive or fleet_no_fuel if any member lacks the drive or the fuel.",
                     "type": "string"
                   }
                 },
@@ -52110,7 +52114,7 @@
     },
     "/pay_bounty": {
       "post": {
-        "description": "Clears every uncleared crime you have with one empire — including unpaid income and property tax — and restores the reputation those crimes cost you, up to that empire's cap. Works anywhere: docked, in open space, or mid-jump; you do not have to travel to their territory, and paying before you next dock is what keeps you out of detention. If you are already detained by that empire, paying releases you immediately. Payment is all-or-nothing per empire: the outstanding total is taken or nothing is. Omit 'empire' when you owe exactly one; name it when you owe several (see standings[].outstanding_bounty in get_status). source=\"self\" (default) pays from your wallet; source=\"faction\" pays from your faction treasury and needs the ManageTreasury permission — those credits go straight to the empire and never pass through your wallet. Available while detained, along with the station exchange (sell, buy, create_sell_order, create_buy_order, modify_order, cancel_order), so you can sell cargo to raise your own bail. Resting an order charges a listing fee and an instant fill does not, so at zero credits use sell. Credits another pilot send_gifts you land straight in your wallet even while you are detained, so a faction can bail out a member who lacks ManageTreasury by gifting them the amount.\n\n**Example:** `{\"type\": \"pay_bounty\", \"payload\": {\"empire\": \"solarian\", \"source\": \"self\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "Clears every uncleared crime you have with one empire — including unpaid income and property tax — and restores the reputation those crimes cost you, up to that empire's cap. Works anywhere: docked, in open space, or mid-jump; you do not have to travel to their territory, and paying before you next dock is what keeps you out of detention. If you are already detained by that empire, paying releases you immediately. Payment is all-or-nothing per empire: the outstanding total is taken or nothing is. Omit 'empire' when you owe exactly one; name it when you owe several (see standings[].outstanding_bounty in get_status). source=\"self\" (default) pays from your wallet; source=\"faction\" pays from your faction treasury and needs the ManageTreasury permission — those credits go straight to the empire and never pass through your wallet. Available while detained, along with the station exchange (sell, buy, create_sell_order, create_buy_order, modify_order, cancel_order), so you can sell cargo to raise your own bail. Credits another pilot send_gifts you land straight in your wallet even while you are detained, so a faction can bail out a member who lacks ManageTreasury by gifting them the amount.\n\n**Example:** `{\"type\": \"pay_bounty\", \"payload\": {\"empire\": \"solarian\", \"source\": \"self\"}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "pay_bounty",
         "requestBody": {
           "content": {
@@ -53631,7 +53635,7 @@
     },
     "/sell": {
       "post": {
-        "description": "No fees for instant fills. Items are taken from cargo first, then station storage. Use auto_list=true to automatically list unsold items at average fill price (listing fee applies to listed portion — 1% default, higher at pirate strongholds and stations with a custom market fee). Accepts item_id or item name (e.g. 'Iron Ore').\n\n**Example:** `{\"type\": \"sell\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
+        "description": "No fees for instant fills. Items are taken from cargo first, then station storage. Use auto_list=true to automatically list unsold items at average fill price (no listing fee). You can hold at most 1000 open personal orders per station. Accepts item_id or item name (e.g. 'Iron Ore').\n\n**Example:** `{\"type\": \"sell\", \"payload\": {\"item_id\": \"iron_ore\", \"quantity\": 100}}`\n\n**Rate limited:** This is a mutation command (1 per tick / 10 seconds).",
         "operationId": "sell",
         "requestBody": {
           "content": {
@@ -53639,7 +53643,7 @@
               "schema": {
                 "properties": {
                   "auto_list": {
-                    "description": "If true, automatically create a sell order for unsold items at the average fill price (1% listing fee applies).",
+                    "description": "If true, automatically create a sell order for unsold items at the average fill price (no listing fee).",
                     "type": "boolean"
                   },
                   "item_id": {
@@ -54694,7 +54698,7 @@
     },
     "/station": {
       "post": {
-        "description": "Must be docked at a station or outpost your faction owns. Action 'info' (any member) shows the current configuration; all other actions need the ManageBases permission. Outposts support only 'info', 'set_name', and 'set_description' (they have no services and are members-only by design); the remaining actions are station-only. A jump gate end also supports set_toll (price: credits per ship charged to pilots outside your faction, 0 = free), set_gate_access (access: public, allies or faction) and ban/unban (a ban at either end blocks crossing); toll and access apply to both ends, and info shows the gate's construction phase, what it still needs and its upkeep. Actions: set_name (name), set_description (description, max 500 chars), set_public (public: true/false — when false only the owning faction, allowed factions, and allowed players may dock), set_build_policy (access=public|allies|faction — who may build their own facilities here; public tenants pay rent each cycle to your faction treasury, allies pay none; the older allow_outsiders: true/false still works as public/faction), set_service_access (service=market|refuel|repair|shipyard|crafting|salvage_yard|missions + access=public|allies|faction — gate an individual service to the owning faction and optionally allies), set_market_fee (fee_percent 0-10 — listing fee outside traders pay, to your treasury), set_refuel_price (price per fuel unit) and set_repair_price (price per hull point — outside-pilot charges that flow to your treasury), set_auto_buy_fuel (auto_buy_fuel: true/false — off by default; when on, any docked pilot can sell fuel from their ship's tank into your shared tank at live scarcity-based prices, paid from your faction's treasury, capped to what it can afford), allow_player/remove_player/ban/unban (player: id or username), allow_faction/remove_faction (faction: id). Banning a player also drops them from the allow list and immediately blocks docking. set_contraband (contraband_items: array of item IDs) replaces the station market contraband list. An empty array allows all items. reset_contraband restores the default rules. Both actions require a player-owned station or mobile base. Smuggling skill bypass still applies. Empire customs remain unchanged. Existing market orders remain active after a policy change; new and modified orders follow the current policy.\n\n**Example:** `{\"type\": \"station\", \"payload\": {\"action\": \"info\"}}`",
+        "description": "Must be docked at a station or outpost your faction owns. Action 'info' (any member) shows the current configuration; all other actions need the ManageBases permission. Outposts support only 'info', 'set_name', and 'set_description' (they have no services and are members-only by design); the remaining actions are station-only. A jump gate end also supports set_toll (price: credits per ship charged to pilots outside your faction, 0 = free), set_gate_access (access: public, allies or faction) and ban/unban (a ban at either end blocks crossing); toll and access apply to both ends, and info shows the gate's construction phase, what it still needs and its upkeep. Actions: set_name (name), set_description (description, max 500 chars), set_public (public: true/false — when false only the owning faction, allowed factions, and allowed players may dock), set_build_policy (access=public|allies|faction — who may build their own facilities here; public tenants pay rent each cycle to your faction treasury, allies pay none; the older allow_outsiders: true/false still works as public/faction), set_service_access (service=market|refuel|repair|shipyard|crafting|salvage_yard|missions + access=public|allies|faction — gate an individual service to the owning faction and optionally allies), set_market_fee (fee_percent 0-10 — market fee outside buyers pay on top of the price, to your treasury; 0 = default 1%), set_refuel_price (price per fuel unit) and set_repair_price (price per hull point — outside-pilot charges that flow to your treasury), set_auto_buy_fuel (auto_buy_fuel: true/false — off by default; when on, any docked pilot can sell fuel from their ship's tank into your shared tank at live scarcity-based prices, paid from your faction's treasury, capped to what it can afford), allow_player/remove_player/ban/unban (player: id or username), allow_faction/remove_faction (faction: id). Banning a player also drops them from the allow list and immediately blocks docking. set_contraband (contraband_items: array of item IDs) replaces the station market contraband list. An empty array allows all items. reset_contraband restores the default rules. Both actions require a player-owned station or mobile base. Smuggling skill bypass still applies. Empire customs remain unchanged. Existing market orders remain active after a policy change; new and modified orders follow the current policy.\n\n**Example:** `{\"type\": \"station\", \"payload\": {\"action\": \"info\"}}`",
         "operationId": "station",
         "requestBody": {
           "content": {
@@ -54760,7 +54764,7 @@
                     "type": "string"
                   },
                   "fee_percent": {
-                    "description": "Market listing fee percent 0-10 (set_market_fee)",
+                    "description": "Market fee percent 0-10 that outside buyers pay on top of the price (set_market_fee; 0 = default 1%)",
                     "type": "integer"
                   },
                   "name": {

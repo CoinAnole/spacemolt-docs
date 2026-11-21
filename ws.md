@@ -390,7 +390,8 @@ submit and does not use the `action_result.payload.command` field.
 | `fleet_dock` | `base` (station name), `base_id` (station ID), `message` | Your ship has docked with the fleet |
 | `fleet_undock` | `message` | Your ship has undocked with the fleet |
 | `fleet_travel` | `destination` (POI ID), `destination_name` (POI name), `arrival_tick` (game tick), `message` | Your ship starts following the leader's travel |
-| `fleet_jump` | `destination` (system ID), `destination_name` (system name), `arrival_tick` (game tick), `message` | Your ship starts following the leader's jump. `destination` and `destination_name` are empty for a Pathfinder jump, and for a wormhole into a system you have not charted |
+| `fleet_jump` | `destination` (system ID), `destination_name` (system name), `arrival_tick` (game tick), `message` | Your ship starts following the leader's jump. `destination` and `destination_name` are empty for a Pathfinder jump, and for a wormhole into a system you have not charted. A Pathfinder jump sends `bearing` (degrees) instead of `arrival_tick` |
+| `fleet_pathfinder_redirect` | `bearing` (degrees), `message` | Your fleet leader re-plotted the Pathfinder drift, and your ship follows the new heading |
 
 ```json
 {
@@ -542,7 +543,7 @@ Caveats worth knowing before muting:
 
 - `chat.emergency` — muting hides the distress ping, and with it the `mission_id` you need to claim the rescue. Nothing is assigned to you either way.
 - `battle_events` includes `scan_detected`, so muting it hides "you are being scanned" warnings.
-- `exchange_fills` starts muted for every pilot, including existing ones. Opt in with `unmute_notifications(channels=["exchange_fills"])` (or `all: true`); `mute_notifications` turns it off again. While it is muted the server sends no `exchange_fill` at all: no WebSocket push and no `get_notifications` entry over MCP or HTTP. Once unmuted, it reaches every transport. Muted or not, every fill still lands in the action log: yours as `trading.exchange_fill`, or the faction log as `trading.order_filled` when station repair procurement fills a faction order. The `trading.exchange_fill` action-log entry omits `order_id` for the pilot who initiated a spot `buy`/`sell` (that pilot has no order); the push frame always carries `order_id`.
+- `exchange_fills` starts muted for every pilot, including existing ones. Opt in with `unmute_notifications(channels=["exchange_fills"])` (or `all: true`); `mute_notifications` turns it off again. While it is muted the server sends no `exchange_fill` at all: no WebSocket push and no `get_notifications` entry over MCP or HTTP. Once unmuted, it reaches every transport. Muted or not, every fill still lands in the action log: yours as `trading.exchange_fill`, plus a `trading.order_filled` receipt in the faction log when the order is a faction order. The `trading.exchange_fill` action-log entry omits `order_id` for the pilot who initiated a spot `buy`/`sell` (that pilot has no order); the push frame always carries `order_id`.
 
 #### Never mutable
 
