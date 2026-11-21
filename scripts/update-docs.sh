@@ -10,8 +10,8 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-github_api_base="https://api.github.com/repos/SpaceMolt/www/contents/public"
 github_raw_base="https://raw.githubusercontent.com/SpaceMolt/www/main/public"
+github_www_repo="https://github.com/SpaceMolt/www.git"
 collections=("docs" "guides")
 
 CURL_RETRY_MAX_ATTEMPTS="${CURL_RETRY_MAX_ATTEMPTS:-8}"
@@ -143,41 +143,6 @@ fetch_once() {
   else
     printf 'Failed to fetch %s: HTTP %s\n' "$url" "$status" >&2
   fi
-  return 1
-}
-
-# Blocking retry used for collection indexes. Their file list has to exist
-# before any other download can be scheduled around a rate-limit wait.
-download() {
-  local target="$1"
-  local url="$2"
-  local use_persistent_etag="${3:-true}"
-  local attempt=1
-  local delay="$CURL_RETRY_BASE_DELAY"
-
-  while (( attempt <= CURL_RETRY_MAX_ATTEMPTS )); do
-    FETCH_FALLBACK_DELAY="$delay"
-    local rc=0
-    fetch_once "$target" "$url" "$use_persistent_etag" "$attempt" || rc=$?
-    if (( rc == 0 )); then
-      return 0
-    fi
-    if (( rc == 2 && attempt < CURL_RETRY_MAX_ATTEMPTS )); then
-      printf 'Rate limited fetching %s (HTTP 429, attempt %d/%d); retrying in %ss\n' \
-        "$target" "$attempt" "$CURL_RETRY_MAX_ATTEMPTS" "$FETCH_RETRY_AFTER" >&2
-      sleep "$FETCH_RETRY_AFTER"
-      attempt=$((attempt + 1))
-      delay=$((delay * 2))
-      continue
-    fi
-    if (( rc == 2 )); then
-      printf 'Failed to fetch %s: HTTP 429\n' "$url" >&2
-    fi
-    return 1
-  done
-
-  printf 'Giving up on %s after %d attempts (last HTTP status: 429)\n' \
-    "$url" "$CURL_RETRY_MAX_ATTEMPTS" >&2
   return 1
 }
 
@@ -327,42 +292,60 @@ download_pending() {
   done
 }
 
-# raw.githubusercontent.com cannot list directories, so discover each managed
-# Markdown collection through GitHub's contents API. Collection names are also
-# repository directories; files outside them are never considered for pruning.
+# raw.githubusercontent.com cannot list directories. A blobless clone lists
+# each managed collection without the contents API: unauthenticated
+# api.github.com calls from GitHub-hosted runners share a 60-request hourly
+# budget per IP, and a spent budget fails that call with HTTP 403. Collection
+# names are also repository directories; files outside them are never
+# considered for pruning. Tests point UPSTREAM_WWW_DIR at a local repository.
+if [[ -n "${UPSTREAM_WWW_DIR:-}" ]]; then
+  upstream_dir="$UPSTREAM_WWW_DIR"
+  if [[ ! -e "${upstream_dir}/.git" && ! -f "${upstream_dir}/HEAD" ]]; then
+    printf 'UPSTREAM_WWW_DIR is not a git checkout: %s\n' "$upstream_dir" >&2
+    exit 1
+  fi
+else
+  upstream_dir="${tmpdir}/www"
+  printf 'Cloning SpaceMolt/www file index\n'
+  if ! GIT_TERMINAL_PROMPT=0 git clone --quiet --depth 1 --filter=blob:none --no-checkout --branch main \
+    "$github_www_repo" "$upstream_dir"; then
+    printf 'Failed to clone the SpaceMolt/www file index.\n' >&2
+    exit 1
+  fi
+fi
+
 collection_files=()
 declare -A collection_counts=()
 declare -A current_collection_files=()
 
 for collection in "${collections[@]}"; do
-  index_target="_collection-index/${collection}.json"
-  index_url="${github_api_base}/${collection}?ref=main"
-  download "$index_target" "$index_url" false
-  sleep "$INTER_FETCH_DELAY"
-
-  if ! jq -e 'type == "array"' "${tmpdir}/${index_target}" >/dev/null; then
-    printf 'Invalid %s directory response from %s\n' "$collection" "$index_url" >&2
+  printf 'Indexing upstream %s\n' "$collection"
+  kind="$(git -C "$upstream_dir" cat-file -t "HEAD:public/${collection}" 2>/dev/null || true)"
+  if [[ "$kind" != "tree" ]]; then
+    printf 'Upstream %s directory is missing from SpaceMolt/www.\n' "$collection" >&2
     exit 1
   fi
 
-  names_json="$(
-    jq -c '[
-      .[]
-      | select(.type == "file")
-      | .name
-      | select(endswith(".md"))
-    ] | unique | sort' "${tmpdir}/${index_target}"
-  )"
+  names=()
+  while IFS= read -r -d '' entry; do
+    name="${entry#*$'\t'}"
+    meta="${entry%%$'\t'*}"
+    entry_type="${meta#* }"
+    entry_type="${entry_type%% *}"
+    [[ "$entry_type" == "blob" && "$name" == *.md ]] || continue
+    names+=("$name")
+  done < <(git -C "$upstream_dir" ls-tree -z "HEAD:public/${collection}")
 
-  collection_count="$(jq 'length' <<< "$names_json")"
-  if [[ "$collection_count" -eq 0 ]]; then
+  if (( ${#names[@]} == 0 )); then
     printf 'No Markdown files found in upstream %s; refusing to prune the collection.\n' \
       "$collection" >&2
     exit 1
   fi
-  collection_counts["$collection"]="$collection_count"
+  names_file="${tmpdir}/collection-names-${collection}"
+  printf '%s\0' "${names[@]}" | LC_ALL=C sort -zu > "$names_file"
+  mapfile -d '' names < "$names_file"
+  collection_counts["$collection"]="${#names[@]}"
 
-  mapfile -t names < <(jq -r '.[]' <<< "$names_json")
   for name in "${names[@]}"; do
     # Names become paths under an updater-owned directory. Only accept a plain,
     # portable basename before using one for downloads, installs, or removals.

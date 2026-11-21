@@ -8,18 +8,16 @@ export INTER_FETCH_DELAY=0
 # Production spaces shared spec buckets by 60s. Tests opt in when they cover that wait.
 export SPEC_MIN_INTERVAL=0
 
-valid_docs_response='[
-  {"name":"crafting.md","type":"file"},
-  {"name":"new-doc.md","type":"file"},
-  {"name":"ignored.txt","type":"file"},
-  {"name":"nested","type":"dir"}
-]'
-valid_guides_response='[
-  {"name":"crafting.md","type":"file"},
-  {"name":"new-guide.md","type":"file"},
-  {"name":"ignored.txt","type":"file"},
-  {"name":"nested","type":"dir"}
-]'
+default_upstream_files=(
+  docs/crafting.md
+  docs/new-doc.md
+  docs/ignored.txt
+  docs/nested/skip.md
+  guides/crafting.md
+  guides/new-guide.md
+  guides/ignored.txt
+  guides/nested/skip.md
+)
 
 fail() {
   printf '%s\n' "$1" >&2
@@ -38,14 +36,36 @@ assert_eq() {
   fi
 }
 
+make_upstream() {
+  local dir="$1"
+  shift
+
+  rm -rf "$dir"
+  mkdir -p "$dir"
+  git -C "$dir" init --quiet
+  git -C "$dir" config user.name 'Docs Test'
+  git -C "$dir" config user.email 'docs-test@example.com'
+
+  local rel
+  if [[ $# -eq 0 ]]; then
+    printf 'placeholder\n' > "${dir}/README"
+    git -C "$dir" add -- README
+  else
+    for rel in "$@"; do
+      mkdir -p "${dir}/public/$(dirname -- "$rel")"
+      printf 'upstream %s\n' "$rel" > "${dir}/public/${rel}"
+      git -C "$dir" add -- "public/${rel}"
+    done
+  fi
+  git -C "$dir" commit --quiet -m upstream
+}
+
 write_fake_curl() {
   local next_version="$1"
   local bin_dir="$2"
-  local docs_response="${3:-$valid_docs_response}"
-  local guides_response="${4:-$valid_guides_response}"
-  local rate_limit_pattern="${5:-}"
-  local hard_failure_pattern="${6:-}"
-  local rate_limit_retry_after="${7:-0}"
+  local rate_limit_pattern="${3:-}"
+  local hard_failure_pattern="${4:-}"
+  local rate_limit_retry_after="${5:-0}"
   local state_file="${bin_dir}/.rate-limit-state"
   local request_log="${bin_dir}/requests.log"
 
@@ -103,12 +123,6 @@ fi
 
 if [[ "\$status" == "200" ]]; then
   case "\$url" in
-    *"/contents/public/docs"*)
-      printf '%s\n' '$docs_response' > "\$output"
-      ;;
-    *"/contents/public/guides"*)
-      printf '%s\n' '$guides_response' > "\$output"
-      ;;
     *"/api/v2/openapi.json")
       printf '{"info":{"x-gameserver-version":"%s"}}\n' "$next_version" > "\$output"
       ;;
@@ -169,10 +183,11 @@ make_fixture_repo() {
 run_updater() {
   local fixture="$1"
   local bin_dir="$2"
+  local upstream="$3"
 
   (
     cd "$fixture"
-    PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
+    UPSTREAM_WWW_DIR="$upstream" PATH="${bin_dir}:$PATH" bash scripts/update-docs.sh
   )
 }
 
@@ -232,11 +247,13 @@ assert_fetch_between() {
 test_commits_when_gameserver_version_changes() {
   local fixture="${workdir}/changed"
   local bin_dir="${workdir}/bin-changed"
+  local upstream="${workdir}/upstream-changed"
   mkdir -p "$bin_dir"
   make_fixture_repo "$fixture" "v1.0.0"
+  make_upstream "$upstream" "${default_upstream_files[@]}"
   write_fake_curl "v2.0.0" "$bin_dir"
 
-  run_updater "$fixture" "$bin_dir"
+  run_updater "$fixture" "$bin_dir" "$upstream"
 
   assert_eq "v2.0.0" "$(git -C "$fixture" log -1 --format=%s)" \
     "commit subject should be the new gameserver version"
@@ -245,11 +262,13 @@ test_commits_when_gameserver_version_changes() {
 test_does_not_commit_when_gameserver_version_is_unchanged() {
   local fixture="${workdir}/unchanged"
   local bin_dir="${workdir}/bin-unchanged"
+  local upstream="${workdir}/upstream-unchanged"
   mkdir -p "$bin_dir"
   make_fixture_repo "$fixture" "v2.0.0"
+  make_upstream "$upstream" "${default_upstream_files[@]}"
   write_fake_curl "v2.0.0" "$bin_dir"
 
-  run_updater "$fixture" "$bin_dir"
+  run_updater "$fixture" "$bin_dir" "$upstream"
 
   assert_eq "initial" "$(git -C "$fixture" log -1 --format=%s)" \
     "script should not create a release commit without a version change"
@@ -258,11 +277,13 @@ test_does_not_commit_when_gameserver_version_is_unchanged() {
 test_syncs_both_managed_collections() {
   local fixture="${workdir}/collection-sync"
   local bin_dir="${workdir}/bin-collection-sync"
+  local upstream="${workdir}/upstream-collection-sync"
   mkdir -p "$bin_dir"
   make_fixture_repo "$fixture" "v1.0.0"
+  make_upstream "$upstream" "${default_upstream_files[@]}"
   write_fake_curl "v2.0.0" "$bin_dir"
 
-  run_updater "$fixture" "$bin_dir"
+  run_updater "$fixture" "$bin_dir" "$upstream"
 
   [[ -f "${fixture}/docs/new-doc.md" ]] || fail 'Discovered reference doc was not installed.'
   [[ -f "${fixture}/guides/new-guide.md" ]] || fail 'Discovered guide was not installed.'
@@ -271,6 +292,13 @@ test_syncs_both_managed_collections() {
   [[ -f "${fixture}/limits.md" ]] || fail 'Unmanaged root Markdown was removed.'
   [[ ! -e "${fixture}/docs/ignored.txt" ]] || fail 'Non-Markdown docs entry was installed.'
   [[ ! -e "${fixture}/guides/ignored.txt" ]] || fail 'Non-Markdown guide entry was installed.'
+  [[ ! -e "${fixture}/docs/skip.md" && ! -e "${fixture}/docs/nested/skip.md" ]] || \
+    fail 'Nested reference doc was installed.'
+  [[ ! -e "${fixture}/guides/skip.md" && ! -e "${fixture}/guides/nested/skip.md" ]] || \
+    fail 'Nested guide was installed.'
+  if grep -q 'api.github.com' "${bin_dir}/requests.log"; then
+    fail 'Collection discovery must not call the GitHub REST API.'
+  fi
 
   grep -q '/public/docs/crafting.md' "${fixture}/docs/crafting.md" || \
     fail 'docs/crafting.md did not come from public/docs.'
@@ -291,17 +319,17 @@ test_syncs_both_managed_collections() {
 
 assert_updater_fails_without_tracked_changes() {
   local name="$1"
-  local docs_response="$2"
-  local guides_response="$3"
-  local hard_failure_pattern="${4:-}"
+  local hard_failure_pattern="${2:-}"
+  shift 2
   local fixture="${workdir}/${name}"
   local bin_dir="${workdir}/bin-${name}"
+  local upstream="${workdir}/upstream-${name}"
   mkdir -p "$bin_dir"
   make_fixture_repo "$fixture" "v1.0.0"
-  write_fake_curl "v2.0.0" "$bin_dir" "$docs_response" "$guides_response" "" \
-    "$hard_failure_pattern"
+  make_upstream "$upstream" "$@"
+  write_fake_curl "v2.0.0" "$bin_dir" "" "$hard_failure_pattern"
 
-  if run_updater "$fixture" "$bin_dir"; then
+  if run_updater "$fixture" "$bin_dir" "$upstream"; then
     fail "Updater unexpectedly succeeded for ${name}."
   fi
 
@@ -311,28 +339,34 @@ assert_updater_fails_without_tracked_changes() {
 
 test_rejects_invalid_collection_inventories() {
   assert_updater_fails_without_tracked_changes \
-    "empty-inventory" '[]' "$valid_guides_response"
+    "empty-inventory" "" \
+    docs/ignored.txt \
+    guides/crafting.md guides/new-guide.md
   assert_updater_fails_without_tracked_changes \
-    "malformed-inventory" "$valid_docs_response" '{"message":"bad response"}'
+    "missing-inventory" "" \
+    guides/crafting.md guides/new-guide.md
   assert_updater_fails_without_tracked_changes \
-    "unsafe-filename" '[{"name":"../escape.md","type":"file"}]' "$valid_guides_response"
+    "unsafe-filename" "" \
+    "docs/has space.md" \
+    guides/crafting.md
 }
 
 test_failed_download_does_not_modify_tracked_docs() {
   assert_updater_fails_without_tracked_changes \
-    "failed-download" "$valid_docs_response" "$valid_guides_response" \
-    "/public/guides/new-guide.md"
+    "failed-download" "/public/guides/new-guide.md" \
+    "${default_upstream_files[@]}"
 }
 
 test_retries_after_rate_limit() {
   local fixture="${workdir}/rate-limited"
   local bin_dir="${workdir}/bin-rate-limited"
+  local upstream="${workdir}/upstream-rate-limited"
   mkdir -p "$bin_dir"
   make_fixture_repo "$fixture" "v1.0.0"
-  write_fake_curl "v2.0.0" "$bin_dir" "$valid_docs_response" "$valid_guides_response" \
-    "/api/openapi.json"
+  make_upstream "$upstream" "${default_upstream_files[@]}"
+  write_fake_curl "v2.0.0" "$bin_dir" "/api/openapi.json"
 
-  CURL_RETRY_BASE_DELAY=0 run_updater "$fixture" "$bin_dir"
+  CURL_RETRY_BASE_DELAY=0 run_updater "$fixture" "$bin_dir" "$upstream"
 
   assert_eq "v2.0.0" "$(git -C "$fixture" log -1 --format=%s)" \
     "script should retry past transient 429 responses"
@@ -341,14 +375,15 @@ test_retries_after_rate_limit() {
 test_fetches_other_docs_while_spec_is_rate_limited() {
   local fixture="${workdir}/spec-wait"
   local bin_dir="${workdir}/bin-spec-wait"
+  local upstream="${workdir}/upstream-spec-wait"
   local spec_url="https://game.spacemolt.com/api/v2/openapi.json"
   mkdir -p "$bin_dir"
   make_fixture_repo "$fixture" "v1.0.0"
-  write_fake_curl "v2.0.0" "$bin_dir" "$valid_docs_response" "$valid_guides_response" \
-    "/api/v2/openapi.json" "" 30
+  make_upstream "$upstream" "${default_upstream_files[@]}"
+  write_fake_curl "v2.0.0" "$bin_dir" "/api/v2/openapi.json" "" 30
   install_virtual_clock "$bin_dir"
 
-  SPEC_MIN_INTERVAL=0 run_updater "$fixture" "$bin_dir"
+  SPEC_MIN_INTERVAL=0 run_updater "$fixture" "$bin_dir" "$upstream"
 
   assert_fetch_between "${bin_dir}/requests.log" \
     "$spec_url" "/skill.md" "$spec_url" \
@@ -360,12 +395,14 @@ test_fetches_other_docs_while_spec_is_rate_limited() {
 test_spaces_shared_openapi_bucket_with_other_docs() {
   local fixture="${workdir}/spec-spacing"
   local bin_dir="${workdir}/bin-spec-spacing"
+  local upstream="${workdir}/upstream-spec-spacing"
   mkdir -p "$bin_dir"
   make_fixture_repo "$fixture" "v1.0.0"
+  make_upstream "$upstream" "${default_upstream_files[@]}"
   write_fake_curl "v2.0.0" "$bin_dir"
   install_virtual_clock "$bin_dir"
 
-  SPEC_MIN_INTERVAL=30 run_updater "$fixture" "$bin_dir"
+  SPEC_MIN_INTERVAL=30 run_updater "$fixture" "$bin_dir" "$upstream"
 
   assert_fetch_between "${bin_dir}/requests.log" \
     "https://game.spacemolt.com/api/openapi.json" \
