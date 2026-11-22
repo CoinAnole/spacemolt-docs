@@ -761,6 +761,7 @@ Station freight contracts for sealed packages, provided through mission-service 
 - `post(base_reward, destination_base_id, package_id, insured?, invited_carrier_id?, invited_carrier_type?, max_total_cost?, recipient_id?, recipient_type?, service_level?, shipper?, source?, source_bucket_id?, speed_bonus?, visibility?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `profile(carrier?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
 - `quote(destination_base_id, package_id, base_reward?, insured?, invited_carrier_id?, invited_carrier_type?, recipient_id?, recipient_type?, service_level?, shipper?, source?, source_bucket_id?, speed_bonus?, visibility?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
+- `reclaim(package_id?, shipment_id?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `return(package_id?, shipment_id?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `track(limit?, package_id?, shipment_id?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
 
