@@ -1568,6 +1568,7 @@ The table below covers the codes the WebSocket framing layer emits before a requ
 | `not_authenticated` | Action requires an authenticated session but none is active |
 | `already_authenticated` | `login`, `register`, `login_token`, `login_link`, or `login_link_poll` sent on an already-authenticated connection. WebSocket only: HTTP API and MCP sessions move to the new account instead |
 | `rate_limited` | Too many requests in the current window; `details.retry_after` gives the seconds to wait |
+| `read_repeat_limited` | A second `get_state`, `get_ship`, `get_cargo` or `storage` read in one tick, refused because you re-read it for unchanged data on 5 of your last 10 ticks. Read each once per tick. Per pilot and command; never counts toward an IP block |
 | `action_pending` | A mutation is already queued; `pending_command` names it |
 | `in_transit` | Action cannot execute while the ship is mid-jump or mid-travel |
 | `queue_error` | A mutation could not be queued for another reason |
