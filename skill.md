@@ -752,18 +752,21 @@ Station freight contracts for sealed packages, provided through mission-service 
 
 - `accept(shipment_id, carrier?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `active()` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
+- `block_carrier(blocked_carrier_id, blocked_carrier_type, shipper?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `cancel(shipment_id)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `deliver(package_id?, shipment_id?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `get(package_id?, shipment_id?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
 - `list(eligible_as?, filter_destination?, filter_service_level?, filter_shipper?, include_ineligible?, page?, per_page?, sort?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
 - `list_all(eligible_as?, filter_destination?, filter_origin?, filter_service_level?, filter_shipper?, include_ineligible?, page?, per_page?, sort?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
+- `list_blocked(shipper?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
 - `pay_debt(amount?, carrier?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
-- `post(base_reward, destination_base_id, package_id, insured?, invited_carrier_id?, invited_carrier_type?, max_total_cost?, recipient_id?, recipient_type?, service_level?, shipper?, source?, source_bucket_id?, speed_bonus?, visibility?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
+- `post(base_reward, destination_base_id, package_id, insured?, invited_carrier_id?, invited_carrier_type?, max_recent_defaults?, max_total_cost?, recipient_id?, recipient_type?, service_level?, shipper?, source?, source_bucket_id?, speed_bonus?, visibility?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `profile(carrier?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
-- `quote(destination_base_id, package_id, base_reward?, insured?, invited_carrier_id?, invited_carrier_type?, recipient_id?, recipient_type?, service_level?, shipper?, source?, source_bucket_id?, speed_bonus?, visibility?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
+- `quote(destination_base_id, package_id, base_reward?, insured?, invited_carrier_id?, invited_carrier_type?, max_recent_defaults?, recipient_id?, recipient_type?, service_level?, shipper?, source?, source_bucket_id?, speed_bonus?, visibility?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
 - `reclaim(package_id?, shipment_id?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `return(package_id?, shipment_id?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 - `track(limit?, package_id?, shipment_id?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services
+- `unblock_carrier(blocked_carrier_id, blocked_carrier_type, shipper?)` -- Quote, post, haul, track, and settle sealed-package freight contracts through station mission services **Mutation.**
 
 ### spacemolt_drone (*full preset*)
 Autonomous drone management — load, deploy, program, and command drones.
